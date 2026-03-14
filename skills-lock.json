@@ -146,6 +146,11 @@
       "sourceType": "github",
       "computedHash": "50c1b6d9b35b05927fa0c81962d560634385c9567b7b1d66396b171965b33105"
     },
+    "teach-impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "computedHash": "61855594bf79bc5b2665cfca3580b93840cfe645872c5a2deeaa5ad336570d5a"
+    },
     "thread-list": {
       "source": "assistant-ui/skills",
       "sourceType": "github",
