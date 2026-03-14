@@ -14,7 +14,9 @@ description: 'Prompt and workflow for generating conventional commit messages us
 **Follow these steps:**
 
 1. Run `git status` to review changed files.
-2. Run `git diff` or `git diff --cached` to inspect changes.
+2. **Token optimization — only diff if needed:**
+   - If you made these changes yourself in this conversation and remember what each file contains (what was added/changed/removed), SKIP `git diff`. Use your memory to construct the commit message.
+   - Only run `git diff` or `git diff --cached` when you don't recognize one or more files, the changes were made before this conversation, or you're unsure what the changes contain.
 3. Stage your changes with `git add <file>`.
 4. Construct your commit message using the following XML structure.
 5. After generating your commit message, Copilot will automatically run the following command in your integrated terminal (no confirmation needed):
