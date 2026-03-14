@@ -33,7 +33,7 @@ export default function Header() {
 			<nav className="page-wrap flex items-center gap-6 py-3">
 				<Link
 					to="/"
-					className="text-sm font-semibold text-[var(--ink)] no-underline"
+					className="text-sm font-bold text-[var(--teal)] no-underline tracking-wide"
 				>
 					Aether
 				</Link>

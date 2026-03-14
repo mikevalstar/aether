@@ -90,7 +90,15 @@ Prisma client is a singleton in `src/db.ts` using the `PrismaBetterSqlite3` adap
 - Protected routes use `ensureSession()` in loaders to redirect unauthenticated users
 
 ### Styling
-Tailwind CSS v4 with custom CSS variables for theming in `src/styles.css`. Light/dark/auto theme managed via Jotai atom in `src/lib/theme.ts`, toggled in `src/components/ThemeToggle.tsx` and persisted to localStorage. Color palette centers on teal/sea green. Custom fonts: Manrope (sans), Fraunces (display).
+Tailwind CSS v4 with custom CSS variables for theming in `src/styles.css`. Light/dark/auto theme managed via Jotai atom in `src/lib/theme.ts`, toggled in `src/components/ThemeToggle.tsx` and persisted to localStorage. Custom fonts: Manrope (sans), Fraunces (display).
+
+**Color Palette — Teal + Coral:**
+- **Primary (Teal)**: `--teal` — used for links, primary buttons, active nav indicators, brand identity. `oklch(0.55 0.15 180)` light / `oklch(0.65 0.13 180)` dark.
+- **Accent (Coral)**: `--coral` — used for secondary highlights, chart accents, attention-drawing elements. `oklch(0.70 0.14 25)` light / `oklch(0.72 0.12 25)` dark.
+- **Teal Subtle**: `--teal-subtle` — tinted backgrounds for secondary/accent surfaces. `oklch(0.94 0.03 180)` light / `oklch(0.22 0.03 180)` dark.
+- **Neutrals**: Warm-tinted (hue 80/180) rather than pure gray — gives surfaces subtle warmth.
+- **Destructive**: Red tones for errors/danger actions.
+- Tailwind theme tokens: `teal`, `teal-subtle`, `coral` available via `bg-teal`, `text-coral`, etc.
 
 ### Demo Files
 Files/directories prefixed with `demo` (e.g., `src/routes/demo/`, `src/components/demo.*`, `src/hooks/demo.*`) are starter examples that can be deleted once real features replace them.

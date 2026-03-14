@@ -43,7 +43,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
+			<body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[oklch(0.55_0.15_180_/_0.24)]">
 				<TooltipProvider>
 					<ThemeProvider>
 						<Header />
