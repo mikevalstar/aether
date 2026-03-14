@@ -21,6 +21,10 @@
     "check": "biome check"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.58",
+    "@assistant-ui/react": "^0.12.17",
+    "@assistant-ui/react-ai-sdk": "^1.3.13",
+    "@assistant-ui/react-markdown": "^0.12.5",
     "@libsql/client": "^0.17.0",
     "@prisma/adapter-better-sqlite3": "^7.5.0",
     "@prisma/client": "^7.4.2",
@@ -44,10 +48,12 @@
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.1.18",
     "tw-animate-css": "^1.3.6",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
