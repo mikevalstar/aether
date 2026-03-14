@@ -4,6 +4,7 @@ import {
 	convertToModelMessages,
 	createIdGenerator,
 	type LanguageModelUsage,
+	stepCountIs,
 	streamText,
 	type UIMessage,
 } from "ai";
@@ -23,6 +24,7 @@ import {
 	serializeUsageHistory,
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
+import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 
 type ChatRequestBody = {
 	id?: string;
@@ -67,7 +69,9 @@ export const Route = createFileRoute("/api/chat")({
 						: DEFAULT_CHAT_MODEL;
 				const tools =
 					model === "claude-haiku-4-5"
-						? undefined
+						? {
+								fetch_url_markdown: fetchUrlMarkdown,
+							}
 						: {
 								web_fetch: anthropic.tools.webFetch_20260209({
 									citations: { enabled: true },
@@ -76,6 +80,7 @@ export const Route = createFileRoute("/api/chat")({
 								web_search: anthropic.tools.webSearch_20260209({
 									maxUses: 5,
 								}),
+								fetch_url_markdown: fetchUrlMarkdown,
 							};
 				const currentTotals: ChatUsageTotals = {
 					inputTokens: thread.totalInputTokens ?? 0,
@@ -132,7 +137,7 @@ export const Route = createFileRoute("/api/chat")({
 					"You are Aether, a helpful personal assistant. You are knowledgeable, concise, and friendly.",
 					"Today's date is " + new Date().toLocaleDateString("en-CA") + ".",
 					tools
-						? "You have access to web search and web fetch tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. Do not attempt to use code execution — only use the web_search and web_fetch tools."
+						? "You have access to web search, web fetch, and fetch_url_markdown tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. When the user shares a specific URL and wants you to read its content, prefer fetch_url_markdown as it returns clean, ad-free markdown."
 						: "You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.",
 				].join("\n\n");
 
@@ -141,7 +146,7 @@ export const Route = createFileRoute("/api/chat")({
 					system: systemPrompt,
 					messages: await convertToModelMessages(incomingMessages),
 					tools,
-					maxSteps: tools ? 5 : 1,
+					stopWhen: stepCountIs(10),
 				});
 
 				return result.toUIMessageStreamResponse({
