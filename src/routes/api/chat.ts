@@ -128,10 +128,20 @@ export const Route = createFileRoute("/api/chat")({
 					},
 				});
 
+				const systemPrompt = [
+					"You are Aether, a helpful personal assistant. You are knowledgeable, concise, and friendly.",
+					"Today's date is " + new Date().toLocaleDateString("en-CA") + ".",
+					tools
+						? "You have access to web search and web fetch tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. Do not attempt to use code execution — only use the web_search and web_fetch tools."
+						: "You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.",
+				].join("\n\n");
+
 				const result = streamText({
 					model: anthropic(model),
+					system: systemPrompt,
 					messages: await convertToModelMessages(incomingMessages),
 					tools,
+					maxSteps: tools ? 5 : 1,
 				});
 
 				return result.toUIMessageStreamResponse({

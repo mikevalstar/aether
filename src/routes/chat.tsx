@@ -298,7 +298,7 @@ function ChatPage() {
 					<div className="min-h-0 flex-1">
 						{selectedThread ? (
 							<ChatWorkspace
-								key={selectedThread.id}
+								key={`${selectedThread.id}:${selectedModel}`}
 								threadId={selectedThread.id}
 								model={selectedModel}
 								messagesJson={data.messagesJson}
