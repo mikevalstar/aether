@@ -90,6 +90,18 @@ export default function Header() {
               >
                 Better Auth
               </a>
+              <a
+                href="/demo/form/simple"
+                className="block rounded-lg px-3 py-2 text-sm text-[var(--sea-ink-soft)] no-underline transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+              >
+                Simple Form
+              </a>
+              <a
+                href="/demo/form/address"
+                className="block rounded-lg px-3 py-2 text-sm text-[var(--sea-ink-soft)] no-underline transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+              >
+                Address Form
+              </a>
             </div>
           </details>
         </div>

@@ -20,6 +20,8 @@
   "chosenAddOns": [
     "prisma",
     "better-auth",
-    "biome"
+    "biome",
+    "form",
+    "shadcn"
   ]
 }
