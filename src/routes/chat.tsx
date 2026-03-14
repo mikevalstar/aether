@@ -108,6 +108,16 @@ function ChatPage() {
 	const selectedModel = selectedThread?.model ?? DEFAULT_CHAT_MODEL;
 	const isBusy = isMutating || pendingThreadId !== null;
 	const emptyStateModel = selectedThread?.model ?? draftModel;
+	const selectedUsageTotals = {
+		inputTokens: selectedThread?.totalInputTokens ?? 0,
+		outputTokens: selectedThread?.totalOutputTokens ?? 0,
+		estimatedCostUsd: selectedThread?.totalEstimatedCostUsd ?? 0,
+	};
+	const selectedCostLabel =
+		selectedUsageTotals.estimatedCostUsd > 0 &&
+		selectedUsageTotals.estimatedCostUsd < 0.0001
+			? "<$0.0001"
+			: `$${selectedUsageTotals.estimatedCostUsd.toFixed(4)}`;
 
 	useEffect(() => {
 		if (!search.threadId && data.selectedThreadId) {
@@ -160,7 +170,7 @@ function ChatPage() {
 							variant="outline"
 							onClick={() => {
 								startTransition(() => {
-									void handleCreateThread(selectedModel);
+									void handleCreateThread(DEFAULT_CHAT_MODEL);
 								});
 							}}
 							disabled={isBusy}
@@ -188,9 +198,7 @@ function ChatPage() {
 											: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
 									)}
 								>
-									<p className="truncate text-sm font-medium">
-										{thread.title}
-									</p>
+									<p className="truncate text-sm font-medium">{thread.title}</p>
 									<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
 										{thread.preview}
 									</p>
@@ -206,6 +214,33 @@ function ChatPage() {
 							<p className="truncate text-sm font-medium text-[var(--ink)]">
 								{selectedThread?.title ?? "New chat"}
 							</p>
+						</div>
+
+						<div className="grid min-w-[240px] grid-cols-3 gap-2 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-right">
+							<div>
+								<p className="text-[11px] uppercase tracking-[0.12em] text-[var(--ink-soft)]">
+									Input
+								</p>
+								<p className="text-sm font-medium text-[var(--ink)]">
+									{selectedUsageTotals.inputTokens.toLocaleString()}
+								</p>
+							</div>
+							<div>
+								<p className="text-[11px] uppercase tracking-[0.12em] text-[var(--ink-soft)]">
+									Output
+								</p>
+								<p className="text-sm font-medium text-[var(--ink)]">
+									{selectedUsageTotals.outputTokens.toLocaleString()}
+								</p>
+							</div>
+							<div>
+								<p className="text-[11px] uppercase tracking-[0.12em] text-[var(--ink-soft)]">
+									Cost
+								</p>
+								<p className="text-sm font-medium text-[var(--ink)]">
+									{selectedCostLabel}
+								</p>
+							</div>
 						</div>
 
 						<div className="flex flex-wrap items-center gap-2">

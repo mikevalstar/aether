@@ -31,6 +31,9 @@ function mapThreadSummary(thread: {
 	title: string;
 	model: string;
 	messagesJson: string;
+	totalInputTokens: number;
+	totalOutputTokens: number;
+	totalEstimatedCostUsd: number;
 	createdAt: Date;
 	updatedAt: Date;
 }): ChatThreadSummary {
@@ -41,6 +44,9 @@ function mapThreadSummary(thread: {
 		title: thread.title,
 		model: isChatModel(thread.model) ? thread.model : DEFAULT_CHAT_MODEL,
 		preview: getChatPreviewFromMessages(messages),
+		totalInputTokens: thread.totalInputTokens,
+		totalOutputTokens: thread.totalOutputTokens,
+		totalEstimatedCostUsd: thread.totalEstimatedCostUsd,
 		createdAt: thread.createdAt.toISOString(),
 		updatedAt: thread.updatedAt.toISOString(),
 	};
@@ -69,6 +75,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
 				? mapThreadSummary(selectedThreadRecord)
 				: null,
 			messagesJson: selectedThreadRecord?.messagesJson ?? "[]",
+			usageHistoryJson: selectedThreadRecord?.usageHistoryJson ?? "[]",
 		};
 	});
 

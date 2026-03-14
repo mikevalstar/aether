@@ -68,8 +68,12 @@ model Verification {
 model ChatThread {
   id           String   @id
   title        String   @default("New chat")
-  model        String   @default("claude-sonnet-4-6")
+  model        String   @default("claude-haiku-4-5")
   messagesJson String   @default("[]")
+  usageHistoryJson String @default("[]")
+  totalInputTokens Int    @default(0)
+  totalOutputTokens Int   @default(0)
+  totalEstimatedCostUsd Float @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   userId       String
