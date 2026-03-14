@@ -29,22 +29,17 @@ function HomePage() {
 							Go to Dashboard
 						</Link>
 					) : (
-						<>
-							<Link
-								to="/login"
-								className="rounded-md bg-[var(--teal)] px-5 py-2.5 text-sm font-medium text-white no-underline transition hover:opacity-85"
-							>
-								Get started
-							</Link>
-							<Link
-								to="/login"
-								className="rounded-md border border-[var(--line)] px-5 py-2.5 text-sm font-medium text-[var(--ink-soft)] no-underline transition hover:border-[var(--teal)] hover:text-[var(--ink)]"
-							>
-								Sign in
-							</Link>
-						</>
+						<Link
+							to="/login"
+							className="rounded-md bg-[var(--teal)] px-5 py-2.5 text-sm font-medium text-white no-underline transition hover:opacity-85"
+						>
+							Sign in
+						</Link>
 					)}
 				</div>
+				<p className="mt-4 text-sm text-[var(--ink-soft)]">
+					Aether is invite-only right now. Ask an admin to create your account.
+				</p>
 			</section>
 
 			<section className="grid overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--line)] gap-px sm:grid-cols-3">

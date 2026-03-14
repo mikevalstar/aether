@@ -1,9 +1,32 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { LogOut, Settings, Users } from "lucide-react";
 import { authClient } from "#/lib/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "#/components/ui/dropdown-menu";
 import ThemeToggle from "./ThemeToggle";
+
+function getInitials(name?: string | null, email?: string | null) {
+	if (name) {
+		return name
+			.split(" ")
+			.map((n) => n[0])
+			.join("")
+			.toUpperCase()
+			.slice(0, 2);
+	}
+	if (email) return email[0].toUpperCase();
+	return "?";
+}
 
 export default function Header() {
 	const { data: session } = authClient.useSession();
+	const navigate = useNavigate();
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-sm">
@@ -43,17 +66,61 @@ export default function Header() {
 					)}
 				</div>
 
-				<div className="ml-auto flex items-center gap-3">
+				<div className="ml-auto flex items-center gap-2">
+					<ThemeToggle />
 					{session?.user ? (
-						<button
-							type="button"
-							onClick={() => {
-								void authClient.signOut();
-							}}
-							className="text-sm text-[var(--ink-soft)] transition hover:text-[var(--ink)]"
-						>
-							Sign out
-						</button>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button
+									type="button"
+									className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal)]"
+								>
+									<Avatar size="sm">
+										{session.user.image && (
+											<AvatarImage
+												src={session.user.image}
+												alt={session.user.name ?? ""}
+											/>
+										)}
+										<AvatarFallback className="bg-[var(--teal)] text-xs text-white">
+											{getInitials(session.user.name, session.user.email)}
+										</AvatarFallback>
+									</Avatar>
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="w-48">
+								<div className="px-2 py-1.5 text-sm">
+									<p className="font-medium text-[var(--ink)]">
+										{session.user.name}
+									</p>
+									<p className="text-xs text-[var(--ink-soft)]">
+										{session.user.email}
+									</p>
+								</div>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onSelect={() => void navigate({ to: "/settings/password" })}
+								>
+									<Settings className="mr-2 size-4" />
+									Settings
+								</DropdownMenuItem>
+								{session.user.role === "admin" && (
+									<DropdownMenuItem
+										onSelect={() => void navigate({ to: "/users" })}
+									>
+										<Users className="mr-2 size-4" />
+										Users
+									</DropdownMenuItem>
+								)}
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onSelect={() => void authClient.signOut()}
+								>
+									<LogOut className="mr-2 size-4" />
+									Sign out
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					) : (
 						<Link
 							to="/login"
@@ -62,7 +129,6 @@ export default function Header() {
 							Sign in
 						</Link>
 					)}
-					<ThemeToggle />
 				</div>
 			</nav>
 		</header>

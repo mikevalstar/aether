@@ -7,10 +7,8 @@ export const Route = createFileRoute("/login")({ component: LoginPage });
 function LoginPage() {
 	const navigate = useNavigate();
 	const { data: session, isPending } = authClient.useSession();
-	const [isSignUp, setIsSignUp] = useState(false);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [name, setName] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
@@ -33,13 +31,8 @@ function LoginPage() {
 		setError("");
 		setLoading(true);
 		try {
-			if (isSignUp) {
-				const result = await authClient.signUp.email({ email, password, name });
-				if (result.error) setError(result.error.message || "Sign up failed");
-			} else {
-				const result = await authClient.signIn.email({ email, password });
-				if (result.error) setError(result.error.message || "Sign in failed");
-			}
+			const result = await authClient.signIn.email({ email, password });
+			if (result.error) setError(result.error.message || "Sign in failed");
 		} catch {
 			setError("An unexpected error occurred");
 		} finally {
@@ -52,36 +45,14 @@ function LoginPage() {
 			<div className="surface-card w-full max-w-sm px-8 py-10">
 				<div className="mb-8">
 					<h1 className="display-title text-xl font-bold tracking-tight text-[var(--ink)]">
-						{isSignUp ? "Create account" : "Welcome back"}
+						Welcome back
 					</h1>
 					<p className="mt-1 text-sm text-[var(--ink-soft)]">
-						{isSignUp
-							? "Enter your details to get started"
-							: "Sign in to your dashboard"}
+						Sign in to your dashboard. New accounts are created by an admin.
 					</p>
 				</div>
 
 				<form onSubmit={handleSubmit} className="grid gap-4">
-					{isSignUp && (
-						<div className="grid gap-1.5">
-							<label
-								htmlFor="name"
-								className="text-sm font-medium text-[var(--ink)]"
-							>
-								Name
-							</label>
-							<input
-								id="name"
-								type="text"
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								placeholder="Your name"
-								required
-								className="h-9 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-soft)] focus:border-[var(--teal)] focus:outline-none transition"
-							/>
-						</div>
-					)}
-
 					<div className="grid gap-1.5">
 						<label
 							htmlFor="email"
@@ -135,28 +106,15 @@ function LoginPage() {
 								<span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
 								Please wait…
 							</span>
-						) : isSignUp ? (
-							"Create account"
 						) : (
 							"Sign in"
 						)}
 					</button>
 				</form>
 
-				<div className="mt-6 text-center">
-					<button
-						type="button"
-						onClick={() => {
-							setIsSignUp(!isSignUp);
-							setError("");
-						}}
-						className="text-sm text-[var(--ink-soft)] transition hover:text-[var(--ink)]"
-					>
-						{isSignUp
-							? "Already have an account? Sign in"
-							: "Don't have an account? Sign up"}
-					</button>
-				</div>
+				<p className="mt-6 text-center text-sm text-[var(--ink-soft)]">
+					Need access? Ask an admin to create your account.
+				</p>
 			</div>
 		</main>
 	);

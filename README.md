@@ -6,8 +6,35 @@ To run this application:
 
 ```bash
 pnpm install
+pnpm db:generate
+pnpm db:push
 pnpm dev
 ```
+
+## First Admin Setup
+
+Authentication is invite-only. Public sign-up is disabled, so the very first account has to be created from the command line.
+
+1. Make sure your database exists and matches the schema:
+
+   ```bash
+   pnpm db:generate
+   pnpm db:push
+   ```
+
+2. Create the first admin when the database has no users yet:
+
+   ```bash
+   pnpm create:first-admin
+   ```
+
+3. Sign in with that account, open `/users`, and create the rest of your accounts there.
+
+Notes:
+
+- `pnpm create:first-admin` only works when the database is empty.
+- New users are created by admins and receive a temporary password.
+- Users should change that password from `/settings/password` after their first login.
 
 # Building For Production
 

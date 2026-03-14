@@ -20,8 +20,13 @@ model User {
   email         String    @unique
   emailVerified Boolean
   image         String?
+  role          String    @default("user")
+  mustChangePassword Boolean @default(false)
+  invitedById   String?
   createdAt     DateTime
   updatedAt     DateTime
+  invitedBy     User?     @relation("UserInvites", fields: [invitedById], references: [id])
+  invitedUsers  User[]    @relation("UserInvites")
   sessions      Session[]
   accounts      Account[]
   chatThreads   ChatThread[]

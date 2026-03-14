@@ -1,4 +1,5 @@
 import { useAtom } from "jotai";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { themeModeAtom } from "#/lib/theme";
 
 export default function ThemeToggle() {
@@ -11,8 +12,10 @@ export default function ThemeToggle() {
 
 	const label =
 		mode === "auto"
-			? "Theme mode: auto (system). Click to switch to light mode."
-			: `Theme mode: ${mode}. Click to switch mode.`;
+			? "Theme: system"
+			: `Theme: ${mode}`;
+
+	const Icon = mode === "auto" ? Monitor : mode === "dark" ? Moon : Sun;
 
 	return (
 		<button
@@ -20,9 +23,9 @@ export default function ThemeToggle() {
 			onClick={toggleMode}
 			aria-label={label}
 			title={label}
-			className="rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] shadow-[0_8px_22px_rgba(30,90,72,0.08)] transition hover:-translate-y-0.5"
+			className="flex items-center justify-center rounded-md p-2 text-[var(--ink-soft)] transition hover:bg-[var(--chip-bg)] hover:text-[var(--ink)]"
 		>
-			{mode === "auto" ? "Auto" : mode === "dark" ? "Dark" : "Light"}
+			<Icon className="size-4" />
 		</button>
 	);
 }

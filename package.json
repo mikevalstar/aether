@@ -16,6 +16,7 @@
     "db:migrate": "dotenv -e .env -- prisma migrate dev",
     "db:studio": "dotenv -e .env -- prisma studio",
     "db:seed": "dotenv -e .env -- prisma db seed",
+    "create:first-admin": "dotenv -e .env -- tsx scripts/create-first-admin.ts",
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check"

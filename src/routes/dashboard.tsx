@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { authClient } from "#/lib/auth-client";
 
@@ -36,6 +36,23 @@ function DashboardPage() {
 					Good to see you{user.name ? `, ${user.name.split(" ")[0]}` : ""}!
 				</h1>
 				<p className="text-sm text-[var(--ink-soft)]">{user.email}</p>
+			</section>
+
+			<section className="mb-6 grid gap-3 sm:grid-cols-2">
+				<Link to="/settings/password" className="surface-card p-5 no-underline">
+					<p className="text-sm font-semibold text-[var(--ink)]">Password</p>
+					<p className="mt-1 text-sm text-[var(--ink-soft)]">
+						Change your password or replace the temporary one you were given.
+					</p>
+				</Link>
+				{user.role === "admin" ? (
+					<Link to="/users" className="surface-card p-5 no-underline">
+						<p className="text-sm font-semibold text-[var(--ink)]">Users</p>
+						<p className="mt-1 text-sm text-[var(--ink-soft)]">
+							Create invite-only accounts and manage who can sign in.
+						</p>
+					</Link>
+				) : null}
 			</section>
 
 			<section className="grid overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--line)] gap-px sm:grid-cols-3">
