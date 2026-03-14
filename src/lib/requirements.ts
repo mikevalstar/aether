@@ -57,8 +57,8 @@ export function normalizeRequirementRoutePath(input?: string | null) {
 	const decoded = safeDecodeURIComponent(stripHashAndQuery(input).trim());
 	const withoutPrefix = decoded
 		.replace(/^\/+/, "")
-		.replace(new RegExp(`^${REQUIREMENTS_ROUTE_PREFIX}/?`), "")
-		.replace(new RegExp(`^${REQUIREMENTS_DOCS_PREFIX}/?`), "");
+		.replace(new RegExp(`^${REQUIREMENTS_ROUTE_PREFIX}(?:/|$)`), "")
+		.replace(new RegExp(`^${REQUIREMENTS_DOCS_PREFIX}(?:/|$)`), "");
 
 	const normalized = normalizeRelativePath(withoutPrefix);
 

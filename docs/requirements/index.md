@@ -8,9 +8,9 @@ canonical_file: docs/requirements/index.md
 
 Status legend: `todo`, `in-progress`, `done`
 
-| Feature | Status | Summary | File | Last updated |
+| [Feature](index.md) | Status | Summary | File | Last updated |
 | --- | --- | --- | --- | --- |
-| Authentication | in-progress | Invite-only auth with session-based access, admin-created accounts, and password rotation. | `docs/requirements/auth.md` | 2026-03-14 |
-| Chat | in-progress | Authenticated multi-thread Claude chat with streaming, tool inspection, and per-thread usage tracking. | `docs/requirements/chat.md` | 2026-03-14 |
-| Requirements Viewer | done | Authenticated in-app viewer for requirement Markdown with index landing, linked docs, frontmatter-backed page chrome, and a left-hand file tree. | `docs/requirements/requirements-viewer.md` | 2026-03-14 |
-| Usage | in-progress | Authenticated chat usage analytics with date/model filters, charts, and recent exchange history. | `docs/requirements/usage.md` | 2026-03-14 |
+| [Authentication](auth.md) | in-progress | Invite-only auth with session-based access, admin-created accounts, and password rotation. | [auth](auth.md) | 2026-03-14 |
+| [Chat](chat.md) | in-progress | Authenticated multi-thread Claude chat with streaming, tool inspection, and per-thread usage tracking. | [chat](chat.md) | 2026-03-14 |
+| [Requirements Viewer](requirements-viewer.md) | done | Authenticated in-app viewer for requirement Markdown with index landing, linked docs, frontmatter-backed page chrome, and a left-hand file tree. | [requirements-viewer](requirements-viewer.md) | 2026-03-14 |
+| [Usage](usage.md) | in-progress | Authenticated chat usage analytics with date/model filters, charts, and recent exchange history. | [usage](usage.md) | 2026-03-14 |
