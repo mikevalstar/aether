@@ -51,6 +51,14 @@ function DashboardPage() {
 						See chat token usage, estimated costs, and model trends over time.
 					</p>
 				</Link>
+				<Link to="/requirements" className="surface-card p-5 no-underline">
+					<p className="text-sm font-semibold text-[var(--ink)]">
+						Requirements
+					</p>
+					<p className="mt-1 text-sm text-[var(--ink-soft)]">
+						Read feature requirements and linked planning docs inside the app.
+					</p>
+				</Link>
 				{user.role === "admin" ? (
 					<Link to="/users" className="surface-card p-5 no-underline">
 						<p className="text-sm font-semibold text-[var(--ink)]">Users</p>

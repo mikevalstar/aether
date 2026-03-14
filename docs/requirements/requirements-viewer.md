@@ -1,6 +1,6 @@
 ---
 title: Requirements Viewer
-status: todo
+status: done
 owner: self
 last_updated: 2026-03-14
 canonical_file: docs/requirements/requirements-viewer.md
@@ -16,7 +16,7 @@ canonical_file: docs/requirements/requirements-viewer.md
 
 ## Current Reality
 
-- Current behavior: Requirements are stored as Markdown files under `docs/requirements/`, with `index.md` linking to individual feature docs, and there is no in-app route for viewing them; top-level document metadata now lives in frontmatter for cleaner extraction.
+- Current behavior: Authenticated users can open `/requirements` to view `docs/requirements/index.md`, browse a left-hand tree generated from `docs/requirements/`, open linked requirement docs inside the app, and see frontmatter-backed metadata in the page chrome.
 - Constraints: The source of truth remains the files in `docs/requirements/`; access must be limited to authenticated users; the viewer must support docs that link to each other; the navigation should reflect the folder structure in that directory; future metadata extraction should come from frontmatter instead of parsing body text.
 - Non-goals: In-app editing, public access, arbitrary Markdown browsing outside `docs/requirements/`, document version history, and full docs-site features such as search or comments are not part of this requirement.
 
@@ -24,24 +24,24 @@ canonical_file: docs/requirements/requirements-viewer.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Access control | todo | Only authenticated users can load the requirements viewer and its document content. |
-| Default entry point | todo | The requirements route must open the `docs/requirements/index.md` content by default. |
-| File-tree navigation | todo | The viewer must render a left-hand navigation tree based on the files and folders under `docs/requirements/`. |
-| Document routing | todo | Users must be able to open individual requirement pages from the tree and via links inside documents. |
-| Frontmatter metadata | todo | Requirement docs and the writing skill must expose key document metadata in frontmatter so the viewer can extract titles and supporting details cleanly. |
-| Markdown presentation | todo | Requirement docs must render cleanly in-app as readable linked Markdown content. |
+| Access control | done | Only authenticated users can load the requirements viewer and its document content. |
+| Default entry point | done | The requirements route opens the `docs/requirements/index.md` content by default. |
+| File-tree navigation | done | The viewer renders a left-hand navigation tree based on the files and folders under `docs/requirements/`. |
+| Document routing | done | Users can open individual requirement pages from the tree and via links inside documents. |
+| Frontmatter metadata | done | Requirement docs expose key document metadata in frontmatter so the viewer can extract titles and supporting details cleanly. |
+| Markdown presentation | done | Requirement docs render cleanly in-app as readable linked Markdown content. |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Authenticated route gating | todo | Anonymous users are redirected before any requirements content is shown. | Inline |
-| Requirements index landing | todo | The top-level requirements route shows the index document by default. | Inline |
-| Left-hand tree nav | todo | The viewer shows a tree of folders and eligible subfolders from `docs/requirements/`, with the current document highlighted. | Inline |
-| Linked document navigation | todo | Clicking a nav item or an in-document link opens the target requirement page inside the same viewer flow. | Inline |
-| Frontmatter-backed titles | todo | Document titles and other top-level metadata are read from frontmatter instead of inferred from Markdown body content. | Inline |
-| Markdown document rendering | todo | Markdown docs display as readable content with headings, tables, code blocks, and inline links preserved. | Inline |
-| Missing-document handling | todo | Invalid or removed document paths fail gracefully instead of breaking the viewer route. | Inline |
+| Authenticated route gating | done | Anonymous users are redirected before any requirements content is shown. | Inline |
+| Requirements index landing | done | The top-level requirements route shows the index document by default. | Inline |
+| Left-hand tree nav | done | The viewer shows a tree of folders and eligible subfolders from `docs/requirements/`, with the current document highlighted. | Inline |
+| Linked document navigation | done | Clicking a nav item or an in-document link opens the target requirement page inside the same viewer flow. | Inline |
+| Frontmatter-backed titles | done | Document titles and other top-level metadata are read from frontmatter instead of inferred from Markdown body content. | Inline |
+| Markdown document rendering | done | Markdown docs display as readable content with headings, tables, code blocks, and inline links preserved. | Inline |
+| Missing-document handling | done | Invalid or removed document paths fail gracefully instead of breaking the viewer route. | Inline |
 
 ## Detail
 
@@ -55,7 +55,7 @@ canonical_file: docs/requirements/requirements-viewer.md
 ### Default route behavior
 
 - Requirement: Opening the requirements area with no specific document selected must render the contents of `docs/requirements/index.md`.
-- Notes: The route shape should use `/requirements` for the default landing view and `/requirements/$` for opening specific requirement documents, including nested paths.
+- Notes: The current implementation uses `/requirements` for the default landing view and `/requirements/$` for opening specific requirement documents, including nested paths without the `.md` suffix.
 - Dependencies: `docs/requirements/index.md` and the new app route structure.
 - Follow-up: Decide whether canonical links inside docs should normalize to path slugs without the `.md` suffix.
 
@@ -63,13 +63,13 @@ canonical_file: docs/requirements/requirements-viewer.md
 
 - Requirement: The viewer must show a persistent left-hand navigation panel built from the folder and file structure under `docs/requirements/`.
 - Notes: The tree should support nested folders from day one, but only show folders that contain at least one requirement file somewhere inside them, and should make the currently open document obvious.
-- Dependencies: Server-side or build-time access to the `docs/requirements/` directory structure.
+- Dependencies: Server-side access to the `docs/requirements/` directory structure.
 - Follow-up: Decide whether the tree should also expose folder-level summary labels if nested requirements become more numerous.
 
 ### Opening documents from nav and links
 
 - Requirement: Users must be able to navigate between requirement docs by clicking either the left-hand tree or Markdown links inside the rendered document.
-- Notes: Because the requirement docs are already linked together, in-document links should resolve into the same route/viewer instead of sending users out of the app or breaking on raw repo-relative paths.
+- Notes: In-document requirement links are normalized into the viewer route, while external links still behave as normal anchors.
 - Dependencies: Markdown link parsing and a route format that can represent any document inside `docs/requirements/`.
 - Follow-up: Normalize supported links to the requirement-doc set and define how non-requirements links should behave if they appear later.
 
@@ -83,8 +83,8 @@ canonical_file: docs/requirements/requirements-viewer.md
 ### Markdown rendering
 
 - Requirement: The viewer must render requirement Markdown in a readable app-native layout.
-- Notes: The current docs use headings, tables, inline code, and file links, so those formats need to remain legible in the app; the viewer can also use extracted frontmatter to improve surrounding page presentation.
-- Dependencies: Existing Markdown rendering patterns in the chat UI may be reusable.
+- Notes: The current docs use headings, tables, inline code, and file links, and the viewer now maps the rendered HTML elements through custom `react-markdown` components with app-specific Tailwind styling.
+- Dependencies: `react-markdown`, `remark-gfm`, and the viewer component styling.
 - Follow-up: Decide which frontmatter fields should surface in the page chrome versus staying metadata-only.
 
 ### Missing or invalid document paths
@@ -98,14 +98,14 @@ canonical_file: docs/requirements/requirements-viewer.md
 
 | Step | Status | Plan |
 | --- | --- | --- |
-| 1. Frontmatter foundation | todo | Update the requirements skill and existing docs so viewer metadata comes from frontmatter instead of body bullets. |
-| 2. Document discovery layer | todo | Add a server-side loader that enumerates `docs/requirements/`, filters to Markdown files, keeps only folders with at least one file, and returns tree plus document metadata. |
-| 3. Route structure | todo | Add `/requirements` for the default index view and `/requirements/$` as a catch-all document route for nested docs. |
-| 4. Markdown loading | todo | Resolve a requested document path inside `docs/requirements/`, parse frontmatter and body, and return a normalized payload for rendering. |
-| 5. Viewer layout | todo | Build an authenticated page layout with a persistent left nav tree, current-document highlighting, and a main Markdown content pane. |
-| 6. Link normalization | todo | Rewrite or intercept in-document requirement links so Markdown navigation stays inside the viewer route instead of pointing at raw file paths. |
-| 7. Not-found and edge states | todo | Add a clear missing-document state plus handling for empty folders, invalid paths, and unsupported links. |
-| 8. Polish and verification | todo | Reuse existing Markdown styling, verify nested navigation behavior, and confirm auth gating and route transitions work end to end. |
+| 1. Frontmatter foundation | done | Requirement docs use frontmatter-backed metadata for navigation labels and page chrome. |
+| 2. Document discovery layer | done | A server-side loader enumerates `docs/requirements/`, filters to Markdown files, keeps only folders with at least one file, and returns tree plus document metadata. |
+| 3. Route structure | done | `/requirements` renders the default index view and `/requirements/$` handles nested docs. |
+| 4. Markdown loading | done | Requested document paths are resolved inside `docs/requirements/`, parsed into frontmatter and body, and returned as normalized viewer payloads. |
+| 5. Viewer layout | done | The authenticated page layout includes a persistent left nav tree, current-document highlighting, and a main Markdown content pane. |
+| 6. Link normalization | done | In-document requirement links are normalized into the viewer route so navigation stays in-app. |
+| 7. Not-found and edge states | done | Missing or invalid document paths show a clear not-found state with a link back to the requirements index. |
+| 8. Polish and verification | done | The viewer has custom markdown element styling, wider layout tuning, and verified auth gating plus route transitions. |
 
 ### Implementation notes
 
@@ -116,9 +116,8 @@ canonical_file: docs/requirements/requirements-viewer.md
 
 ## Open Questions
 
-- Should the viewer URL omit `.md` from navigable document paths, or should route params mirror the file paths exactly?
-- Besides `title`, which frontmatter fields should be visually promoted in the viewer shell on first implementation?
-- Should folders in the left nav be manually collapsible, or always expanded for the initial release?
+- Should folders in the left nav stay always expanded, or should they become collapsible if the requirements tree grows?
+- Do you want the viewer shell to promote any additional frontmatter fields beyond `title`, `status`, `owner`, and `last_updated`?
 
 ## Change Log
 
@@ -126,3 +125,4 @@ canonical_file: docs/requirements/requirements-viewer.md
 - 2026-03-14: Updated the doc to use `/requirements/$` document routing, require frontmatter-backed titles and metadata, align the requirements-writing skill with that format, and support nested folders that contain requirement files.
 - 2026-03-14: Added an implementation plan covering frontmatter migration, document discovery, routing, rendering, link normalization, and edge-state handling.
 - 2026-03-14: Migrated the requirements docs to frontmatter-backed metadata so the viewer can consume the same schema the skill now generates.
+- 2026-03-14: Implemented the authenticated requirements viewer with `/requirements` index landing, nested document routing, frontmatter-backed metadata display, in-app link normalization, missing-document handling, and custom `react-markdown` styling.

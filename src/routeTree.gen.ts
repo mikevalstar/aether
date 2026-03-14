@@ -16,7 +16,9 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
 import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
+import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -59,9 +61,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
+  id: '/requirements/',
+  path: '/requirements/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsPasswordRoute = SettingsPasswordRouteImport.update({
   id: '/settings/password',
   path: '/settings/password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequirementsSplatRoute = RequirementsSplatRouteImport.update({
+  id: '/requirements/$',
+  path: '/requirements/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoPrismaRoute = DemoPrismaRouteImport.update({
@@ -106,7 +118,9 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/prisma': typeof DemoPrismaRoute
+  '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
+  '/requirements/': typeof RequirementsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -122,7 +136,9 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/prisma': typeof DemoPrismaRoute
+  '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
+  '/requirements': typeof RequirementsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -139,7 +155,9 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/prisma': typeof DemoPrismaRoute
+  '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
+  '/requirements/': typeof RequirementsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -157,7 +175,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/demo/better-auth'
     | '/demo/prisma'
+    | '/requirements/$'
     | '/settings/password'
+    | '/requirements/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -173,7 +193,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/demo/better-auth'
     | '/demo/prisma'
+    | '/requirements/$'
     | '/settings/password'
+    | '/requirements'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -189,7 +211,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/demo/better-auth'
     | '/demo/prisma'
+    | '/requirements/$'
     | '/settings/password'
+    | '/requirements/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -206,7 +230,9 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   DemoBetterAuthRoute: typeof DemoBetterAuthRoute
   DemoPrismaRoute: typeof DemoPrismaRoute
+  RequirementsSplatRoute: typeof RequirementsSplatRoute
   SettingsPasswordRoute: typeof SettingsPasswordRoute
+  RequirementsIndexRoute: typeof RequirementsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
@@ -263,11 +289,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/requirements/': {
+      id: '/requirements/'
+      path: '/requirements'
+      fullPath: '/requirements/'
+      preLoaderRoute: typeof RequirementsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/password': {
       id: '/settings/password'
       path: '/settings/password'
       fullPath: '/settings/password'
       preLoaderRoute: typeof SettingsPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requirements/$': {
+      id: '/requirements/$'
+      path: '/requirements/$'
+      fullPath: '/requirements/$'
+      preLoaderRoute: typeof RequirementsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/prisma': {
@@ -326,7 +366,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   DemoBetterAuthRoute: DemoBetterAuthRoute,
   DemoPrismaRoute: DemoPrismaRoute,
+  RequirementsSplatRoute: RequirementsSplatRoute,
   SettingsPasswordRoute: SettingsPasswordRoute,
+  RequirementsIndexRoute: RequirementsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,
