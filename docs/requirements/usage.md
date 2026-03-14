@@ -1,9 +1,12 @@
-# Usage
+---
+title: Usage
+status: in-progress
+owner: self
+last_updated: 2026-03-14
+canonical_file: docs/requirements/usage.md
+---
 
-- Status: in-progress
-- Owner: self
-- Last updated: 2026-03-14
-- Canonical file: `docs/requirements/usage.md`
+# Usage
 
 ## Purpose
 

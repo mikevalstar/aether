@@ -1,9 +1,12 @@
-# Requirements Viewer
+---
+title: Requirements Viewer
+status: todo
+owner: self
+last_updated: 2026-03-14
+canonical_file: docs/requirements/requirements-viewer.md
+---
 
-- Status: todo
-- Owner: self
-- Last updated: 2026-03-14
-- Canonical file: `docs/requirements/requirements-viewer.md`
+# Requirements Viewer
 
 ## Purpose
 
@@ -13,7 +16,7 @@
 
 ## Current Reality
 
-- Current behavior: Requirements are stored as Markdown files under `docs/requirements/`, with `index.md` linking to individual feature docs, and there is no in-app route for viewing them; top-level document metadata currently lives in Markdown body bullets rather than frontmatter.
+- Current behavior: Requirements are stored as Markdown files under `docs/requirements/`, with `index.md` linking to individual feature docs, and there is no in-app route for viewing them; top-level document metadata now lives in frontmatter for cleaner extraction.
 - Constraints: The source of truth remains the files in `docs/requirements/`; access must be limited to authenticated users; the viewer must support docs that link to each other; the navigation should reflect the folder structure in that directory; future metadata extraction should come from frontmatter instead of parsing body text.
 - Non-goals: In-app editing, public access, arbitrary Markdown browsing outside `docs/requirements/`, document version history, and full docs-site features such as search or comments are not part of this requirement.
 
@@ -91,6 +94,26 @@
 - Dependencies: Document lookup and route param validation.
 - Follow-up: Consider whether the not-found state should offer a quick link back to the requirements index.
 
+## Implementation Plan
+
+| Step | Status | Plan |
+| --- | --- | --- |
+| 1. Frontmatter foundation | todo | Update the requirements skill and existing docs so viewer metadata comes from frontmatter instead of body bullets. |
+| 2. Document discovery layer | todo | Add a server-side loader that enumerates `docs/requirements/`, filters to Markdown files, keeps only folders with at least one file, and returns tree plus document metadata. |
+| 3. Route structure | todo | Add `/requirements` for the default index view and `/requirements/$` as a catch-all document route for nested docs. |
+| 4. Markdown loading | todo | Resolve a requested document path inside `docs/requirements/`, parse frontmatter and body, and return a normalized payload for rendering. |
+| 5. Viewer layout | todo | Build an authenticated page layout with a persistent left nav tree, current-document highlighting, and a main Markdown content pane. |
+| 6. Link normalization | todo | Rewrite or intercept in-document requirement links so Markdown navigation stays inside the viewer route instead of pointing at raw file paths. |
+| 7. Not-found and edge states | todo | Add a clear missing-document state plus handling for empty folders, invalid paths, and unsupported links. |
+| 8. Polish and verification | todo | Reuse existing Markdown styling, verify nested navigation behavior, and confirm auth gating and route transitions work end to end. |
+
+### Implementation notes
+
+- Start with a read-only server-backed viewer; do not couple the first pass to editing workflows.
+- Treat frontmatter as the source for navigation labels and page chrome, while Markdown body remains the source for long-form content.
+- Normalize document lookup so URLs cannot escape `docs/requirements/` through relative path traversal.
+- Prefer route and path helpers for internal requirement links so future nested docs keep working when folder structure grows.
+
 ## Open Questions
 
 - Should the viewer URL omit `.md` from navigable document paths, or should route params mirror the file paths exactly?
@@ -101,3 +124,5 @@
 
 - 2026-03-14: Created the initial requirements doc for an authenticated in-app requirements viewer with index landing, linked document routing, and a left-hand file tree.
 - 2026-03-14: Updated the doc to use `/requirements/$` document routing, require frontmatter-backed titles and metadata, align the requirements-writing skill with that format, and support nested folders that contain requirement files.
+- 2026-03-14: Added an implementation plan covering frontmatter migration, document discovery, routing, rendering, link normalization, and edge-state handling.
+- 2026-03-14: Migrated the requirements docs to frontmatter-backed metadata so the viewer can consume the same schema the skill now generates.

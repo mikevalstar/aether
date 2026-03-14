@@ -19,6 +19,7 @@ The source of truth for these docs is `docs/requirements/`.
 - Make progress obvious with simple statuses: `todo`, `in-progress`, `done`.
 - Support drill-down links from a major feature to sub-feature details when needed.
 - Update requirement docs after implementation work so they stay useful.
+- Store key document metadata in frontmatter so the app can extract titles and supporting details without parsing Markdown body bullets.
 
 ## Required Structure
 
@@ -35,6 +36,8 @@ docs/
 - `docs/requirements/index.md` is the overview.
 - Each major feature gets its own file.
 - Keep sub-features inline first. Split them into separate files only when the detail would make the parent hard to scan.
+- Feature docs should put `title`, `status`, `owner`, `last_updated`, and `canonical_file` in frontmatter.
+- The index should put at least `title`, `last_updated`, and `canonical_file` in frontmatter.
 
 ## Before Writing
 
@@ -101,7 +104,7 @@ Adapt them when needed, but keep the same overall information model.
 When creating or updating a major feature doc:
 
 1. Choose a stable, descriptive file name in kebab case.
-2. Fill out the major feature template.
+2. Fill out the major feature template, including frontmatter metadata.
 3. Add or update sub-features with statuses and brief notes.
 4. Link to deeper sub-feature docs only when detail is large enough to justify another file.
 5. Add an "Open Questions" section when intent or future direction is unresolved.
@@ -118,6 +121,7 @@ Include:
 - short summary
 - link to the feature file
 - last updated date
+- frontmatter metadata for the index document itself
 
 If you add or change a feature doc, update the index in the same task.
 
@@ -133,6 +137,15 @@ If the user implemented or changed a feature and asks to update docs:
 6. Update `docs/requirements/index.md` so the overview stays accurate.
 
 Do not leave the detailed doc and the index out of sync.
+
+## Frontmatter Conventions
+
+Use frontmatter as the canonical source for top-level document metadata.
+
+- Feature docs: `title`, `status`, `owner`, `last_updated`, `canonical_file`
+- Index doc: `title`, `last_updated`, `canonical_file`
+- Keep metadata values in sync with the visible document content and index row.
+- Do not duplicate the metadata as a top bullet list in the Markdown body unless the user explicitly asks for that format.
 
 ## Output Expectations
 

@@ -1,9 +1,12 @@
-# Authentication
+---
+title: Authentication
+status: in-progress
+owner: self
+last_updated: 2026-03-14
+canonical_file: docs/requirements/auth.md
+---
 
-- Status: in-progress
-- Owner: self
-- Last updated: 2026-03-14
-- Canonical file: `docs/requirements/auth.md`
+# Authentication
 
 ## Purpose
 

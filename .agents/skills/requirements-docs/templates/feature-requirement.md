@@ -1,9 +1,12 @@
-# <Feature Name>
+---
+title: <Feature Name>
+status: <todo|in-progress|done>
+owner: <name or self>
+last_updated: <YYYY-MM-DD>
+canonical_file: docs/requirements/<feature-name>.md
+---
 
-- Status: <todo|in-progress|done>
-- Owner: <name or self>
-- Last updated: <YYYY-MM-DD>
-- Canonical file: `docs/requirements/<feature-name>.md`
+# <Feature Name>
 
 ## Purpose
 

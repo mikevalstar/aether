@@ -1,3 +1,9 @@
+---
+title: Requirements Index
+last_updated: <YYYY-MM-DD>
+canonical_file: docs/requirements/index.md
+---
+
 # Requirements Index
 
 Status legend: `todo`, `in-progress`, `done`
