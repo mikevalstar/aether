@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta = {
-	title: "Design System/Tokens",
+	title: "Design System/Foundations/Tokens",
 } satisfies Meta;
 
 export default meta;

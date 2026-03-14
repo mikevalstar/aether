@@ -3,7 +3,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 
 const meta = {
-	title: "UI/Input",
+	title: "Design System/Forms/Input",
 	component: Input,
 	argTypes: {
 		type: {

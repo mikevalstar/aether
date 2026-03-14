@@ -12,7 +12,7 @@ import {
 } from "./select";
 
 const meta = {
-	title: "UI/Select",
+	title: "Design System/Forms/Select",
 	component: Select,
 } satisfies Meta<typeof Select>;
 

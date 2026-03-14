@@ -3,7 +3,7 @@ import { Label } from "./label";
 import { Slider } from "./slider";
 
 const meta = {
-	title: "UI/Slider",
+	title: "Design System/Forms/Slider",
 	component: Slider,
 	argTypes: {
 		disabled: { control: "boolean" },

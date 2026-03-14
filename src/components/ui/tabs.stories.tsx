@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 
 const meta = {
-	title: "UI/Tabs",
+	title: "Design System/Navigation/Tabs",
 	component: Tabs,
 } satisfies Meta<typeof Tabs>;
 

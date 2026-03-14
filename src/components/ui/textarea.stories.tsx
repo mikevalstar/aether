@@ -3,7 +3,7 @@ import { Label } from "./label";
 import { Textarea } from "./textarea";
 
 const meta = {
-	title: "UI/Textarea",
+	title: "Design System/Forms/Textarea",
 	component: Textarea,
 	argTypes: {
 		disabled: { control: "boolean" },

@@ -8,7 +8,7 @@ import {
 } from "./avatar";
 
 const meta = {
-	title: "UI/Avatar",
+	title: "Design System/Data Display/Avatar",
 	component: Avatar,
 	argTypes: {
 		size: {

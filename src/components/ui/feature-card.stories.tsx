@@ -9,7 +9,7 @@ import {
 import { FeatureCard } from "./feature-card";
 
 const meta = {
-	title: "UI/FeatureCard",
+	title: "Design System/Layout/Feature Card",
 	component: FeatureCard,
 	argTypes: {
 		color: { control: "text" },
@@ -67,6 +67,11 @@ export const DefaultColors: Story = {
 };
 
 export const Grid: Story = {
+	args: {
+		icon: BrainCircuit,
+		title: "AI Chat",
+		description: "Ask questions about your notes in natural language.",
+	},
 	render: () => (
 		<div className="grid gap-6 sm:grid-cols-3">
 			<FeatureCard
@@ -98,6 +103,11 @@ export const Grid: Story = {
 };
 
 export const TwoColumn: Story = {
+	args: {
+		icon: Zap,
+		title: "Fast",
+		description: "Optimised for speed. Everything loads instantly.",
+	},
 	render: () => (
 		<div className="grid gap-6 sm:grid-cols-2">
 			<FeatureCard

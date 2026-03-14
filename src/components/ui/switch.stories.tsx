@@ -3,7 +3,7 @@ import { Label } from "./label";
 import { Switch } from "./switch";
 
 const meta = {
-	title: "UI/Switch",
+	title: "Design System/Forms/Switch",
 	component: Switch,
 	argTypes: {
 		size: {

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { GlowBg } from "./glow-bg";
 
 const meta = {
-	title: "UI/GlowBg",
+	title: "Design System/Layout/Glow Background",
 	component: GlowBg,
 	decorators: [
 		(Story) => (
@@ -41,6 +41,11 @@ export const Coral: Story = {
 };
 
 export const Combined: Story = {
+	args: {
+		color: "var(--teal)",
+		size: "size-[600px]",
+		position: "-right-40 -top-40",
+	},
 	render: () => (
 		<div className="relative h-[400px] w-full overflow-hidden rounded-xl border border-border bg-background">
 			<GlowBg

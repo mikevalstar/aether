@@ -9,7 +9,7 @@ import {
 } from "./tooltip";
 
 const meta = {
-	title: "UI/Tooltip",
+	title: "Design System/Overlays/Tooltip",
 	component: Tooltip,
 	decorators: [
 		(Story) => (

@@ -3,7 +3,7 @@ import { Rocket, Sparkles, Star } from "lucide-react";
 import { SectionLabel } from "./section-label";
 
 const meta = {
-	title: "UI/SectionLabel",
+	title: "Design System/Typography/Section Label",
 	component: SectionLabel,
 	argTypes: {
 		color: { control: "text" },

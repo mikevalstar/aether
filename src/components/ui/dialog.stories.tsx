@@ -13,7 +13,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 
 const meta = {
-	title: "UI/Dialog",
+	title: "Design System/Overlays/Dialog",
 	component: Dialog,
 } satisfies Meta<typeof Dialog>;
 
