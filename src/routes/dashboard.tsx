@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BookOpen,
-	BrainCircuit,
+	Sparkles,
 	CalendarCheck,
 	ChartLine,
 	FileText,
@@ -86,7 +86,7 @@ function DashboardPage() {
 							className="group relative rounded-xl border border-[var(--teal)]/20 bg-[var(--teal-subtle)] p-6 no-underline transition-shadow hover:shadow-lg"
 						>
 							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)]">
-								<BrainCircuit className="size-5" strokeWidth={1.75} />
+								<Sparkles className="size-5" strokeWidth={1.75} />
 							</div>
 							<p className="mb-1 text-base font-bold tracking-tight text-foreground">
 								AI Chat

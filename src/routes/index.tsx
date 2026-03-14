@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BookOpen,
-	BrainCircuit,
 	CalendarCheck,
 	Lock,
 	Sparkles,
@@ -17,7 +16,7 @@ export const Route = createFileRoute("/")({ component: HomePage });
 
 const features = [
 	{
-		icon: BrainCircuit,
+		icon: Sparkles,
 		title: "AI Chat",
 		description:
 			"Ask questions about your notes in natural language. Claude understands context, connects ideas, and helps you think.",
