@@ -455,7 +455,14 @@ function UsagePage() {
 								accentColor="var(--coral)"
 							>
 								<div className="overflow-x-auto">
-									<table className="min-w-full border-separate border-spacing-y-2 text-sm">
+									<table className="min-w-full table-fixed border-separate border-spacing-y-2 text-sm">
+										<colgroup>
+											<col className="w-[160px]" />
+											<col className="w-[120px]" />
+											<col />
+											<col className="w-[80px]" />
+											<col className="w-[72px]" />
+										</colgroup>
 										<thead>
 											<tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
 												<th className="pb-2 font-semibold">When</th>
@@ -477,13 +484,13 @@ function UsagePage() {
 														{new Date(event.createdAt).toLocaleString()}
 													</td>
 													<td className="px-3 py-2.5">{event.modelLabel}</td>
-													<td className="px-3 py-2.5 text-[var(--ink-soft)]">
+													<td className="truncate px-3 py-2.5 text-[var(--ink-soft)]">
 														{event.threadTitle ?? "-"}
 													</td>
-													<td className="px-3 py-2.5 text-right">
+													<td className="whitespace-nowrap px-3 py-2.5 text-right">
 														{event.totalTokens.toLocaleString()}
 													</td>
-													<td className="rounded-r-lg px-3 py-2.5 text-right">
+													<td className="whitespace-nowrap rounded-r-lg px-3 py-2.5 text-right">
 														{formatUsageCurrency(event.estimatedCostUsd)}
 													</td>
 												</tr>
