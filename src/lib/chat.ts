@@ -22,7 +22,7 @@ export type ChatModel = (typeof CHAT_MODELS)[number]["id"];
 
 export type AppChatMessage = UIMessage<Record<string, never>, never, never>;
 
-export const DEFAULT_CHAT_MODEL: ChatModel = "claude-sonnet-4-6";
+export const DEFAULT_CHAT_MODEL: ChatModel = "claude-haiku-4-5";
 
 export type ChatThreadSummary = {
 	id: string;

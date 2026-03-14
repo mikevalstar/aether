@@ -39,13 +39,13 @@ export const Thread: FC = () => {
     <ThreadPrimitive.Root
       className="aui-root aui-thread-root @container flex h-full flex-col bg-background"
       style={{
-        ["--thread-max-width" as string]: "44rem",
+        ["--thread-max-width" as string]: "56rem",
         ["--composer-radius" as string]: "24px",
         ["--composer-padding" as string]: "10px",
       }}
     >
       <ThreadPrimitive.Viewport
-        turnAnchor="top"
+        turnAnchor="end"
         className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-4 pt-4"
       >
         <AuiIf condition={(s) => s.thread.isEmpty}>

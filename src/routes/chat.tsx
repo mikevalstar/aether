@@ -5,13 +5,7 @@ import {
 	useRouter,
 } from "@tanstack/react-router";
 import { MessageSquarePlusIcon, Trash2Icon } from "lucide-react";
-import {
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-	useTransition,
-} from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { Button } from "#/components/ui/button";
@@ -141,15 +135,6 @@ function ChatPage() {
 		setInitialMessage(pendingMessage);
 	}, [selectedThread?.id]);
 
-	const lastUpdatedLabel = useMemo(() => {
-		if (!selectedThread) return null;
-
-		return new Intl.DateTimeFormat(undefined, {
-			dateStyle: "medium",
-			timeStyle: "short",
-		}).format(new Date(selectedThread.updatedAt));
-	}, [selectedThread]);
-
 	function handleStartChat() {
 		const message = draftMessage.trim();
 		if (!message) return;
@@ -162,35 +147,30 @@ function ChatPage() {
 	}
 
 	return (
-		<main className="page-wrap flex min-h-[calc(100vh-8rem)] px-4 py-8">
-			<div className="grid min-h-0 w-full gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-				<aside className="flex min-h-[38rem] flex-col rounded-[1.75rem] border border-[var(--line)] bg-[linear-gradient(180deg,rgba(79,184,178,0.08),rgba(255,255,255,0))] p-4 shadow-sm">
+		<main className="mx-auto flex h-[calc(100vh-8rem)] w-[min(1400px,calc(100%-2rem))] px-4 py-8">
+			<div className="grid min-h-0 w-full gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+				<aside className="order-2 flex min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
 					<div className="mb-4 flex items-center justify-between gap-3">
-						<div>
-							<p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--teal)]">
-								Chat
-							</p>
-							<h1 className="mt-1 text-xl font-semibold text-[var(--ink)]">
-								Assistant UI
-							</h1>
-						</div>
+						<h1 className="text-base font-semibold text-[var(--ink)]">
+							Threads
+						</h1>
 						<Button
 							type="button"
 							size="sm"
+							variant="outline"
 							onClick={() => {
 								startTransition(() => {
 									void handleCreateThread(selectedModel);
 								});
 							}}
 							disabled={isBusy}
-							className="rounded-full"
 						>
 							<MessageSquarePlusIcon className="size-4" />
 							New
 						</Button>
 					</div>
 
-					<div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+					<div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
 						{data.threads.map((thread: ChatThreadSummary) => {
 							const isActive = thread.id === selectedThread?.id;
 
@@ -202,45 +182,33 @@ function ChatPage() {
 										void navigate({ search: { threadId: thread.id } });
 									}}
 									className={cn(
-										"w-full rounded-2xl border px-4 py-3 text-left transition",
+										"w-full rounded-lg px-3 py-2.5 text-left transition",
 										isActive
-											? "border-[var(--teal)] bg-[color-mix(in_oklab,var(--surface)_84%,var(--teal)_16%)] shadow-sm"
-											: "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--teal)]/45 hover:bg-[color-mix(in_oklab,var(--surface)_90%,var(--teal)_10%)]",
+											? "bg-[var(--accent)] text-[var(--ink)]"
+											: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
 									)}
 								>
-									<div className="flex items-start justify-between gap-3">
-										<div className="min-w-0">
-											<p className="truncate text-sm font-semibold text-[var(--ink)]">
-												{thread.title}
-											</p>
-											<p className="mt-1 line-clamp-2 text-xs leading-5 text-[var(--ink-soft)]">
-												{thread.preview}
-											</p>
-										</div>
-										<span className="rounded-full border border-[var(--line)] px-2 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--ink-soft)]">
-											{thread.model.replace("claude-", "").replaceAll("-", " ")}
-										</span>
-									</div>
+									<p className="truncate text-sm font-medium">
+										{thread.title}
+									</p>
+									<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
+										{thread.preview}
+									</p>
 								</button>
 							);
 						})}
 					</div>
 				</aside>
 
-				<section className="flex min-h-[38rem] min-w-0 flex-col overflow-hidden rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface)] shadow-sm">
-					<div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-5 py-4">
+				<section className="order-1 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)]">
+					<div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-4 py-3">
 						<div className="min-w-0 flex-1">
-							<p className="truncate text-base font-semibold text-[var(--ink)]">
-								{selectedThread?.title ?? "Start a new chat"}
+							<p className="truncate text-sm font-medium text-[var(--ink)]">
+								{selectedThread?.title ?? "New chat"}
 							</p>
-							{lastUpdatedLabel ? (
-								<p className="mt-1 text-xs text-[var(--ink-soft)]">
-									Updated {lastUpdatedLabel}
-								</p>
-							) : null}
 						</div>
 
-						<div className="flex flex-wrap items-center gap-3">
+						<div className="flex flex-wrap items-center gap-2">
 							<Select
 								value={selectedThread ? selectedModel : emptyStateModel}
 								onValueChange={(value) => {
@@ -257,7 +225,7 @@ function ChatPage() {
 								}}
 								disabled={isBusy}
 							>
-								<SelectTrigger className="min-w-52 rounded-full bg-[var(--surface)]">
+								<SelectTrigger className="min-w-48">
 									<SelectValue placeholder="Choose model" />
 								</SelectTrigger>
 								<SelectContent>
@@ -276,7 +244,7 @@ function ChatPage() {
 
 							<Button
 								type="button"
-								variant="outline"
+								variant="ghost"
 								size="sm"
 								disabled={!selectedThread || isBusy}
 								onClick={() => {
@@ -286,15 +254,13 @@ function ChatPage() {
 										void handleDeleteThread(selectedThread);
 									});
 								}}
-								className="rounded-full"
 							>
 								<Trash2Icon className="size-4" />
-								Delete
 							</Button>
 						</div>
 					</div>
 
-					<div className="min-h-0 flex-1 bg-[linear-gradient(180deg,color-mix(in_oklab,var(--surface)_95%,var(--teal)_5%),var(--surface))]">
+					<div className="min-h-0 flex-1">
 						{selectedThread ? (
 							<ChatWorkspace
 								key={selectedThread.id}
@@ -307,45 +273,40 @@ function ChatPage() {
 								}}
 							/>
 						) : (
-							<div className="flex h-full items-center justify-center px-6 py-10">
-								<div className="w-full max-w-2xl rounded-[1.75rem] border border-[var(--line)] bg-[color-mix(in_oklab,var(--surface)_92%,white_8%)] p-6 shadow-sm">
-									<p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--teal)]">
-										New conversation
-									</p>
-									<h2 className="mt-3 text-2xl font-semibold text-[var(--ink)]">
-										Ask Anthropic anything
-									</h2>
-									<p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">
-										Pick a model, type your first message, and a thread will be
-										created when you send it.
-									</p>
-									<div className="mt-5 space-y-4">
-										<Textarea
-											value={draftMessage}
-											onChange={(event) => setDraftMessage(event.target.value)}
-											onKeyDown={(event) => {
-												if (event.key === "Enter" && !event.shiftKey) {
-													event.preventDefault();
-													handleStartChat();
-												}
-											}}
-											placeholder="Ask about your notes, sketch a plan, or start a conversation..."
-											className="min-h-32 rounded-2xl bg-[var(--surface)] px-4 py-3"
-										/>
-										<div className="flex flex-wrap items-center justify-between gap-3">
-											<p className="text-xs text-[var(--ink-soft)]">
-												Press Enter to send, Shift+Enter for a new line.
-											</p>
-											<Button
-												type="button"
-												onClick={handleStartChat}
-												disabled={isBusy || draftMessage.trim().length === 0}
-												className="rounded-full"
-											>
-												<MessageSquarePlusIcon className="size-4" />
-												Start chat
-											</Button>
-										</div>
+							<div className="flex h-full items-center justify-center px-6">
+								<div className="w-full max-w-lg space-y-4">
+									<div className="text-center">
+										<h2 className="text-lg font-semibold text-[var(--ink)]">
+											Start a conversation
+										</h2>
+										<p className="mt-1 text-sm text-[var(--ink-soft)]">
+											Type a message to begin.
+										</p>
+									</div>
+									<Textarea
+										value={draftMessage}
+										onChange={(event) => setDraftMessage(event.target.value)}
+										onKeyDown={(event) => {
+											if (event.key === "Enter" && !event.shiftKey) {
+												event.preventDefault();
+												handleStartChat();
+											}
+										}}
+										placeholder="Ask something..."
+										className="min-h-28 rounded-lg bg-[var(--bg)] px-3 py-2.5"
+									/>
+									<div className="flex items-center justify-between gap-3">
+										<p className="text-xs text-[var(--ink-soft)]">
+											Enter to send, Shift+Enter for new line
+										</p>
+										<Button
+											type="button"
+											size="sm"
+											onClick={handleStartChat}
+											disabled={isBusy || draftMessage.trim().length === 0}
+										>
+											Send
+										</Button>
 									</div>
 								</div>
 							</div>
