@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Aether** is a personal dashboard project built with TanStack Start. The primary feature is an AI chat interface powered by Claude (via Vercel AI SDK + Assistant UI), with plans to expand into Obsidian library integration and broader daily life management tools.
 
+we are using the latest version of most libraries, these tend to be newer then the training data, so use the skills and/or google for documentation when you don't have an example of how to do something already in the code.
+
 ## Commands
 
 ```bash
@@ -44,6 +46,11 @@ pnpm dlx shadcn@latest add <component-name>
 - **State**: Jotai (atoms) + Zustand
 - **Styling**: Tailwind CSS v4 + Shadcn UI
 - **Linting/Formatting**: Biome (replaces ESLint + Prettier)
+
+### Code Design
+- We prefer to use libraries; this project is about the functionality not the code 
+- We prefer Shadcn or 3rd party Shadcn type components for the UI when available
+- We like to have reusable components where possible
 
 ### Path Aliases
 Both `#/*` and `@/*` resolve to `./src/*`.
