@@ -65,6 +65,18 @@ export const Route = createFileRoute("/api/chat")({
 					body.model && isChatModel(body.model)
 						? body.model
 						: DEFAULT_CHAT_MODEL;
+				const tools =
+					model === "claude-haiku-4-5"
+						? undefined
+						: {
+								web_fetch: anthropic.tools.webFetch_20260209({
+									citations: { enabled: true },
+									maxUses: 5,
+								}),
+								web_search: anthropic.tools.webSearch_20260209({
+									maxUses: 5,
+								}),
+							};
 				const currentTotals: ChatUsageTotals = {
 					inputTokens: thread.totalInputTokens ?? 0,
 					outputTokens: thread.totalOutputTokens ?? 0,
@@ -119,6 +131,7 @@ export const Route = createFileRoute("/api/chat")({
 				const result = streamText({
 					model: anthropic(model),
 					messages: await convertToModelMessages(incomingMessages),
+					tools,
 				});
 
 				return result.toUIMessageStreamResponse({

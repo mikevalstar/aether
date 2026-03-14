@@ -10,10 +10,7 @@ export default function ThemeToggle() {
 		setMode(next);
 	}
 
-	const label =
-		mode === "auto"
-			? "Theme: system"
-			: `Theme: ${mode}`;
+	const label = mode === "auto" ? "Theme: system" : `Theme: ${mode}`;
 
 	const Icon = mode === "auto" ? Monitor : mode === "dark" ? Moon : Sun;
 

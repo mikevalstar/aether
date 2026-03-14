@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings, Users } from "lucide-react";
-import { authClient } from "#/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -9,6 +8,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
+import { authClient } from "#/lib/auth-client";
 import ThemeToggle from "./ThemeToggle";
 
 function getInitials(name?: string | null, email?: string | null) {
@@ -113,9 +113,7 @@ export default function Header() {
 									</DropdownMenuItem>
 								)}
 								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									onSelect={() => void authClient.signOut()}
-								>
+								<DropdownMenuItem onSelect={() => void authClient.signOut()}>
 									<LogOut className="mr-2 size-4" />
 									Sign out
 								</DropdownMenuItem>
