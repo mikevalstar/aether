@@ -239,7 +239,7 @@ function ChatPage() {
 	}
 
 	return (
-		<main className="mx-auto flex h-[calc(100vh-8rem)] w-[min(1400px,calc(100%-2rem))] px-4 py-8">
+		<main className="page-wrap flex h-[calc(100vh-8rem)] px-4 py-8">
 			<div
 				ref={containerRef}
 				className="flex min-h-0 w-full flex-col gap-4 lg:flex-row"
