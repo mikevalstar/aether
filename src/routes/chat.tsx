@@ -68,7 +68,6 @@ export const Route = createFileRoute("/chat")({
 
 function ChatPage() {
 	const data = Route.useLoaderData();
-	const search = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
 	const router = useRouter();
 	const containerRef = useRef<HTMLDivElement | null>(null);
@@ -78,8 +77,6 @@ function ChatPage() {
 	const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
 	const [isMutating, startTransition] = useTransition();
 	const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
-	const [draftMessage, setDraftMessage] = useState("");
-	const [initialMessage, setInitialMessage] = useState<string | undefined>();
 	const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
 	const refreshPage = useCallback(async () => {
@@ -112,18 +109,13 @@ function ChatPage() {
 		async (thread: ChatThreadSummary) => {
 			await deleteChatThread({ data: { threadId: thread.id } });
 
-			const nextThread =
-				selectedThread?.id === thread.id
-					? data.threads.find(
-							(item: ChatThreadSummary) => item.id !== thread.id,
-						)
-					: selectedThread;
+			const isCurrentThread = selectedThread?.id === thread.id;
 			await navigate({
-				search: nextThread ? { threadId: nextThread.id } : {},
+				search: isCurrentThread ? {} : { threadId: selectedThread?.id },
 			});
 			await router.invalidate();
 		},
-		[data.threads, navigate, router, selectedThread],
+		[navigate, router, selectedThread],
 	);
 
 	const selectedModel = selectedThread?.model ?? DEFAULT_CHAT_MODEL;
@@ -158,31 +150,28 @@ function ChatPage() {
 		);
 	}, []);
 
-	useEffect(() => {
-		if (!search.threadId && data.selectedThreadId) {
-			void navigate({
-				replace: true,
-				search: { threadId: data.selectedThreadId },
-			});
-		}
-	}, [data.selectedThreadId, navigate, search.threadId]);
-
-	useEffect(() => {
-		if (typeof window === "undefined") return;
-		if (!selectedThread?.id) {
-			setInitialMessage(undefined);
-			return;
-		}
-
+	// Consume pending message from sessionStorage.
+	// Uses a ref to track which thread ID we already consumed for,
+	// so the message survives re-renders but is only read once per thread.
+	const consumedThreadRef = useRef<string | null>(null);
+	const initialMessageRef = useRef<string | undefined>(undefined);
+	if (
+		typeof window !== "undefined" &&
+		selectedThread?.id &&
+		consumedThreadRef.current !== selectedThread.id
+	) {
 		const key = `${PENDING_MESSAGE_KEY}:${selectedThread.id}`;
 		const pendingMessage = window.sessionStorage.getItem(key) ?? undefined;
-
 		if (pendingMessage) {
 			window.sessionStorage.removeItem(key);
 		}
-
-		setInitialMessage(pendingMessage);
-	}, [selectedThread?.id]);
+		consumedThreadRef.current = selectedThread.id;
+		initialMessageRef.current = pendingMessage;
+	} else if (!selectedThread?.id) {
+		consumedThreadRef.current = null;
+		initialMessageRef.current = undefined;
+	}
+	const initialMessage = initialMessageRef.current;
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -225,17 +214,6 @@ function ChatPage() {
 		startTransition(() => {
 			void handleDeleteThread(pendingDeleteThread).then(() => {
 				setPendingDeleteThread(null);
-			});
-		});
-	}
-
-	function handleStartChat() {
-		const message = draftMessage.trim();
-		if (!message) return;
-
-		startTransition(() => {
-			void handleCreateThread(emptyStateModel, message).then(() => {
-				setDraftMessage("");
 			});
 		});
 	}

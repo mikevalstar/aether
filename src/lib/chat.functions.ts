@@ -63,10 +63,9 @@ export const getChatPageData = createServerFn({ method: "GET" })
 		});
 
 		const threads = threadRecords.map(mapThreadSummary);
-		const selectedThreadRecord =
-			threadRecords.find((thread) => thread.id === data.threadId) ??
-			threadRecords[0] ??
-			null;
+		const selectedThreadRecord = data.threadId
+			? (threadRecords.find((thread) => thread.id === data.threadId) ?? null)
+			: null;
 
 		return {
 			threads,
