@@ -13,3 +13,5 @@ dev.db
 __unconfig*
 todos.json
 src/generated
+*storybook.log
+storybook-static

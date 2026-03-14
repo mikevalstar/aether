@@ -19,7 +19,9 @@
     "create:first-admin": "dotenv -e .env -- tsx scripts/create-first-admin.ts",
     "format": "biome format",
     "lint": "biome lint",
-    "check": "biome check"
+    "check": "biome check",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",
@@ -83,7 +85,9 @@
     "tsx": "^4.21.0",
     "typescript": "^5.7.2",
     "vite": "^8.0.0",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "storybook": "^10.2.19",
+    "@storybook/react-vite": "^10.2.19"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
