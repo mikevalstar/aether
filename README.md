@@ -38,6 +38,17 @@ If you prefer not to use Tailwind CSS:
 3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
 4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
 
+## Linting & Formatting
+
+This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
+
+
+```bash
+pnpm lint
+pnpm format
+pnpm check
+```
+
 
 ## Setting up Better Auth
 

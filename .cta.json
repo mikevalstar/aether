@@ -15,9 +15,11 @@
   "envVarValues": {},
   "routerOnly": false,
   "version": 1,
+  "addOns": true,
   "framework": "react",
   "chosenAddOns": [
     "prisma",
-    "better-auth"
+    "better-auth",
+    "biome"
   ]
 }
