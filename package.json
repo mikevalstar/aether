@@ -59,6 +59,7 @@
     "tailwindcss": "^4.1.18",
     "turndown": "^7.2.2",
     "tw-animate-css": "^1.3.6",
+    "vaul": "^1.1.2",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },
