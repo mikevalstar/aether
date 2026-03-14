@@ -20,7 +20,7 @@ export default function ThemeToggle() {
 			onClick={toggleMode}
 			aria-label={label}
 			title={label}
-			className="flex items-center justify-center rounded-md p-2 text-[var(--ink-soft)] transition hover:bg-[var(--chip-bg)] hover:text-[var(--ink)]"
+			className="flex items-center justify-center rounded-md p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
 		>
 			<Icon className="size-4" />
 		</button>

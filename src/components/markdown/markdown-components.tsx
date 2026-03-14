@@ -97,10 +97,7 @@ const variantStyles = {
 function extractLanguage(children: React.ReactNode): string {
 	let language = "";
 	Children.forEach(children, (child) => {
-		if (
-			isValidElement(child) &&
-			typeof child.props?.className === "string"
-		) {
+		if (isValidElement(child) && typeof child.props?.className === "string") {
 			const match = child.props.className.match(/language-(\w+)/);
 			if (match) language = match[1];
 		}
@@ -128,9 +125,7 @@ export function CodeBlockPre({
 					</span>
 					<button
 						type="button"
-						onClick={() =>
-							copy(preRef.current?.textContent ?? "")
-						}
+						onClick={() => copy(preRef.current?.textContent ?? "")}
 						className="flex items-center gap-1 text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
 						aria-label="Copy code"
 					>
@@ -139,9 +134,7 @@ export function CodeBlockPre({
 						) : (
 							<CopyIcon className="size-3.5" />
 						)}
-						<span className="ml-0.5">
-							{isCopied ? "Copied" : "Copy"}
-						</span>
+						<span className="ml-0.5">{isCopied ? "Copied" : "Copy"}</span>
 					</button>
 				</div>
 			) : (
@@ -184,53 +177,32 @@ export function createMarkdownComponents(
 
 	const components: Components = {
 		h1: ({ className, ...props }) => (
-			<h1
-				className={cn(s.h1, "text-[var(--ink)]", className)}
-				{...props}
-			/>
+			<h1 className={cn(s.h1, "text-[var(--ink)]", className)} {...props} />
 		),
 		h2: ({ className, ...props }) => (
-			<h2
-				className={cn(s.h2, "text-[var(--ink)]", className)}
-				{...props}
-			/>
+			<h2 className={cn(s.h2, "text-[var(--ink)]", className)} {...props} />
 		),
 		h3: ({ className, ...props }) => (
-			<h3
-				className={cn(s.h3, "text-[var(--ink)]", className)}
-				{...props}
-			/>
+			<h3 className={cn(s.h3, "text-[var(--ink)]", className)} {...props} />
 		),
 		h4: ({ className, ...props }) => (
-			<h4
-				className={cn(s.h4, "text-[var(--ink)]", className)}
-				{...props}
-			/>
+			<h4 className={cn(s.h4, "text-[var(--ink)]", className)} {...props} />
 		),
 		h5: ({ className, ...props }) => (
-			<h5
-				className={cn(s.h5, "text-[var(--ink)]", className)}
-				{...props}
-			/>
+			<h5 className={cn(s.h5, "text-[var(--ink)]", className)} {...props} />
 		),
 		h6: ({ className, ...props }) => (
 			<h6 className={cn(s.h6, className)} {...props} />
 		),
 		p: ({ className, ...props }) => (
-			<p
-				className={cn(s.p, "text-[var(--ink)]", className)}
-				{...props}
-			/>
+			<p className={cn(s.p, "text-[var(--ink)]", className)} {...props} />
 		),
 		a: ({ className, ...props }) => (
 			<a className={cn(s.a, className)} {...props} />
 		),
 		strong: ({ className, ...props }) => (
 			<strong
-				className={cn(
-					"font-semibold text-[var(--ink)]",
-					className,
-				)}
+				className={cn("font-semibold text-[var(--ink)]", className)}
 				{...props}
 			/>
 		),
@@ -244,16 +216,10 @@ export function createMarkdownComponents(
 			<ol className={cn(s.ol, className)} {...props} />
 		),
 		li: ({ className, ...props }) => (
-			<li
-				className={cn(s.li, "text-[var(--ink)]", className)}
-				{...props}
-			/>
+			<li className={cn(s.li, "text-[var(--ink)]", className)} {...props} />
 		),
 		blockquote: ({ className, ...props }) => (
-			<blockquote
-				className={cn(s.blockquote, className)}
-				{...props}
-			/>
+			<blockquote className={cn(s.blockquote, className)} {...props} />
 		),
 		hr: ({ className, ...props }) => (
 			<hr className={cn(s.hr, className)} {...props} />
@@ -288,18 +254,12 @@ export function createMarkdownComponents(
 			const isBlock =
 				typeof className === "string" && /language-/.test(className);
 			return (
-				<code
-					className={cn(!isBlock && s.codeInline, className)}
-					{...props}
-				/>
+				<code className={cn(!isBlock && s.codeInline, className)} {...props} />
 			);
 		},
 		sup: ({ className, ...props }) => (
 			<sup
-				className={cn(
-					"[&>a]:text-xs [&>a]:no-underline",
-					className,
-				)}
+				className={cn("[&>a]:text-xs [&>a]:no-underline", className)}
 				{...props}
 			/>
 		),

@@ -66,7 +66,9 @@ export const Vertical: Story = {
 				<p className="text-sm text-muted-foreground">Security settings.</p>
 			</TabsContent>
 			<TabsContent value="notifications" className="p-4">
-				<p className="text-sm text-muted-foreground">Notification preferences.</p>
+				<p className="text-sm text-muted-foreground">
+					Notification preferences.
+				</p>
 			</TabsContent>
 		</Tabs>
 	),

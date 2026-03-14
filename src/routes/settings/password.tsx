@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import {
 	changeOwnPassword,
 	getPasswordSettingsData,
@@ -57,13 +60,13 @@ function PasswordSettingsPage() {
 	return (
 		<main className="page-wrap px-4 pb-12 pt-10">
 			<section className="mb-8 max-w-2xl">
-				<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[var(--teal)]">
+				<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
 					Account Settings
 				</p>
-				<h1 className="display-title text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
+				<h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl">
 					Change password
 				</h1>
-				<p className="mt-2 text-sm text-[var(--ink-soft)]">
+				<p className="mt-2 text-sm text-muted-foreground">
 					Use this page to replace the temporary password your admin shared with
 					you or rotate your current one.
 				</p>
@@ -77,43 +80,43 @@ function PasswordSettingsPage() {
 
 			<form onSubmit={handleSubmit} className="surface-card max-w-2xl p-6">
 				<div className="grid gap-4">
-					<Field label="Current password" htmlFor="current-password">
-						<input
+					<div className="grid gap-1.5">
+						<Label htmlFor="current-password">Current password</Label>
+						<Input
 							id="current-password"
 							type="password"
 							value={currentPassword}
 							onChange={(event) => setCurrentPassword(event.target.value)}
 							required
-							className="h-10 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 text-sm text-[var(--ink)] focus:border-[var(--teal)] focus:outline-none"
 						/>
-					</Field>
+					</div>
 
-					<Field label="New password" htmlFor="new-password">
-						<input
+					<div className="grid gap-1.5">
+						<Label htmlFor="new-password">New password</Label>
+						<Input
 							id="new-password"
 							type="password"
 							value={newPassword}
 							onChange={(event) => setNewPassword(event.target.value)}
 							required
 							minLength={8}
-							className="h-10 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 text-sm text-[var(--ink)] focus:border-[var(--teal)] focus:outline-none"
 						/>
-					</Field>
+					</div>
 
-					<Field label="Confirm new password" htmlFor="confirm-password">
-						<input
+					<div className="grid gap-1.5">
+						<Label htmlFor="confirm-password">Confirm new password</Label>
+						<Input
 							id="confirm-password"
 							type="password"
 							value={confirmPassword}
 							onChange={(event) => setConfirmPassword(event.target.value)}
 							required
 							minLength={8}
-							className="h-10 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 text-sm text-[var(--ink)] focus:border-[var(--teal)] focus:outline-none"
 						/>
-					</Field>
+					</div>
 
 					{error ? (
-						<div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+						<div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
 							{error}
 						</div>
 					) : null}
@@ -124,28 +127,11 @@ function PasswordSettingsPage() {
 						</div>
 					) : null}
 
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						className="h-10 rounded-md bg-[var(--teal)] px-4 text-sm font-medium text-white transition hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50"
-					>
+					<Button type="submit" disabled={isSubmitting}>
 						{isSubmitting ? "Updating password..." : "Update password"}
-					</button>
+					</Button>
 				</div>
 			</form>
 		</main>
-	);
-}
-
-function Field(props: {
-	label: string;
-	htmlFor: string;
-	children: React.ReactNode;
-}) {
-	return (
-		<label htmlFor={props.htmlFor} className="grid gap-1.5 text-sm">
-			<span className="font-medium text-[var(--ink)]">{props.label}</span>
-			{props.children}
-		</label>
 	);
 }

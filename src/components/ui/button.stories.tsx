@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Trash2, Plus, Mail } from "lucide-react";
+import { Mail, Plus, Trash2 } from "lucide-react";
 import { Button } from "./button";
 
 const meta = {
@@ -19,7 +19,16 @@ const meta = {
 		},
 		size: {
 			control: "select",
-			options: ["default", "xs", "sm", "lg", "icon", "icon-xs", "icon-sm", "icon-lg"],
+			options: [
+				"default",
+				"xs",
+				"sm",
+				"lg",
+				"icon",
+				"icon-xs",
+				"icon-sm",
+				"icon-lg",
+			],
 		},
 		disabled: { control: "boolean" },
 	},

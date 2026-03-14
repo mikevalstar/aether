@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
+import { Button } from "#/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -29,11 +30,11 @@ export default function Header() {
 	const navigate = useNavigate();
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-sm">
+		<header className="sticky top-0 z-50 border-b border-border bg-[var(--header-bg)] px-4 backdrop-blur-sm">
 			<nav className="page-wrap flex items-center gap-6 py-3">
 				<Link
 					to="/"
-					className="text-sm font-bold text-[var(--teal)] no-underline tracking-wide"
+					className="text-sm font-bold text-primary no-underline tracking-wide"
 				>
 					Aether
 				</Link>
@@ -87,7 +88,7 @@ export default function Header() {
 							<DropdownMenuTrigger asChild>
 								<button
 									type="button"
-									className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal)]"
+									className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
 								>
 									<Avatar size="sm">
 										{session.user.image && (
@@ -96,7 +97,7 @@ export default function Header() {
 												alt={session.user.name ?? ""}
 											/>
 										)}
-										<AvatarFallback className="bg-[var(--teal)] text-xs text-white">
+										<AvatarFallback className="bg-primary text-xs text-primary-foreground">
 											{getInitials(session.user.name, session.user.email)}
 										</AvatarFallback>
 									</Avatar>
@@ -104,10 +105,10 @@ export default function Header() {
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" className="w-48">
 								<div className="px-2 py-1.5 text-sm">
-									<p className="font-medium text-[var(--ink)]">
+									<p className="font-medium text-foreground">
 										{session.user.name}
 									</p>
-									<p className="text-xs text-[var(--ink-soft)]">
+									<p className="text-xs text-muted-foreground">
 										{session.user.email}
 									</p>
 								</div>
@@ -134,12 +135,11 @@ export default function Header() {
 							</DropdownMenuContent>
 						</DropdownMenu>
 					) : (
-						<Link
-							to="/login"
-							className="rounded-md bg-[var(--teal)] px-3 py-1.5 text-sm font-medium text-white no-underline transition hover:opacity-85"
-						>
-							Sign in
-						</Link>
+						<Button asChild size="sm">
+							<Link to="/login" className="no-underline">
+								Sign in
+							</Link>
+						</Button>
 					)}
 				</div>
 			</nav>

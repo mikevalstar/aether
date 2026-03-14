@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Label } from "./label";
 import {
 	Select,
 	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
 	SelectGroup,
+	SelectItem,
 	SelectLabel,
 	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
 } from "./select";
-import { Label } from "./label";
 
 const meta = {
 	title: "UI/Select",

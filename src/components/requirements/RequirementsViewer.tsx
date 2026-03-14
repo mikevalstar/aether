@@ -9,11 +9,11 @@ import {
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Badge } from "#/components/ui/badge";
 import {
 	CodeBlockPre,
 	createMarkdownComponents,
 } from "#/components/markdown/markdown-components";
+import { Badge } from "#/components/ui/badge";
 import {
 	getRequirementHref,
 	type RequirementDocument,
@@ -43,17 +43,14 @@ export function RequirementsViewer({ data }: RequirementsViewerProps) {
 							Viewer
 						</h1>
 						<p className="mt-1 text-sm text-[var(--ink-soft)]">
-							Browse the docs in `docs/requirements/` without
-							leaving Aether.
+							Browse the docs in `docs/requirements/` without leaving Aether.
 						</p>
 					</div>
 
 					<nav className="max-h-[calc(100vh-10rem)] overflow-y-auto px-3 py-3">
 						<TreeList
 							nodes={data.tree}
-							currentRoutePath={
-								document?.routePath ?? data.requestedPath
-							}
+							currentRoutePath={document?.routePath ?? data.requestedPath}
 						/>
 					</nav>
 				</aside>
@@ -78,13 +75,7 @@ function TreeList(props: {
 	return (
 		<ul className={cn("space-y-1", props.depth ? "mt-1" : "")}>
 			{props.nodes.map((node) => (
-				<li
-					key={
-						node.type === "folder"
-							? node.path
-							: node.relativePath
-					}
-				>
+				<li key={node.type === "folder" ? node.path : node.relativePath}>
 					{node.type === "folder" ? (
 						<div>
 							<div
@@ -170,24 +161,14 @@ function DocumentView(props: { document: RequirementDocument }) {
 					</div>
 
 					<div className="flex flex-wrap items-center gap-2 text-xs text-[var(--ink-soft)]">
-						{document.status ? (
-							<Badge>{document.status}</Badge>
-						) : null}
+						{document.status ? <Badge>{document.status}</Badge> : null}
 						{document.owner ? (
-							<MetaPill
-								icon={
-									<UserRoundIcon className="size-3.5" />
-								}
-							>
+							<MetaPill icon={<UserRoundIcon className="size-3.5" />}>
 								{document.owner}
 							</MetaPill>
 						) : null}
 						{document.lastUpdated ? (
-							<MetaPill
-								icon={
-									<CalendarDaysIcon className="size-3.5" />
-								}
-							>
+							<MetaPill icon={<CalendarDaysIcon className="size-3.5" />}>
 								{document.lastUpdated}
 							</MetaPill>
 						) : null}
@@ -197,10 +178,7 @@ function DocumentView(props: { document: RequirementDocument }) {
 
 			<div className="px-6 py-6 sm:px-8 sm:py-8">
 				<div className="max-w-none text-[var(--ink)]">
-					<Markdown
-						remarkPlugins={[remarkGfm]}
-						components={markdownComponents}
-					>
+					<Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
 						{document.body}
 					</Markdown>
 				</div>

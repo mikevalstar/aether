@@ -41,10 +41,7 @@ const CodeHeader = ({ language, code }: CodeHeaderProps) => {
 			<span className="aui-code-header-language font-medium lowercase text-[var(--ink-soft)]">
 				{language}
 			</span>
-			<TooltipIconButton
-				tooltip="Copy"
-				onClick={() => code && copy(code)}
-			>
+			<TooltipIconButton tooltip="Copy" onClick={() => code && copy(code)}>
 				{!isCopied && <CopyIcon />}
 				{isCopied && <CheckIcon />}
 			</TooltipIconButton>
