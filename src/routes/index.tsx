@@ -7,16 +7,15 @@ function HomePage() {
 	const { data: session } = authClient.useSession();
 
 	return (
-		<main className="page-wrap px-4 pb-8 pt-14">
-			<section className="island-shell rise-in relative overflow-hidden rounded-[2rem] px-6 py-14 sm:px-10 sm:py-20">
-				<div className="pointer-events-none absolute -left-20 -top-24 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(79,184,178,0.32),transparent_66%)]" />
-				<div className="pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(47,106,74,0.18),transparent_66%)]" />
-
-				<p className="island-kicker mb-3">Personal Dashboard</p>
-				<h1 className="display-title mb-5 max-w-3xl text-4xl leading-[1.02] font-bold tracking-tight text-[var(--sea-ink)] sm:text-6xl">
+		<main className="page-wrap px-4 py-16">
+			<section className="rise-in mb-16">
+				<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[var(--teal)]">
+					Personal Dashboard
+				</p>
+				<h1 className="display-title mb-4 max-w-xl text-4xl font-bold leading-tight tracking-tight text-[var(--ink)] sm:text-5xl">
 					Your life, organised.
 				</h1>
-				<p className="mb-8 max-w-2xl text-base text-[var(--sea-ink-soft)] sm:text-lg">
+				<p className="mb-8 max-w-lg text-base text-[var(--ink-soft)]">
 					Aether brings together your notes, tasks, and AI assistant in one
 					calm, focused place.
 				</p>
@@ -25,7 +24,7 @@ function HomePage() {
 					{session?.user ? (
 						<Link
 							to="/dashboard"
-							className="rounded-full bg-[var(--lagoon-deep)] px-6 py-3 text-sm font-semibold text-white no-underline transition hover:-translate-y-0.5 hover:opacity-90"
+							className="rounded-md bg-[var(--teal)] px-5 py-2.5 text-sm font-medium text-white no-underline transition hover:opacity-85"
 						>
 							Go to Dashboard
 						</Link>
@@ -33,13 +32,13 @@ function HomePage() {
 						<>
 							<Link
 								to="/login"
-								className="rounded-full bg-[var(--lagoon-deep)] px-6 py-3 text-sm font-semibold text-white no-underline transition hover:-translate-y-0.5 hover:opacity-90"
+								className="rounded-md bg-[var(--teal)] px-5 py-2.5 text-sm font-medium text-white no-underline transition hover:opacity-85"
 							>
 								Get started
 							</Link>
 							<Link
 								to="/login"
-								className="rounded-full border border-[rgba(50,143,151,0.3)] bg-[rgba(79,184,178,0.14)] px-6 py-3 text-sm font-semibold text-[var(--lagoon-deep)] no-underline transition hover:-translate-y-0.5 hover:bg-[rgba(79,184,178,0.24)]"
+								className="rounded-md border border-[var(--line)] px-5 py-2.5 text-sm font-medium text-[var(--ink-soft)] no-underline transition hover:border-[var(--teal)] hover:text-[var(--ink)]"
 							>
 								Sign in
 							</Link>
@@ -48,34 +47,27 @@ function HomePage() {
 				</div>
 			</section>
 
-			<section className="mt-8 grid gap-4 sm:grid-cols-3">
+			<section className="grid overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--line)] gap-px sm:grid-cols-3">
 				{[
 					[
-						"💬",
 						"AI Chat",
 						"Ask questions about your Obsidian notes in natural language.",
 					],
+					["Daily Planner", "Organise your tasks and goals for each day."],
 					[
-						"📅",
-						"Daily Planner",
-						"Organise your tasks and goals for each day.",
-					],
-					[
-						"📓",
 						"Linked Notes",
 						"Browse and connect ideas across your entire vault.",
 					],
-				].map(([icon, title, desc], index) => (
+				].map(([title, desc], index) => (
 					<article
-						key={title as string}
-						className="island-shell feature-card rise-in rounded-2xl p-6"
-						style={{ animationDelay: `${index * 90 + 80}ms` }}
+						key={title}
+						className="rise-in bg-[var(--surface)] p-6"
+						style={{ animationDelay: `${index * 60 + 80}ms` }}
 					>
-						<div className="mb-3 text-2xl">{icon}</div>
-						<h2 className="mb-2 text-base font-semibold text-[var(--sea-ink)]">
+						<h2 className="mb-1.5 text-sm font-semibold text-[var(--ink)]">
 							{title}
 						</h2>
-						<p className="m-0 text-sm text-[var(--sea-ink-soft)]">{desc}</p>
+						<p className="m-0 text-sm text-[var(--ink-soft)]">{desc}</p>
 					</article>
 				))}
 			</section>

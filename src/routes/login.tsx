@@ -23,7 +23,7 @@ function LoginPage() {
 	if (isPending) {
 		return (
 			<main className="page-wrap flex items-center justify-center px-4 py-20">
-				<div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--lagoon-rim)] border-t-[var(--lagoon-deep)]" />
+				<div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--line)] border-t-[var(--teal)]" />
 			</main>
 		);
 	}
@@ -49,16 +49,15 @@ function LoginPage() {
 
 	return (
 		<main className="page-wrap flex items-center justify-center px-4 py-20">
-			<div className="island-shell rise-in w-full max-w-md rounded-2xl px-8 py-10">
-				<div className="mb-8 text-center">
-					<span className="island-kicker mb-2 block">Aether</span>
-					<h1 className="display-title text-2xl font-bold tracking-tight text-[var(--sea-ink)]">
-						{isSignUp ? "Create your account" : "Welcome back"}
+			<div className="surface-card rise-in w-full max-w-sm px-8 py-10">
+				<div className="mb-8">
+					<h1 className="display-title text-xl font-bold tracking-tight text-[var(--ink)]">
+						{isSignUp ? "Create account" : "Welcome back"}
 					</h1>
-					<p className="mt-2 text-sm text-[var(--sea-ink-soft)]">
+					<p className="mt-1 text-sm text-[var(--ink-soft)]">
 						{isSignUp
 							? "Enter your details to get started"
-							: "Sign in to access your dashboard"}
+							: "Sign in to your dashboard"}
 					</p>
 				</div>
 
@@ -67,7 +66,7 @@ function LoginPage() {
 						<div className="grid gap-1.5">
 							<label
 								htmlFor="name"
-								className="text-sm font-medium text-[var(--sea-ink)]"
+								className="text-sm font-medium text-[var(--ink)]"
 							>
 								Name
 							</label>
@@ -78,7 +77,7 @@ function LoginPage() {
 								onChange={(e) => setName(e.target.value)}
 								placeholder="Your name"
 								required
-								className="h-10 w-full rounded-lg border border-[var(--line)] bg-[var(--chip-bg)] px-3 text-sm text-[var(--sea-ink)] placeholder:text-[var(--sea-ink-soft)] focus:border-[var(--lagoon-deep)] focus:outline-none transition"
+								className="h-9 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-soft)] focus:border-[var(--teal)] focus:outline-none transition"
 							/>
 						</div>
 					)}
@@ -86,7 +85,7 @@ function LoginPage() {
 					<div className="grid gap-1.5">
 						<label
 							htmlFor="email"
-							className="text-sm font-medium text-[var(--sea-ink)]"
+							className="text-sm font-medium text-[var(--ink)]"
 						>
 							Email
 						</label>
@@ -97,14 +96,14 @@ function LoginPage() {
 							onChange={(e) => setEmail(e.target.value)}
 							placeholder="you@example.com"
 							required
-							className="h-10 w-full rounded-lg border border-[var(--line)] bg-[var(--chip-bg)] px-3 text-sm text-[var(--sea-ink)] placeholder:text-[var(--sea-ink-soft)] focus:border-[var(--lagoon-deep)] focus:outline-none transition"
+							className="h-9 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-soft)] focus:border-[var(--teal)] focus:outline-none transition"
 						/>
 					</div>
 
 					<div className="grid gap-1.5">
 						<label
 							htmlFor="password"
-							className="text-sm font-medium text-[var(--sea-ink)]"
+							className="text-sm font-medium text-[var(--ink)]"
 						>
 							Password
 						</label>
@@ -116,12 +115,12 @@ function LoginPage() {
 							placeholder="••••••••"
 							required
 							minLength={8}
-							className="h-10 w-full rounded-lg border border-[var(--line)] bg-[var(--chip-bg)] px-3 text-sm text-[var(--sea-ink)] placeholder:text-[var(--sea-ink-soft)] focus:border-[var(--lagoon-deep)] focus:outline-none transition"
+							className="h-9 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-soft)] focus:border-[var(--teal)] focus:outline-none transition"
 						/>
 					</div>
 
 					{error && (
-						<div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-800 dark:bg-red-900/20">
+						<div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 dark:border-red-800 dark:bg-red-900/20">
 							<p className="text-sm text-red-600 dark:text-red-400">{error}</p>
 						</div>
 					)}
@@ -129,7 +128,7 @@ function LoginPage() {
 					<button
 						type="submit"
 						disabled={loading}
-						className="mt-1 h-10 w-full rounded-full bg-[var(--lagoon-deep)] px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+						className="mt-1 h-9 w-full rounded-md bg-[var(--teal)] px-4 text-sm font-medium text-white transition hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{loading ? (
 							<span className="flex items-center justify-center gap-2">
@@ -151,7 +150,7 @@ function LoginPage() {
 							setIsSignUp(!isSignUp);
 							setError("");
 						}}
-						className="text-sm text-[var(--sea-ink-soft)] transition hover:text-[var(--sea-ink)]"
+						className="text-sm text-[var(--ink-soft)] transition hover:text-[var(--ink)]"
 					>
 						{isSignUp
 							? "Already have an account? Sign in"
