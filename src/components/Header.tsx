@@ -24,13 +24,22 @@ export default function Header() {
 						Home
 					</Link>
 					{session?.user && (
-						<Link
-							to="/dashboard"
-							className="nav-link"
-							activeProps={{ className: "nav-link is-active" }}
-						>
-							Dashboard
-						</Link>
+						<>
+							<Link
+								to="/dashboard"
+								className="nav-link"
+								activeProps={{ className: "nav-link is-active" }}
+							>
+								Dashboard
+							</Link>
+							<Link
+								to="/chat"
+								className="nav-link"
+								activeProps={{ className: "nav-link is-active" }}
+							>
+								Chat
+							</Link>
+						</>
 					)}
 				</div>
 

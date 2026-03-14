@@ -1,0 +1,134 @@
+import { createServerFn } from "@tanstack/react-start";
+import { prisma } from "#/db";
+import { ensureSession } from "#/lib/auth.functions";
+import {
+	type ChatThreadSummary,
+	DEFAULT_CHAT_MODEL,
+	getChatPreviewFromMessages,
+	isChatModel,
+	parseStoredMessages,
+} from "#/lib/chat";
+
+type ChatThreadInput = {
+	threadId?: string;
+};
+
+type CreateThreadInput = {
+	model?: string;
+};
+
+type UpdateThreadModelInput = {
+	threadId: string;
+	model: string;
+};
+
+type DeleteThreadInput = {
+	threadId: string;
+};
+
+function mapThreadSummary(thread: {
+	id: string;
+	title: string;
+	model: string;
+	messagesJson: string;
+	createdAt: Date;
+	updatedAt: Date;
+}): ChatThreadSummary {
+	const messages = parseStoredMessages(thread.messagesJson);
+
+	return {
+		id: thread.id,
+		title: thread.title,
+		model: isChatModel(thread.model) ? thread.model : DEFAULT_CHAT_MODEL,
+		preview: getChatPreviewFromMessages(messages),
+		createdAt: thread.createdAt.toISOString(),
+		updatedAt: thread.updatedAt.toISOString(),
+	};
+}
+
+export const getChatPageData = createServerFn({ method: "GET" })
+	.inputValidator((data: ChatThreadInput) => data)
+	.handler(async ({ data }) => {
+		const session = await ensureSession();
+
+		const threadRecords = await prisma.chatThread.findMany({
+			where: { userId: session.user.id },
+			orderBy: { updatedAt: "desc" },
+		});
+
+		const threads = threadRecords.map(mapThreadSummary);
+		const selectedThreadRecord =
+			threadRecords.find((thread) => thread.id === data.threadId) ??
+			threadRecords[0] ??
+			null;
+
+		return {
+			threads,
+			selectedThreadId: selectedThreadRecord?.id ?? null,
+			selectedThread: selectedThreadRecord
+				? mapThreadSummary(selectedThreadRecord)
+				: null,
+			messagesJson: selectedThreadRecord?.messagesJson ?? "[]",
+		};
+	});
+
+export const createChatThread = createServerFn({ method: "POST" })
+	.inputValidator((data: CreateThreadInput) => data)
+	.handler(async ({ data }) => {
+		const session = await ensureSession();
+		const model =
+			data.model && isChatModel(data.model) ? data.model : DEFAULT_CHAT_MODEL;
+
+		const thread = await prisma.chatThread.create({
+			data: {
+				id: `thread_${crypto.randomUUID()}`,
+				userId: session.user.id,
+				model,
+			},
+		});
+
+		return mapThreadSummary(thread);
+	});
+
+export const updateChatThreadModel = createServerFn({ method: "POST" })
+	.inputValidator((data: UpdateThreadModelInput) => data)
+	.handler(async ({ data }) => {
+		const session = await ensureSession();
+
+		if (!isChatModel(data.model)) {
+			throw new Error("Invalid model");
+		}
+
+		const thread = await prisma.chatThread.findFirst({
+			where: { id: data.threadId, userId: session.user.id },
+		});
+
+		if (!thread) {
+			throw new Error("Thread not found");
+		}
+
+		const updatedThread = await prisma.chatThread.update({
+			where: { id: data.threadId },
+			data: { model: data.model },
+		});
+
+		return mapThreadSummary(updatedThread);
+	});
+
+export const deleteChatThread = createServerFn({ method: "POST" })
+	.inputValidator((data: DeleteThreadInput) => data)
+	.handler(async ({ data }) => {
+		const session = await ensureSession();
+
+		const thread = await prisma.chatThread.findFirst({
+			where: { id: data.threadId, userId: session.user.id },
+		});
+
+		if (!thread) {
+			throw new Error("Thread not found");
+		}
+
+		await prisma.chatThread.delete({ where: { id: data.threadId } });
+
+		return { success: true };
+	});
