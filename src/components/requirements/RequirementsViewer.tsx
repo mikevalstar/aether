@@ -7,9 +7,13 @@ import {
 	UserRoundIcon,
 } from "lucide-react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import Markdown, { type Components } from "react-markdown";
+import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Badge } from "#/components/ui/badge";
+import {
+	CodeBlockPre,
+	createMarkdownComponents,
+} from "#/components/markdown/markdown-components";
 import {
 	getRequirementHref,
 	type RequirementDocument,
@@ -39,14 +43,17 @@ export function RequirementsViewer({ data }: RequirementsViewerProps) {
 							Viewer
 						</h1>
 						<p className="mt-1 text-sm text-[var(--ink-soft)]">
-							Browse the docs in `docs/requirements/` without leaving Aether.
+							Browse the docs in `docs/requirements/` without
+							leaving Aether.
 						</p>
 					</div>
 
 					<nav className="max-h-[calc(100vh-10rem)] overflow-y-auto px-3 py-3">
 						<TreeList
 							nodes={data.tree}
-							currentRoutePath={document?.routePath ?? data.requestedPath}
+							currentRoutePath={
+								document?.routePath ?? data.requestedPath
+							}
 						/>
 					</nav>
 				</aside>
@@ -71,12 +78,20 @@ function TreeList(props: {
 	return (
 		<ul className={cn("space-y-1", props.depth ? "mt-1" : "")}>
 			{props.nodes.map((node) => (
-				<li key={node.type === "folder" ? node.path : node.relativePath}>
+				<li
+					key={
+						node.type === "folder"
+							? node.path
+							: node.relativePath
+					}
+				>
 					{node.type === "folder" ? (
 						<div>
 							<div
 								className="flex items-center gap-2 rounded-md px-2.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]"
-								style={{ paddingLeft: `${(props.depth ?? 0) * 14 + 10}px` }}
+								style={{
+									paddingLeft: `${(props.depth ?? 0) * 14 + 10}px`,
+								}}
 							>
 								<FolderTreeIcon className="size-3.5" />
 								<span>{node.name}</span>
@@ -96,7 +111,9 @@ function TreeList(props: {
 									? "bg-[var(--accent)] text-[var(--ink)]"
 									: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
 							)}
-							style={{ paddingLeft: `${(props.depth ?? 0) * 14 + 10}px` }}
+							style={{
+								paddingLeft: `${(props.depth ?? 0) * 14 + 10}px`,
+							}}
 						>
 							<FileTextIcon className="size-4 shrink-0" />
 							<span className="truncate">{node.title}</span>
@@ -118,7 +135,22 @@ function TreeList(props: {
 
 function DocumentView(props: { document: RequirementDocument }) {
 	const { document } = props;
-	const markdownComponents = getMarkdownComponents(document.relativePath);
+	const markdownComponents = createMarkdownComponents("prose", {
+		a: ({ href, children, className, ...rest }) => (
+			<MarkdownAnchor
+				href={href}
+				currentRelativePath={document.relativePath}
+				className={cn(
+					"font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
+					className,
+				)}
+				{...rest}
+			>
+				{children}
+			</MarkdownAnchor>
+		),
+		pre: (preProps) => <CodeBlockPre variant="prose" {...preProps} />,
+	});
 
 	return (
 		<div>
@@ -138,14 +170,24 @@ function DocumentView(props: { document: RequirementDocument }) {
 					</div>
 
 					<div className="flex flex-wrap items-center gap-2 text-xs text-[var(--ink-soft)]">
-						{document.status ? <Badge>{document.status}</Badge> : null}
+						{document.status ? (
+							<Badge>{document.status}</Badge>
+						) : null}
 						{document.owner ? (
-							<MetaPill icon={<UserRoundIcon className="size-3.5" />}>
+							<MetaPill
+								icon={
+									<UserRoundIcon className="size-3.5" />
+								}
+							>
 								{document.owner}
 							</MetaPill>
 						) : null}
 						{document.lastUpdated ? (
-							<MetaPill icon={<CalendarDaysIcon className="size-3.5" />}>
+							<MetaPill
+								icon={
+									<CalendarDaysIcon className="size-3.5" />
+								}
+							>
 								{document.lastUpdated}
 							</MetaPill>
 						) : null}
@@ -155,203 +197,16 @@ function DocumentView(props: { document: RequirementDocument }) {
 
 			<div className="px-6 py-6 sm:px-8 sm:py-8">
 				<div className="max-w-none text-[var(--ink)]">
-					<Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+					<Markdown
+						remarkPlugins={[remarkGfm]}
+						components={markdownComponents}
+					>
 						{document.body}
 					</Markdown>
 				</div>
 			</div>
 		</div>
 	);
-}
-
-function getMarkdownComponents(currentRelativePath: string): Components {
-	return {
-		h1: ({ className, ...props }) => (
-			<h1
-				className={cn(
-					"display-title mt-10 mb-4 text-3xl font-bold tracking-tight text-[var(--ink)] first:mt-0 sm:text-[2rem]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		h2: ({ className, ...props }) => (
-			<h2
-				className={cn(
-					"mt-10 mb-3 border-b border-[var(--line)] pb-2 text-[1.45rem] font-semibold tracking-tight text-[var(--ink)] first:mt-0",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		h3: ({ className, ...props }) => (
-			<h3
-				className={cn(
-					"mt-8 mb-2 text-[1.15rem] font-semibold text-[var(--ink)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		h4: ({ className, ...props }) => (
-			<h4
-				className={cn(
-					"mt-6 mb-2 text-base font-semibold text-[var(--ink)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		h5: ({ className, ...props }) => (
-			<h5
-				className={cn(
-					"mt-5 mb-2 text-sm font-semibold text-[var(--ink)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		h6: ({ className, ...props }) => (
-			<h6
-				className={cn(
-					"mt-5 mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		p: ({ className, ...props }) => (
-			<p
-				className={cn(
-					"my-4 text-[0.97rem] leading-7 text-[var(--ink)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		a: ({ href, children, className, ...rest }) => (
-			<MarkdownAnchor
-				href={href}
-				currentRelativePath={currentRelativePath}
-				className={cn(
-					"font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
-					className,
-				)}
-				{...rest}
-			>
-				{children}
-			</MarkdownAnchor>
-		),
-		strong: ({ className, ...props }) => (
-			<strong
-				className={cn("font-semibold text-[var(--ink)]", className)}
-				{...props}
-			/>
-		),
-		em: ({ className, ...props }) => (
-			<em className={cn("italic text-[var(--ink)]", className)} {...props} />
-		),
-		ul: ({ className, ...props }) => (
-			<ul
-				className={cn(
-					"my-4 ml-5 list-disc space-y-2 marker:text-[var(--ink-soft)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		ol: ({ className, ...props }) => (
-			<ol
-				className={cn(
-					"my-4 ml-5 list-decimal space-y-2 marker:text-[var(--ink-soft)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		li: ({ className, ...props }) => (
-			<li
-				className={cn(
-					"pl-1 leading-7 text-[0.97rem] text-[var(--ink)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		blockquote: ({ className, ...props }) => (
-			<blockquote
-				className={cn(
-					"my-6 rounded-r-lg border-l-3 border-[var(--teal)] bg-[var(--bg)] px-4 py-3 text-[0.97rem] leading-7 text-[var(--ink-soft)] italic",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		hr: ({ className, ...props }) => (
-			<hr
-				className={cn("my-8 border-0 border-t border-[var(--line)]", className)}
-				{...props}
-			/>
-		),
-		table: ({ className, ...props }) => (
-			<div className="my-6 overflow-x-auto rounded-xl border border-[var(--line)] bg-[var(--surface)]">
-				<table
-					className={cn("w-full min-w-[36rem] border-collapse", className)}
-					{...props}
-				/>
-			</div>
-		),
-		thead: ({ className, ...props }) => (
-			<thead className={cn("bg-[var(--bg)]", className)} {...props} />
-		),
-		tbody: ({ className, ...props }) => (
-			<tbody className={cn("align-top", className)} {...props} />
-		),
-		tr: ({ className, ...props }) => (
-			<tr
-				className={cn("border-t border-[var(--line)]", className)}
-				{...props}
-			/>
-		),
-		th: ({ className, ...props }) => (
-			<th
-				className={cn(
-					"px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		td: ({ className, ...props }) => (
-			<td
-				className={cn(
-					"px-4 py-3 text-[0.92rem] leading-6 text-[var(--ink)] align-top",
-					className,
-				)}
-				{...props}
-			/>
-		),
-		code: ({ className, children, ...props }) => (
-			<code
-				className={cn(
-					"rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 font-mono text-[0.84em] text-[var(--ink)]",
-					className,
-				)}
-				{...props}
-			>
-				{children}
-			</code>
-		),
-		pre: ({ className, ...props }) => (
-			<pre
-				className={cn(
-					"my-6 overflow-x-auto rounded-xl border border-[var(--line)] bg-[oklch(0.16_0.003_80)] p-4 text-[13px] leading-6 text-[oklch(0.94_0.003_80)]",
-					className,
-				)}
-				{...props}
-			/>
-		),
-	};
 }
 
 function MarkdownAnchor({
