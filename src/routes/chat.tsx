@@ -4,11 +4,23 @@ import {
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { MessageSquarePlusIcon, Trash2Icon } from "lucide-react";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import {
+	GripVerticalIcon,
+	MessageSquarePlusIcon,
+	Trash2Icon,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { z } from "zod";
 import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import {
 	Select,
 	SelectContent,
@@ -36,6 +48,10 @@ const chatSearchSchema = z.object({
 });
 
 const PENDING_MESSAGE_KEY = "aether:pending-chat-message";
+const SIDEBAR_WIDTH_KEY = "aether:chat-sidebar-width";
+const DEFAULT_SIDEBAR_WIDTH = 320;
+const MIN_SIDEBAR_WIDTH = 280;
+const MAX_SIDEBAR_WIDTH = 460;
 
 export const Route = createFileRoute("/chat")({
 	validateSearch: chatSearchSchema,
@@ -58,7 +74,11 @@ function ChatPage() {
 	const search = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
 	const router = useRouter();
+	const containerRef = useRef<HTMLDivElement | null>(null);
 	const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
+	const [pendingDeleteThread, setPendingDeleteThread] =
+		useState<ChatThreadSummary | null>(null);
+	const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
 	const [isMutating, startTransition] = useTransition();
 	const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
 	const [draftMessage, setDraftMessage] = useState("");
@@ -123,6 +143,20 @@ function ChatPage() {
 			: `$${selectedUsageTotals.estimatedCostUsd.toFixed(4)}`;
 
 	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const storedWidth = window.localStorage.getItem(SIDEBAR_WIDTH_KEY);
+		if (!storedWidth) return;
+
+		const parsedWidth = Number.parseInt(storedWidth, 10);
+		if (Number.isNaN(parsedWidth)) return;
+
+		setSidebarWidth(
+			Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, parsedWidth)),
+		);
+	}, []);
+
+	useEffect(() => {
 		if (!search.threadId && data.selectedThreadId) {
 			void navigate({
 				replace: true,
@@ -148,6 +182,51 @@ function ChatPage() {
 		setInitialMessage(pendingMessage);
 	}, [selectedThread?.id]);
 
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		window.localStorage.setItem(SIDEBAR_WIDTH_KEY, String(sidebarWidth));
+	}, [sidebarWidth]);
+
+	const handleResizeStart = useCallback(() => {
+		if (typeof window === "undefined") return;
+
+		const handlePointerMove = (event: PointerEvent) => {
+			const containerRect = containerRef.current?.getBoundingClientRect();
+			if (!containerRect) return;
+
+			const nextWidth = Math.round(containerRect.right - event.clientX);
+			setSidebarWidth(
+				Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, nextWidth)),
+			);
+		};
+
+		const handlePointerUp = () => {
+			window.removeEventListener("pointermove", handlePointerMove);
+			window.removeEventListener("pointerup", handlePointerUp);
+			document.body.style.cursor = "";
+			document.body.style.userSelect = "";
+		};
+
+		document.body.style.cursor = "col-resize";
+		document.body.style.userSelect = "none";
+		window.addEventListener("pointermove", handlePointerMove);
+		window.addEventListener("pointerup", handlePointerUp, { once: true });
+	}, []);
+
+	function handleRequestDelete(thread: ChatThreadSummary) {
+		setPendingDeleteThread(thread);
+	}
+
+	function handleConfirmDelete() {
+		if (!pendingDeleteThread) return;
+
+		startTransition(() => {
+			void handleDeleteThread(pendingDeleteThread).then(() => {
+				setPendingDeleteThread(null);
+			});
+		});
+	}
+
 	function handleStartChat() {
 		const message = draftMessage.trim();
 		if (!message) return;
@@ -161,81 +240,11 @@ function ChatPage() {
 
 	return (
 		<main className="mx-auto flex h-[calc(100vh-8rem)] w-[min(1400px,calc(100%-2rem))] px-4 py-8">
-			<div className="grid min-h-0 w-full gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-				<aside className="order-2 flex min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
-					<div className="mb-4 flex items-center justify-between gap-3">
-						<h1 className="text-base font-semibold text-[var(--ink)]">
-							Threads
-						</h1>
-						<Button
-							type="button"
-							size="sm"
-							variant="outline"
-							onClick={() => {
-								startTransition(() => {
-									void handleCreateThread(DEFAULT_CHAT_MODEL);
-								});
-							}}
-							disabled={isBusy}
-						>
-							<MessageSquarePlusIcon className="size-4" />
-							New
-						</Button>
-					</div>
-
-					<div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-						{data.threads.map((thread: ChatThreadSummary) => {
-							const isActive = thread.id === selectedThread?.id;
-
-							return (
-								<div key={thread.id} className="group relative">
-									<button
-										type="button"
-										onClick={() => {
-											void navigate({ search: { threadId: thread.id } });
-										}}
-										className={cn(
-											"w-full rounded-lg px-3 py-2.5 pr-11 text-left transition",
-											isActive
-												? "bg-[var(--accent)] text-[var(--ink)]"
-												: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
-										)}
-									>
-										<p className="truncate text-sm font-medium">
-											{thread.title}
-										</p>
-										<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
-											{thread.preview}
-										</p>
-									</button>
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon-xs"
-										className={cn(
-											"absolute top-2.5 right-2 text-[var(--ink-soft)] opacity-0 transition hover:text-[var(--ink)]",
-											isActive && "opacity-100",
-											"group-hover:opacity-100",
-										)}
-										disabled={isBusy}
-										onClick={(event) => {
-											event.stopPropagation();
-
-											startTransition(() => {
-												void handleDeleteThread(thread);
-											});
-										}}
-										aria-label={`Delete ${thread.title}`}
-									>
-										<Trash2Icon className="size-3.5" />
-									</Button>
-								</div>
-							);
-						})}
-					</div>
-				</aside>
-
-				<section className="order-1 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)]">
+			<div
+				ref={containerRef}
+				className="flex min-h-0 w-full flex-col gap-4 lg:flex-row"
+			>
+				<section className="order-1 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:flex-1">
 					<div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-4 py-3">
 						<div className="min-w-0 flex-1">
 							<p className="truncate text-sm font-medium text-[var(--ink)]">
@@ -311,10 +320,7 @@ function ChatPage() {
 								disabled={!selectedThread || isBusy}
 								onClick={() => {
 									if (!selectedThread) return;
-
-									startTransition(() => {
-										void handleDeleteThread(selectedThread);
-									});
+									handleRequestDelete(selectedThread);
 								}}
 							>
 								<Trash2Icon className="size-4" />
@@ -375,7 +381,135 @@ function ChatPage() {
 						)}
 					</div>
 				</section>
+
+				<div className="order-2 hidden w-3 items-stretch justify-center lg:flex">
+					<button
+						type="button"
+						className="group flex w-full cursor-col-resize items-center justify-center rounded-lg border border-transparent text-[var(--ink-soft)] transition hover:border-[var(--line)] hover:bg-[var(--surface)] hover:text-[var(--ink)] focus-visible:border-[var(--line)] focus-visible:bg-[var(--surface)] focus-visible:outline-none"
+						onPointerDown={(event) => {
+							event.preventDefault();
+							handleResizeStart();
+						}}
+						onDoubleClick={() => {
+							setSidebarWidth(DEFAULT_SIDEBAR_WIDTH);
+						}}
+						aria-label="Resize thread sidebar"
+					>
+						<GripVerticalIcon className="size-4 transition group-hover:scale-110" />
+					</button>
+				</div>
+
+				<aside
+					className="order-3 flex min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 lg:shrink-0"
+					style={{ width: `${sidebarWidth}px` }}
+				>
+					<div className="mb-4 flex items-center justify-between gap-3">
+						<h1 className="text-base font-semibold text-[var(--ink)]">
+							Threads
+						</h1>
+						<Button
+							type="button"
+							size="sm"
+							variant="outline"
+							onClick={() => {
+								startTransition(() => {
+									void handleCreateThread(DEFAULT_CHAT_MODEL);
+								});
+							}}
+							disabled={isBusy}
+						>
+							<MessageSquarePlusIcon className="size-4" />
+							New
+						</Button>
+					</div>
+
+					<div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+						{data.threads.map((thread: ChatThreadSummary) => {
+							const isActive = thread.id === selectedThread?.id;
+
+							return (
+								<div key={thread.id} className="group relative">
+									<button
+										type="button"
+										onClick={() => {
+											void navigate({ search: { threadId: thread.id } });
+										}}
+										className={cn(
+											"w-full rounded-lg px-3 py-2.5 pr-11 text-left transition",
+											isActive
+												? "bg-[var(--accent)] text-[var(--ink)]"
+												: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
+										)}
+									>
+										<p className="truncate text-sm font-medium">
+											{thread.title}
+										</p>
+										<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
+											{thread.preview}
+										</p>
+									</button>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-xs"
+										className={cn(
+											"absolute top-2.5 right-2 text-[var(--ink-soft)] opacity-0 transition hover:text-[var(--ink)]",
+											isActive && "opacity-100",
+											"group-hover:opacity-100",
+										)}
+										disabled={isBusy}
+										onClick={(event) => {
+											event.stopPropagation();
+											handleRequestDelete(thread);
+										}}
+										aria-label={`Delete ${thread.title}`}
+									>
+										<Trash2Icon className="size-3.5" />
+									</Button>
+								</div>
+							);
+						})}
+					</div>
+				</aside>
 			</div>
+
+			<Dialog
+				open={pendingDeleteThread !== null}
+				onOpenChange={(open) => {
+					if (!open && !isBusy) {
+						setPendingDeleteThread(null);
+					}
+				}}
+			>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>Delete thread?</DialogTitle>
+						<DialogDescription>
+							{pendingDeleteThread
+								? `This will permanently remove "${pendingDeleteThread.title}" and its messages.`
+								: "This will permanently remove the selected thread and its messages."}
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => setPendingDeleteThread(null)}
+							disabled={isBusy}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="button"
+							variant="destructive"
+							onClick={handleConfirmDelete}
+							disabled={isBusy || !pendingDeleteThread}
+						>
+							Delete thread
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</main>
 	);
 }
