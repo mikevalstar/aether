@@ -8,7 +8,7 @@ function HomePage() {
 
 	return (
 		<main className="page-wrap px-4 py-16">
-			<section className="rise-in mb-16">
+			<section className="mb-16">
 				<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[var(--teal)]">
 					Personal Dashboard
 				</p>
@@ -58,12 +58,8 @@ function HomePage() {
 						"Linked Notes",
 						"Browse and connect ideas across your entire vault.",
 					],
-				].map(([title, desc], index) => (
-					<article
-						key={title}
-						className="rise-in bg-[var(--surface)] p-6"
-						style={{ animationDelay: `${index * 60 + 80}ms` }}
-					>
+				].map(([title, desc]) => (
+					<article key={title} className="bg-[var(--surface)] p-6">
 						<h2 className="mb-1.5 text-sm font-semibold text-[var(--ink)]">
 							{title}
 						</h2>

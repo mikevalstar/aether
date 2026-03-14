@@ -49,7 +49,7 @@ function LoginPage() {
 
 	return (
 		<main className="page-wrap flex items-center justify-center px-4 py-20">
-			<div className="surface-card rise-in w-full max-w-sm px-8 py-10">
+			<div className="surface-card w-full max-w-sm px-8 py-10">
 				<div className="mb-8">
 					<h1 className="display-title text-xl font-bold tracking-tight text-[var(--ink)]">
 						{isSignUp ? "Create account" : "Welcome back"}
