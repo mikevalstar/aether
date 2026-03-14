@@ -4,13 +4,12 @@ import {
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import {
-	GripVerticalIcon,
-	MessageSquarePlusIcon,
-	Trash2Icon,
-} from "lucide-react";
+import { GripVerticalIcon, MessageSquarePlusIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { z } from "zod";
+import { ChatEmptyState } from "#/components/chat/ChatEmptyState";
+import { ChatHeader } from "#/components/chat/ChatHeader";
+import { ChatThreadItem } from "#/components/chat/ChatThreadItem";
 import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { Button } from "#/components/ui/button";
 import {
@@ -22,13 +21,12 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
-import { Textarea } from "#/components/ui/textarea";
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+} from "#/components/ui/drawer";
 import { getSession } from "#/lib/auth.functions";
 import {
 	CHAT_MODELS,
@@ -41,7 +39,6 @@ import {
 	getChatPageData,
 	updateChatThreadModel,
 } from "#/lib/chat.functions";
-import { cn } from "#/lib/utils";
 
 const chatSearchSchema = z.object({
 	threadId: z.string().optional(),
@@ -83,6 +80,7 @@ function ChatPage() {
 	const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
 	const [draftMessage, setDraftMessage] = useState("");
 	const [initialMessage, setInitialMessage] = useState<string | undefined>();
+	const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
 	const refreshPage = useCallback(async () => {
 		await router.invalidate();
@@ -141,6 +139,10 @@ function ChatPage() {
 		selectedUsageTotals.estimatedCostUsd < 0.0001
 			? "<$0.0001"
 			: `$${selectedUsageTotals.estimatedCostUsd.toFixed(4)}`;
+
+	const currentModelDef = CHAT_MODELS.find(
+		(m) => m.id === (selectedThread ? selectedModel : emptyStateModel),
+	);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -238,95 +240,75 @@ function ChatPage() {
 		});
 	}
 
+	function handleMobileThreadSelect(threadId: string) {
+		setMobileDrawerOpen(false);
+		void navigate({ search: { threadId } });
+	}
+
+	const threadListContent = (
+		<div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+			{data.threads.map((thread: ChatThreadSummary) => (
+				<ChatThreadItem
+					key={thread.id}
+					title={thread.title}
+					preview={thread.preview}
+					isActive={thread.id === selectedThread?.id}
+					disabled={isBusy}
+					onClick={() => handleMobileThreadSelect(thread.id)}
+					onDelete={() => handleRequestDelete(thread)}
+				/>
+			))}
+
+			{data.threads.length === 0 && (
+				<div className="px-3 py-8 text-center">
+					<p className="text-sm text-[var(--ink-soft)]">No threads yet</p>
+					<p className="mt-1 text-xs text-[var(--ink-soft)]">
+						Start a conversation to begin
+					</p>
+				</div>
+			)}
+		</div>
+	);
+
 	return (
-		<main className="page-wrap flex h-[calc(100vh-8rem)] px-4 py-8">
+		<main className="page-wrap flex h-[calc(100vh-8rem)] px-4 py-6">
 			<div
 				ref={containerRef}
-				className="flex min-h-0 w-full flex-col gap-4 lg:flex-row"
+				className="flex min-h-0 w-full flex-col gap-0 lg:flex-row lg:gap-0"
 			>
-				<section className="order-1 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:flex-1">
-					<div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-4 py-3">
-						<div className="min-w-0 flex-1">
-							<p className="truncate text-sm font-medium text-[var(--ink)]">
-								{selectedThread?.title ?? "New chat"}
-							</p>
-						</div>
+				{/* Main chat area */}
+				<section className="order-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:rounded-r-none lg:border-r-0">
+					<ChatHeader
+						title={selectedThread?.title ?? "New chat"}
+						model={selectedThread ? selectedModel : emptyStateModel}
+						inputTokens={selectedUsageTotals.inputTokens}
+						outputTokens={selectedUsageTotals.outputTokens}
+						costLabel={selectedCostLabel}
+						showStats={!!selectedThread}
+						disabled={isBusy}
+						showMobileMenu
+						onMobileMenuClick={() => setMobileDrawerOpen(true)}
+						onModelChange={(value) => {
+							if (!selectedThread) {
+								setDraftModel(value as (typeof CHAT_MODELS)[number]["id"]);
+								return;
+							}
 
-						<div className="grid min-w-[240px] grid-cols-3 gap-2 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-right">
-							<div>
-								<p className="text-[11px] uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-									Input
-								</p>
-								<p className="text-sm font-medium text-[var(--ink)]">
-									{selectedUsageTotals.inputTokens.toLocaleString()}
-								</p>
-							</div>
-							<div>
-								<p className="text-[11px] uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-									Output
-								</p>
-								<p className="text-sm font-medium text-[var(--ink)]">
-									{selectedUsageTotals.outputTokens.toLocaleString()}
-								</p>
-							</div>
-							<div>
-								<p className="text-[11px] uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-									Cost
-								</p>
-								<p className="text-sm font-medium text-[var(--ink)]">
-									{selectedCostLabel}
-								</p>
-							</div>
-						</div>
-
-						<div className="flex flex-wrap items-center gap-2">
-							<Select
-								value={selectedThread ? selectedModel : emptyStateModel}
-								onValueChange={(value) => {
-									if (!selectedThread) {
-										setDraftModel(value as (typeof CHAT_MODELS)[number]["id"]);
-										return;
-									}
-
-									startTransition(() => {
-										void updateChatThreadModel({
-											data: { threadId: selectedThread.id, model: value },
-										}).then(refreshPage);
-									});
-								}}
-								disabled={isBusy}
-							>
-								<SelectTrigger className="min-w-48">
-									<SelectValue placeholder="Choose model" />
-								</SelectTrigger>
-								<SelectContent>
-									{CHAT_MODELS.map((model) => (
-										<SelectItem key={model.id} value={model.id}>
-											<div className="flex items-center gap-2">
-												<span>{model.label}</span>
-												<span className="text-xs text-muted-foreground">
-													{model.description}
-												</span>
-											</div>
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								disabled={!selectedThread || isBusy}
-								onClick={() => {
-									if (!selectedThread) return;
-									handleRequestDelete(selectedThread);
-								}}
-							>
-								<Trash2Icon className="size-4" />
-							</Button>
-						</div>
-					</div>
+							startTransition(() => {
+								void updateChatThreadModel({
+									data: {
+										threadId: selectedThread.id,
+										model: value,
+									},
+								}).then(refreshPage);
+							});
+						}}
+						onDelete={
+							selectedThread
+								? () => handleRequestDelete(selectedThread)
+								: undefined
+						}
+					/>
 
 					<div className="min-h-0 flex-1">
 						{selectedThread ? (
@@ -341,51 +323,28 @@ function ChatPage() {
 								}}
 							/>
 						) : (
-							<div className="flex h-full items-center justify-center px-6">
-								<div className="w-full max-w-lg space-y-4">
-									<div className="text-center">
-										<h2 className="text-lg font-semibold text-[var(--ink)]">
-											Start a conversation
-										</h2>
-										<p className="mt-1 text-sm text-[var(--ink-soft)]">
-											Type a message to begin.
-										</p>
-									</div>
-									<Textarea
-										value={draftMessage}
-										onChange={(event) => setDraftMessage(event.target.value)}
-										onKeyDown={(event) => {
-											if (event.key === "Enter" && !event.shiftKey) {
-												event.preventDefault();
-												handleStartChat();
-											}
-										}}
-										placeholder="Ask something..."
-										className="min-h-28 rounded-lg bg-[var(--bg)] px-3 py-2.5"
-									/>
-									<div className="flex items-center justify-between gap-3">
-										<p className="text-xs text-[var(--ink-soft)]">
-											Enter to send, Shift+Enter for new line
-										</p>
-										<Button
-											type="button"
-											size="sm"
-											onClick={handleStartChat}
-											disabled={isBusy || draftMessage.trim().length === 0}
-										>
-											Send
-										</Button>
-									</div>
-								</div>
-							</div>
+							<ChatEmptyState
+								model={emptyStateModel}
+								modelLabel={currentModelDef?.label ?? "Claude"}
+								disabled={isBusy}
+								onModelChange={(value) => {
+									setDraftModel(value as (typeof CHAT_MODELS)[number]["id"]);
+								}}
+								onSend={(message) => {
+									startTransition(() => {
+										void handleCreateThread(emptyStateModel, message);
+									});
+								}}
+							/>
 						)}
 					</div>
 				</section>
 
+				{/* Desktop resize handle */}
 				<div className="order-2 hidden w-3 items-stretch justify-center lg:flex">
 					<button
 						type="button"
-						className="group flex w-full cursor-col-resize items-center justify-center rounded-lg border border-transparent text-[var(--ink-soft)] transition hover:border-[var(--line)] hover:bg-[var(--surface)] hover:text-[var(--ink)] focus-visible:border-[var(--line)] focus-visible:bg-[var(--surface)] focus-visible:outline-none"
+						className="group flex w-full cursor-col-resize items-center justify-center rounded-none text-[var(--ink-soft)] transition hover:bg-[var(--teal-subtle)] hover:text-[var(--teal)] focus-visible:bg-[var(--teal-subtle)] focus-visible:outline-none"
 						onPointerDown={(event) => {
 							event.preventDefault();
 							handleResizeStart();
@@ -399,78 +358,73 @@ function ChatPage() {
 					</button>
 				</div>
 
+				{/* Desktop sidebar */}
 				<aside
-					className="order-3 flex min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 lg:shrink-0"
+					className="order-3 hidden min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:flex lg:rounded-l-none"
 					style={{ width: `${sidebarWidth}px` }}
 				>
-					<div className="mb-4 flex items-center justify-between gap-3">
-						<h1 className="text-base font-semibold text-[var(--ink)]">
+					<div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-3">
+						<h2 className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
 							Threads
-						</h1>
+						</h2>
 						<Button
 							type="button"
 							size="sm"
-							variant="outline"
 							onClick={() => {
 								startTransition(() => {
 									void handleCreateThread(DEFAULT_CHAT_MODEL);
 								});
 							}}
 							disabled={isBusy}
+							className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
 						>
 							<MessageSquarePlusIcon className="size-4" />
 							New
 						</Button>
 					</div>
 
-					<div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-						{data.threads.map((thread: ChatThreadSummary) => {
-							const isActive = thread.id === selectedThread?.id;
-
-							return (
-								<div key={thread.id} className="group relative">
-									<button
-										type="button"
-										onClick={() => {
-											void navigate({ search: { threadId: thread.id } });
-										}}
-										className={cn(
-											"w-full rounded-lg px-3 py-2.5 pr-11 text-left transition",
-											isActive
-												? "bg-[var(--accent)] text-[var(--ink)]"
-												: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
-										)}
-									>
-										<p className="truncate text-sm font-medium">
-											{thread.title}
-										</p>
-										<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
-											{thread.preview}
-										</p>
-									</button>
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon-xs"
-										className={cn(
-											"absolute top-2.5 right-2 text-[var(--ink-soft)] opacity-0 transition hover:text-[var(--ink)]",
-											isActive && "opacity-100",
-											"group-hover:opacity-100",
-										)}
-										disabled={isBusy}
-										onClick={(event) => {
-											event.stopPropagation();
-											handleRequestDelete(thread);
-										}}
-										aria-label={`Delete ${thread.title}`}
-									>
-										<Trash2Icon className="size-3.5" />
-									</Button>
-								</div>
-							);
-						})}
-					</div>
+					<div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
 				</aside>
+
+				{/* Mobile drawer */}
+				<Drawer
+					open={mobileDrawerOpen}
+					onOpenChange={setMobileDrawerOpen}
+					direction="right"
+				>
+					<DrawerContent className="h-full">
+						<DrawerHeader className="flex flex-row items-center justify-between border-b border-[var(--line)]">
+							<DrawerTitle className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
+								Threads
+							</DrawerTitle>
+							<div className="flex items-center gap-2">
+								<Button
+									type="button"
+									size="sm"
+									onClick={() => {
+										setMobileDrawerOpen(false);
+										startTransition(() => {
+											void handleCreateThread(DEFAULT_CHAT_MODEL);
+										});
+									}}
+									disabled={isBusy}
+									className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
+								>
+									<MessageSquarePlusIcon className="size-4" />
+									New
+								</Button>
+								<DrawerClose asChild>
+									<Button variant="ghost" size="icon-sm">
+										<XIcon className="size-4" />
+									</Button>
+								</DrawerClose>
+							</div>
+						</DrawerHeader>
+						<div className="flex-1 overflow-y-auto p-2">
+							{threadListContent}
+						</div>
+					</DrawerContent>
+				</Drawer>
 			</div>
 
 			<Dialog
