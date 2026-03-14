@@ -21,7 +21,8 @@
     "check": "biome check"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.4.2",
+    "@libsql/client": "^0.17.0",
+    "@prisma/adapter-libsql": "^7.5.0",
     "@prisma/client": "^7.4.2",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
@@ -35,6 +36,7 @@
     "better-auth": "^1.5.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.3.1",
     "jotai": "^2.18.1",
     "lucide-react": "^0.577.0",
     "prisma": "^7.4.2",
