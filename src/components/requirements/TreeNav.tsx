@@ -25,16 +25,13 @@ export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
 				</h1>
 				<p className="mt-1 text-sm text-[var(--ink-soft)]">
 					Browse the docs in{" "}
-					<code className="text-[12px]">docs/requirements/</code>{" "}
-					without leaving Aether.
+					<code className="text-[12px]">docs/requirements/</code> without
+					leaving Aether.
 				</p>
 			</div>
 
 			<nav className="max-h-[calc(100vh-10rem)] overflow-y-auto px-3 py-3">
-				<TreeList
-					nodes={nodes}
-					currentRoutePath={currentRoutePath}
-				/>
+				<TreeList nodes={nodes} currentRoutePath={currentRoutePath} />
 			</nav>
 		</div>
 	);
@@ -48,13 +45,7 @@ function TreeList(props: {
 	return (
 		<ul className={cn("space-y-0.5", props.depth ? "mt-0.5" : "")}>
 			{props.nodes.map((node) => (
-				<li
-					key={
-						node.type === "folder"
-							? node.path
-							: node.relativePath
-					}
-				>
+				<li key={node.type === "folder" ? node.path : node.relativePath}>
 					{node.type === "folder" ? (
 						<div>
 							<div
@@ -75,9 +66,7 @@ function TreeList(props: {
 					) : (
 						<TreeNavLink
 							routePath={node.routePath}
-							isActive={
-								node.routePath === props.currentRoutePath
-							}
+							isActive={node.routePath === props.currentRoutePath}
 							depth={props.depth ?? 0}
 							title={node.title}
 							status={node.status}

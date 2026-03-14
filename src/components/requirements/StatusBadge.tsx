@@ -6,8 +6,7 @@ const statusConfig: Record<
 > = {
 	done: {
 		label: "Done",
-		className:
-			"border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)]",
+		className: "border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)]",
 		dot: "bg-[var(--teal)]",
 	},
 	"in-progress": {
@@ -18,8 +17,7 @@ const statusConfig: Record<
 	},
 	todo: {
 		label: "To Do",
-		className:
-			"border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]",
+		className: "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]",
 		dot: "bg-[var(--ink-soft)]/40",
 	},
 };
@@ -37,8 +35,7 @@ export function StatusBadge({
 }: StatusBadgeProps) {
 	const config = statusConfig[status.toLowerCase()] ?? {
 		label: status,
-		className:
-			"border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]",
+		className: "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]",
 		dot: "bg-[var(--ink-soft)]/40",
 	};
 
@@ -52,10 +49,7 @@ export function StatusBadge({
 				className,
 			)}
 		>
-			<span
-				className={cn("size-1.5 rounded-full", config.dot)}
-				aria-hidden
-			/>
+			<span className={cn("size-1.5 rounded-full", config.dot)} aria-hidden />
 			{config.label}
 		</span>
 	);

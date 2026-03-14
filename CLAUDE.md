@@ -8,6 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 we are using the latest version of most libraries, these tend to be newer then the training data, so use the skills and/or google for documentation when you don't have an example of how to do something already in the code.
 
+## Documentation
+
+Documentation is very important in this project. Make sure requirements are updated when new features are built or updated.
+
 ## Commands
 
 ```bash

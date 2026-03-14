@@ -40,9 +40,7 @@ export const MetadataRow: Story = {
 			<MetaPill icon={<CalendarDaysIcon className="size-3.5" />}>
 				2026-03-14
 			</MetaPill>
-			<MetaPill icon={<TagIcon className="size-3.5" />}>
-				v1.2.0
-			</MetaPill>
+			<MetaPill icon={<TagIcon className="size-3.5" />}>v1.2.0</MetaPill>
 		</div>
 	),
 };

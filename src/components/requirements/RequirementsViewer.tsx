@@ -28,9 +28,7 @@ export function RequirementsViewer({ data }: RequirementsViewerProps) {
 				<aside>
 					<TreeNav
 						nodes={data.tree}
-						currentRoutePath={
-							document?.routePath ?? data.requestedPath
-						}
+						currentRoutePath={document?.routePath ?? data.requestedPath}
 					/>
 				</aside>
 
@@ -38,9 +36,7 @@ export function RequirementsViewer({ data }: RequirementsViewerProps) {
 					{document ? (
 						<DocumentContent document={document} />
 					) : (
-						<MissingDocument
-							requestedPath={data.requestedPath}
-						/>
+						<MissingDocument requestedPath={data.requestedPath} />
 					)}
 				</section>
 			</div>
@@ -73,10 +69,7 @@ function DocumentContent(props: { document: RequirementDocument }) {
 
 			<div className="px-6 py-6 sm:px-8 sm:py-8">
 				<div className="max-w-none text-[var(--ink)]">
-					<Markdown
-						remarkPlugins={[remarkGfm]}
-						components={markdownComponents}
-					>
+					<Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
 						{document.body}
 					</Markdown>
 				</div>

@@ -1,4 +1,5 @@
-import type { LanguageModelUsage, UIMessage } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { generateText, type LanguageModelUsage, type UIMessage } from "ai";
 
 export const ANTHROPIC_PRICING_SOURCE_URL =
 	"https://docs.anthropic.com/en/docs/about-claude/models/overview";
@@ -185,6 +186,25 @@ export function getChatTitleFromMessages(messages: AppChatMessage[]): string {
 	if (firstUserText.length <= 72) return firstUserText;
 
 	return `${firstUserText.slice(0, 69).trimEnd()}...`;
+}
+
+export async function generateChatTitle(userMessage: string): Promise<string> {
+	try {
+		const { text } = await generateText({
+			model: anthropic("claude-haiku-4-5"),
+			system:
+				"Generate a short, descriptive title for a chat conversation based on the user's first message. The title must be no more than 10 words. Output only the title text, nothing else. No quotes, no punctuation at the end.",
+			prompt: userMessage,
+		});
+
+		const title = text.trim().replace(/[."']+$/, "");
+		return title || getChatTitleFromMessages([]);
+	} catch {
+		// Fall back to truncation if AI generation fails
+		return userMessage.length <= 72
+			? userMessage
+			: `${userMessage.slice(0, 69).trimEnd()}...`;
+	}
 }
 
 export function getChatPreviewFromMessages(messages: AppChatMessage[]): string {

@@ -18,8 +18,10 @@ import {
 	type ChatUsageTotals,
 	DEFAULT_CHAT_MODEL,
 	estimateChatUsageCostUsd,
-	getChatTitleFromMessages,
+	generateChatTitle,
+	getMessageText,
 	isChatModel,
+	parseStoredMessages,
 	parseUsageHistory,
 	serializeMessages,
 	serializeUsageHistory,
@@ -125,11 +127,30 @@ export const Route = createFileRoute("/api/chat")({
 					};
 				};
 
+				// Only generate an AI title on the first message (thread still has default title)
+				const existingMessages = parseStoredMessages(
+					thread.messagesJson ?? "[]",
+				);
+				const isFirstMessage =
+					existingMessages.length === 0 && thread.title === "New chat";
+
+				let title = thread.title;
+				if (isFirstMessage) {
+					const firstUserText =
+						incomingMessages
+							.filter((m) => m.role === "user")
+							.map((m) => getMessageText(m))
+							.find(Boolean) ?? "";
+					if (firstUserText) {
+						title = await generateChatTitle(firstUserText);
+					}
+				}
+
 				await prisma.chatThread.update({
 					where: { id: thread.id },
 					data: {
 						model,
-						title: getChatTitleFromMessages(incomingMessages),
+						title,
 						messagesJson: serializeMessages(incomingMessages),
 					},
 				});
@@ -188,7 +209,6 @@ export const Route = createFileRoute("/api/chat")({
 								where: { id: thread.id },
 								data: {
 									model,
-									title: getChatTitleFromMessages(finalMessages),
 									messagesJson: serializeMessages(finalMessages),
 									usageHistoryJson: serializeUsageHistory(
 										update.nextUsageHistory,

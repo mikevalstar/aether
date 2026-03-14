@@ -38,6 +38,7 @@ import {
 	deleteChatThread,
 	getChatPageData,
 	updateChatThreadModel,
+	updateChatThreadTitle,
 } from "#/lib/chat.functions";
 
 const chatSearchSchema = z.object({
@@ -264,8 +265,23 @@ function ChatPage() {
 						costLabel={selectedCostLabel}
 						showStats={!!selectedThread}
 						disabled={isBusy}
+						editable={!!selectedThread}
 						showMobileMenu
 						onMobileMenuClick={() => setMobileDrawerOpen(true)}
+						onTitleChange={
+							selectedThread
+								? (newTitle) => {
+										startTransition(() => {
+											void updateChatThreadTitle({
+												data: {
+													threadId: selectedThread.id,
+													title: newTitle,
+												},
+											}).then(refreshPage);
+										});
+									}
+								: undefined
+						}
 						onModelChange={(value) => {
 							if (!selectedThread) {
 								setDraftModel(value as (typeof CHAT_MODELS)[number]["id"]);

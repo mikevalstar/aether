@@ -14,8 +14,7 @@ export function DocumentHeader({ document }: DocumentHeaderProps) {
 			<div
 				className="absolute inset-x-0 top-0 h-1"
 				style={{
-					background:
-						"linear-gradient(90deg, var(--teal), var(--coral))",
+					background: "linear-gradient(90deg, var(--teal), var(--coral))",
 				}}
 			/>
 
@@ -35,22 +34,14 @@ export function DocumentHeader({ document }: DocumentHeaderProps) {
 					</div>
 
 					<div className="flex flex-wrap items-center gap-2">
-						{document.status ? (
-							<StatusBadge status={document.status} />
-						) : null}
+						{document.status ? <StatusBadge status={document.status} /> : null}
 						{document.owner ? (
-							<MetaPill
-								icon={<UserRoundIcon className="size-3.5" />}
-							>
+							<MetaPill icon={<UserRoundIcon className="size-3.5" />}>
 								{document.owner}
 							</MetaPill>
 						) : null}
 						{document.lastUpdated ? (
-							<MetaPill
-								icon={
-									<CalendarDaysIcon className="size-3.5" />
-								}
-							>
+							<MetaPill icon={<CalendarDaysIcon className="size-3.5" />}>
 								{document.lastUpdated}
 							</MetaPill>
 						) : null}

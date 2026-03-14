@@ -42,6 +42,8 @@ canonical_file: docs/requirements/chat.md
 | Message controls | done | Assistant messages support copy, export, reload, and edited-branch navigation; user messages support editing. | Inline |
 | Tool inspection | done | Tool calls are grouped in the transcript and can be inspected in a detail drawer. | Inline |
 | Usage accounting | done | Thread totals and usage events are updated after each completed assistant response. | Inline |
+| AI-generated titles | in-progress | On first message, the system calls Haiku to generate a short title (max 10 words) instead of truncating the user's text. | Inline |
+| Editable titles | in-progress | Users can click the thread title in the header to edit it inline. | Inline |
 | Attachment UI | in-progress | Users can add, preview, and remove attachments in the composer and view them on sent user messages. | Inline |
 
 ## Detail
@@ -102,6 +104,20 @@ canonical_file: docs/requirements/chat.md
 - Dependencies: `src/routes/api/chat.ts`, `src/lib/chat.ts`, `src/routes/chat.tsx`.
 - Follow-up: Decide whether users should be able to inspect per-message usage directly from the transcript instead of only seeing thread totals and external usage views.
 
+### AI-generated titles
+
+- Requirement: When the first user message is sent in a thread, the system must call Claude Haiku to generate a concise, descriptive title of no more than 10 words instead of truncating the raw user text.
+- Notes: Currently `getChatTitleFromMessages()` truncates the first user message to 72 characters. The new behavior replaces this with an async Haiku call that produces a short summary title. Title generation should only fire on the first message; subsequent messages should not overwrite a generated or user-edited title. The title field already exists on the `ChatThread` model with a default of "New chat".
+- Dependencies: `src/routes/api/chat.ts`, `src/lib/chat.ts`, `src/lib/chat.functions.ts`.
+- Follow-up: Decide whether to show a loading indicator while the title generates, or rely on the sidebar refreshing after completion.
+
+### Editable titles
+
+- Requirement: Users must be able to click the thread title in the chat header to edit it inline, persisting the change immediately.
+- Notes: The title in `ChatHeader` is currently a static `<h1>`. This should become an inline-editable field that saves on blur or Enter and cancels on Escape. A server function `updateChatThreadTitle` is needed to persist the change. Once a user edits a title, it should be treated as manually set and not overwritten by AI generation on future messages.
+- Dependencies: `src/components/chat/ChatHeader.tsx`, `src/lib/chat.functions.ts`, `src/routes/chat.tsx`.
+- Follow-up: None identified.
+
 ### Attachments
 
 - Requirement: The active-thread composer must allow users to add, preview, and remove attachments before send, and sent user messages must show those attachments in the transcript.
@@ -118,4 +134,5 @@ canonical_file: docs/requirements/chat.md
 
 ## Change Log
 
+- 2026-03-14: Added AI-generated titles and editable titles sub-features.
 - 2026-03-14: Created the initial chat requirements doc from the current implementation and added it to the requirements index.

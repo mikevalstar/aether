@@ -22,6 +22,11 @@ type UpdateThreadModelInput = {
 	model: string;
 };
 
+type UpdateThreadTitleInput = {
+	threadId: string;
+	title: string;
+};
+
 type DeleteThreadInput = {
 	threadId: string;
 };
@@ -116,6 +121,27 @@ export const updateChatThreadModel = createServerFn({ method: "POST" })
 		const updatedThread = await prisma.chatThread.update({
 			where: { id: data.threadId },
 			data: { model: data.model },
+		});
+
+		return mapThreadSummary(updatedThread);
+	});
+
+export const updateChatThreadTitle = createServerFn({ method: "POST" })
+	.inputValidator((data: UpdateThreadTitleInput) => data)
+	.handler(async ({ data }) => {
+		const session = await ensureSession();
+
+		const thread = await prisma.chatThread.findFirst({
+			where: { id: data.threadId, userId: session.user.id },
+		});
+
+		if (!thread) {
+			throw new Error("Thread not found");
+		}
+
+		const updatedThread = await prisma.chatThread.update({
+			where: { id: data.threadId },
+			data: { title: data.title.trim() || "New chat" },
 		});
 
 		return mapThreadSummary(updatedThread);

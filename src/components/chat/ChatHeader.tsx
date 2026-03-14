@@ -1,4 +1,5 @@
-import { MenuIcon, Trash2Icon } from "lucide-react";
+import { MenuIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import {
@@ -19,8 +20,10 @@ export interface ChatHeaderProps {
 	showStats?: boolean;
 	disabled?: boolean;
 	showMobileMenu?: boolean;
+	editable?: boolean;
 	onMobileMenuClick?: () => void;
 	onModelChange?: (model: string) => void;
+	onTitleChange?: (title: string) => void;
 	onDelete?: () => void;
 }
 
@@ -33,10 +36,42 @@ export function ChatHeader({
 	showStats = false,
 	disabled = false,
 	showMobileMenu = false,
+	editable = false,
 	onMobileMenuClick,
 	onModelChange,
+	onTitleChange,
 	onDelete,
 }: ChatHeaderProps) {
+	const [isEditing, setIsEditing] = useState(false);
+	const [editValue, setEditValue] = useState(title);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		setEditValue(title);
+	}, [title]);
+
+	useEffect(() => {
+		if (isEditing) {
+			inputRef.current?.focus();
+			inputRef.current?.select();
+		}
+	}, [isEditing]);
+
+	const commitEdit = useCallback(() => {
+		setIsEditing(false);
+		const trimmed = editValue.trim();
+		if (trimmed && trimmed !== title) {
+			onTitleChange?.(trimmed);
+		} else {
+			setEditValue(title);
+		}
+	}, [editValue, title, onTitleChange]);
+
+	const cancelEdit = useCallback(() => {
+		setIsEditing(false);
+		setEditValue(title);
+	}, [title]);
+
 	return (
 		<div className="border-b-2 border-[var(--teal)] px-4 py-3">
 			<div className="flex items-center gap-3">
@@ -52,10 +87,53 @@ export function ChatHeader({
 					</Button>
 				)}
 
-				<div className="min-w-0 flex-1">
-					<h1 className="truncate text-base font-bold tracking-tight text-[var(--ink)]">
-						{title}
-					</h1>
+				<div className="group min-w-0 flex-1">
+					{isEditing ? (
+						<input
+							ref={inputRef}
+							type="text"
+							value={editValue}
+							onChange={(e) => setEditValue(e.target.value)}
+							onBlur={commitEdit}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									e.preventDefault();
+									commitEdit();
+								} else if (e.key === "Escape") {
+									e.preventDefault();
+									cancelEdit();
+								}
+							}}
+							className="w-full rounded border border-[var(--teal)]/40 bg-transparent px-1 py-0.5 text-base font-bold tracking-tight text-[var(--ink)] outline-none focus:border-[var(--teal)]"
+						/>
+					) : (
+						<div className="flex items-center gap-1.5">
+							<h1
+								className={`truncate text-base font-bold tracking-tight text-[var(--ink)] ${editable ? "cursor-pointer hover:text-[var(--teal)]" : ""}`}
+								onClick={editable ? () => setIsEditing(true) : undefined}
+								onKeyDown={
+									editable
+										? (e) => {
+												if (e.key === "Enter" || e.key === " ") {
+													e.preventDefault();
+													setIsEditing(true);
+												}
+											}
+										: undefined
+								}
+								tabIndex={editable ? 0 : undefined}
+								role={editable ? "button" : undefined}
+							>
+								{title}
+							</h1>
+							{editable && (
+								<PencilIcon
+									className="size-3.5 shrink-0 text-[var(--ink-soft)] opacity-0 transition-opacity group-hover:opacity-100"
+									aria-hidden
+								/>
+							)}
+						</div>
+					)}
 				</div>
 
 				<div className="flex items-center gap-2">
