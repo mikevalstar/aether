@@ -1,7 +1,7 @@
 import { Readability } from "@mozilla/readability";
+import { tool } from "ai";
 import { parseHTML } from "linkedom";
 import TurndownService from "turndown";
-import { tool } from "ai";
 import { z } from "zod";
 
 const MAX_CONTENT_LENGTH = 50000;

@@ -6,6 +6,7 @@ import {
 	type LanguageModelUsage,
 	stepCountIs,
 	streamText,
+	type ToolSet,
 	type UIMessage,
 } from "ai";
 import { prisma } from "#/db";
@@ -67,7 +68,7 @@ export const Route = createFileRoute("/api/chat")({
 					body.model && isChatModel(body.model)
 						? body.model
 						: DEFAULT_CHAT_MODEL;
-				const tools =
+				const tools: ToolSet =
 					model === "claude-haiku-4-5"
 						? {
 								fetch_url_markdown: fetchUrlMarkdown,
@@ -135,7 +136,7 @@ export const Route = createFileRoute("/api/chat")({
 
 				const systemPrompt = [
 					"You are Aether, a helpful personal assistant. You are knowledgeable, concise, and friendly.",
-					"Today's date is " + new Date().toLocaleDateString("en-CA") + ".",
+					`Today's date is ${new Date().toLocaleDateString("en-CA")}.`,
 					tools
 						? "You have access to web search, web fetch, and fetch_url_markdown tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. When the user shares a specific URL and wants you to read its content, prefer fetch_url_markdown as it returns clean, ad-free markdown."
 						: "You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.",
@@ -182,20 +183,35 @@ export const Route = createFileRoute("/api/chat")({
 						const totalUsage = await result.totalUsage;
 						const update = createUsageUpdate(totalUsage, finalMessages);
 
-						await prisma.chatThread.update({
-							where: { id: thread.id },
-							data: {
-								model,
-								title: getChatTitleFromMessages(finalMessages),
-								messagesJson: serializeMessages(finalMessages),
-								usageHistoryJson: serializeUsageHistory(
-									update.nextUsageHistory,
-								),
-								totalInputTokens: update.nextTotals.inputTokens,
-								totalOutputTokens: update.nextTotals.outputTokens,
-								totalEstimatedCostUsd: update.nextTotals.estimatedCostUsd,
-							},
-						});
+						await prisma.$transaction([
+							prisma.chatThread.update({
+								where: { id: thread.id },
+								data: {
+									model,
+									title: getChatTitleFromMessages(finalMessages),
+									messagesJson: serializeMessages(finalMessages),
+									usageHistoryJson: serializeUsageHistory(
+										update.nextUsageHistory,
+									),
+									totalInputTokens: update.nextTotals.inputTokens,
+									totalOutputTokens: update.nextTotals.outputTokens,
+									totalEstimatedCostUsd: update.nextTotals.estimatedCostUsd,
+								},
+							}),
+							prisma.chatUsageEvent.create({
+								data: {
+									id: `usage_event_${crypto.randomUUID()}`,
+									userId: session.user.id,
+									threadId: thread.id,
+									model,
+									inputTokens: update.exchangeUsage.inputTokens,
+									outputTokens: update.exchangeUsage.outputTokens,
+									totalTokens: update.exchangeUsage.totalTokens,
+									estimatedCostUsd: update.exchangeUsage.estimatedCostUsd,
+									createdAt: new Date(update.usageEntry.createdAt),
+								},
+							}),
+						]);
 					},
 				});
 			},

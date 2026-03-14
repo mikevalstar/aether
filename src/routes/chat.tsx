@@ -67,6 +67,7 @@ function ChatPage() {
 	const refreshPage = useCallback(async () => {
 		await router.invalidate();
 	}, [router]);
+	const selectedThread = data.selectedThread;
 
 	const handleCreateThread = useCallback(
 		async (model: string, firstMessage?: string) => {
@@ -93,18 +94,20 @@ function ChatPage() {
 		async (thread: ChatThreadSummary) => {
 			await deleteChatThread({ data: { threadId: thread.id } });
 
-			const nextThread = data.threads.find(
-				(item: ChatThreadSummary) => item.id !== thread.id,
-			);
+			const nextThread =
+				selectedThread?.id === thread.id
+					? data.threads.find(
+							(item: ChatThreadSummary) => item.id !== thread.id,
+						)
+					: selectedThread;
 			await navigate({
 				search: nextThread ? { threadId: nextThread.id } : {},
 			});
 			await router.invalidate();
 		},
-		[data.threads, navigate, router],
+		[data.threads, navigate, router, selectedThread],
 	);
 
-	const selectedThread = data.selectedThread;
 	const selectedModel = selectedThread?.model ?? DEFAULT_CHAT_MODEL;
 	const isBusy = isMutating || pendingThreadId !== null;
 	const emptyStateModel = selectedThread?.model ?? draftModel;
@@ -158,7 +161,7 @@ function ChatPage() {
 
 	return (
 		<main className="mx-auto flex h-[calc(100vh-8rem)] w-[min(1400px,calc(100%-2rem))] px-4 py-8">
-			<div className="grid min-h-0 w-full gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+			<div className="grid min-h-0 w-full gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
 				<aside className="order-2 flex min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
 					<div className="mb-4 flex items-center justify-between gap-3">
 						<h1 className="text-base font-semibold text-[var(--ink)]">
@@ -185,24 +188,48 @@ function ChatPage() {
 							const isActive = thread.id === selectedThread?.id;
 
 							return (
-								<button
-									key={thread.id}
-									type="button"
-									onClick={() => {
-										void navigate({ search: { threadId: thread.id } });
-									}}
-									className={cn(
-										"w-full rounded-lg px-3 py-2.5 text-left transition",
-										isActive
-											? "bg-[var(--accent)] text-[var(--ink)]"
-											: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
-									)}
-								>
-									<p className="truncate text-sm font-medium">{thread.title}</p>
-									<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
-										{thread.preview}
-									</p>
-								</button>
+								<div key={thread.id} className="group relative">
+									<button
+										type="button"
+										onClick={() => {
+											void navigate({ search: { threadId: thread.id } });
+										}}
+										className={cn(
+											"w-full rounded-lg px-3 py-2.5 pr-11 text-left transition",
+											isActive
+												? "bg-[var(--accent)] text-[var(--ink)]"
+												: "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
+										)}
+									>
+										<p className="truncate text-sm font-medium">
+											{thread.title}
+										</p>
+										<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
+											{thread.preview}
+										</p>
+									</button>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-xs"
+										className={cn(
+											"absolute top-2.5 right-2 text-[var(--ink-soft)] opacity-0 transition hover:text-[var(--ink)]",
+											isActive && "opacity-100",
+											"group-hover:opacity-100",
+										)}
+										disabled={isBusy}
+										onClick={(event) => {
+											event.stopPropagation();
+
+											startTransition(() => {
+												void handleDeleteThread(thread);
+											});
+										}}
+										aria-label={`Delete ${thread.title}`}
+									>
+										<Trash2Icon className="size-3.5" />
+									</Button>
+								</div>
 							);
 						})}
 					</div>

@@ -30,6 +30,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   chatThreads   ChatThread[]
+  chatUsageEvents ChatUsageEvent[]
 }
 
 model Session {
@@ -83,4 +84,20 @@ model ChatThread {
   updatedAt    DateTime @updatedAt
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatUsageEvent {
+  id                String   @id
+  model             String
+  inputTokens       Int
+  outputTokens      Int
+  totalTokens       Int
+  estimatedCostUsd  Float
+  createdAt         DateTime @default(now())
+  threadId          String?
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, model, createdAt])
 }

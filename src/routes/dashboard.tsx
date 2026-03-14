@@ -45,6 +45,12 @@ function DashboardPage() {
 						Change your password or replace the temporary one you were given.
 					</p>
 				</Link>
+				<Link to="/usage" className="surface-card p-5 no-underline">
+					<p className="text-sm font-semibold text-[var(--ink)]">Usage</p>
+					<p className="mt-1 text-sm text-[var(--ink-soft)]">
+						See chat token usage, estimated costs, and model trends over time.
+					</p>
+				</Link>
 				{user.role === "admin" ? (
 					<Link to="/users" className="surface-card p-5 no-underline">
 						<p className="text-sm font-semibold text-[var(--ink)]">Users</p>

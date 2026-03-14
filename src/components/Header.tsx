@@ -62,6 +62,13 @@ export default function Header() {
 							>
 								Chat
 							</Link>
+							<Link
+								to="/usage"
+								className="nav-link"
+								activeProps={{ className: "nav-link is-active" }}
+							>
+								Usage
+							</Link>
 						</>
 					)}
 				</div>
