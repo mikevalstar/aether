@@ -30,13 +30,14 @@ import {
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
-import { obsidianRead } from "#/lib/tools/obsidian-read";
+import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
+import { createObsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import {
 	obsidianFolders,
 	obsidianList,
 } from "#/lib/tools/obsidian-tree";
-import { obsidianWrite } from "#/lib/tools/obsidian-write";
+import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 
 async function generateChatTitle(userMessage: string): Promise<string> {
 	try {
@@ -102,12 +103,13 @@ export const Route = createFileRoute("/api/chat")({
 					body.model && isChatModel(body.model)
 						? body.model
 						: DEFAULT_CHAT_MODEL;
+				const obsidianCtx = createObsidianToolContext();
 				const obsidianTools: ToolSet = {
 					obsidian_folders: obsidianFolders,
 					obsidian_list: obsidianList,
 					obsidian_search: obsidianSearch,
-					obsidian_read: obsidianRead,
-					obsidian_write: obsidianWrite,
+					obsidian_read: createObsidianRead(obsidianCtx),
+					obsidian_write: createObsidianWrite(obsidianCtx),
 				};
 				const tools: ToolSet =
 					model === "claude-haiku-4-5"

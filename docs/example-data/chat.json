@@ -1,0 +1,105 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "type": "text",
+        "text": "hey what projects do i have going on in my vault?"
+      }
+    ],
+    "metadata": { "custom": {} },
+    "id": "5w9KUdnx65w5ZPbs"
+  },
+  {
+    "id": "msg-o83V6lK6V7D1vxU2",
+    "metadata": {
+      "createdAt": 1773540551090,
+      "model": "claude-haiku-4-5",
+      "usage": {
+        "inputTokens": 6156,
+        "outputTokens": 194,
+        "totalTokens": 6350,
+        "estimatedCostUsd": 0.007126
+      },
+      "totals": {
+        "inputTokens": 6156,
+        "outputTokens": 194,
+        "totalTokens": 6350,
+        "estimatedCostUsd": 0.007126
+      },
+      "usageEntry": {
+        "id": "usage_304d63ee-c7be-4baf-91d2-622bdf8d1f84",
+        "model": "claude-haiku-4-5",
+        "createdAt": "2026-03-15T02:09:14.876Z",
+        "inputTokens": 6156,
+        "outputTokens": 194,
+        "totalTokens": 6350,
+        "estimatedCostUsd": 0.007126,
+        "cumulativeInputTokens": 6156,
+        "cumulativeOutputTokens": 194,
+        "cumulativeTotalTokens": 6350,
+        "cumulativeEstimatedCostUsd": 0.007126
+      }
+    },
+    "role": "assistant",
+    "parts": [
+      { "type": "step-start" },
+      {
+        "type": "text",
+        "text": "I'll check your vault for projects.",
+        "state": "done"
+      },
+      {
+        "type": "tool-obsidian_folders",
+        "toolCallId": "toolu_01TYJ37nc2JvXse8aE4TfJEL",
+        "state": "output-available",
+        "input": {},
+        "output": {
+          "tree": [
+            { "name": "ai-config", "path": "ai-config" },
+            { "name": "projects", "path": "projects" }
+          ]
+        },
+        "callProviderMetadata": {
+          "anthropic": { "caller": { "type": "direct" } }
+        }
+      },
+      { "type": "step-start" },
+      {
+        "type": "text",
+        "text": "Great! You have a `projects` folder. Let me see what's in there.",
+        "state": "done"
+      },
+      {
+        "type": "tool-obsidian_list",
+        "toolCallId": "toolu_019j3H4kKN13XFy4ZWyfzDrD",
+        "state": "output-available",
+        "input": { "folder": "projects" },
+        "output": {
+          "folder": "projects",
+          "items": [
+            {
+              "type": "file",
+              "name": "aether.md",
+              "path": "projects/aether.md"
+            },
+            {
+              "type": "file",
+              "name": "funions.md",
+              "path": "projects/funions.md"
+            }
+          ]
+        },
+        "callProviderMetadata": {
+          "anthropic": { "caller": { "type": "direct" } }
+        }
+      },
+      { "type": "step-start" },
+      {
+        "type": "text",
+        "text": "You have 2 projects in your vault:\n\n1. **Aether** - `projects/aether.md`\n2. **Funions** - `projects/funions.md`\n\nWould you like me to read the details of either of these projects to give you more information about what you're working on?",
+        "state": "done"
+      }
+    ]
+  }
+]
