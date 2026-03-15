@@ -19,6 +19,8 @@ import { auth } from "#/lib/auth";
 import {
 	type AppChatMessage,
 	addChatUsageTotals,
+	type ChatModel,
+	type ChatTaskType,
 	type ChatUsageEntry,
 	type ChatUsageTotals,
 	DEFAULT_CHAT_EFFORT,
@@ -45,26 +47,43 @@ import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 
-async function generateChatTitle(userMessage: string): Promise<string> {
+type TitleGenerationResult = {
+	title: string;
+	model: ChatModel;
+	usage: LanguageModelUsage | undefined;
+};
+
+async function generateChatTitle(
+	userMessage: string,
+): Promise<TitleGenerationResult> {
 	try {
 		const titleConfig = await readTitlePromptConfig();
-		const titleModel = titleConfig?.model ?? "claude-haiku-4-5";
+		const titleModel = (titleConfig?.model ?? "claude-haiku-4-5") as ChatModel;
 		const titleSystemPrompt =
 			titleConfig?.prompt ??
 			"Generate a short, descriptive title for a chat conversation based on the user's first message. The title must be no more than 10 words. Output only the title text, nothing else. No quotes, no punctuation at the end.";
 
-		const { text } = await generateText({
+		const { text, usage } = await generateText({
 			model: anthropic(titleModel),
 			system: titleSystemPrompt,
 			prompt: userMessage,
 		});
 
 		const title = text.trim().replace(/[."']+$/, "");
-		return title || getChatTitleFromMessages([]);
+		return {
+			title: title || getChatTitleFromMessages([]),
+			model: titleModel,
+			usage,
+		};
 	} catch {
-		return userMessage.length <= 72
-			? userMessage
-			: `${userMessage.slice(0, 69).trimEnd()}...`;
+		return {
+			title:
+				userMessage.length <= 72
+					? userMessage
+					: `${userMessage.slice(0, 69).trimEnd()}...`,
+			model: "claude-haiku-4-5",
+			usage: undefined,
+		};
 	}
 }
 
@@ -158,23 +177,35 @@ export const Route = createFileRoute("/api/chat")({
 					fetch_url_markdown: fetchUrlMarkdown,
 					...obsidianTools,
 				};
-				const currentTotals: ChatUsageTotals = {
+				let currentTotals: ChatUsageTotals = {
 					inputTokens: thread.totalInputTokens ?? 0,
 					outputTokens: thread.totalOutputTokens ?? 0,
 					totalTokens:
 						(thread.totalInputTokens ?? 0) + (thread.totalOutputTokens ?? 0),
 					estimatedCostUsd: thread.totalEstimatedCostUsd ?? 0,
 				};
-				const usageHistory = parseUsageHistory(thread.usageHistoryJson ?? "[]");
+				let usageHistory = parseUsageHistory(thread.usageHistoryJson ?? "[]");
+				const titleUsageEvents: Array<{
+					model: ChatModel;
+					taskType: ChatTaskType;
+					exchangeUsage: ChatUsageTotals;
+					createdAt: string;
+				}> = [];
 
 				const createUsageUpdate = (
 					usage: LanguageModelUsage | undefined,
 					messages: AppChatMessage[],
+					options?: {
+						taskType?: ChatTaskType;
+						usageModel?: ChatModel;
+					},
 				) => {
+					const taskType = options?.taskType ?? "chat";
+					const usageModel = options?.usageModel ?? model;
 					const usageTotals = usageTotalsFromLanguageModelUsage(usage);
 					const exchangeUsage: ChatUsageTotals = {
 						...usageTotals,
-						estimatedCostUsd: estimateChatUsageCostUsd(model, usageTotals),
+						estimatedCostUsd: estimateChatUsageCostUsd(usageModel, usageTotals),
 					};
 					const nextTotals = addChatUsageTotals(currentTotals, exchangeUsage);
 					const assistantMessage = [...messages]
@@ -182,7 +213,8 @@ export const Route = createFileRoute("/api/chat")({
 						.find((message) => message.role === "assistant");
 					const usageEntry: ChatUsageEntry = {
 						id: `usage_${crypto.randomUUID()}`,
-						model,
+						model: usageModel,
+						taskType,
 						createdAt: new Date().toISOString(),
 						messageId: assistantMessage?.id,
 						...exchangeUsage,
@@ -215,7 +247,29 @@ export const Route = createFileRoute("/api/chat")({
 							.map((m) => getMessageText(m))
 							.find(Boolean) ?? "";
 					if (firstUserText) {
-						title = await generateChatTitle(firstUserText);
+						const titleResult = await generateChatTitle(firstUserText);
+						title = titleResult.title;
+
+						// Track title generation usage
+						if (titleResult.usage) {
+							const titleUpdate = createUsageUpdate(
+								titleResult.usage,
+								incomingMessages,
+								{
+									taskType: "title",
+									usageModel: titleResult.model,
+								},
+							);
+							// Advance cumulative totals so the chat usage stacks on top
+							currentTotals = titleUpdate.nextTotals;
+							usageHistory = titleUpdate.nextUsageHistory;
+							titleUsageEvents.push({
+								model: titleResult.model,
+								taskType: "title",
+								exchangeUsage: titleUpdate.exchangeUsage,
+								createdAt: titleUpdate.usageEntry.createdAt,
+							});
+						}
 					}
 				}
 
@@ -297,6 +351,23 @@ export const Route = createFileRoute("/api/chat")({
 						);
 
 						await prisma.$transaction([
+							// Create usage events for title generation (if any)
+							...titleUsageEvents.map((titleEvent) =>
+								prisma.chatUsageEvent.create({
+									data: {
+										id: `usage_event_${crypto.randomUUID()}`,
+										userId: session.user.id,
+										threadId: thread.id,
+										model: titleEvent.model,
+										taskType: titleEvent.taskType,
+										inputTokens: titleEvent.exchangeUsage.inputTokens,
+										outputTokens: titleEvent.exchangeUsage.outputTokens,
+										totalTokens: titleEvent.exchangeUsage.totalTokens,
+										estimatedCostUsd: titleEvent.exchangeUsage.estimatedCostUsd,
+										createdAt: new Date(titleEvent.createdAt),
+									},
+								}),
+							),
 							prisma.chatThread.update({
 								where: { id: thread.id },
 								data: {
@@ -316,6 +387,7 @@ export const Route = createFileRoute("/api/chat")({
 									userId: session.user.id,
 									threadId: thread.id,
 									model,
+									taskType: "chat",
 									inputTokens: update.exchangeUsage.inputTokens,
 									outputTokens: update.exchangeUsage.outputTokens,
 									totalTokens: update.exchangeUsage.totalTokens,

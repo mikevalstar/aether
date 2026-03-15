@@ -49,6 +49,7 @@ export type ChatUsageStatsResult = {
 		createdAt: string;
 		model: string;
 		modelLabel: string;
+		taskType: string;
 		threadId: string | null;
 		threadTitle: string | null;
 		inputTokens: number;
@@ -77,6 +78,7 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 			where: {
 				userId: session.user.id,
 				model: search.model === "all" ? undefined : search.model,
+				taskType: search.taskType === "all" ? undefined : search.taskType,
 				createdAt: {
 					gte: fromDate,
 					lt: toDateExclusive,
@@ -182,6 +184,7 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 				createdAt: event.createdAt.toISOString(),
 				model: event.model,
 				modelLabel: getChatModelLabel(event.model),
+				taskType: event.taskType,
 				threadId: event.threadId,
 				threadTitle: event.threadId
 					? (threadTitleById.get(event.threadId) ?? "Deleted thread")

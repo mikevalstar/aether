@@ -93,6 +93,7 @@ model ChatThread {
 model ChatUsageEvent {
   id                String   @id
   model             String
+  taskType          String   @default("chat")
   inputTokens       Int
   outputTokens      Int
   totalTokens       Int

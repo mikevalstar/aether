@@ -26,9 +26,12 @@ export type ChatUsageTotals = {
 	estimatedCostUsd: number;
 };
 
+export type ChatTaskType = "chat" | "title";
+
 export type ChatUsageEntry = ChatUsageTotals & {
 	id: string;
 	model: ChatModel;
+	taskType: ChatTaskType;
 	createdAt: string;
 	messageId?: string;
 	cumulativeInputTokens: number;

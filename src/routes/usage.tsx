@@ -22,12 +22,13 @@ import {
 	Cell,
 	Pie,
 	PieChart,
+	Tooltip as RechartsTooltip,
 	ResponsiveContainer,
-	Tooltip,
 	XAxis,
 	YAxis,
 } from "recharts";
 import { z } from "zod";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { ChartCard } from "#/components/ui/chart-card";
 import { DateRangePicker } from "#/components/ui/date-range-picker";
@@ -41,8 +42,18 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { StatCard } from "#/components/ui/stat-card";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "#/components/ui/tooltip";
 import { getSession } from "#/lib/auth.functions";
-import { formatUsageCurrency, normalizeUsageSearch } from "#/lib/chat-usage";
+import {
+	formatUsageCurrency,
+	getTaskTypeLabel,
+	normalizeUsageSearch,
+	TASK_TYPES,
+} from "#/lib/chat-usage";
 import {
 	type ChatUsageStatsResult,
 	getChatUsageStats,
@@ -53,6 +64,7 @@ const usageSearchSchema = z.object({
 	from: z.string().optional(),
 	to: z.string().optional(),
 	model: z.string().optional(),
+	taskType: z.string().optional(),
 });
 
 const CHART_COLORS = [
@@ -86,17 +98,24 @@ function UsagePage() {
 		from?: string;
 		to?: string;
 		model?: string;
+		taskType?: string;
 	};
 	const search = normalizeUsageSearch(rawSearch);
 
 	const hasData = data.totals.events > 0;
 
-	function updateSearch(next: { from?: string; to?: string; model?: string }) {
+	function updateSearch(next: {
+		from?: string;
+		to?: string;
+		model?: string;
+		taskType?: string;
+	}) {
 		void navigate({
 			search: {
 				from: next.from,
 				to: next.to,
 				model: next.model,
+				taskType: next.taskType,
 			},
 			replace: true,
 		});
@@ -139,7 +158,7 @@ function UsagePage() {
 				</section>
 
 				<section className="surface-card mb-6 p-4 sm:p-5">
-					<div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+					<div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px_180px]">
 						<div>
 							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
 								Date range
@@ -152,6 +171,7 @@ function UsagePage() {
 										from,
 										to,
 										model: search.model,
+										taskType: search.taskType,
 									});
 								}}
 							/>
@@ -167,6 +187,7 @@ function UsagePage() {
 										from: search.from,
 										to: search.to,
 										model: value,
+										taskType: search.taskType,
 									});
 								}}
 							>
@@ -178,6 +199,34 @@ function UsagePage() {
 									{data.availableModels.map((model) => (
 										<SelectItem key={model.id} value={model.id}>
 											{model.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div>
+							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
+								Task type
+							</p>
+							<Select
+								value={search.taskType}
+								onValueChange={(value) => {
+									updateSearch({
+										from: search.from,
+										to: search.to,
+										model: search.model,
+										taskType: value,
+									});
+								}}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="All tasks" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All tasks</SelectItem>
+									{TASK_TYPES.map((taskType) => (
+										<SelectItem key={taskType} value={taskType}>
+											{getTaskTypeLabel(taskType)}
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -260,7 +309,7 @@ function UsagePage() {
 												axisLine={false}
 												tickFormatter={(value) => formatAxisCurrency(value)}
 											/>
-											<Tooltip
+											<RechartsTooltip
 												formatter={(value) =>
 													formatUsageCurrency(toChartNumber(value))
 												}
@@ -304,7 +353,7 @@ function UsagePage() {
 													/>
 												))}
 											</Pie>
-											<Tooltip
+											<RechartsTooltip
 												formatter={(value) =>
 													formatUsageCurrency(toChartNumber(value))
 												}
@@ -330,9 +379,14 @@ function UsagePage() {
 													/>
 													<span className="truncate">{item.label}</span>
 												</div>
-												<span className="font-semibold" style={{ color }}>
-													{Math.round(item.shareOfCost * 100)}%
-												</span>
+												<div className="flex items-center gap-2">
+													<span className="text-muted-foreground">
+														{formatUsageCurrency(item.estimatedCostUsd)}
+													</span>
+													<span className="font-semibold" style={{ color }}>
+														{Math.round(item.shareOfCost * 100)}%
+													</span>
+												</div>
 											</div>
 										);
 									})}
@@ -361,7 +415,7 @@ function UsagePage() {
 												axisLine={false}
 												tickFormatter={(value) => formatAxisTokens(value)}
 											/>
-											<Tooltip
+											<RechartsTooltip
 												formatter={(value) =>
 													Math.round(toChartNumber(value)).toLocaleString()
 												}
@@ -394,49 +448,58 @@ function UsagePage() {
 								icon={MessageSquare}
 								accentColor="var(--coral)"
 							>
-								<div className="overflow-x-auto">
-									<table className="min-w-full table-fixed border-separate border-spacing-y-2 text-sm">
-										<colgroup>
-											<col className="w-[160px]" />
-											<col className="w-[120px]" />
-											<col />
-											<col className="w-[80px]" />
-											<col className="w-[72px]" />
-										</colgroup>
-										<thead>
-											<tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-												<th className="pb-2 font-semibold">When</th>
-												<th className="pb-2 font-semibold">Model</th>
-												<th className="pb-2 font-semibold">Thread</th>
-												<th className="pb-2 text-right font-semibold">
-													Tokens
-												</th>
-												<th className="pb-2 text-right font-semibold">Cost</th>
-											</tr>
-										</thead>
-										<tbody>
-											{data.recentEvents.map((event) => (
-												<tr
-													key={event.id}
-													className="rounded-lg bg-[var(--bg)] text-[var(--ink)]"
-												>
-													<td className="rounded-l-lg px-3 py-2.5 text-[var(--ink-soft)]">
-														{formatDateTime(event.createdAt)}
-													</td>
-													<td className="px-3 py-2.5">{event.modelLabel}</td>
-													<td className="truncate px-3 py-2.5 text-[var(--ink-soft)]">
-														{event.threadTitle ?? "-"}
-													</td>
-													<td className="whitespace-nowrap px-3 py-2.5 text-right">
-														{event.totalTokens.toLocaleString()}
-													</td>
-													<td className="whitespace-nowrap rounded-r-lg px-3 py-2.5 text-right">
+								<div className="grid gap-2">
+									{data.recentEvents.map((event) => (
+										<div
+											key={event.id}
+											className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
+										>
+											<div className="flex items-center justify-between gap-3">
+												<div className="flex items-center gap-3 text-[var(--ink-soft)]">
+													<span>{formatDateTime(event.createdAt)}</span>
+													<span className="text-[var(--ink)]">
+														{event.modelLabel}
+													</span>
+													<Badge variant="outline">
+														{getTaskTypeLabel(event.taskType)}
+													</Badge>
+												</div>
+												<div className="flex items-center gap-3">
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<span className="cursor-default">
+																{event.totalTokens.toLocaleString()} tokens
+															</span>
+														</TooltipTrigger>
+														<TooltipContent>
+															<p>
+																In: {event.inputTokens.toLocaleString()} / Out:{" "}
+																{event.outputTokens.toLocaleString()}
+															</p>
+														</TooltipContent>
+													</Tooltip>
+													<span className="font-medium text-[var(--ink)]">
 														{formatUsageCurrency(event.estimatedCostUsd)}
-													</td>
-												</tr>
-											))}
-										</tbody>
-									</table>
+													</span>
+												</div>
+											</div>
+											{event.threadTitle && (
+												<div className="mt-1 truncate text-xs text-[var(--ink-soft)]">
+													{event.threadId ? (
+														<Link
+															to="/chat"
+															search={{ threadId: event.threadId }}
+															className="hover:text-[var(--teal)] transition-colors"
+														>
+															{event.threadTitle}
+														</Link>
+													) : (
+														event.threadTitle
+													)}
+												</div>
+											)}
+										</div>
+									))}
 								</div>
 							</ChartCard>
 
