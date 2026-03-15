@@ -31,6 +31,7 @@ model User {
   accounts      Account[]
   chatThreads   ChatThread[]
   chatUsageEvents ChatUsageEvent[]
+  activityLogs    ActivityLog[]
 }
 
 model Session {
@@ -100,4 +101,29 @@ model ChatUsageEvent {
 
   @@index([userId, createdAt])
   @@index([userId, model, createdAt])
+}
+
+model ActivityLog {
+  id               String             @id @default(cuid())
+  type             String
+  summary          String
+  metadata         String?
+  createdAt        DateTime           @default(now())
+  userId           String
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileChangeDetail FileChangeDetail?
+
+  @@index([userId, createdAt])
+  @@index([userId, type, createdAt])
+}
+
+model FileChangeDetail {
+  id              String      @id @default(cuid())
+  activityLogId   String      @unique
+  activityLog     ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
+  filePath        String
+  originalContent String?
+  newContent      String
+  changeSource    String
+  toolName        String?
 }

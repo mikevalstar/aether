@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
+import { logFileChange } from "#/lib/activity";
 import type { ObsidianToolContext } from "./obsidian-context";
 
 function getObsidianRoot() {
@@ -53,6 +54,7 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 				const readModifiedAt = ctx.readFiles.get(normalized);
 				let fileExists = false;
 				let currentMtime: string | null = null;
+				let originalContent: string | null = null;
 
 				try {
 					const stat = await fs.stat(absolutePath);
@@ -76,6 +78,8 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 								"The file has been modified since you last read it. Please use obsidian_read again to get the latest content before writing.",
 						};
 					}
+
+					originalContent = await fs.readFile(absolutePath, "utf8");
 				}
 
 				const dir = path.dirname(absolutePath);
@@ -83,6 +87,24 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 				await fs.writeFile(absolutePath, content, "utf8");
 				const updatedStat = await fs.stat(absolutePath);
 				ctx.readFiles.set(normalized, updatedStat.mtime.toISOString());
+
+				const fileName = path.basename(normalized);
+				try {
+					await logFileChange({
+						userId: ctx.userId,
+						filePath: normalized,
+						originalContent,
+						newContent: content,
+						changeSource: "ai",
+						toolName: "obsidian_write",
+						summary: `AI wrote ${fileName}`,
+						metadata: ctx.chatThreadId
+							? { chatThreadId: ctx.chatThreadId }
+							: undefined,
+					});
+				} catch (err) {
+					console.error("Activity log failed:", err);
+				}
 
 				return {
 					relativePath: normalized,

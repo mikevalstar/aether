@@ -1,6 +1,6 @@
 ---
 title: Activity Log
-status: todo
+status: done
 owner: self
 last_updated: 2026-03-15
 canonical_file: docs/requirements/activity.md
@@ -24,27 +24,27 @@ canonical_file: docs/requirements/activity.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Data model | todo | A generic `ActivityLog` table with a `type` discriminator, a `metadata` JSON blob for flexible context (e.g., chatThreadId), and a `FileChangeDetail` table for file-specific data. |
-| Write interception | todo | AI file writes (`obsidian_write`, `obsidian_edit`) and manual saves (`saveObsidianDocument`) must create an activity record with the original file content and the new content before persisting. |
-| Activity list page | todo | Top-level `/activity` route in nav showing a chronological list of activity entries, filterable by type. |
-| File change detail | todo | Each file-change entry can be expanded/opened to show a diff view (original vs. new), the current file state, and a revert action. |
-| Revert | todo | User can revert a file-change entry, restoring the original content. Revert itself creates a new activity record. |
-| Deleted file handling | todo | If the file no longer exists on disk, the UI should indicate this and still allow viewing the recorded original/new content. Revert on a deleted file should recreate it. |
-| Extensibility | todo | The activity system must support adding new activity types (e.g., cron task logs) without schema changes to the core `ActivityLog` table — type-specific data goes in linked tables. |
+| Data model | done | A generic `ActivityLog` table with a `type` discriminator, a `metadata` JSON blob for flexible context (e.g., chatThreadId), and a `FileChangeDetail` table for file-specific data. |
+| Write interception | done | AI file writes (`obsidian_write`, `obsidian_edit`) and manual saves (`saveObsidianDocument`) must create an activity record with the original file content and the new content before persisting. |
+| Activity list page | done | Top-level `/activity` route in nav showing a chronological list of activity entries, filterable by type. |
+| File change detail | done | Each file-change entry can be expanded/opened to show a diff view (original vs. new), the current file state, and a revert action. |
+| Revert | done | User can revert a file-change entry, restoring the original content. Revert itself creates a new activity record. |
+| Deleted file handling | done | If the file no longer exists on disk, the UI should indicate this and still allow viewing the recorded original/new content. Revert on a deleted file should recreate it. |
+| Extensibility | done | The activity system must support adding new activity types (e.g., cron task logs) without schema changes to the core `ActivityLog` table — type-specific data goes in linked tables. |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| ActivityLog model | todo | Generic activity record: id, type, summary, metadata (JSON), userId, createdAt. Type is an enum-like string (e.g., `file_change`, future: `cron_task`). Metadata stores flexible context like chatThreadId. | Inline |
-| FileChangeDetail model | todo | Linked to ActivityLog: filePath, originalContent (nullable for new files), newContent, changeSource (`ai` or `manual`), toolName (nullable). | Inline |
-| Capture on AI write | todo | In `obsidian-write.ts`, read current file content before overwrite, create ActivityLog + FileChangeDetail. | Inline |
-| Capture on AI edit | todo | In `obsidian-edit.ts`, read current file content before edit, create ActivityLog + FileChangeDetail with new full content. | Inline |
-| Capture on manual save | todo | In `saveObsidianDocument()`, read current file content before write, create ActivityLog + FileChangeDetail with source `manual`. | Inline |
-| Activity list route | todo | `/activity` — authenticated, paginated list with type filter chips. Each row: timestamp, type icon, summary, file path (for file changes). | Inline |
-| File change detail view | todo | Expandable or linked detail showing: diff view (side-by-side or inline), original content, new content, current file content (or "file deleted" state). | Inline |
-| Revert action | todo | Button on file-change detail to restore original content. Writes originalContent back to disk and creates a new `file_change` activity record for the revert. | Inline |
-| Nav integration | todo | Add "Activity" link to Header nav between existing items. | Inline |
+| ActivityLog model | done | Generic activity record: id, type, summary, metadata (JSON), userId, createdAt. Type is an enum-like string (e.g., `file_change`, future: `cron_task`). Metadata stores flexible context like chatThreadId. | Inline |
+| FileChangeDetail model | done | Linked to ActivityLog: filePath, originalContent (nullable for new files), newContent, changeSource (`ai` or `manual`), toolName (nullable). | Inline |
+| Capture on AI write | done | In `obsidian-write.ts`, read current file content before overwrite, create ActivityLog + FileChangeDetail. | Inline |
+| Capture on AI edit | done | In `obsidian-edit.ts`, read current file content before edit, create ActivityLog + FileChangeDetail with new full content. | Inline |
+| Capture on manual save | done | In `saveObsidianDocument()`, read current file content before write, create ActivityLog + FileChangeDetail with source `manual`. | Inline |
+| Activity list route | done | `/activity` — authenticated, paginated list with type filter chips. Each row: timestamp, type icon, summary, file path (for file changes). | Inline |
+| File change detail view | done | Expandable or linked detail showing: diff view (side-by-side or inline), original content, new content, current file content (or "file deleted" state). | Inline |
+| Revert action | done | Button on file-change detail to restore original content. Writes originalContent back to disk and creates a new `file_change` activity record for the revert. | Inline |
+| Nav integration | done | Add "Activity" link to Header nav between existing items. | Inline |
 
 ## Detail
 
@@ -93,5 +93,6 @@ canonical_file: docs/requirements/activity.md
 
 ## Change Log
 
+- 2026-03-15: Implemented all requirements — schema, write interception, activity list page, detail view with diff, revert, nav integration.
 - 2026-03-15: Resolved open questions — no cleanup, inline diff, chatThreadId in metadata, 50/page with Shadcn pagination.
 - 2026-03-15: Created initial activity log requirements from feature discussion.

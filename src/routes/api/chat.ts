@@ -102,7 +102,10 @@ export const Route = createFileRoute("/api/chat")({
 					body.model && isChatModel(body.model)
 						? body.model
 						: DEFAULT_CHAT_MODEL;
-				const obsidianCtx = createObsidianToolContext();
+				const obsidianCtx = createObsidianToolContext(
+					session.user.id,
+					thread.id,
+				);
 				const obsidianTools: ToolSet = {
 					obsidian_folders: obsidianFolders,
 					obsidian_list: obsidianList,

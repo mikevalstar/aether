@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
+import { logFileChange } from "#/lib/activity";
 import type { ObsidianToolContext } from "./obsidian-context";
 
 function getObsidianRoot() {
@@ -95,6 +96,24 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 				await fs.writeFile(absolutePath, updatedContent, "utf8");
 				const updatedStat = await fs.stat(absolutePath);
 				ctx.readFiles.set(normalized, updatedStat.mtime.toISOString());
+
+				const fileName = path.basename(normalized);
+				try {
+					await logFileChange({
+						userId: ctx.userId,
+						filePath: normalized,
+						originalContent: content,
+						newContent: updatedContent,
+						changeSource: "ai",
+						toolName: "obsidian_edit",
+						summary: `AI edited ${fileName}`,
+						metadata: ctx.chatThreadId
+							? { chatThreadId: ctx.chatThreadId }
+							: undefined,
+					});
+				} catch (err) {
+					console.error("Activity log failed:", err);
+				}
 
 				return {
 					relativePath: normalized,

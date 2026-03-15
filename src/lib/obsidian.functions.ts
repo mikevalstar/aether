@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
+import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 import {
 	normalizeObsidianRoutePath,
@@ -203,7 +204,7 @@ type SaveObsidianDocumentInput = {
 export const saveObsidianDocument = createServerFn({ method: "POST" })
 	.inputValidator((data: SaveObsidianDocumentInput) => data)
 	.handler(async ({ data }) => {
-		await ensureSession();
+		const session = await ensureSession();
 
 		const obsidianRoot = getObsidianRoot();
 		if (!obsidianRoot) {
@@ -227,7 +228,28 @@ export const saveObsidianDocument = createServerFn({ method: "POST" })
 			throw new Error("Path traversal detected");
 		}
 
+		let originalContent: string | null = null;
+		try {
+			originalContent = await fs.readFile(absolutePath, "utf8");
+		} catch {
+			// File doesn't exist yet — originalContent stays null
+		}
+
 		await fs.writeFile(absolutePath, data.content, "utf8");
+
+		try {
+			const fileName = path.basename(normalized);
+			await logFileChange({
+				userId: session.user.id,
+				filePath: normalized,
+				originalContent,
+				newContent: data.content,
+				changeSource: "manual",
+				summary: `Manual save ${fileName}`,
+			});
+		} catch (err) {
+			console.error("Activity log failed:", err);
+		}
 
 		return { success: true };
 	});
