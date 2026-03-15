@@ -30,8 +30,8 @@ import {
 import { z } from "zod";
 import { Button } from "#/components/ui/button";
 import { ChartCard } from "#/components/ui/chart-card";
+import { DateRangePicker } from "#/components/ui/date-range-picker";
 import { GlowBg } from "#/components/ui/glow-bg";
-import { Input } from "#/components/ui/input";
 import { SectionLabel } from "#/components/ui/section-label";
 import {
 	Select,
@@ -42,18 +42,13 @@ import {
 } from "#/components/ui/select";
 import { StatCard } from "#/components/ui/stat-card";
 import { getSession } from "#/lib/auth.functions";
-import {
-	formatUsageCurrency,
-	normalizeUsageSearch,
-	USAGE_RANGE_PRESETS,
-} from "#/lib/chat-usage";
+import { formatUsageCurrency, normalizeUsageSearch } from "#/lib/chat-usage";
 import {
 	type ChatUsageStatsResult,
 	getChatUsageStats,
 } from "#/lib/chat-usage.functions";
 
 const usageSearchSchema = z.object({
-	preset: z.string().optional(),
 	from: z.string().optional(),
 	to: z.string().optional(),
 	model: z.string().optional(),
@@ -87,7 +82,6 @@ function UsagePage() {
 	const navigate = useNavigate({ from: Route.fullPath });
 	const data = Route.useLoaderData() as ChatUsageStatsResult;
 	const rawSearch = Route.useSearch() as {
-		preset?: string;
 		from?: string;
 		to?: string;
 		model?: string;
@@ -96,15 +90,9 @@ function UsagePage() {
 
 	const hasData = data.totals.events > 0;
 
-	function updateSearch(next: {
-		preset?: string;
-		from?: string;
-		to?: string;
-		model?: string;
-	}) {
+	function updateSearch(next: { from?: string; to?: string; model?: string }) {
 		void navigate({
 			search: {
-				preset: next.preset,
 				from: next.from,
 				to: next.to,
 				model: next.model,
@@ -150,98 +138,49 @@ function UsagePage() {
 				</section>
 
 				<section className="surface-card mb-6 p-4 sm:p-5">
-					<div className="flex flex-col gap-4">
-						<div className="flex flex-wrap gap-2">
-							{USAGE_RANGE_PRESETS.map((preset) => {
-								const isActive =
-									search.preset === preset.id &&
-									!rawSearch.from &&
-									!rawSearch.to;
-
-								return (
-									<Button
-										key={preset.id}
-										type="button"
-										variant={isActive ? "default" : "outline"}
-										size="sm"
-										onClick={() => {
-											updateSearch({
-												preset: preset.id,
-												from: undefined,
-												to: undefined,
-												model: search.model,
-											});
-										}}
-									>
-										{preset.label}
-									</Button>
-								);
-							})}
+					<div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+						<div>
+							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
+								Date range
+							</p>
+							<DateRangePicker
+								from={search.from}
+								to={search.to}
+								onChange={({ from, to }) => {
+									updateSearch({
+										from,
+										to,
+										model: search.model,
+									});
+								}}
+							/>
 						</div>
-
-						<div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_220px]">
-							<div>
-								<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-									From
-								</p>
-								<Input
-									type="date"
-									value={search.from ?? ""}
-									onChange={(event) => {
-										updateSearch({
-											preset: undefined,
-											from: event.target.value || undefined,
-											to: search.to,
-											model: search.model,
-										});
-									}}
-								/>
-							</div>
-							<div>
-								<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-									To
-								</p>
-								<Input
-									type="date"
-									value={search.to ?? ""}
-									onChange={(event) => {
-										updateSearch({
-											preset: undefined,
-											from: search.from,
-											to: event.target.value || undefined,
-											model: search.model,
-										});
-									}}
-								/>
-							</div>
-							<div>
-								<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-									Model
-								</p>
-								<Select
-									value={search.model}
-									onValueChange={(value) => {
-										updateSearch({
-											preset: search.preset,
-											from: search.from,
-											to: search.to,
-											model: value,
-										});
-									}}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="All models" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">All models</SelectItem>
-										{data.availableModels.map((model) => (
-											<SelectItem key={model.id} value={model.id}>
-												{model.label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
+						<div>
+							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
+								Model
+							</p>
+							<Select
+								value={search.model}
+								onValueChange={(value) => {
+									updateSearch({
+										from: search.from,
+										to: search.to,
+										model: value,
+									});
+								}}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="All models" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All models</SelectItem>
+									{data.availableModels.map((model) => (
+										<SelectItem key={model.id} value={model.id}>
+											{model.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 				</section>

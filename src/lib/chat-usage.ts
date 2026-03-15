@@ -1,63 +1,23 @@
 import dayjs from "dayjs";
 import { CHAT_MODELS, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat";
 
-export const USAGE_RANGE_PRESETS = [
-	{ id: "7d", label: "Last 7 days", days: 7 },
-	{ id: "30d", label: "Last 30 days", days: 30 },
-	{ id: "90d", label: "Last 90 days", days: 90 },
-	{ id: "month", label: "Month to date" },
-	{ id: "all", label: "All time" },
-] as const;
-
-export type UsageRangePreset = (typeof USAGE_RANGE_PRESETS)[number]["id"];
-
 export type UsageSearchInput = {
 	from?: string;
 	to?: string;
-	preset?: string;
 	model?: string;
 };
 
-export function isUsageRangePreset(value: string): value is UsageRangePreset {
-	return USAGE_RANGE_PRESETS.some((preset) => preset.id === value);
-}
-
 export function normalizeUsageSearch(input: UsageSearchInput) {
-	const preset =
-		input.preset && isUsageRangePreset(input.preset) ? input.preset : "30d";
 	const model = input.model && isChatModel(input.model) ? input.model : "all";
-	const today = dayjs().startOf("day");
 
-	let from = normalizeDateInput(input.from);
-	let to = normalizeDateInput(input.to);
-
-	if (!from && !to) {
-		if (preset === "month") {
-			from = today.startOf("month").format("YYYY-MM-DD");
-			to = today.format("YYYY-MM-DD");
-		} else if (preset !== "all") {
-			const days =
-				USAGE_RANGE_PRESETS.find(
-					(
-						item,
-					): item is (typeof USAGE_RANGE_PRESETS)[number] & { days: number } =>
-						item.id === preset && "days" in item,
-				)?.days ?? 30;
-			from = today.subtract(days - 1, "day").format("YYYY-MM-DD");
-			to = today.format("YYYY-MM-DD");
-		}
-	}
+	const from = normalizeDateInput(input.from);
+	const to = normalizeDateInput(input.to);
 
 	if (from && to && dayjs(from).isAfter(dayjs(to))) {
-		return {
-			preset,
-			model,
-			from: to,
-			to: from,
-		};
+		return { model, from: to, to: from };
 	}
 
-	return { preset, model, from, to };
+	return { model, from, to };
 }
 
 export function buildUsageDateRange(

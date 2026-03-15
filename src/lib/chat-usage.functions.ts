@@ -31,7 +31,7 @@ type ModelBreakdownPoint = {
 };
 
 export type ChatUsageStatsResult = {
-	search: ReturnType<typeof normalizeUsageSearch>;
+	search: { from?: string; to?: string; model: string };
 	totals: {
 		inputTokens: number;
 		outputTokens: number;
