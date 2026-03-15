@@ -47,6 +47,7 @@ import {
 	type ChatUsageStatsResult,
 	getChatUsageStats,
 } from "#/lib/chat-usage.functions";
+import { formatDateTime } from "#/lib/date";
 
 const usageSearchSchema = z.object({
 	from: z.string().optional(),
@@ -420,7 +421,7 @@ function UsagePage() {
 													className="rounded-lg bg-[var(--bg)] text-[var(--ink)]"
 												>
 													<td className="rounded-l-lg px-3 py-2.5 text-[var(--ink-soft)]">
-														{new Date(event.createdAt).toLocaleString()}
+														{formatDateTime(event.createdAt)}
 													</td>
 													<td className="px-3 py-2.5">{event.modelLabel}</td>
 													<td className="truncate px-3 py-2.5 text-[var(--ink-soft)]">

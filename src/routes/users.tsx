@@ -10,6 +10,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { formatDate } from "#/lib/date";
 import {
 	createManagedUser,
 	getUsersPageData,
@@ -210,7 +211,7 @@ function UsersPage() {
 										<span className="font-medium text-foreground">
 											Created:
 										</span>{" "}
-										{new Date(user.createdAt).toLocaleDateString()}
+										{formatDate(user.createdAt)}
 									</p>
 								</div>
 							</article>

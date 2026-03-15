@@ -20,6 +20,7 @@ import {
 } from "#/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import type { ActivityDetail } from "#/lib/activity.functions";
+import { formatDateTime } from "#/lib/date";
 import { ContentView } from "./ContentView";
 import { DiffView } from "./DiffView";
 import { formatRelativeTime } from "./format-relative-time";
@@ -88,7 +89,7 @@ export function ActivityDetailDialog({
 										{/* Timestamp — right-aligned */}
 										<span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
 											<Clock className="size-3" />
-											<span title={new Date(detail.createdAt).toLocaleString()}>
+											<span title={formatDateTime(detail.createdAt)}>
 												{formatRelativeTime(detail.createdAt)}
 											</span>
 										</span>
@@ -99,7 +100,7 @@ export function ActivityDetailDialog({
 							{!detail.fileChangeDetail && (
 								<span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
 									<Clock className="size-3" />
-									{new Date(detail.createdAt).toLocaleString()}
+									{formatDateTime(detail.createdAt)}
 								</span>
 							)}
 						</DialogHeader>

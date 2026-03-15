@@ -4,6 +4,7 @@ import {
 	type AiConfigReadResult,
 	parseAndValidateAiConfig,
 } from "#/lib/ai-config.shared";
+import { formatIsoDate } from "#/lib/date";
 
 export type { AiConfigReadResult } from "#/lib/ai-config.shared";
 export { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
@@ -51,7 +52,7 @@ export async function readSystemPrompt(
 	if (!result || !result.validation.isValid) return null;
 
 	return result.body
-		.replace(/\{\{date\}\}/g, new Date().toLocaleDateString("en-CA"))
+		.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
 		.replace(/\{\{userName\}\}/g, userName);
 }
 

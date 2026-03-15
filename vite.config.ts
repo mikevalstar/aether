@@ -10,6 +10,9 @@ const config = defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
+	server: {
+		allowedHosts: [".trycloudflare.com", "aether.neural.kitchen"],
+	},
 	plugins: [devtools(), tailwindcss(), tanstackStart(), viteReact()],
 });
 

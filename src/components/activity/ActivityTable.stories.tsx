@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import dayjs from "dayjs";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { ActivityTable } from "./ActivityTable";
 
@@ -22,15 +23,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const now = new Date();
+const now = dayjs();
 function minutesAgo(m: number) {
-	return new Date(now.getTime() - m * 60000).toISOString();
+	return now.subtract(m, "minute").toISOString();
 }
 function hoursAgo(h: number) {
-	return new Date(now.getTime() - h * 3600000).toISOString();
+	return now.subtract(h, "hour").toISOString();
 }
 function daysAgo(d: number) {
-	return new Date(now.getTime() - d * 86400000).toISOString();
+	return now.subtract(d, "day").toISOString();
 }
 
 const sampleItems: ActivityListItem[] = [

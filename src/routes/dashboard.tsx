@@ -16,6 +16,7 @@ import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { Spinner } from "#/components/ui/spinner";
 import { authClient } from "#/lib/auth-client";
+import { getCurrentHour } from "#/lib/date";
 
 export const Route = createFileRoute("/dashboard")({
 	component: DashboardPage,
@@ -205,7 +206,7 @@ function DashboardPage() {
 }
 
 function getGreeting(): string {
-	const hour = new Date().getHours();
+	const hour = getCurrentHour();
 	if (hour < 12) return "Good morning";
 	if (hour < 17) return "Good afternoon";
 	return "Good evening";
