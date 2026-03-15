@@ -2,7 +2,10 @@ import type { ICommand } from "@uiw/react-md-editor";
 import MDEditor, { commands } from "@uiw/react-md-editor";
 import {
 	BoldIcon,
+	CheckSquareIcon,
 	CodeIcon,
+	ColumnsIcon,
+	EyeIcon,
 	Heading1Icon,
 	Heading2Icon,
 	Heading3Icon,
@@ -11,8 +14,12 @@ import {
 	LinkIcon,
 	ListIcon,
 	ListOrderedIcon,
+	MaximizeIcon,
+	MinusIcon,
+	PencilIcon,
 	QuoteIcon,
 	StrikethroughIcon,
+	TableIcon,
 } from "lucide-react";
 import { useMemo } from "react";
 import {
@@ -114,16 +121,64 @@ const toolbarLayout: ToolbarEntry[] = [
 		icon: <ListOrderedIcon className={ico} />,
 		label: "Numbered list",
 	},
+	{
+		command: commands.checkedListCommand,
+		icon: <CheckSquareIcon className={ico} />,
+		label: "Checklist",
+	},
+	{ type: "divider" },
+	{
+		command: commands.table,
+		icon: <TableIcon className={ico} />,
+		label: "Table",
+	},
+	{
+		command: commands.hr,
+		icon: <MinusIcon className={ico} />,
+		label: "Horizontal rule",
+	},
 ];
 
-const editorCommands: ICommand[] = toolbarLayout.map((entry) =>
-	"type" in entry
-		? commands.divider
-		: { ...entry.command, icon: entry.icon, name: entry.label },
-);
+const editorCommands: ICommand[] = toolbarLayout.map((entry) => {
+	if ("type" in entry) return commands.divider;
+	const { children, ...rest } = entry.command;
+	return { ...rest, icon: entry.icon, name: entry.label } as ICommand;
+});
+
+const icoSm = "size-[18px] stroke-[1.5]";
+
+const extraToolbarLayout: ToolbarEntry[] = [
+	{
+		command: commands.codeEdit,
+		icon: <PencilIcon className={icoSm} />,
+		label: "Edit",
+	},
+	{
+		command: commands.codeLive,
+		icon: <ColumnsIcon className={icoSm} />,
+		label: "Split view",
+	},
+	{
+		command: commands.codePreview,
+		icon: <EyeIcon className={icoSm} />,
+		label: "Preview",
+	},
+	{ type: "divider" },
+	{
+		command: commands.fullscreen,
+		icon: <MaximizeIcon className={icoSm} />,
+		label: "Fullscreen",
+	},
+];
+
+const extraEditorCommands: ICommand[] = extraToolbarLayout.map((entry) => {
+	if ("type" in entry) return commands.divider;
+	const { children, ...rest } = entry.command;
+	return { ...rest, icon: entry.icon, name: entry.label } as ICommand;
+});
 
 const toolbarMeta = new Map<string, ToolbarItem>(
-	toolbarLayout
+	[...toolbarLayout, ...extraToolbarLayout]
 		.filter((e): e is ToolbarItem => !("type" in e))
 		.map((item) => [item.label, item]),
 );
@@ -138,13 +193,19 @@ function renderToolbarButton(
 	}
 
 	const meta = toolbarMeta.get(command.name ?? "");
+	const isExtra = extraToolbarLayout.some(
+		(e) => !("type" in e) && e.label === command.name,
+	);
 
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<button
 					type="button"
-					className="inline-flex size-[38px] items-center justify-center rounded-lg text-[var(--ink-soft)] transition-all duration-150 hover:bg-[var(--teal)]/12 hover:text-[var(--teal)] active:scale-90 active:bg-[var(--teal)]/20"
+					className={cn(
+						"inline-flex items-center justify-center rounded-lg text-[var(--ink-soft)] transition-all duration-150 hover:bg-[var(--teal)]/12 hover:text-[var(--teal)] active:scale-90 active:bg-[var(--teal)]/20",
+						isExtra ? "size-[32px]" : "size-[38px]",
+					)}
 					onClick={() => executeCommand(command)}
 				>
 					{command.icon}
@@ -200,7 +261,7 @@ export function MarkdownEditor({
 						visibleDragbar={false}
 						preview="edit"
 						commands={editorCommands}
-						extraCommands={[]}
+						extraCommands={extraEditorCommands}
 						components={{
 							toolbar: renderToolbarButton,
 						}}
