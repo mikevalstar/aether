@@ -501,7 +501,7 @@ const ToolInspectorDrawer: FC = () => {
 				if (!open) setSelectedTool(null);
 			}}
 		>
-			<DrawerContent className="w-full max-w-none data-[vaul-drawer-direction=right]:w-screen sm:data-[vaul-drawer-direction=right]:w-[min(94vw,56rem)] lg:data-[vaul-drawer-direction=right]:w-[min(80vw,72rem)]">
+			<DrawerContent className="w-full max-w-none data-[vaul-drawer-direction=right]:w-screen sm:data-[vaul-drawer-direction=right]:w-[min(94vw,40rem)] lg:data-[vaul-drawer-direction=right]:w-[min(80vw,48rem)]">
 				<DrawerHeader className="border-b border-border/70 px-4 py-4 text-left sm:px-5">
 					<DrawerTitle className="flex items-center gap-3 text-lg tracking-tight">
 						<span className="inline-flex size-8 items-center justify-center rounded-full border border-border/70 bg-muted/50 text-muted-foreground">

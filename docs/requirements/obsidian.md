@@ -1,6 +1,6 @@
 ---
 title: Obsidian Integration
-status: done
+status: in-progress
 owner: self
 last_updated: 2026-03-14
 canonical_file: docs/requirements/obsidian.md
@@ -45,6 +45,7 @@ canonical_file: docs/requirements/obsidian.md
 | AI config area | done | Config subdirectory appears as a separate coral-highlighted section at the top of the tree with a sparkles icon. | Inline |
 | Path traversal protection | done | Path normalization rejects `..` traversal that escapes the vault root. | Inline |
 | Missing file handling | done | Invalid paths show a not-found state with a link back to the vault root. | Inline |
+| Vault index & fuzzy search | done | In-memory vault index built at server startup with chokidar file watching and fuse.js fuzzy search across titles, tags, aliases, headings, and content. | [Detail](#vault-index--fuzzy-search) |
 
 ## Detail
 
@@ -96,6 +97,26 @@ canonical_file: docs/requirements/obsidian.md
 | 8. AI config section | done | Config dir shown as coral-highlighted section with sparkles icon in tree nav. |
 | 9. Polish | done | Welcome page, missing-document state, unconfigured state, path traversal protection. |
 
+### Vault index & fuzzy search
+
+Replaces the naive filesystem-walk search with a persistent in-memory index that's built eagerly at server startup and kept current via file watching.
+
+**Architecture:**
+- `src/lib/obsidian/vault-index.ts` — singleton index manager
+- On server start: chokidar watches `OBSIDIAN_DIR` for `.md` files, parsing each with `gray-matter`
+- Per note, the index stores: `title`, `aliases` (frontmatter), `tags` (frontmatter + inline `#tags`), `headings` (h1–h4), `folder`, `mtime`, and a body snippet (first 500 chars)
+- A fuse.js instance provides fuzzy search with weighted keys: title (1.0) > aliases (0.8) > tags (0.7) > headings (0.6) > path (0.4) > body (0.3)
+- File add/change/unlink events update the index entry and debounce-rebuild the fuse index (300ms)
+
+**Benefits over previous approach:**
+- Fuzzy matching with relevance scoring (typo tolerance, partial matches)
+- Searches structured metadata (tags, aliases, headings) — not just filename and raw content
+- No filesystem I/O on each search — queries are instant against the in-memory index
+- Index stays current without restart via chokidar file watching
+
+**Search result shape:**
+- `relativePath`, `title`, `tags`, `aliases`, `headings`, `folder`, `score` (0–100, 100 = perfect match)
+
 ## Open Questions
 
 - Should Obsidian wiki-links (`[[page]]`) be resolved and rendered as navigable links?
@@ -106,3 +127,4 @@ canonical_file: docs/requirements/obsidian.md
 - 2026-03-14: Created initial requirements doc for Obsidian vault integration with tree browsing, search, Markdown viewing/editing, and AI config section.
 - 2026-03-14: Implemented read-only vault browser with collapsible tree, title search, Markdown rendering, AI config highlighting, auth gating, and header nav link. Editing remains todo.
 - 2026-03-14: Added Markdown editing with `@uiw/react-md-editor`. Edit button in document header, explicit save, unsaved-changes indicator, path traversal protection on save.
+- 2026-03-14: Replaced naive filesystem-walk search with in-memory vault index using chokidar + gray-matter + fuse.js. Eager init at server startup, fuzzy search across titles/tags/aliases/headings/content with weighted relevance scoring.
