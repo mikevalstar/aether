@@ -30,6 +30,10 @@ import {
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
+import { obsidianRead } from "#/lib/tools/obsidian-read";
+import { obsidianSearch } from "#/lib/tools/obsidian-search";
+import { obsidianTree } from "#/lib/tools/obsidian-tree";
+import { obsidianWrite } from "#/lib/tools/obsidian-write";
 
 async function generateChatTitle(userMessage: string): Promise<string> {
 	try {
@@ -95,10 +99,17 @@ export const Route = createFileRoute("/api/chat")({
 					body.model && isChatModel(body.model)
 						? body.model
 						: DEFAULT_CHAT_MODEL;
+				const obsidianTools: ToolSet = {
+					obsidian_tree: obsidianTree,
+					obsidian_search: obsidianSearch,
+					obsidian_read: obsidianRead,
+					obsidian_write: obsidianWrite,
+				};
 				const tools: ToolSet =
 					model === "claude-haiku-4-5"
 						? {
 								fetch_url_markdown: fetchUrlMarkdown,
+								...obsidianTools,
 							}
 						: {
 								web_fetch: anthropic.tools.webFetch_20260209({
@@ -109,6 +120,7 @@ export const Route = createFileRoute("/api/chat")({
 									maxUses: 5,
 								}),
 								fetch_url_markdown: fetchUrlMarkdown,
+								...obsidianTools,
 							};
 				const currentTotals: ChatUsageTotals = {
 					inputTokens: thread.totalInputTokens ?? 0,
@@ -183,9 +195,11 @@ export const Route = createFileRoute("/api/chat")({
 				const userName = session.user.name || "User";
 				const configuredPrompt = await readSystemPrompt(userName);
 
+				const obsidianInstruction =
+					" You also have access to the user's Obsidian vault via obsidian_tree, obsidian_search, obsidian_read, and obsidian_write tools. Use obsidian_tree to see the vault's folder and file structure, obsidian_search to find notes by content, obsidian_read to read their content, and obsidian_write to create or update notes. When updating existing notes, focus on adding content rather than removing content unless the user explicitly asks you to remove something. Always read the target file with obsidian_read before writing to check if it already exists — if it does, incorporate the existing content rather than overwriting it.";
 				const toolInstruction = tools
-					? "You have access to web search, web fetch, and fetch_url_markdown tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. When the user shares a specific URL and wants you to read its content, prefer fetch_url_markdown as it returns clean, ad-free markdown."
-					: "You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.";
+					? `You have access to web search, web fetch, and fetch_url_markdown tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. When the user shares a specific URL and wants you to read its content, prefer fetch_url_markdown as it returns clean, ad-free markdown.${obsidianInstruction}`
+					: `You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.${obsidianInstruction}`;
 
 				const systemPrompt = configuredPrompt
 					? `${configuredPrompt}\n\n${toolInstruction}`
