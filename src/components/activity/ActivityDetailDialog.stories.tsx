@@ -4,6 +4,30 @@ import { ActivityDetailDialog } from "./ActivityDetailDialog";
 
 const noop = () => {};
 
+const baseFileChangeDetail = {
+	id: "fc-1",
+	filePath: "notes/daily/2026-03-15.md",
+	originalContent: `# Daily Notes
+
+## Tasks
+- [ ] Review pull requests
+- [ ] Deploy staging
+
+## Notes
+Some observations.`,
+	newContent: `# Daily Notes
+
+## Tasks
+- [x] Review pull requests
+- [ ] Deploy staging
+- [ ] Write documentation
+
+## Notes
+Some observations from standup.`,
+	changeSource: "ai",
+	toolName: "obsidian-edit",
+} satisfies NonNullable<ActivityDetail["fileChangeDetail"]>;
+
 const meta = {
 	title: "Activity/Activity Detail Dialog",
 	component: ActivityDetailDialog,
@@ -24,29 +48,7 @@ const baseDetail: ActivityDetail = {
 	summary: "Updated daily notes with task completions",
 	metadata: null,
 	createdAt: new Date().toISOString(),
-	fileChangeDetail: {
-		id: "fc-1",
-		filePath: "notes/daily/2026-03-15.md",
-		originalContent: `# Daily Notes
-
-## Tasks
-- [ ] Review pull requests
-- [ ] Deploy staging
-
-## Notes
-Some observations.`,
-		newContent: `# Daily Notes
-
-## Tasks
-- [x] Review pull requests
-- [ ] Deploy staging
-- [ ] Write documentation
-
-## Notes
-Some observations from standup.`,
-		changeSource: "ai",
-		toolName: "obsidian-edit",
-	},
+	fileChangeDetail: baseFileChangeDetail,
 	currentFileContent: `# Daily Notes
 
 ## Tasks
@@ -98,7 +100,7 @@ export const NewFile: Story = {
 			...baseDetail,
 			summary: "Created new meeting template",
 			fileChangeDetail: {
-				...baseDetail.fileChangeDetail!,
+				...baseFileChangeDetail,
 				filePath: "templates/meeting.md",
 				originalContent: null,
 				newContent: `# Meeting: {{title}}
@@ -121,7 +123,7 @@ export const ManualSource: Story = {
 		detail: {
 			...baseDetail,
 			fileChangeDetail: {
-				...baseDetail.fileChangeDetail!,
+				...baseFileChangeDetail,
 				changeSource: "manual",
 				toolName: null,
 			},
