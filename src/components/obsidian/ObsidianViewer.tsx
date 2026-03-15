@@ -23,10 +23,11 @@ import { ObsidianWelcome } from "./ObsidianWelcome";
 
 type ObsidianViewerProps = {
 	data: ObsidianViewerData;
+	initialEdit?: boolean;
 };
 
-export function ObsidianViewer({ data }: ObsidianViewerProps) {
-	const [editing, setEditing] = useState(false);
+export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
+	const [editing, setEditing] = useState(initialEdit === true);
 	const router = useRouter();
 
 	if (!data.configured) {

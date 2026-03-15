@@ -77,7 +77,10 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 			});
 			onOpenChange(false);
 			router.invalidate();
-			navigate({ to: getObsidianHref(result.routePath) });
+			navigate({
+				to: getObsidianHref(result.routePath),
+				search: { edit: true },
+			});
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to create file");
 		} finally {
