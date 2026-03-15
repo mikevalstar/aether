@@ -31,12 +31,10 @@ import {
 } from "#/lib/chat";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
+import { createObsidianEdit } from "#/lib/tools/obsidian-edit";
 import { createObsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
-import {
-	obsidianFolders,
-	obsidianList,
-} from "#/lib/tools/obsidian-tree";
+import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 
 async function generateChatTitle(userMessage: string): Promise<string> {
@@ -110,6 +108,7 @@ export const Route = createFileRoute("/api/chat")({
 					obsidian_search: obsidianSearch,
 					obsidian_read: createObsidianRead(obsidianCtx),
 					obsidian_write: createObsidianWrite(obsidianCtx),
+					obsidian_edit: createObsidianEdit(obsidianCtx),
 				};
 				const tools: ToolSet =
 					model === "claude-haiku-4-5"
@@ -202,7 +201,7 @@ export const Route = createFileRoute("/api/chat")({
 				const configuredPrompt = await readSystemPrompt(userName);
 
 				const obsidianInstruction =
-					" You also have access to the user's Obsidian vault via obsidian_tree, obsidian_search, obsidian_read, and obsidian_write tools. Use obsidian_tree to see the vault's folder and file structure, obsidian_search to find notes by content, obsidian_read to read their content, and obsidian_write to create or update notes. When updating existing notes, focus on adding content rather than removing content unless the user explicitly asks you to remove something. Always read the target file with obsidian_read before writing to check if it already exists — if it does, incorporate the existing content rather than overwriting it.";
+					" You also have access to the user's Obsidian vault via obsidian_tree, obsidian_search, obsidian_read, obsidian_write, and obsidian_edit tools. Use obsidian_tree to see the vault's folder and file structure, obsidian_search to find notes by content, obsidian_read to read their content, obsidian_write to create new notes or fully rewrite existing ones, and obsidian_edit to make targeted changes to existing notes by replacing specific text passages. Prefer obsidian_edit over obsidian_write when making partial updates — it's faster and less error-prone. When updating existing notes, focus on adding content rather than removing content unless the user explicitly asks you to remove something. Always read the target file with obsidian_read before writing or editing.";
 				const toolInstruction = tools
 					? `You have access to web search, web fetch, and fetch_url_markdown tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. When the user shares a specific URL and wants you to read its content, prefer fetch_url_markdown as it returns clean, ad-free markdown.${obsidianInstruction}`
 					: `You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.${obsidianInstruction}`;

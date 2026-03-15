@@ -128,3 +128,4 @@ Replaces the naive filesystem-walk search with a persistent in-memory index that
 - 2026-03-14: Implemented read-only vault browser with collapsible tree, title search, Markdown rendering, AI config highlighting, auth gating, and header nav link. Editing remains todo.
 - 2026-03-14: Added Markdown editing with `@uiw/react-md-editor`. Edit button in document header, explicit save, unsaved-changes indicator, path traversal protection on save.
 - 2026-03-14: Replaced naive filesystem-walk search with in-memory vault index using chokidar + gray-matter + fuse.js. Eager init at server startup, fuzzy search across titles/tags/aliases/headings/content with weighted relevance scoring.
+- 2026-03-15: Added `obsidian_edit` AI tool for targeted search-and-replace edits to vault notes, reducing token usage and errors compared to full-file rewrites via `obsidian_write`.
