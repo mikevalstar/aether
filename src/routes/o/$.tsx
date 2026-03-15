@@ -1,9 +1,15 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { z } from "zod";
 import { ObsidianViewer } from "#/components/obsidian/ObsidianViewer";
 import { getSession } from "#/lib/auth.functions";
 import { getObsidianViewerData } from "#/lib/obsidian.functions";
 
+const obsidianSearchSchema = z.object({
+	edit: z.boolean().optional(),
+});
+
 export const Route = createFileRoute("/o/$")({
+	validateSearch: obsidianSearchSchema,
 	beforeLoad: async () => {
 		const session = await getSession();
 
@@ -19,5 +25,8 @@ export const Route = createFileRoute("/o/$")({
 
 function ObsidianDocumentPage() {
 	const data = Route.useLoaderData();
-	return <ObsidianViewer key={data.requestedPath} data={data} />;
+	const { edit } = Route.useSearch();
+	return (
+		<ObsidianViewer key={data.requestedPath} data={data} initialEdit={edit} />
+	);
 }
