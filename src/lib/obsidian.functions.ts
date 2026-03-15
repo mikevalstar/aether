@@ -282,6 +282,150 @@ export const saveObsidianDocument = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
+export type ObsidianTemplate = {
+	name: string;
+	filename: string;
+};
+
+const TEMPLATES_DIR = path.join(import.meta.dirname, "obsidian", "templates");
+
+export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(
+	async (): Promise<ObsidianTemplate[]> => {
+		await ensureSession();
+
+		let entries: import("node:fs").Dirent[];
+		try {
+			entries = await fs.readdir(TEMPLATES_DIR, { withFileTypes: true });
+		} catch {
+			return [];
+		}
+
+		return entries
+			.filter((e) => e.isFile() && e.name.endsWith(".md"))
+			.map((e) => ({
+				name: humanizeFileName(e.name),
+				filename: e.name,
+			}))
+			.sort((a, b) => a.name.localeCompare(b.name));
+	},
+);
+
+type CreateObsidianFileInput = {
+	folder: string;
+	filename: string;
+	templateFilename?: string;
+};
+
+export const createObsidianFile = createServerFn({ method: "POST" })
+	.inputValidator((data: CreateObsidianFileInput) => data)
+	.handler(async ({ data }) => {
+		const session = await ensureSession();
+
+		const obsidianRoot = getObsidianRoot();
+		if (!obsidianRoot) {
+			throw new Error("Obsidian vault not configured");
+		}
+
+		// Sanitize filename
+		let filename = data.filename.trim();
+		if (!filename) throw new Error("Filename is required");
+		if (!filename.toLowerCase().endsWith(".md")) filename += ".md";
+
+		// Build relative path
+		const folder = data.folder.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+		const relativePath = folder ? `${folder}/${filename}` : filename;
+
+		if (relativePath.includes("..")) {
+			throw new Error("Invalid file path");
+		}
+
+		const absolutePath = path.join(obsidianRoot, relativePath);
+		const resolvedPath = path.resolve(absolutePath);
+		const resolvedRoot = path.resolve(obsidianRoot);
+
+		if (!resolvedPath.startsWith(resolvedRoot)) {
+			throw new Error("Path traversal detected");
+		}
+
+		// Check file doesn't already exist
+		try {
+			await fs.access(absolutePath);
+			throw new Error("A file with that name already exists in this folder");
+		} catch (err) {
+			if (err instanceof Error && err.message.includes("already exists")) {
+				throw err;
+			}
+			// File doesn't exist — good
+		}
+
+		// Load template content or use blank
+		let content: string;
+		if (data.templateFilename) {
+			const templatePath = path.join(TEMPLATES_DIR, data.templateFilename);
+			const resolvedTemplate = path.resolve(templatePath);
+			if (!resolvedTemplate.startsWith(path.resolve(TEMPLATES_DIR))) {
+				throw new Error("Invalid template");
+			}
+			const raw = await fs.readFile(templatePath, "utf8");
+			const title = humanizeFileName(filename);
+			const date = new Date().toISOString().slice(0, 10);
+			content = raw
+				.replace(/\{\{title\}\}/g, title)
+				.replace(/\{\{date\}\}/g, date);
+		} else {
+			const title = humanizeFileName(filename);
+			content = `---\ntitle: "${title}"\n---\n\n`;
+		}
+
+		// Ensure parent directory exists
+		await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+		await fs.writeFile(absolutePath, content, "utf8");
+
+		try {
+			await logFileChange({
+				userId: session.user.id,
+				filePath: relativePath,
+				originalContent: null,
+				newContent: content,
+				changeSource: "manual",
+				summary: `Created ${filename}`,
+			});
+		} catch (err) {
+			logger.error({ err }, "Activity log failed");
+		}
+
+		return { relativePath, routePath: toObsidianRoutePath(relativePath) };
+	});
+
+export const listObsidianFolders = createServerFn({ method: "GET" }).handler(
+	async (): Promise<string[]> => {
+		await ensureSession();
+
+		const obsidianRoot = getObsidianRoot();
+		if (!obsidianRoot) return [];
+
+		const folders: string[] = [""];
+		await collectFolders(obsidianRoot, "", folders);
+		return folders;
+	},
+);
+
+async function collectFolders(root: string, relative: string, out: string[]) {
+	const abs = path.join(root, relative);
+	let entries: import("node:fs").Dirent[];
+	try {
+		entries = await fs.readdir(abs, { withFileTypes: true });
+	} catch {
+		return;
+	}
+	for (const entry of entries) {
+		if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+		const rel = relative ? `${relative}/${entry.name}` : entry.name;
+		out.push(rel);
+		await collectFolders(root, rel, out);
+	}
+}
+
 function normalizePosix(value: string) {
 	return value.replace(/\\/g, "/").replace(/\/+$/, "");
 }

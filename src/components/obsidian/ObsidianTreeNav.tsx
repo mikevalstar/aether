@@ -5,6 +5,7 @@ import {
 	ChevronRightIcon,
 	FileTextIcon,
 	FolderTreeIcon,
+	PlusIcon,
 	SearchIcon,
 	SparklesIcon,
 } from "lucide-react";
@@ -15,9 +16,11 @@ import {
 	useMemo,
 	useState,
 } from "react";
+import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { getObsidianHref, type ObsidianTreeNode } from "#/lib/obsidian";
 import { cn } from "#/lib/utils";
+import { NewFileDialog } from "./NewFileDialog";
 
 type ObsidianTreeNavProps = {
 	nodes: ObsidianTreeNode[];
@@ -125,6 +128,8 @@ export function ObsidianTreeNav({
 		});
 	}, []);
 
+	const [newFileOpen, setNewFileOpen] = useState(false);
+
 	const isSearching = search.trim().length > 0;
 	const filteredNodes = useMemo(
 		() => (isSearching ? filterTree(nodes, search.trim()) : nodes),
@@ -164,14 +169,29 @@ export function ObsidianTreeNav({
 	return (
 		<div className="surface-card h-fit overflow-hidden lg:sticky lg:top-24">
 			<div className="border-b border-[var(--line)] bg-[var(--teal-subtle)] px-5 py-4">
-				<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
-					Obsidian
-				</p>
-				<h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
-					<BookOpenIcon className="size-4 text-[var(--teal)]" />
-					Vault Browser
-				</h1>
+				<div className="flex items-start justify-between">
+					<div>
+						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
+							Obsidian
+						</p>
+						<h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
+							<BookOpenIcon className="size-4 text-[var(--teal)]" />
+							Vault Browser
+						</h1>
+					</div>
+					<Button
+						variant="outline"
+						size="sm"
+						className="mt-1"
+						onClick={() => setNewFileOpen(true)}
+					>
+						<PlusIcon className="mr-1 size-3.5" />
+						New
+					</Button>
+				</div>
 			</div>
+
+			<NewFileDialog open={newFileOpen} onOpenChange={setNewFileOpen} />
 
 			<div className="border-b border-[var(--line)] px-3 py-2">
 				<div className="relative">
