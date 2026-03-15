@@ -25,7 +25,6 @@ function Spinner({
 	...props
 }: React.ComponentProps<"div"> & VariantProps<typeof spinnerVariants>) {
 	return (
-		// biome-ignore lint/a11y/useSemanticElements: spinner is a visual indicator, not semantic output
 		<div
 			data-slot="spinner"
 			role="status"

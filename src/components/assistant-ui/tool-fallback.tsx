@@ -315,10 +315,10 @@ ToolFallback.Error = ToolFallbackError;
 
 export {
 	ToolFallback,
+	ToolFallbackArgs,
+	ToolFallbackContent,
+	ToolFallbackError,
+	ToolFallbackResult,
 	ToolFallbackRoot,
 	ToolFallbackTrigger,
-	ToolFallbackContent,
-	ToolFallbackArgs,
-	ToolFallbackResult,
-	ToolFallbackError,
 };

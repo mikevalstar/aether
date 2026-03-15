@@ -1,7 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
-	type ErrorComponentProps,
 	createRootRoute,
+	type ErrorComponentProps,
 	HeadContent,
 	Scripts,
 	useRouter,
@@ -10,8 +10,8 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ThemeProvider from "../components/ThemeProvider";
-import { ErrorBoundary, ErrorDisplay } from "../lib/error-display";
 import { TooltipProvider } from "../components/ui/tooltip";
+import { ErrorBoundary, ErrorDisplay } from "../lib/error-display";
 
 import appCss from "../styles.css?url";
 
@@ -51,10 +51,7 @@ function RootErrorComponent({ error }: ErrorComponentProps) {
 	return (
 		<div className="page-wrap py-12">
 			<div className="surface-card overflow-hidden">
-				<ErrorDisplay
-					error={error}
-					onRetry={() => router.invalidate()}
-				/>
+				<ErrorDisplay error={error} onRetry={() => router.invalidate()} />
 			</div>
 		</div>
 	);
