@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
+import { getIndexedNote } from "#/lib/obsidian/vault-index";
 
 function getObsidianRoot() {
 	return process.env.OBSIDIAN_DIR ?? "";
@@ -83,15 +84,27 @@ async function buildFolderTree(
 	return folders.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-type ListEntry = {
-	type: "folder" | "file";
+type FileEntry = {
+	type: "file";
+	name: string;
+	path: string;
+	title: string;
+	tags: string[];
+	aliases: string[];
+	headings: string[];
+};
+
+type FolderListEntry = {
+	type: "folder";
 	name: string;
 	path: string;
 };
 
+type ListEntry = FileEntry | FolderListEntry;
+
 export const obsidianList = tool({
 	description:
-		"List the contents of a single folder in the user's Obsidian vault. Returns the immediate files and subfolders (non-recursive). Use this after obsidian_folders to explore a specific directory.",
+		"List the contents of a single folder in the user's Obsidian vault. Returns immediate subfolders and files (non-recursive). Files include metadata from the vault index: title, tags, aliases, and headings. Use this after obsidian_folders to explore a specific directory.",
 	inputSchema: z.object({
 		folder: z
 			.string()
@@ -118,6 +131,8 @@ export const obsidianList = tool({
 		const entries = await fs.readdir(absoluteStart, { withFileTypes: true });
 		const items: ListEntry[] = [];
 
+		const filePromises: Promise<FileEntry | null>[] = [];
+
 		for (const entry of entries) {
 			if (entry.name.startsWith(".")) continue;
 
@@ -128,8 +143,23 @@ export const obsidianList = tool({
 			if (entry.isDirectory()) {
 				items.push({ type: "folder", name: entry.name, path: relativePath });
 			} else if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) {
-				items.push({ type: "file", name: entry.name, path: relativePath });
+				filePromises.push(
+					getIndexedNote(relativePath).then((note) => ({
+						type: "file" as const,
+						name: entry.name,
+						path: relativePath,
+						title: note?.title ?? entry.name.replace(/\.md$/i, ""),
+						tags: note?.tags ?? [],
+						aliases: note?.aliases ?? [],
+						headings: note?.headings ?? [],
+					})),
+				);
 			}
+		}
+
+		const files = await Promise.all(filePromises);
+		for (const file of files) {
+			if (file) items.push(file);
 		}
 
 		items.sort((a, b) => {
