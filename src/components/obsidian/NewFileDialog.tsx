@@ -1,7 +1,21 @@
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { FileTextIcon, Loader2Icon } from "lucide-react";
+import {
+	CheckIcon,
+	ChevronsUpDownIcon,
+	FileTextIcon,
+	FolderPlusIcon,
+	Loader2Icon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "#/components/ui/command";
 import {
 	Dialog,
 	DialogContent,
@@ -12,6 +26,11 @@ import {
 } from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "#/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -26,6 +45,7 @@ import {
 	listObsidianTemplates,
 	type ObsidianTemplate,
 } from "#/lib/obsidian.functions";
+import { cn } from "#/lib/utils";
 
 type NewFileDialogProps = {
 	open: boolean;
@@ -37,9 +57,11 @@ const NO_TEMPLATE = "__none__";
 export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 	const [filename, setFilename] = useState("");
 	const [folder, setFolder] = useState("");
+	const [folderSearch, setFolderSearch] = useState("");
+	const [folderOpen, setFolderOpen] = useState(false);
 	const [templateFilename, setTemplateFilename] = useState(NO_TEMPLATE);
 	const [templates, setTemplates] = useState<ObsidianTemplate[]>([]);
-	const [folders, setFolders] = useState<string[]>([""]);
+	const [folders, setFolders] = useState<string[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [creating, setCreating] = useState(false);
 	const navigate = useNavigate();
@@ -49,12 +71,17 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 		if (!open) return;
 		setFilename("");
 		setFolder("");
+		setFolderSearch("");
 		setTemplateFilename(NO_TEMPLATE);
 		setError(null);
 
 		listObsidianTemplates().then(setTemplates);
-		listObsidianFolders().then(setFolders);
+		listObsidianFolders().then((f) => setFolders(f.filter((x) => x !== "")));
 	}, [open]);
+
+	const showCreateOption =
+		folderSearch.trim() !== "" &&
+		!folders.some((f) => f.toLowerCase() === folderSearch.trim().toLowerCase());
 
 	async function handleCreate() {
 		const trimmed = filename.trim();
@@ -124,18 +151,90 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 
 					<div className="space-y-2">
 						<Label>Folder</Label>
-						<Select value={folder} onValueChange={setFolder}>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="Vault root" />
-							</SelectTrigger>
-							<SelectContent>
-								{folders.map((f) => (
-									<SelectItem key={f || "__root__"} value={f}>
-										{f || "/ (vault root)"}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<Popover open={folderOpen} onOpenChange={setFolderOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									role="combobox"
+									aria-expanded={folderOpen}
+									className="w-full justify-between font-normal"
+								>
+									{folder || "/ (vault root)"}
+									<ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+								<Command>
+									<CommandInput
+										placeholder="Search or type new folder..."
+										value={folderSearch}
+										onValueChange={setFolderSearch}
+									/>
+									<CommandList>
+										<CommandEmpty>
+											{folderSearch.trim()
+												? "No matching folders."
+												: "No folders in vault."}
+										</CommandEmpty>
+										<CommandGroup>
+											<CommandItem
+												value="/ (vault root)"
+												onSelect={() => {
+													setFolder("");
+													setFolderSearch("");
+													setFolderOpen(false);
+												}}
+											>
+												<CheckIcon
+													className={cn(
+														"mr-2 size-4",
+														folder === "" ? "opacity-100" : "opacity-0",
+													)}
+												/>
+												/ (vault root)
+											</CommandItem>
+											{folders.map((f) => (
+												<CommandItem
+													key={f}
+													value={f}
+													onSelect={() => {
+														setFolder(f);
+														setFolderSearch("");
+														setFolderOpen(false);
+													}}
+												>
+													<CheckIcon
+														className={cn(
+															"mr-2 size-4",
+															folder === f ? "opacity-100" : "opacity-0",
+														)}
+													/>
+													{f}
+												</CommandItem>
+											))}
+										</CommandGroup>
+										{showCreateOption && (
+											<CommandGroup heading="Create new">
+												<CommandItem
+													value={`create:${folderSearch.trim()}`}
+													onSelect={() => {
+														setFolder(folderSearch.trim());
+														setFolderSearch("");
+														setFolderOpen(false);
+													}}
+												>
+													<FolderPlusIcon className="mr-2 size-4" />
+													{folderSearch.trim()}
+												</CommandItem>
+											</CommandGroup>
+										)}
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
+						<p className="text-xs text-muted-foreground">
+							New folders will be created automatically.
+						</p>
 					</div>
 
 					<div className="space-y-2">
