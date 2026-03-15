@@ -1,4 +1,4 @@
-import { Clock, FileText, History } from "lucide-react";
+import { Bot, Clock, FileText, History, PenLine } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { formatRelativeTime } from "./format-relative-time";
@@ -67,23 +67,14 @@ export function ActivityTable({
 							<td className="border-b border-border/50 px-4 py-3">
 								<span className="font-medium">{item.summary}</span>
 								{item.fileChangeDetail && (
-									<span className="ml-2 text-xs text-muted-foreground">
+									<span className="ml-2 font-mono text-xs text-muted-foreground">
 										{item.fileChangeDetail.filePath}
 									</span>
 								)}
 							</td>
 							<td className="border-b border-border/50 px-4 py-3">
 								{item.fileChangeDetail && (
-									<Badge
-										variant={
-											item.fileChangeDetail.changeSource === "ai"
-												? "default"
-												: "secondary"
-										}
-										className="text-xs"
-									>
-										{item.fileChangeDetail.changeSource}
-									</Badge>
+									<SourceBadge source={item.fileChangeDetail.changeSource} />
 								)}
 							</td>
 						</tr>
@@ -91,6 +82,23 @@ export function ActivityTable({
 				</tbody>
 			</table>
 		</section>
+	);
+}
+
+function SourceBadge({ source }: { source: string }) {
+	if (source === "ai") {
+		return (
+			<Badge className="gap-1 bg-[var(--teal)]/10 py-0 text-xs text-[var(--teal)] hover:bg-[var(--teal)]/15 border-[var(--teal)]/20">
+				<Bot className="size-3" />
+				AI
+			</Badge>
+		);
+	}
+	return (
+		<Badge className="gap-1 bg-[var(--coral)]/10 py-0 text-xs text-[var(--coral)] hover:bg-[var(--coral)]/15 border-[var(--coral)]/20">
+			<PenLine className="size-3" />
+			Manual
+		</Badge>
 	);
 }
 
