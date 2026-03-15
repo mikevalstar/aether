@@ -71,6 +71,13 @@ export default function Header() {
 								Usage
 							</Link>
 							<Link
+								to="/o"
+								className="nav-link"
+								activeProps={{ className: "nav-link is-active" }}
+							>
+								Obsidian
+							</Link>
+							<Link
 								to="/requirements"
 								className="nav-link"
 								activeProps={{ className: "nav-link is-active" }}

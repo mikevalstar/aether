@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { FileTextIcon, FolderTreeIcon } from "lucide-react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import {
@@ -86,8 +87,8 @@ function TreeNavLink(props: {
 	status?: string;
 }) {
 	return (
-		<a
-			href={getRequirementHref(props.routePath)}
+		<Link
+			to={getRequirementHref(props.routePath)}
 			className={cn(
 				"group relative flex items-center gap-2 rounded-md px-2.5 py-2 text-sm no-underline transition-colors",
 				props.isActive
@@ -118,7 +119,7 @@ function TreeNavLink(props: {
 					<StatusBadge status={props.status} size="sm" />
 				</span>
 			) : null}
-		</a>
+		</Link>
 	);
 }
 
@@ -127,14 +128,14 @@ export function RequirementNavLink({
 	hash,
 	children,
 	...rest
-}: ComponentPropsWithoutRef<"a"> & {
+}: Omit<ComponentPropsWithoutRef<typeof Link>, "to"> & {
 	routePath: string;
 	hash?: string;
 	children: ReactNode;
 }) {
 	return (
-		<a href={`${getRequirementHref(routePath)}${hash ?? ""}`} {...rest}>
+		<Link to={`${getRequirementHref(routePath)}${hash ?? ""}`} {...rest}>
 			{children}
-		</a>
+		</Link>
 	);
 }

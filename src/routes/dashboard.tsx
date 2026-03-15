@@ -2,12 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BookOpen,
-	Sparkles,
 	CalendarCheck,
 	ChartLine,
 	FileText,
 	KeyRound,
 	LogOut,
+	Sparkles,
 	Users,
 } from "lucide-react";
 import { useEffect } from "react";

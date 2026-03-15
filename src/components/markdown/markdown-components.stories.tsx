@@ -2,15 +2,18 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
-	type MarkdownVariant,
 	createMarkdownComponents,
+	type MarkdownVariant,
 } from "./markdown-components";
 
 // Wrapper component for Storybook
 function MarkdownRenderer({
 	content,
 	variant,
-}: { content: string; variant: MarkdownVariant }) {
+}: {
+	content: string;
+	variant: MarkdownVariant;
+}) {
 	const components = createMarkdownComponents(variant);
 	return (
 		<div className="max-w-3xl text-[var(--ink)]">
