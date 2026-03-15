@@ -19,6 +19,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
 import { Route as OIndexRouteImport } from './routes/o/index'
+import { Route as SettingsPreferencesRouteImport } from './routes/settings/preferences'
 import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
 import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
 import { Route as OSplatRouteImport } from './routes/o/$'
@@ -78,6 +79,11 @@ const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
 const OIndexRoute = OIndexRouteImport.update({
   id: '/o/',
   path: '/o/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsPreferencesRoute = SettingsPreferencesRouteImport.update({
+  id: '/settings/preferences',
+  path: '/settings/preferences',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsPasswordRoute = SettingsPasswordRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
+  '/settings/preferences': typeof SettingsPreferencesRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
+  '/settings/preferences': typeof SettingsPreferencesRoute
   '/o': typeof OIndexRoute
   '/requirements': typeof RequirementsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
+  '/settings/preferences': typeof SettingsPreferencesRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/o/$'
     | '/requirements/$'
     | '/settings/password'
+    | '/settings/preferences'
     | '/o/'
     | '/requirements/'
     | '/api/auth/$'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/o/$'
     | '/requirements/$'
     | '/settings/password'
+    | '/settings/preferences'
     | '/o'
     | '/requirements'
     | '/api/auth/$'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/o/$'
     | '/requirements/$'
     | '/settings/password'
+    | '/settings/preferences'
     | '/o/'
     | '/requirements/'
     | '/api/auth/$'
@@ -283,6 +295,7 @@ export interface RootRouteChildren {
   OSplatRoute: typeof OSplatRoute
   RequirementsSplatRoute: typeof RequirementsSplatRoute
   SettingsPasswordRoute: typeof SettingsPasswordRoute
+  SettingsPreferencesRoute: typeof SettingsPreferencesRoute
   OIndexRoute: typeof OIndexRoute
   RequirementsIndexRoute: typeof RequirementsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -360,6 +373,13 @@ declare module '@tanstack/react-router' {
       path: '/o'
       fullPath: '/o/'
       preLoaderRoute: typeof OIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/preferences': {
+      id: '/settings/preferences'
+      path: '/settings/preferences'
+      fullPath: '/settings/preferences'
+      preLoaderRoute: typeof SettingsPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings/password': {
@@ -451,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   OSplatRoute: OSplatRoute,
   RequirementsSplatRoute: RequirementsSplatRoute,
   SettingsPasswordRoute: SettingsPasswordRoute,
+  SettingsPreferencesRoute: SettingsPreferencesRoute,
   OIndexRoute: OIndexRoute,
   RequirementsIndexRoute: RequirementsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
