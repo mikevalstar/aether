@@ -29,6 +29,7 @@ import {
 	serializeUsageHistory,
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
+import { getWebToolVersion } from "#/lib/chat-models";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
 import { createObsidianEdit } from "#/lib/tools/obsidian-edit";
@@ -110,14 +111,29 @@ export const Route = createFileRoute("/api/chat")({
 					obsidian_write: createObsidianWrite(obsidianCtx),
 					obsidian_edit: createObsidianEdit(obsidianCtx),
 				};
+				const webToolVersion = getWebToolVersion(model);
+				const webTools: ToolSet =
+					webToolVersion === "latest"
+						? {
+								web_fetch: anthropic.tools.webFetch_20260209({
+									citations: { enabled: true },
+									maxUses: 5,
+								}),
+								web_search: anthropic.tools.webSearch_20260209({
+									maxUses: 5,
+								}),
+							}
+						: {
+								web_fetch: anthropic.tools.webFetch_20250910({
+									citations: { enabled: true },
+									maxUses: 5,
+								}),
+								web_search: anthropic.tools.webSearch_20250305({
+									maxUses: 5,
+								}),
+							};
 				const tools: ToolSet = {
-					web_fetch: anthropic.tools.webFetch_20260209({
-						citations: { enabled: true },
-						maxUses: 5,
-					}),
-					web_search: anthropic.tools.webSearch_20260209({
-						maxUses: 5,
-					}),
+					...webTools,
 					fetch_url_markdown: fetchUrlMarkdown,
 					...obsidianTools,
 				};

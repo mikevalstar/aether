@@ -3,6 +3,8 @@ export const CHAT_MODELS = [
 		id: "claude-haiku-4-5",
 		label: "Claude Haiku 4.5",
 		description: "Fastest",
+		supportsWebTools: true,
+		webToolVersion: "legacy" as const,
 		pricing: {
 			inputCostPerMillionTokensUsd: 1,
 			outputCostPerMillionTokensUsd: 5,
@@ -12,6 +14,8 @@ export const CHAT_MODELS = [
 		id: "claude-sonnet-4-6",
 		label: "Claude Sonnet 4.6",
 		description: "Balanced",
+		supportsWebTools: true,
+		webToolVersion: "latest" as const,
 		pricing: {
 			inputCostPerMillionTokensUsd: 3,
 			outputCostPerMillionTokensUsd: 15,
@@ -21,6 +25,8 @@ export const CHAT_MODELS = [
 		id: "claude-opus-4-6",
 		label: "Claude Opus 4.6",
 		description: "Strongest",
+		supportsWebTools: true,
+		webToolVersion: "latest" as const,
 		pricing: {
 			inputCostPerMillionTokensUsd: 5,
 			outputCostPerMillionTokensUsd: 25,
@@ -34,4 +40,10 @@ export const DEFAULT_CHAT_MODEL: ChatModel = "claude-haiku-4-5";
 
 export function isChatModel(value: string): value is ChatModel {
 	return CHAT_MODELS.some((model) => model.id === value);
+}
+
+export type WebToolVersion = (typeof CHAT_MODELS)[number]["webToolVersion"];
+
+export function getWebToolVersion(model: ChatModel): WebToolVersion {
+	return CHAT_MODELS.find((m) => m.id === model)?.webToolVersion ?? "legacy";
 }
