@@ -13,6 +13,7 @@ import {
 import { prisma } from "#/db";
 import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config";
 import { auth } from "#/lib/auth";
+import { logger } from "#/lib/logger";
 import {
 	type AppChatMessage,
 	addChatUsageTotals,
@@ -79,6 +80,7 @@ export const Route = createFileRoute("/api/chat")({
 				}
 
 				const body = (await request.json()) as ChatRequestBody;
+				logger.info({ userId: session.user.id, threadId: body.id, model: body.model }, "Chat request received");
 				const threadId = body.id;
 				const incomingMessages = Array.isArray(body.messages)
 					? (body.messages as AppChatMessage[])
@@ -263,6 +265,16 @@ export const Route = createFileRoute("/api/chat")({
 						const finalMessages = messages as AppChatMessage[];
 						const totalUsage = await result.totalUsage;
 						const update = createUsageUpdate(totalUsage, finalMessages);
+						logger.info(
+							{
+								threadId: thread.id,
+								model,
+								inputTokens: update.exchangeUsage.inputTokens,
+								outputTokens: update.exchangeUsage.outputTokens,
+								costUsd: update.exchangeUsage.estimatedCostUsd,
+							},
+							"Chat response completed",
+						);
 
 						await prisma.$transaction([
 							prisma.chatThread.update({

@@ -1,14 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { getSession } from "#/lib/auth.functions";
 import {
 	changeOwnPassword,
 	getPasswordSettingsData,
 } from "#/lib/user-management.functions";
 
 export const Route = createFileRoute("/settings/password")({
+	beforeLoad: async () => {
+		const session = await getSession();
+		if (!session) {
+			throw redirect({ to: "/login" });
+		}
+	},
 	loader: async () => await getPasswordSettingsData(),
 	component: PasswordSettingsPage,
 });

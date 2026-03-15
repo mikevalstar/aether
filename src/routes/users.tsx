@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -10,6 +10,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { getSession } from "#/lib/auth.functions";
 import { formatDate } from "#/lib/date";
 import {
 	createManagedUser,
@@ -18,6 +19,12 @@ import {
 } from "#/lib/user-management.functions";
 
 export const Route = createFileRoute("/users")({
+	beforeLoad: async () => {
+		const session = await getSession();
+		if (!session) {
+			throw redirect({ to: "/login" });
+		}
+	},
 	loader: async () => await getUsersPageData(),
 	component: UsersPage,
 });

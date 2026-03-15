@@ -85,6 +85,8 @@ model ChatThread {
   updatedAt    DateTime @updatedAt
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
 }
 
 model ChatUsageEvent {

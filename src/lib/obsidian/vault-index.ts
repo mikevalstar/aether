@@ -3,6 +3,7 @@ import path from "node:path";
 import chokidar from "chokidar";
 import Fuse from "fuse.js";
 import matter from "gray-matter";
+import { logger } from "#/lib/logger";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -101,7 +102,7 @@ export function initVaultIndex(): Promise<void> {
 				resolve();
 			})
 			.on("error", (err: unknown) => {
-				console.error("[vault-index] watcher error:", err);
+				logger.error({ err }, "Vault index watcher error");
 			});
 	});
 

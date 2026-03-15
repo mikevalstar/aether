@@ -4,6 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
+import { logger } from "#/lib/logger";
 import {
 	normalizeObsidianRoutePath,
 	type ObsidianDocument,
@@ -275,7 +276,7 @@ export const saveObsidianDocument = createServerFn({ method: "POST" })
 				summary: `Manual save ${fileName}`,
 			});
 		} catch (err) {
-			console.error("Activity log failed:", err);
+			logger.error({ err }, "Activity log failed");
 		}
 
 		return { success: true };

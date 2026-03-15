@@ -3,6 +3,7 @@ import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
 import { logFileChange } from "#/lib/activity";
+import { logger } from "#/lib/logger";
 import type { ObsidianToolContext } from "./obsidian-context";
 
 function getObsidianRoot() {
@@ -112,7 +113,7 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 							: undefined,
 					});
 				} catch (err) {
-					console.error("Activity log failed:", err);
+					logger.error({ err }, "Activity log failed");
 				}
 
 				return {

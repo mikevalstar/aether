@@ -15,3 +15,4 @@ todos.json
 src/generated
 *storybook.log
 storybook-static
+logs
