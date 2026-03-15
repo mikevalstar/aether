@@ -21,6 +21,7 @@ model User {
   emailVerified Boolean
   image         String?
   role          String    @default("user")
+  preferences   String    @default("{}")
   mustChangePassword Boolean @default(false)
   invitedById   String?
   createdAt     DateTime

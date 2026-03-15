@@ -114,7 +114,9 @@ export default function Header() {
 								</div>
 								<DropdownMenuSeparator />
 								<DropdownMenuItem
-									onSelect={() => void navigate({ to: "/settings/password" })}
+									onSelect={() =>
+										void navigate({ to: "/settings/preferences" })
+									}
 								>
 									<Settings className="mr-2 size-4" />
 									Settings
@@ -180,7 +182,7 @@ export default function Header() {
 							<>
 								<div className="my-2 border-t border-border" />
 								<Link
-									to="/settings/password"
+									to="/settings/preferences"
 									className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
 									activeProps={{
 										className:

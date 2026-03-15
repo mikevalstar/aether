@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
+import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 import { logger } from "#/lib/logger";
@@ -12,6 +13,7 @@ import {
 	type ObsidianViewerData,
 	toObsidianRoutePath,
 } from "#/lib/obsidian";
+import { parsePreferences } from "#/lib/preferences";
 
 type ObsidianViewerInput = {
 	path?: string;
@@ -289,24 +291,44 @@ export type ObsidianTemplate = {
 
 const TEMPLATES_DIR = path.join(import.meta.dirname, "obsidian", "templates");
 
+async function readTemplatesFromDir(dir: string): Promise<ObsidianTemplate[]> {
+	let entries: import("node:fs").Dirent[];
+	try {
+		entries = await fs.readdir(dir, { withFileTypes: true });
+	} catch {
+		return [];
+	}
+
+	return entries
+		.filter((e) => e.isFile() && e.name.endsWith(".md"))
+		.map((e) => ({
+			name: humanizeFileName(e.name),
+			filename: e.name,
+		}))
+		.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(
 	async (): Promise<ObsidianTemplate[]> => {
-		await ensureSession();
+		const session = await ensureSession();
 
-		let entries: import("node:fs").Dirent[];
-		try {
-			entries = await fs.readdir(TEMPLATES_DIR, { withFileTypes: true });
-		} catch {
-			return [];
+		const user = await prisma.user.findUnique({
+			where: { id: session.user.id },
+			select: { preferences: true },
+		});
+		const prefs = parsePreferences(user?.preferences);
+		const obsidianRoot = getObsidianRoot();
+
+		if (prefs.obsidianTemplatesFolder && obsidianRoot) {
+			const vaultDir = path.join(obsidianRoot, prefs.obsidianTemplatesFolder);
+			const resolved = path.resolve(vaultDir);
+			if (resolved.startsWith(path.resolve(obsidianRoot))) {
+				const templates = await readTemplatesFromDir(vaultDir);
+				if (templates.length > 0) return templates;
+			}
 		}
 
-		return entries
-			.filter((e) => e.isFile() && e.name.endsWith(".md"))
-			.map((e) => ({
-				name: humanizeFileName(e.name),
-				filename: e.name,
-			}))
-			.sort((a, b) => a.name.localeCompare(b.name));
+		return readTemplatesFromDir(TEMPLATES_DIR);
 	},
 );
 
@@ -361,9 +383,45 @@ export const createObsidianFile = createServerFn({ method: "POST" })
 		// Load template content or use blank
 		let content: string;
 		if (data.templateFilename) {
-			const templatePath = path.join(TEMPLATES_DIR, data.templateFilename);
+			const user = await prisma.user.findUnique({
+				where: { id: session.user.id },
+				select: { preferences: true },
+			});
+			const prefs = parsePreferences(user?.preferences);
+
+			let templatePath: string;
+			let templateBaseDir: string;
+
+			if (prefs.obsidianTemplatesFolder && obsidianRoot) {
+				const vaultTemplatesDir = path.join(
+					obsidianRoot,
+					prefs.obsidianTemplatesFolder,
+				);
+				const candidatePath = path.join(
+					vaultTemplatesDir,
+					data.templateFilename,
+				);
+				const resolvedCandidate = path.resolve(candidatePath);
+				if (
+					resolvedCandidate.startsWith(path.resolve(obsidianRoot)) &&
+					(await fs
+						.access(candidatePath)
+						.then(() => true)
+						.catch(() => false))
+				) {
+					templatePath = candidatePath;
+					templateBaseDir = vaultTemplatesDir;
+				} else {
+					templatePath = path.join(TEMPLATES_DIR, data.templateFilename);
+					templateBaseDir = TEMPLATES_DIR;
+				}
+			} else {
+				templatePath = path.join(TEMPLATES_DIR, data.templateFilename);
+				templateBaseDir = TEMPLATES_DIR;
+			}
+
 			const resolvedTemplate = path.resolve(templatePath);
-			if (!resolvedTemplate.startsWith(path.resolve(TEMPLATES_DIR))) {
+			if (!resolvedTemplate.startsWith(path.resolve(templateBaseDir))) {
 				throw new Error("Invalid template");
 			}
 			const raw = await fs.readFile(templatePath, "utf8");
