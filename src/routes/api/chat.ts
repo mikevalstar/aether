@@ -32,7 +32,10 @@ import {
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { obsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
-import { obsidianTree } from "#/lib/tools/obsidian-tree";
+import {
+	obsidianFolders,
+	obsidianList,
+} from "#/lib/tools/obsidian-tree";
 import { obsidianWrite } from "#/lib/tools/obsidian-write";
 
 async function generateChatTitle(userMessage: string): Promise<string> {
@@ -100,7 +103,8 @@ export const Route = createFileRoute("/api/chat")({
 						? body.model
 						: DEFAULT_CHAT_MODEL;
 				const obsidianTools: ToolSet = {
-					obsidian_tree: obsidianTree,
+					obsidian_folders: obsidianFolders,
+					obsidian_list: obsidianList,
 					obsidian_search: obsidianSearch,
 					obsidian_read: obsidianRead,
 					obsidian_write: obsidianWrite,
