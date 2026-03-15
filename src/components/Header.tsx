@@ -1,5 +1,6 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Settings, Users } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { LogOut, Menu, Settings, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
 import { Button } from "#/components/ui/button";
 import {
@@ -9,6 +10,12 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+} from "#/components/ui/sheet";
 import { authClient } from "#/lib/auth-client";
 import ThemeToggle from "./ThemeToggle";
 
@@ -25,9 +32,30 @@ function getInitials(name?: string | null, email?: string | null) {
 	return "?";
 }
 
+const navLinks = [
+	{ to: "/" as const, label: "Home", auth: false },
+	{ to: "/dashboard" as const, label: "Dashboard", auth: true },
+	{ to: "/chat" as const, label: "Chat", auth: true },
+	{ to: "/usage" as const, label: "Usage", auth: true },
+	{ to: "/activity" as const, label: "Activity", auth: true },
+	{ to: "/o" as const, label: "Obsidian", auth: true },
+	{ to: "/requirements" as const, label: "Requirements", auth: true },
+];
+
 export default function Header() {
 	const { data: session } = authClient.useSession();
 	const navigate = useNavigate();
+	const [mobileOpen, setMobileOpen] = useState(false);
+	const routerState = useRouterState();
+
+	// Close mobile menu on navigation
+	useEffect(() => {
+		setMobileOpen(false);
+	}, [routerState.location.pathname]);
+
+	const visibleLinks = navLinks.filter(
+		(link) => !link.auth || session?.user,
+	);
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-border bg-[var(--header-bg)] px-4 backdrop-blur-sm">
@@ -39,60 +67,18 @@ export default function Header() {
 					Aether
 				</Link>
 
-				<div className="flex items-center gap-5 text-sm font-medium">
-					<Link
-						to="/"
-						className="nav-link"
-						activeProps={{ className: "nav-link is-active" }}
-					>
-						Home
-					</Link>
-					{session?.user && (
-						<>
-							<Link
-								to="/dashboard"
-								className="nav-link"
-								activeProps={{ className: "nav-link is-active" }}
-							>
-								Dashboard
-							</Link>
-							<Link
-								to="/chat"
-								className="nav-link"
-								activeProps={{ className: "nav-link is-active" }}
-							>
-								Chat
-							</Link>
-							<Link
-								to="/usage"
-								className="nav-link"
-								activeProps={{ className: "nav-link is-active" }}
-							>
-								Usage
-							</Link>
-							<Link
-								to="/activity"
-								className="nav-link"
-								activeProps={{ className: "nav-link is-active" }}
-							>
-								Activity
-							</Link>
-							<Link
-								to="/o"
-								className="nav-link"
-								activeProps={{ className: "nav-link is-active" }}
-							>
-								Obsidian
-							</Link>
-							<Link
-								to="/requirements"
-								className="nav-link"
-								activeProps={{ className: "nav-link is-active" }}
-							>
-								Requirements
-							</Link>
-						</>
-					)}
+				{/* Desktop nav links */}
+				<div className="hidden md:flex items-center gap-5 text-sm font-medium">
+					{visibleLinks.map((link) => (
+						<Link
+							key={link.to}
+							to={link.to}
+							className="nav-link"
+							activeProps={{ className: "nav-link is-active" }}
+						>
+							{link.label}
+						</Link>
+					))}
 				</div>
 
 				<div className="ml-auto flex items-center gap-2">
@@ -156,8 +142,72 @@ export default function Header() {
 							</Link>
 						</Button>
 					)}
+
+					{/* Mobile hamburger */}
+					<button
+						type="button"
+						aria-label="Open menu"
+						className="md:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+						onClick={() => setMobileOpen(true)}
+					>
+						<Menu className="size-5" />
+					</button>
 				</div>
 			</nav>
+
+			{/* Mobile nav sheet */}
+			<Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+				<SheetContent side="right" className="w-64 p-0">
+					<SheetHeader className="border-b border-border px-4 py-3">
+						<SheetTitle className="text-sm font-bold text-primary">
+							Aether
+						</SheetTitle>
+					</SheetHeader>
+					<div className="flex flex-col py-2">
+						{visibleLinks.map((link) => (
+							<Link
+								key={link.to}
+								to={link.to}
+								className="nav-link-mobile px-4 py-2.5 text-sm font-medium"
+								activeProps={{ className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium" }}
+							>
+								{link.label}
+							</Link>
+						))}
+						{session?.user && (
+							<>
+								<div className="my-2 border-t border-border" />
+								<Link
+									to="/settings/password"
+									className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
+									activeProps={{ className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2" }}
+								>
+									<Settings className="size-4" />
+									Settings
+								</Link>
+								{session.user.role === "admin" && (
+									<Link
+										to="/users"
+										className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
+										activeProps={{ className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2" }}
+									>
+										<Users className="size-4" />
+										Users
+									</Link>
+								)}
+								<button
+									type="button"
+									className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2 text-left w-full"
+									onClick={() => void authClient.signOut()}
+								>
+									<LogOut className="size-4" />
+									Sign out
+								</button>
+							</>
+						)}
+					</div>
+				</SheetContent>
+			</Sheet>
 		</header>
 	);
 }

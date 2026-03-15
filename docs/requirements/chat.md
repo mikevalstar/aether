@@ -29,6 +29,7 @@ canonical_file: docs/requirements/chat.md
 | Conversation experience | done | Users can hold multi-turn conversations with streaming responses, editing, reload, and branch navigation. |
 | Model and tool support | done | Each thread uses a selected Claude model, and Sonnet/Opus expose broader web tools than Haiku. |
 | Usage tracking | done | The system records per-response token and cost data and shows cumulative totals for the selected thread. |
+| Context compaction | planned | Long conversations should be compacted to reduce token usage and stay within context limits. |
 | Attachments | in-progress | The composer and transcript support attachments in the UI, but product rules for storage and model handling are not yet explicitly defined. |
 
 ## Sub-features
@@ -44,6 +45,7 @@ canonical_file: docs/requirements/chat.md
 | Usage accounting | done | Thread totals and usage events are updated after each completed assistant response. | Inline |
 | AI-generated titles | in-progress | On first message, the system calls Haiku to generate a short title (max 10 words) instead of truncating the user's text. | Inline |
 | Editable titles | in-progress | Users can click the thread title in the header to edit it inline. | Inline |
+| Context compaction | planned | Automatically compact long conversations at 50k input tokens using Anthropic's server-side compaction. | Inline |
 | Attachment UI | in-progress | Users can add, preview, and remove attachments in the composer and view them on sent user messages. | Inline |
 
 ## Detail
@@ -125,6 +127,16 @@ canonical_file: docs/requirements/chat.md
 - Dependencies: `src/components/assistant-ui/attachment.tsx`, `src/components/assistant-ui/thread.tsx`.
 - Follow-up: Define explicit product requirements for allowed file types, size limits, persistence lifecycle, and assistant behavior when attachments are included.
 
+### Context compaction
+
+- Requirement: When a conversation's input tokens exceed 50,000, the system must automatically compact older messages to reduce token usage and stay within context limits, while preserving the full conversation in the UI.
+- Notes: Anthropic provides server-side compaction via `contextManagement` with `compact_20260112` edit type in `providerOptions`. The compaction block appears as content in the assistant response. The API automatically ignores messages before a compaction block on subsequent requests.
+- Implementation approach: Store both full messages (`messagesJson`, for UI display) and compacted messages (`compactedMessagesJson`, for API calls) on `ChatThread`. On each request, the server uses compacted messages + new messages instead of the full frontend history. After each response, extract the compacted message state from the API response and persist it. This requires a new nullable `compactedMessagesJson` column on `ChatThread`.
+- Key configuration: `providerOptions.anthropic.contextManagement.edits: [{ type: "compact_20260112", trigger: { type: "input_tokens", value: 50_000 } }]`
+- Risks: The AI SDK (`@ai-sdk/anthropic` v3.x, `ai` v6.x) does not automatically persist compaction blocks across HTTP requests. There are no well-documented real-world examples of this pattern yet. The exact structure of compaction blocks in `streamText` responses (via `result.response` or `providerMetadata`) needs to be verified through testing.
+- Dependencies: `src/routes/api/chat.ts`, `prisma/schema.prisma`, `src/lib/chat.ts`.
+- Follow-up: Test with a low threshold first to verify the compaction flow end-to-end before using 50k in production. Monitor AI SDK and Anthropic docs for improved compaction persistence patterns.
+
 ## Open Questions
 
 - Should attachment support be formally limited to certain file types and sizes, and should those limits be enforced in both UI and backend?
@@ -132,7 +144,10 @@ canonical_file: docs/requirements/chat.md
 - Should the chat UI expose per-message model and usage metadata, especially when a thread changes models over time?
 - Should the current tool-inspection drawer be considered an end-user feature, or is it a developer/power-user affordance that needs a simpler mode later?
 
+- How should the compacted message state be extracted from the AI SDK's `streamText` response — via `result.response.messages`, `providerMetadata`, or stream part inspection?
+
 ## Change Log
 
 - 2026-03-14: Added AI-generated titles and editable titles sub-features.
+- 2026-03-15: Added context compaction sub-feature (planned) with implementation notes.
 - 2026-03-14: Created the initial chat requirements doc from the current implementation and added it to the requirements index.

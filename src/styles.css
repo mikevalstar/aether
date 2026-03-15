@@ -252,6 +252,18 @@ a {
   transform: scaleX(1);
 }
 
+.nav-link-mobile {
+  text-decoration: none;
+  color: var(--ink-soft);
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.nav-link-mobile:hover,
+.nav-link-mobile.is-active {
+  color: var(--ink);
+  background-color: var(--teal-subtle);
+}
+
 
 @layer base {
   * {

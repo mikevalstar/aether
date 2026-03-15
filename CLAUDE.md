@@ -33,6 +33,11 @@ pnpm db:push      # Push schema to DB without migration
 pnpm db:migrate   # Run migrations
 pnpm db:studio    # Open Prisma Studio
 pnpm db:seed      # Seed the database
+
+pnpm create:first-admin  # Create first admin user
+pnpm ai-config:seed      # Seed AI config
+pnpm ai-config:pull      # Pull AI config
+pnpm dev:tunnel           # Dev server + Cloudflare tunnel
 ```
 
 **Run a single test:**
@@ -86,6 +91,12 @@ Server functions are created with `createServerFn()`. API routes use a `server` 
 - `/login` — Sign in / sign up
 - `/dashboard` — Authenticated dashboard (placeholder widgets)
 - `/chat` — AI chat interface with thread management
+- `/activity` — Activity log
+- `/usage` — Usage tracking
+- `/users` — Users management
+- `/settings/password` — Password settings
+- `/o/` — Obsidian library browser
+- `/requirements/` — Requirements viewer
 - `/about` — About page
 - `/api/auth/$` — Better Auth endpoints
 - `/api/chat` — POST streaming chat endpoint
@@ -93,10 +104,10 @@ Server functions are created with `createServerFn()`. API routes use a `server` 
 ### Database
 Prisma client is a singleton in `src/db.ts` using the `PrismaBetterSqlite3` adapter. Schema is at `prisma/schema.prisma`. Uses `DATABASE_URL` env var (defaults to `file:./dev.db`).
 
-**Models:** User, Session, Account, Verification (Better Auth), ChatThread (stores messages & usage as JSON), Todo (demo).
+**Models:** User, Session, Account, Verification (Better Auth), ChatThread (stores messages & usage as JSON), ChatUsageEvent, ActivityLog, FileChangeDetail, Todo (demo).
 
 ### AI Chat
-- **Models**: Claude Haiku 4.5 (default), Sonnet 4.6, Opus 4.6 — defined in `src/lib/chat.ts`
+- **Models**: Claude Haiku 4.5 (default), Sonnet 4.6, Opus 4.6 — defined in `src/lib/chat-models.ts`
 - **Streaming**: `/api/chat` endpoint uses `@ai-sdk/anthropic` to stream responses
 - **UI**: `src/components/chat/ChatWorkspace.tsx` manages state via `useChat()` hook; custom Assistant UI components in `src/components/assistant-ui/`
 - **Server functions**: `src/lib/chat.functions.ts` — CRUD for chat threads
