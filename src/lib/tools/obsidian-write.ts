@@ -11,7 +11,7 @@ function getObsidianRoot() {
 export function createObsidianWrite(ctx: ObsidianToolContext) {
 	return tool({
 		description:
-			"Write or create a note in the user's Obsidian vault. Can create new files or update existing ones. IMPORTANT: Always use obsidian_read on the target path first to check if the file already exists — if it does, incorporate the existing content rather than overwriting it. When updating existing notes, focus on adding content rather than removing content unless the user explicitly asks you to remove something. If creating a new file, include appropriate frontmatter.",
+			"Write or create a note in the user's Obsidian vault. Can create new files or update existing ones. IMPORTANT: Use obsidian_read before overwriting an existing file so you can incorporate its current content rather than replacing it blindly. Prefer obsidian_edit for targeted changes to existing notes. When updating existing notes, focus on adding content rather than removing content unless the user explicitly asks you to remove something. If creating a new file, include appropriate frontmatter.",
 		inputSchema: z.object({
 			relativePath: z
 				.string()
@@ -41,14 +41,6 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 				return { error: "Only markdown (.md) files can be written." };
 			}
 
-			const readModifiedAt = ctx.readFiles.get(normalized);
-			if (!readModifiedAt) {
-				return {
-					error:
-						"You must use obsidian_read on this path before writing to it. Please read the file first to check if it already exists and incorporate existing content.",
-				};
-			}
-
 			const absolutePath = path.join(obsidianRoot, normalized);
 			const resolvedPath = path.resolve(absolutePath);
 			const resolvedRoot = path.resolve(obsidianRoot);
@@ -58,23 +50,39 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 			}
 
 			try {
-				// Check if the file has been modified since it was last read
+				const readModifiedAt = ctx.readFiles.get(normalized);
+				let fileExists = false;
+				let currentMtime: string | null = null;
+
 				try {
 					const stat = await fs.stat(absolutePath);
-					const currentMtime = stat.mtime.toISOString();
+					fileExists = true;
+					currentMtime = stat.mtime.toISOString();
+				} catch {
+					fileExists = false;
+				}
+
+				if (fileExists) {
+					if (!readModifiedAt) {
+						return {
+							error:
+								"You must use obsidian_read on this path before overwriting an existing file. Please read the file first and incorporate its current content.",
+						};
+					}
+
 					if (currentMtime !== readModifiedAt) {
 						return {
 							error:
 								"The file has been modified since you last read it. Please use obsidian_read again to get the latest content before writing.",
 						};
 					}
-				} catch {
-					// File doesn't exist yet — that's fine for new files
 				}
 
 				const dir = path.dirname(absolutePath);
 				await fs.mkdir(dir, { recursive: true });
 				await fs.writeFile(absolutePath, content, "utf8");
+				const updatedStat = await fs.stat(absolutePath);
+				ctx.readFiles.set(normalized, updatedStat.mtime.toISOString());
 
 				return {
 					relativePath: normalized,

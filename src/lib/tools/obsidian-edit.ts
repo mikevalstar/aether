@@ -93,6 +93,8 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 
 				const updatedContent = content.replace(old_string, new_string);
 				await fs.writeFile(absolutePath, updatedContent, "utf8");
+				const updatedStat = await fs.stat(absolutePath);
+				ctx.readFiles.set(normalized, updatedStat.mtime.toISOString());
 
 				return {
 					relativePath: normalized,

@@ -79,7 +79,7 @@ canonical_file: docs/requirements/chat.md
 ### Model selection and tool access
 
 - Requirement: Each thread must use one supported Claude model, and tool availability must depend on that model.
-- Notes: Supported models are Haiku 4.5, Sonnet 4.6, and Opus 4.6; Haiku gets `fetch_url_markdown`; Sonnet and Opus get `web_search`, `web_fetch`, and `fetch_url_markdown`; the selected model is persisted to the thread and sent with each request.
+- Notes: Supported models are Haiku 4.5, Sonnet 4.6, and Opus 4.6; all models get `web_search`, `web_fetch`, and `fetch_url_markdown`; the selected model is persisted to the thread and sent with each request.
 - Dependencies: `src/lib/chat.ts`, `src/routes/chat.tsx`, `src/routes/api/chat.ts`, `src/lib/tools/fetch-url-markdown`.
 - Follow-up: Decide whether model changes should affect only future turns, or whether the UI should show mixed-model history more explicitly.
 
