@@ -45,6 +45,17 @@ pnpm test -- path/to/test.ts
 pnpm dlx shadcn@latest add <component-name>
 ```
 
+### Storybook
+
+```bash
+pnpm storybook        # Start Storybook dev server on port 6006
+pnpm build-storybook  # Build static Storybook site
+```
+
+## Decisions
+
+Architecture decisions are documented in `docs/decisions/`. When making significant architectural choices, add a new decision record there.
+
 ## Architecture
 
 ### Stack

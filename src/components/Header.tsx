@@ -102,6 +102,7 @@ export default function Header() {
 							<DropdownMenuTrigger asChild>
 								<button
 									type="button"
+									aria-label="User menu"
 									className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
 								>
 									<Avatar size="sm">

@@ -267,6 +267,62 @@ Loaders simplify your data fetching logic dramatically. Check out more informati
 
 Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
 
+## Obsidian Integration
+
+Aether can integrate with an [Obsidian](https://obsidian.md/) vault for AI configuration and memory.
+
+1. Set the following in your `.env`:
+   - `OBSIDIAN_DIR` — absolute path to your Obsidian vault
+   - `OBSIDIAN_AI_CONFIG` — folder name within the vault for AI configuration files
+   - `OBSIDIAN_AI_MEMORY` — folder name within the vault for AI memory notes
+
+2. Seed initial config files into the vault:
+   ```bash
+   pnpm ai-config:seed
+   ```
+
+3. Pull updated config from the vault:
+   ```bash
+   pnpm ai-config:pull
+   ```
+
+## Database Migrations
+
+- **Development**: `pnpm db:push` — pushes the schema directly to the database without creating migration files. Fast iteration, no migration history.
+- **Production**: `pnpm db:migrate` — creates migration files and applies them. Use this when you need a migration history.
+- **Browse data**: `pnpm db:studio` — opens Prisma Studio in the browser to inspect and edit data.
+
+## Troubleshooting
+
+**Missing `.env` file**
+Copy from the example and fill in your values:
+```bash
+cp .env.example .env
+```
+
+**Prisma client not generated**
+If you see import errors for Prisma models, regenerate the client:
+```bash
+pnpm db:generate
+```
+
+**Database not created**
+If the app fails to connect to the database, push the schema:
+```bash
+pnpm db:push
+```
+
+**Missing `ANTHROPIC_API_KEY`**
+Chat features require an Anthropic API key. Get one from [console.anthropic.com](https://console.anthropic.com/api-keys) and add it to your `.env`.
+
+**Port 3000 already in use**
+Kill the process using port 3000 or start the dev server on a different port:
+```bash
+lsof -ti:3000 | xargs kill
+# or
+pnpm dev --port 3001
+```
+
 # Learn More
 
 You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).

@@ -263,6 +263,18 @@ a {
   }
 }
 
+/* Reduced motion — disable animations and transitions for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* MDEditor theme overrides — align with Aether teal palette */
 /* Override the GitHub color-mode variables the library reads */
 [data-color-mode] {

@@ -1,4 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BookOpen,
@@ -18,9 +23,16 @@ import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { Spinner } from "#/components/ui/spinner";
 import { authClient } from "#/lib/auth-client";
+import { getSession } from "#/lib/auth.functions";
 import { getCurrentHour } from "#/lib/date";
 
 export const Route = createFileRoute("/dashboard")({
+	beforeLoad: async () => {
+		const session = await getSession();
+		if (!session) {
+			throw redirect({ to: "/login" });
+		}
+	},
 	component: DashboardPage,
 });
 
