@@ -27,10 +27,6 @@ function ObsidianDocumentPage() {
 	const data = Route.useLoaderData();
 	const { edit } = Route.useSearch();
 	return (
-		<ObsidianViewer
-			key={data.requestedPath}
-			data={data}
-			initialEdit={edit}
-		/>
+		<ObsidianViewer key={data.requestedPath} data={data} initialEdit={edit} />
 	);
 }

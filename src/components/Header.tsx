@@ -49,6 +49,7 @@ export default function Header() {
 	const routerState = useRouterState();
 
 	// Close mobile menu on navigation
+	// biome-ignore lint/correctness/useExhaustiveDependencies: intentionally re-run on pathname change
 	useEffect(() => {
 		setMobileOpen(false);
 	}, [routerState.location.pathname]);
