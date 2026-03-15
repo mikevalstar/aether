@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { toast } from "./sonner";
 import { Button } from "./button";
-import { Toaster } from "./sonner";
+import { Toaster, toast } from "./sonner";
 
 const meta = {
 	title: "Design System/Feedback/Toast",
@@ -52,10 +51,7 @@ export const AllTypes: Story = {
 				>
 					Info (8s)
 				</Button>
-				<Button
-					variant="ghost"
-					onClick={() => toast.loading("Uploading...")}
-				>
+				<Button variant="ghost" onClick={() => toast.loading("Uploading...")}>
 					Loading
 				</Button>
 			</div>
@@ -114,8 +110,7 @@ export const WithDescription: Story = {
 			variant="secondary"
 			onClick={() =>
 				toast.success("User added", {
-					description:
-						"Share the email and temporary password with them.",
+					description: "Share the email and temporary password with them.",
 				})
 			}
 		>
@@ -124,7 +119,7 @@ export const WithDescription: Story = {
 	),
 };
 
-export const Promise: Story = {
+export const PromiseToast: Story = {
 	render: () => (
 		<Button
 			onClick={() =>

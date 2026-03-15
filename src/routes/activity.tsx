@@ -1,7 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { History } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "#/components/ui/sonner";
 import { z } from "zod";
 import { ActivityDetailDialog } from "#/components/activity/ActivityDetailDialog";
 import { ActivityTable } from "#/components/activity/ActivityTable";
@@ -16,6 +15,7 @@ import {
 	PaginationPrevious,
 } from "#/components/ui/pagination";
 import { SectionLabel } from "#/components/ui/section-label";
+import { toast } from "#/components/ui/sonner";
 import {
 	type ActivityDetail,
 	type ActivityListResult,

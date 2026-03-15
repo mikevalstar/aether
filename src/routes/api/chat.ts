@@ -13,7 +13,6 @@ import {
 import { prisma } from "#/db";
 import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config";
 import { auth } from "#/lib/auth";
-import { logger } from "#/lib/logger";
 import {
 	type AppChatMessage,
 	addChatUsageTotals,
@@ -31,6 +30,7 @@ import {
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
 import { getWebToolVersion } from "#/lib/chat-models";
+import { logger } from "#/lib/logger";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
@@ -80,7 +80,10 @@ export const Route = createFileRoute("/api/chat")({
 				}
 
 				const body = (await request.json()) as ChatRequestBody;
-				logger.info({ userId: session.user.id, threadId: body.id, model: body.model }, "Chat request received");
+				logger.info(
+					{ userId: session.user.id, threadId: body.id, model: body.model },
+					"Chat request received",
+				);
 				const threadId = body.id;
 				const incomingMessages = Array.isArray(body.messages)
 					? (body.messages as AppChatMessage[])

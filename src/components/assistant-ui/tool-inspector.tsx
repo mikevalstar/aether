@@ -58,9 +58,7 @@ const ToolInspectorContext = createContext<ToolInspectorContextValue | null>(
 
 // ── Provider ─────────────────────────────────────────────────────────
 
-export function ToolInspectorProvider({
-	children,
-}: { children: ReactNode }) {
+export function ToolInspectorProvider({ children }: { children: ReactNode }) {
 	const [selectedTool, setSelectedTool] = useState<ToolInspection | null>(null);
 
 	return (
@@ -108,9 +106,7 @@ export function getToolStatusMeta(status?: ToolCallMessagePartStatus) {
 
 // ── Part Grouping ────────────────────────────────────────────────────
 
-export function groupConsecutiveToolParts(
-	parts: readonly { type: string }[],
-) {
+export function groupConsecutiveToolParts(parts: readonly { type: string }[]) {
 	const groups: Array<{ groupKey: string | undefined; indices: number[] }> = [];
 	let toolGroupIndex = 0;
 

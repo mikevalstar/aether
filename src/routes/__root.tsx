@@ -82,7 +82,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							<div id="main-content">{children}</div>
 						</ErrorBoundary>
 						<Footer />
-					<Toaster />
+						<Toaster />
 					</ThemeProvider>
 				</TooltipProvider>
 				<TanStackDevtools

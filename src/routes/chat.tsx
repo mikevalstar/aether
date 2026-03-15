@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-router";
 import { GripVerticalIcon, MessageSquarePlusIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { toast } from "#/components/ui/sonner";
 import { z } from "zod";
 import { ChatEmptyState } from "#/components/chat/ChatEmptyState";
 import { ChatHeader } from "#/components/chat/ChatHeader";
@@ -28,6 +27,7 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "#/components/ui/drawer";
+import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import {
 	CHAT_MODELS,

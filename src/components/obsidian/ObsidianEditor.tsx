@@ -15,9 +15,9 @@ import {
 	useState,
 } from "react";
 import Markdown from "react-markdown";
-import { toast } from "#/components/ui/sonner";
 import remarkGfm from "remark-gfm";
 import { Button } from "#/components/ui/button";
+import { toast } from "#/components/ui/sonner";
 
 const MarkdownEditor = lazy(() =>
 	import("#/components/ui/markdown-editor").then((m) => ({

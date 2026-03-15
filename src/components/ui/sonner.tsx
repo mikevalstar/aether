@@ -5,7 +5,12 @@ import {
 	OctagonXIcon,
 	TriangleAlertIcon,
 } from "lucide-react";
-import { toast, Toaster as Sonner, type ExternalToast, type ToasterProps } from "sonner";
+import {
+	type ExternalToast,
+	Toaster as Sonner,
+	type ToasterProps,
+	toast,
+} from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
 	return (
@@ -90,4 +95,4 @@ const aetherToast = Object.assign(
 	},
 );
 
-export { Toaster, aetherToast as toast };
+export { aetherToast as toast, Toaster };

@@ -22,8 +22,8 @@ import { Button } from "#/components/ui/button";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { Spinner } from "#/components/ui/spinner";
-import { authClient } from "#/lib/auth-client";
 import { getSession } from "#/lib/auth.functions";
+import { authClient } from "#/lib/auth-client";
 import { getCurrentHour } from "#/lib/date";
 
 export const Route = createFileRoute("/dashboard")({
