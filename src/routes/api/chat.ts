@@ -31,6 +31,7 @@ import {
 } from "#/lib/chat";
 import { getWebToolVersion } from "#/lib/chat-models";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
+import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
 import { createObsidianEdit } from "#/lib/tools/obsidian-edit";
 import { createObsidianRead } from "#/lib/tools/obsidian-read";
@@ -113,6 +114,7 @@ export const Route = createFileRoute("/api/chat")({
 					obsidian_read: createObsidianRead(obsidianCtx),
 					obsidian_write: createObsidianWrite(obsidianCtx),
 					obsidian_edit: createObsidianEdit(obsidianCtx),
+					obsidian_ai_notes_list: obsidianAiNotesList,
 				};
 				const webToolVersion = getWebToolVersion(model);
 				const webTools: ToolSet =

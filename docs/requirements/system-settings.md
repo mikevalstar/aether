@@ -29,10 +29,10 @@ canonical_file: docs/requirements/system-settings.md
 
 | Field | Location | Validation |
 | --- | --- | --- |
-| Body content | markdown body | Must contain `{{date}}` and `{{userName}}` placeholders |
+| Body content | markdown body | Must contain `{{date}}`, `{{userName}}`, and `{{aiMemoryPath}}` placeholders |
 
 - No special frontmatter required.
-- Body is the system prompt template. At runtime, `{{date}}` is replaced with today's date and `{{userName}}` with the current user's name.
+- Body is the system prompt template. At runtime, `{{date}}` is replaced with today's date, `{{userName}}` with the current user's name, and `{{aiMemoryPath}}` with the AI memory folder path (from `OBSIDIAN_AI_MEMORY` env var).
 - Replaces the hardcoded system prompt in `src/routes/api/chat.ts`.
 
 ### 2. Title Prompt (`title-prompt.md`)

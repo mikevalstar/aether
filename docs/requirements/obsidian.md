@@ -18,6 +18,7 @@ canonical_file: docs/requirements/obsidian.md
 
 - `OBSIDIAN_DIR` — absolute path to the Obsidian vault root.
 - `OBSIDIAN_AI_CONFIG` — relative path within `OBSIDIAN_DIR` for Aether config files (e.g. `ai-config`).
+- `OBSIDIAN_AI_MEMORY` — relative path within `OBSIDIAN_DIR` for AI-managed memory notes (e.g. `ai-memory`).
 
 ## Major Requirements
 
@@ -30,6 +31,8 @@ canonical_file: docs/requirements/obsidian.md
 | Markdown rendering | done | Render `.md` files as readable content, similar to the requirements viewer. |
 | Markdown editing | done | Edit `.md` files with a Markdown editor and save back to disk. |
 | AI config section | done | Surface the `OBSIDIAN_AI_CONFIG` subdirectory as a distinct section with coral highlight for Aether config files. |
+| AI memory section | done | Surface the `OBSIDIAN_AI_MEMORY` subdirectory as a distinct section with teal highlight and brain icon. Auto-creates subfolders on startup. |
+| AI memory tool | done | `obsidian_ai_notes_list` tool for AI to recursively list its own memory notes with optional search and JMESPath filtering. |
 | Access control | done | Only authenticated users can access the Obsidian routes and file content. |
 
 ## Sub-features
@@ -43,6 +46,8 @@ canonical_file: docs/requirements/obsidian.md
 | Document viewer | done | Markdown rendered with react-markdown + remark-gfm, reusing the shared markdown-components pipeline. | Inline |
 | Markdown editor | done | In-app editor for `.md` files using `@uiw/react-md-editor`, with explicit save button writing back to the filesystem. | Inline |
 | AI config area | done | Config subdirectory appears as a separate coral-highlighted section at the top of the tree with a sparkles icon. | Inline |
+| AI memory area | done | Memory subdirectory appears as a teal-highlighted section below AI config in the tree with a brain icon. Subfolders (`notes`, `templates`, `tasks`, `workflows`) auto-created on startup. | Inline |
+| AI memory listing tool | done | `obsidian_ai_notes_list` AI tool recursively lists notes in the memory folder with metadata, optional subfolder scoping, text search, and JMESPath filtering. | [Detail](#ai-memory) |
 | Path traversal protection | done | Path normalization rejects `..` traversal that escapes the vault root. | Inline |
 | Missing file handling | done | Invalid paths show a not-found state with a link back to the vault root. | Inline |
 | Vault index & fuzzy search | done | In-memory vault index built at server startup with chokidar file watching and fuse.js fuzzy search across titles, tags, aliases, headings, and content. | [Detail](#vault-index--fuzzy-search) |
@@ -117,6 +122,31 @@ Replaces the naive filesystem-walk search with a persistent in-memory index that
 **Search result shape:**
 - `relativePath`, `title`, `tags`, `aliases`, `headings`, `folder`, `score` (0–100, 100 = perfect match)
 
+### AI Memory
+
+A dedicated folder in the Obsidian vault (`OBSIDIAN_AI_MEMORY`) where the AI manages its own persistent notes. The folder is transparent to the user — all notes are regular Obsidian Markdown files that can be read and edited in Obsidian or Aether's vault browser.
+
+**Folder structure (auto-created on startup):**
+- `notes/` — general notes the AI writes for later reference
+- `templates/` — reusable templates the AI can store and apply
+- `tasks/` — task instructions and common procedures
+- `workflows/` — workflow notes (future expansion)
+
+**System prompt integration:**
+- The `{{aiMemoryPath}}` placeholder is interpolated into the system prompt so the AI knows the path to its memory folder.
+- The system prompt should describe the folder structure and guide the AI on how to organize notes.
+
+**AI tool — `obsidian_ai_notes_list`:**
+- Recursively lists all `.md` files in the AI memory folder with metadata (path, title, tags, aliases, headings, mtime).
+- Optional `subfolder` parameter scopes listing to a specific subdirectory (e.g. `notes`, `tasks`).
+- Optional `search` parameter filters results by case-insensitive match against title, path, or tags.
+- Optional `filter` parameter applies a JMESPath expression to the results for structured filtering (e.g. `[?contains(tags, 'important')]`).
+- Results sorted by modification time (most recent first).
+- The AI uses `obsidian_read`, `obsidian_write`, and `obsidian_edit` to manage individual files once found.
+
+**Sidebar:**
+- The AI memory folder is highlighted in the Obsidian tree nav with a teal background and brain icon, similar to the coral AI config section.
+
 ## Open Questions
 
 - Should Obsidian wiki-links (`[[page]]`) be resolved and rendered as navigable links?
@@ -130,3 +160,4 @@ Replaces the naive filesystem-walk search with a persistent in-memory index that
 - 2026-03-14: Replaced naive filesystem-walk search with in-memory vault index using chokidar + gray-matter + fuse.js. Eager init at server startup, fuzzy search across titles/tags/aliases/headings/content with weighted relevance scoring.
 - 2026-03-15: Added `obsidian_edit` AI tool for targeted search-and-replace edits to vault notes, reducing token usage and errors compared to full-file rewrites via `obsidian_write`.
 - 2026-03-15: Fixed AI tool prompt drift by documenting `obsidian_folders`/`obsidian_list` instead of the nonexistent `obsidian_tree`, clarified when to use `obsidian_edit` vs `obsidian_write`, and updated `obsidian_write` so it can create new notes without a prior read while still protecting overwrites of existing files.
+- 2026-03-15: Added AI memory folder support — `OBSIDIAN_AI_MEMORY` env var, auto-created subfolders (notes, templates, tasks, workflows), `obsidian_ai_notes_list` tool with JMESPath filtering, `{{aiMemoryPath}}` system prompt placeholder, and teal-highlighted sidebar section with brain icon.

@@ -6,11 +6,24 @@ import {
 	Save,
 	X,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	lazy,
+	Suspense,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "#/components/ui/button";
-import { MarkdownEditor } from "#/components/ui/markdown-editor";
+
+const MarkdownEditor = lazy(() =>
+	import("#/components/ui/markdown-editor").then((m) => ({
+		default: m.MarkdownEditor,
+	})),
+);
+
 import {
 	type AiConfigValidationResponse,
 	getAiConfigValidatorInfo,
@@ -208,11 +221,19 @@ export function ObsidianEditor({
 			)}
 
 			{/* ─── Editor ─── */}
-			<MarkdownEditor
-				value={content}
-				onChange={handleContentChange}
-				className="min-h-0 flex-1"
-			/>
+			<Suspense
+				fallback={
+					<div className="flex min-h-0 flex-1 items-center justify-center">
+						<Loader2 className="size-5 animate-spin text-[var(--ink-soft)]" />
+					</div>
+				}
+			>
+				<MarkdownEditor
+					value={content}
+					onChange={handleContentChange}
+					className="min-h-0 flex-1"
+				/>
+			</Suspense>
 
 			{/* ─── File path ─── */}
 			<div className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-1.5">

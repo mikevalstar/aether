@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import {
 	BookOpenIcon,
+	BrainIcon,
 	ChevronRightIcon,
 	FileTextIcon,
 	FolderTreeIcon,
@@ -21,6 +22,7 @@ import { cn } from "#/lib/utils";
 type ObsidianTreeNavProps = {
 	nodes: ObsidianTreeNode[];
 	aiConfigPath: string | null;
+	aiMemoryPath: string | null;
 	currentRoutePath: string;
 };
 
@@ -78,6 +80,7 @@ function filterTree(
 export function ObsidianTreeNav({
 	nodes,
 	aiConfigPath,
+	aiMemoryPath,
 	currentRoutePath,
 }: ObsidianTreeNavProps) {
 	const [search, setSearch] = useState("");
@@ -128,23 +131,35 @@ export function ObsidianTreeNav({
 		[nodes, search, isSearching],
 	);
 
-	// Split out AI config folder from rest
-	const { aiConfigNode, mainNodes } = useMemo(() => {
-		if (!aiConfigPath) return { aiConfigNode: null, mainNodes: filteredNodes };
+	// Split out AI config and AI memory folders from rest
+	const { aiConfigNode, aiMemoryNode, mainNodes } = useMemo(() => {
+		if (!aiConfigPath && !aiMemoryPath)
+			return {
+				aiConfigNode: null,
+				aiMemoryNode: null,
+				mainNodes: filteredNodes,
+			};
 
-		let aiNode: ObsidianTreeNode | null = null;
+		let configNode: ObsidianTreeNode | null = null;
+		let memoryNode: ObsidianTreeNode | null = null;
 		const rest: ObsidianTreeNode[] = [];
 
 		for (const node of filteredNodes) {
 			if (node.type === "folder" && node.isAiConfig) {
-				aiNode = node;
+				configNode = node;
+			} else if (node.type === "folder" && node.isAiMemory) {
+				memoryNode = node;
 			} else {
 				rest.push(node);
 			}
 		}
 
-		return { aiConfigNode: aiNode, mainNodes: rest };
-	}, [filteredNodes, aiConfigPath]);
+		return {
+			aiConfigNode: configNode,
+			aiMemoryNode: memoryNode,
+			mainNodes: rest,
+		};
+	}, [filteredNodes, aiConfigPath, aiMemoryPath]);
 
 	return (
 		<div className="surface-card h-fit overflow-hidden lg:sticky lg:top-24">
@@ -180,6 +195,25 @@ export function ObsidianTreeNav({
 					</div>
 					<TreeList
 						nodes={aiConfigNode.children}
+						currentRoutePath={currentRoutePath}
+						expanded={expanded}
+						toggleFolder={toggleFolder}
+						isSearching={isSearching}
+						depth={0}
+					/>
+				</div>
+			)}
+
+			{aiMemoryNode && aiMemoryNode.type === "folder" && (
+				<div className="border-b border-[var(--teal)]/20 bg-[var(--teal)]/5 px-3 py-2">
+					<div className="mb-1 flex items-center gap-1.5 px-2">
+						<BrainIcon className="size-3 text-[var(--teal)]" />
+						<span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--teal)]">
+							AI Memory
+						</span>
+					</div>
+					<TreeList
+						nodes={aiMemoryNode.children}
 						currentRoutePath={currentRoutePath}
 						expanded={expanded}
 						toggleFolder={toggleFolder}

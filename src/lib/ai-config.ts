@@ -51,9 +51,12 @@ export async function readSystemPrompt(
 
 	if (!result || !result.validation.isValid) return null;
 
+	const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
+
 	return result.body
 		.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-		.replace(/\{\{userName\}\}/g, userName);
+		.replace(/\{\{userName\}\}/g, userName)
+		.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
 }
 
 /**

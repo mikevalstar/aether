@@ -26,6 +26,10 @@ function getAiConfigRelPath() {
 	return process.env.OBSIDIAN_AI_CONFIG ?? "";
 }
 
+function getAiMemoryRelPath() {
+	return process.env.OBSIDIAN_AI_MEMORY ?? "";
+}
+
 export const getObsidianViewerData = createServerFn({ method: "GET" })
 	.inputValidator((data: ObsidianViewerInput) => data)
 	.handler(async ({ data }): Promise<ObsidianViewerData> => {
@@ -36,6 +40,7 @@ export const getObsidianViewerData = createServerFn({ method: "GET" })
 			return {
 				tree: [],
 				aiConfigPath: null,
+				aiMemoryPath: null,
 				document: null,
 				requestedPath: data.path ?? "",
 				configured: false,
@@ -43,13 +48,19 @@ export const getObsidianViewerData = createServerFn({ method: "GET" })
 		}
 
 		const aiConfigRel = getAiConfigRelPath();
-		const discovered = await discoverObsidianTree(obsidianRoot, aiConfigRel);
+		const aiMemoryRel = getAiMemoryRelPath();
+		const discovered = await discoverObsidianTree(
+			obsidianRoot,
+			aiConfigRel,
+			aiMemoryRel,
+		);
 		const requestedPath = normalizeObsidianRoutePath(data.path);
 
 		if (requestedPath === null) {
 			return {
 				tree: discovered.tree,
 				aiConfigPath: aiConfigRel || null,
+				aiMemoryPath: aiMemoryRel || null,
 				document: null,
 				requestedPath: data.path ?? "",
 				configured: true,
@@ -59,6 +70,7 @@ export const getObsidianViewerData = createServerFn({ method: "GET" })
 		return {
 			tree: discovered.tree,
 			aiConfigPath: aiConfigRel || null,
+			aiMemoryPath: aiMemoryRel || null,
 			document:
 				discovered.documents.find(
 					(document) => document.routePath === requestedPath,
@@ -68,9 +80,19 @@ export const getObsidianViewerData = createServerFn({ method: "GET" })
 		};
 	});
 
-async function discoverObsidianTree(obsidianRoot: string, aiConfigRel: string) {
+async function discoverObsidianTree(
+	obsidianRoot: string,
+	aiConfigRel: string,
+	aiMemoryRel: string,
+) {
 	const documents: DiscoveredDocument[] = [];
-	const tree = await buildTree(obsidianRoot, "", aiConfigRel, documents);
+	const tree = await buildTree(
+		obsidianRoot,
+		"",
+		aiConfigRel,
+		aiMemoryRel,
+		documents,
+	);
 
 	return { tree, documents };
 }
@@ -79,6 +101,7 @@ async function buildTree(
 	obsidianRoot: string,
 	relativeDirectory: string,
 	aiConfigRel: string,
+	aiMemoryRel: string,
 	documents: DiscoveredDocument[],
 ): Promise<ObsidianTreeNode[]> {
 	const absoluteDirectory = path.join(obsidianRoot, relativeDirectory);
@@ -105,19 +128,23 @@ async function buildTree(
 				obsidianRoot,
 				relativePath,
 				aiConfigRel,
+				aiMemoryRel,
 				documents,
 			);
 
 			if (children.length > 0) {
+				const normalizedPath = normalizePosix(relativePath);
 				const isAiConfig =
-					aiConfigRel !== "" &&
-					normalizePosix(relativePath) === normalizePosix(aiConfigRel);
+					aiConfigRel !== "" && normalizedPath === normalizePosix(aiConfigRel);
+				const isAiMemory =
+					aiMemoryRel !== "" && normalizedPath === normalizePosix(aiMemoryRel);
 
 				nodes.push({
 					type: "folder",
 					name: entry.name,
 					path: relativePath,
 					isAiConfig,
+					isAiMemory,
 					children,
 				});
 			}

@@ -4,6 +4,7 @@ export type ObsidianTreeNode =
 			name: string;
 			path: string;
 			isAiConfig: boolean;
+			isAiMemory: boolean;
 			children: ObsidianTreeNode[];
 	  }
 	| {
@@ -25,6 +26,7 @@ export type ObsidianDocument = {
 export type ObsidianViewerData = {
 	tree: ObsidianTreeNode[];
 	aiConfigPath: string | null;
+	aiMemoryPath: string | null;
 	document: ObsidianDocument | null;
 	requestedPath: string;
 	configured: boolean;

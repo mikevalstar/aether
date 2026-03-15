@@ -1,7 +1,11 @@
 import { z } from "zod";
 import type { AiConfigValidator } from "./types";
 
-const REQUIRED_PLACEHOLDERS = ["{{date}}", "{{userName}}"] as const;
+const REQUIRED_PLACEHOLDERS = [
+	"{{date}}",
+	"{{userName}}",
+	"{{aiMemoryPath}}",
+] as const;
 
 const bodySchema: z.ZodType<string> = z
 	.string()
@@ -13,6 +17,10 @@ const bodySchema: z.ZodType<string> = z
 	.refine(
 		(body) => body.includes("{{userName}}"),
 		"Body must contain the {{userName}} placeholder",
+	)
+	.refine(
+		(body) => body.includes("{{aiMemoryPath}}"),
+		"Body must contain the {{aiMemoryPath}} placeholder",
 	);
 
 export const systemPromptValidator: AiConfigValidator = {

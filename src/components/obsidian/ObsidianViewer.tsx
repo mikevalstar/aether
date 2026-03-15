@@ -56,6 +56,7 @@ export function ObsidianViewer({ data }: ObsidianViewerProps) {
 					<ObsidianTreeNav
 						nodes={data.tree}
 						aiConfigPath={data.aiConfigPath}
+						aiMemoryPath={data.aiMemoryPath}
 						currentRoutePath={document?.routePath ?? data.requestedPath}
 					/>
 				</aside>
