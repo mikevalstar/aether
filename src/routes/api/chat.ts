@@ -1,4 +1,8 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { createAnthropic } from "@ai-sdk/anthropic";
+
+const anthropic = createAnthropic({
+	cacheControl: true,
+});
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	convertToModelMessages,
