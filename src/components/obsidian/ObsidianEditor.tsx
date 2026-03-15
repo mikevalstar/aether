@@ -1,4 +1,3 @@
-import MDEditor from "@uiw/react-md-editor";
 import {
 	AlertCircle,
 	CheckCircle2,
@@ -11,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "#/components/ui/button";
+import { MarkdownEditor } from "#/components/ui/markdown-editor";
 import {
 	type AiConfigValidationResponse,
 	getAiConfigValidatorInfo,
@@ -19,12 +19,23 @@ import {
 import { getAiConfigFilename, type ObsidianDocument } from "#/lib/obsidian";
 import { saveObsidianDocument } from "#/lib/obsidian.functions";
 
+// ─── Platform detection ─────────────────────────────────────────────────
+
+const isMac =
+	typeof navigator !== "undefined" &&
+	/Mac|iPhone|iPad/.test(navigator.userAgent);
+const modKey = isMac ? "\u2318" : "Ctrl+";
+
+// ─── Types ──────────────────────────────────────────────────────────────
+
 type ObsidianEditorProps = {
 	document: ObsidianDocument;
 	aiConfigPath: string | null;
 	onCancel: () => void;
 	onSaved: () => void;
 };
+
+type SaveState = "idle" | "saving" | "saved";
 
 export function ObsidianEditor({
 	document,
@@ -33,7 +44,7 @@ export function ObsidianEditor({
 	onSaved,
 }: ObsidianEditorProps) {
 	const [content, setContent] = useState(document.rawContent);
-	const [saving, setSaving] = useState(false);
+	const [saveState, setSaveState] = useState<SaveState>("idle");
 	const [error, setError] = useState<string | null>(null);
 
 	const aiConfigFilename = getAiConfigFilename(
@@ -82,20 +93,19 @@ export function ObsidianEditor({
 		runValidation(initialContentRef.current);
 	}, [runValidation]);
 
-	function handleContentChange(val: string | undefined) {
-		const next = val ?? "";
-		setContent(next);
+	function handleContentChange(value: string) {
+		setContent(value);
 
 		if (aiConfigFilename) {
 			if (debounceRef.current) clearTimeout(debounceRef.current);
-			debounceRef.current = setTimeout(() => runValidation(next), 400);
+			debounceRef.current = setTimeout(() => runValidation(value), 400);
 		}
 	}
 
 	const hasChanges = content !== document.rawContent;
 
 	async function handleSave() {
-		setSaving(true);
+		setSaveState("saving");
 		setError(null);
 		try {
 			await saveObsidianDocument({
@@ -104,16 +114,29 @@ export function ObsidianEditor({
 					content,
 				},
 			});
-			onSaved();
+			setSaveState("saved");
+			setTimeout(() => onSaved(), 600);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to save");
-		} finally {
-			setSaving(false);
+			setSaveState("idle");
 		}
 	}
 
+	// Cmd+S / Ctrl+S to save
+	useEffect(() => {
+		function onKeyDown(e: KeyboardEvent) {
+			if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+				e.preventDefault();
+				if (hasChanges && saveState === "idle") handleSave();
+			}
+		}
+		window.addEventListener("keydown", onKeyDown);
+		return () => window.removeEventListener("keydown", onKeyDown);
+	});
+
 	return (
 		<div className="flex h-full flex-col">
+			{/* ─── Header ─── */}
 			<div className="relative border-b border-[var(--line)]">
 				<div
 					className="absolute inset-x-0 top-0 h-1"
@@ -122,25 +145,25 @@ export function ObsidianEditor({
 					}}
 				/>
 				<div className="flex items-center justify-between px-6 py-3 pt-4">
-					<div className="flex items-center gap-3">
+					<div className="flex min-w-0 items-center gap-3">
 						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
 							Editing
 						</p>
-						<span className="font-mono text-xs text-[var(--ink-soft)]/60">
-							{document.relativePath}
-						</span>
+						<h2 className="display-title min-w-0 truncate text-lg font-bold tracking-tight text-[var(--ink)]">
+							{document.title}
+						</h2>
 						{hasChanges && (
-							<span className="rounded-full bg-[var(--coral)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--coral)]">
+							<span className="shrink-0 rounded-full bg-[var(--coral)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--coral)]">
 								Unsaved
 							</span>
 						)}
 						{validation && !validation.isValid && (
-							<span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive-foreground">
+							<span className="shrink-0 rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive-foreground">
 								Validation errors
 							</span>
 						)}
 					</div>
-					<div className="flex items-center gap-2">
+					<div className="flex shrink-0 items-center gap-2">
 						<Button variant="ghost" size="sm" onClick={onCancel}>
 							<X className="mr-1.5 size-3.5" />
 							Cancel
@@ -148,14 +171,26 @@ export function ObsidianEditor({
 						<Button
 							size="sm"
 							onClick={handleSave}
-							disabled={saving || !hasChanges}
+							disabled={saveState !== "idle" || !hasChanges}
+							className={
+								saveState === "saved"
+									? "bg-emerald-600 text-white hover:bg-emerald-600"
+									: undefined
+							}
 						>
-							{saving ? (
+							{saveState === "saving" ? (
 								<Loader2 className="mr-1.5 size-3.5 animate-spin" />
+							) : saveState === "saved" ? (
+								<CheckCircle2 className="mr-1.5 size-3.5" />
 							) : (
 								<Save className="mr-1.5 size-3.5" />
 							)}
-							Save
+							{saveState === "saved" ? "Saved" : "Save"}
+							{saveState === "idle" && (
+								<kbd className="ml-2 rounded bg-primary-foreground/20 px-1 py-0.5 font-mono text-[10px] leading-none">
+									{modKey}S
+								</kbd>
+							)}
 						</Button>
 					</div>
 				</div>
@@ -172,14 +207,18 @@ export function ObsidianEditor({
 				<UnrecognizedConfigBanner filename={aiConfigFilename} />
 			)}
 
-			<div className="min-h-0 flex-1" data-color-mode="auto">
-				<MDEditor
-					value={content}
-					onChange={handleContentChange}
-					height="100%"
-					visibleDragbar={false}
-					preview="edit"
-				/>
+			{/* ─── Editor ─── */}
+			<MarkdownEditor
+				value={content}
+				onChange={handleContentChange}
+				className="min-h-0 flex-1"
+			/>
+
+			{/* ─── File path ─── */}
+			<div className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-1.5">
+				<span className="font-mono text-[11px] text-[var(--ink-soft)]/60">
+					{document.relativePath}
+				</span>
 			</div>
 
 			{aiConfigFilename && (

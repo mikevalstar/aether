@@ -284,21 +284,32 @@ a {
   border: none !important;
 }
 
+/* Custom toolbar — our own buttons, strip library chrome */
 .w-md-editor-toolbar {
   background-color: var(--surface) !important;
   border-bottom: 1px solid var(--line) !important;
-  padding: 4px 8px !important;
+  padding: 6px 16px !important;
+  min-height: auto !important;
+}
+
+.w-md-editor-toolbar ul {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1px !important;
+}
+
+/* Hide library's default button wrapper styling — we render our own */
+.w-md-editor-toolbar li {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: auto !important;
 }
 
 .w-md-editor-toolbar li > button {
-  color: var(--ink-soft) !important;
-}
-
-.w-md-editor-toolbar li > button:hover,
-.w-md-editor-toolbar li > button.active,
-.w-md-editor-toolbar li.active > button {
-  color: var(--teal) !important;
-  background-color: var(--teal-subtle) !important;
+  all: unset !important;
+  display: contents !important;
 }
 
 .w-md-editor-content {
@@ -330,7 +341,7 @@ a {
 }
 
 .w-md-editor-toolbar-divider {
-  background-color: var(--line) !important;
+  display: none !important;
 }
 
 .w-md-editor-aree {
