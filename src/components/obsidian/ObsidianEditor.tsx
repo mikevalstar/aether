@@ -114,45 +114,56 @@ export function ObsidianEditor({
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="flex items-center justify-between border-b border-[var(--line)] px-6 py-3">
-				<div className="flex items-center gap-3">
-					<span className="text-sm font-medium text-[var(--ink)]">Editing</span>
-					<span className="font-mono text-xs text-[var(--ink-soft)]/60">
-						{document.relativePath}
-					</span>
-					{hasChanges && (
-						<span className="rounded-full bg-[var(--coral)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--coral)]">
-							Unsaved
+			<div className="relative border-b border-[var(--line)]">
+				<div
+					className="absolute inset-x-0 top-0 h-1"
+					style={{
+						background: "linear-gradient(90deg, var(--teal), var(--coral))",
+					}}
+				/>
+				<div className="flex items-center justify-between px-6 py-3 pt-4">
+					<div className="flex items-center gap-3">
+						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
+							Editing
+						</p>
+						<span className="font-mono text-xs text-[var(--ink-soft)]/60">
+							{document.relativePath}
 						</span>
-					)}
-					{validation && !validation.isValid && (
-						<span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-medium text-red-600 dark:text-red-400">
-							Validation errors
-						</span>
-					)}
-				</div>
-				<div className="flex items-center gap-2">
-					<Button variant="ghost" size="sm" onClick={onCancel}>
-						<X className="mr-1.5 size-3.5" />
-						Cancel
-					</Button>
-					<Button
-						size="sm"
-						onClick={handleSave}
-						disabled={saving || !hasChanges}
-					>
-						{saving ? (
-							<Loader2 className="mr-1.5 size-3.5 animate-spin" />
-						) : (
-							<Save className="mr-1.5 size-3.5" />
+						{hasChanges && (
+							<span className="rounded-full bg-[var(--coral)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--coral)]">
+								Unsaved
+							</span>
 						)}
-						Save
-					</Button>
+						{validation && !validation.isValid && (
+							<span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive-foreground">
+								Validation errors
+							</span>
+						)}
+					</div>
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="sm" onClick={onCancel}>
+							<X className="mr-1.5 size-3.5" />
+							Cancel
+						</Button>
+						<Button
+							size="sm"
+							onClick={handleSave}
+							disabled={saving || !hasChanges}
+						>
+							{saving ? (
+								<Loader2 className="mr-1.5 size-3.5 animate-spin" />
+							) : (
+								<Save className="mr-1.5 size-3.5" />
+							)}
+							Save
+						</Button>
+					</div>
 				</div>
 			</div>
 
 			{error && (
-				<div className="border-b border-red-200 bg-red-50 px-6 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
+				<div className="flex items-center gap-2 border-b border-destructive/20 bg-destructive/5 px-6 py-2 text-sm text-destructive-foreground">
+					<AlertCircle className="size-4 shrink-0" />
 					{error}
 				</div>
 			)}
@@ -202,18 +213,18 @@ function AiConfigValidationPanel(props: {
 	if (!validatorInfo && !validation) return null;
 
 	return (
-		<div className="border-t border-[var(--line)] bg-[var(--surface-raised)]">
+		<div className="border-t border-[var(--line)] bg-[var(--teal-subtle)]">
 			{/* Validation status */}
 			{validation && (
 				<div className="border-b border-[var(--line)] px-6 py-3">
 					{validation.isValid ? (
-						<div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+						<div className="flex items-center gap-2 text-sm text-[var(--teal)]">
 							<CheckCircle2 className="size-4" />
 							<span className="font-medium">Valid</span>
 						</div>
 					) : (
 						<div className="space-y-1.5">
-							<div className="flex items-center gap-2 text-sm font-medium text-red-600 dark:text-red-400">
+							<div className="flex items-center gap-2 text-sm font-medium text-destructive-foreground">
 								<AlertCircle className="size-4" />
 								<span>
 									{validation.errors.length} validation{" "}
@@ -224,7 +235,7 @@ function AiConfigValidationPanel(props: {
 								{validation.errors.map((err) => (
 									<li
 										key={err}
-										className="text-[13px] text-red-600 dark:text-red-400"
+										className="text-[13px] text-destructive-foreground"
 									>
 										{err}
 									</li>
@@ -242,7 +253,7 @@ function AiConfigValidationPanel(props: {
 						<Info className="size-3.5" />
 						{validatorInfo.label} — Requirements
 					</div>
-					<div className="mt-2 text-[13px] leading-relaxed text-[var(--ink-soft)] [&_code]:rounded [&_code]:bg-[var(--surface-card)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[12px] [&_li]:ml-4 [&_li]:list-disc [&_p]:mt-1 [&_strong]:font-semibold [&_strong]:text-[var(--ink)]">
+					<div className="mt-2 text-[13px] leading-relaxed text-[var(--ink-soft)] [&_code]:rounded [&_code]:bg-[var(--surface)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[12px] [&_li]:ml-4 [&_li]:list-disc [&_p]:mt-1 [&_strong]:font-semibold [&_strong]:text-[var(--ink)]">
 						<Markdown remarkPlugins={[remarkGfm]}>
 							{validatorInfo.description}
 						</Markdown>

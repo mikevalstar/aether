@@ -259,3 +259,80 @@ a {
     color: var(--foreground);
   }
 }
+
+/* MDEditor theme overrides — align with Aether teal palette */
+/* Override the GitHub color-mode variables the library reads */
+[data-color-mode] {
+  --color-fg-default: var(--ink) !important;
+  --color-fg-muted: var(--ink-soft) !important;
+  --color-canvas-default: var(--bg) !important;
+  --color-canvas-subtle: var(--surface) !important;
+  --color-border-default: var(--line) !important;
+  --color-border-muted: var(--line) !important;
+  --color-neutral-muted: var(--teal-subtle) !important;
+  --color-accent-fg: var(--teal) !important;
+  --color-prettylights-syntax-keyword: var(--teal) !important;
+  --color-prettylights-syntax-entity: var(--coral) !important;
+}
+
+.w-md-editor {
+  background-color: var(--bg) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-sans) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+.w-md-editor-toolbar {
+  background-color: var(--surface) !important;
+  border-bottom: 1px solid var(--line) !important;
+  padding: 4px 8px !important;
+}
+
+.w-md-editor-toolbar li > button {
+  color: var(--ink-soft) !important;
+}
+
+.w-md-editor-toolbar li > button:hover,
+.w-md-editor-toolbar li > button.active,
+.w-md-editor-toolbar li.active > button {
+  color: var(--teal) !important;
+  background-color: var(--teal-subtle) !important;
+}
+
+.w-md-editor-content {
+  background-color: var(--bg) !important;
+}
+
+.w-md-editor-text-pre,
+.w-md-editor-text-input,
+.w-md-editor-text {
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  color: var(--ink) !important;
+}
+
+.w-md-editor-preview {
+  background-color: var(--surface) !important;
+  border-left: 1px solid var(--line) !important;
+}
+
+.w-md-editor-preview .wmde-markdown {
+  font-family: var(--font-sans) !important;
+  color: var(--ink) !important;
+  font-size: 14px !important;
+  background-color: var(--surface) !important;
+}
+
+.w-md-editor-bar {
+  background-color: var(--line) !important;
+}
+
+.w-md-editor-toolbar-divider {
+  background-color: var(--line) !important;
+}
+
+.w-md-editor-aree {
+  border-color: var(--line) !important;
+}
