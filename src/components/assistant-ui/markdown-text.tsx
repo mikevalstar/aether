@@ -52,6 +52,9 @@ const CodeHeader = ({ language, code }: CodeHeaderProps) => {
 // Start from the shared compact components, then override code-related ones
 // that need assistant-ui-specific hooks (useIsMarkdownCodeBlock, CodeHeader)
 const sharedComponents = createMarkdownComponents("compact");
+type AssistantMarkdownComponents = NonNullable<
+	Parameters<typeof memoizeMarkdownComponents>[0]
+>;
 
 const defaultComponents = memoizeMarkdownComponents({
 	...sharedComponents,
@@ -80,4 +83,4 @@ const defaultComponents = memoizeMarkdownComponents({
 		);
 	},
 	CodeHeader,
-});
+} satisfies AssistantMarkdownComponents);

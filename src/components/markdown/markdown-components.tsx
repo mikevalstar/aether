@@ -16,6 +16,13 @@ import { cn } from "#/lib/utils";
 
 export type MarkdownVariant = "compact" | "prose";
 
+type StrictMarkdownComponents = {
+	[Key in keyof React.JSX.IntrinsicElements]?: Exclude<
+		Components[Key],
+		keyof React.JSX.IntrinsicElements
+	>;
+};
+
 // ─── Copy to clipboard ───────────────────────────────────────────────
 
 export function useCopyToClipboard(duration = 3000) {
@@ -97,7 +104,10 @@ const variantStyles = {
 function extractLanguage(children: React.ReactNode): string {
 	let language = "";
 	Children.forEach(children, (child) => {
-		if (isValidElement(child) && typeof child.props?.className === "string") {
+		if (
+			isValidElement<{ className?: string }>(child) &&
+			typeof child.props.className === "string"
+		) {
 			const match = child.props.className.match(/language-(\w+)/);
 			if (match) language = match[1];
 		}
@@ -171,11 +181,11 @@ export function CodeBlockPre({
 
 export function createMarkdownComponents(
 	variant: MarkdownVariant = "prose",
-	overrides?: Partial<Components>,
-): Components {
+	overrides?: Partial<StrictMarkdownComponents>,
+): StrictMarkdownComponents {
 	const s = variantStyles[variant];
 
-	const components: Components = {
+	const components: StrictMarkdownComponents = {
 		h1: ({ className, ...props }) => (
 			<h1 className={cn(s.h1, "text-[var(--ink)]", className)} {...props} />
 		),

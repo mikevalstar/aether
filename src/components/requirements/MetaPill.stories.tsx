@@ -32,6 +32,10 @@ export const WithTag: Story = {
 };
 
 export const MetadataRow: Story = {
+	args: {
+		icon: <UserRoundIcon className="size-3.5" />,
+		children: "Mike Valstar",
+	},
 	render: () => (
 		<div className="flex flex-wrap items-center gap-2">
 			<MetaPill icon={<UserRoundIcon className="size-3.5" />}>

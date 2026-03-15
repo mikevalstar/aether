@@ -51,6 +51,12 @@ export const fetchUrlMarkdown = tool({
 				codeBlockStyle: "fenced",
 			});
 
+			if (!article.content) {
+				return {
+					error: "Could not extract article content from the page.",
+				};
+			}
+
 			let markdown = turndown.turndown(article.content);
 
 			if (markdown.length > MAX_CONTENT_LENGTH) {

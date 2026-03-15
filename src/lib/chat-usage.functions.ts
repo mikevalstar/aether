@@ -86,7 +86,11 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 		});
 
 		const threadIds: string[] = [
-			...new Set(events.map((event) => event.threadId).filter(Boolean)),
+			...new Set(
+				events
+					.map((event) => event.threadId)
+					.filter((threadId): threadId is string => Boolean(threadId)),
+			),
 		];
 		const threads = threadIds.length
 			? await prisma.chatThread.findMany({

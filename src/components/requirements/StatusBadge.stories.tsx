@@ -36,6 +36,7 @@ export const SmallSize: Story = {
 };
 
 export const AllStatuses: Story = {
+	args: { status: "done" },
 	render: () => (
 		<div className="flex flex-wrap items-center gap-3">
 			<StatusBadge status="done" />
@@ -46,6 +47,7 @@ export const AllStatuses: Story = {
 };
 
 export const AllSmall: Story = {
+	args: { status: "done", size: "sm" },
 	render: () => (
 		<div className="flex flex-wrap items-center gap-3">
 			<StatusBadge status="done" size="sm" />

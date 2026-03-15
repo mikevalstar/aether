@@ -10,7 +10,7 @@ export interface ChartCardProps {
 	icon?: LucideIcon;
 	/** CSS color value or var reference for the icon badge (defaults to teal) */
 	accentColor?: string;
-	children: ReactNode;
+	children?: ReactNode;
 }
 
 export function ChartCard({
