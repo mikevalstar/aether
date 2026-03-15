@@ -233,6 +233,7 @@ function ChatPage() {
 					key={thread.id}
 					title={thread.title}
 					preview={thread.preview}
+					updatedAt={thread.updatedAt}
 					isActive={thread.id === selectedThread?.id}
 					disabled={isBusy}
 					onClick={() => handleMobileThreadSelect(thread.id)}

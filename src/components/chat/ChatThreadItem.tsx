@@ -1,10 +1,15 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { Trash2Icon } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
 
+dayjs.extend(relativeTime);
+
 export interface ChatThreadItemProps {
 	title: string;
 	preview: string;
+	updatedAt?: string;
 	isActive?: boolean;
 	disabled?: boolean;
 	onClick?: () => void;
@@ -14,6 +19,7 @@ export interface ChatThreadItemProps {
 export function ChatThreadItem({
 	title,
 	preview,
+	updatedAt,
 	isActive = false,
 	disabled = false,
 	onClick,
@@ -31,7 +37,14 @@ export function ChatThreadItem({
 						: "border-l-[3px] border-l-transparent text-[var(--ink-soft)] hover:bg-[var(--teal-subtle)] hover:text-[var(--ink)]",
 				)}
 			>
-				<p className="truncate text-sm font-semibold">{title}</p>
+				<div className="flex items-baseline justify-between gap-2">
+					<p className="truncate text-sm font-semibold">{title}</p>
+					{updatedAt && (
+						<span className="shrink-0 text-[10px] text-[var(--ink-soft)]/60">
+							{dayjs(updatedAt).fromNow()}
+						</span>
+					)}
+				</div>
 				<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
 					{preview}
 				</p>
