@@ -33,6 +33,7 @@ canonical_file: docs/requirements/obsidian.md
 | AI config section | done | Surface the `OBSIDIAN_AI_CONFIG` subdirectory as a distinct section with coral highlight for Aether config files. |
 | AI memory section | done | Surface the `OBSIDIAN_AI_MEMORY` subdirectory as a distinct section with teal highlight and brain icon. Auto-creates subfolders on startup. |
 | AI memory tool | done | `obsidian_ai_notes_list` tool for AI to recursively list its own memory notes with optional search and JMESPath filtering. |
+| New file creation | done | Create new `.md` files from the vault browser with optional template selection. |
 | Access control | done | Only authenticated users can access the Obsidian routes and file content. |
 
 ## Sub-features
@@ -48,6 +49,8 @@ canonical_file: docs/requirements/obsidian.md
 | AI config area | done | Config subdirectory appears as a separate coral-highlighted section at the top of the tree with a sparkles icon. | Inline |
 | AI memory area | done | Memory subdirectory appears as a teal-highlighted section below AI config in the tree with a brain icon. Subfolders (`notes`, `templates`, `tasks`, `workflows`) auto-created on startup. | Inline |
 | AI memory listing tool | done | `obsidian_ai_notes_list` AI tool recursively lists notes in the memory folder with metadata, optional subfolder scoping, text search, and JMESPath filtering. | [Detail](#ai-memory) |
+| New file dialog | done | "New" button in tree nav header opens a dialog with filename, folder selector, and optional template picker. Navigates to the new file on creation. | [Detail](#new-file-creation) |
+| File templates | done | Bundled Markdown templates in `src/lib/obsidian/templates/` with `{{title}}` and `{{date}}` placeholder interpolation. Ships with a Meeting template. | Inline |
 | Path traversal protection | done | Path normalization rejects `..` traversal that escapes the vault root. | Inline |
 | Missing file handling | done | Invalid paths show a not-found state with a link back to the vault root. | Inline |
 | Vault index & fuzzy search | done | In-memory vault index built at server startup with chokidar file watching and fuse.js fuzzy search across titles, tags, aliases, headings, and content. | [Detail](#vault-index--fuzzy-search) |
@@ -101,6 +104,7 @@ canonical_file: docs/requirements/obsidian.md
 | 7. Header nav | done | "Obsidian" link added to `Header.tsx` for authenticated users. |
 | 8. AI config section | done | Config dir shown as coral-highlighted section with sparkles icon in tree nav. |
 | 9. Polish | done | Welcome page, missing-document state, unconfigured state, path traversal protection. |
+| 10. New file creation | done | "New" button in tree nav, dialog with filename/folder/template, server functions for templates and file creation. |
 
 ### Vault index & fuzzy search
 
@@ -147,6 +151,28 @@ A dedicated folder in the Obsidian vault (`OBSIDIAN_AI_MEMORY`) where the AI man
 **Sidebar:**
 - The AI memory folder is highlighted in the Obsidian tree nav with a teal background and brain icon, similar to the coral AI config section.
 
+### New file creation
+
+A "New" button in the vault browser tree nav header opens a dialog for creating new Markdown files.
+
+**Dialog fields:**
+- **Filename** — required, `.md` appended automatically if omitted.
+- **Folder** — dropdown of all vault folders, defaults to vault root. Populated via `listObsidianFolders` server function.
+- **Template** — optional dropdown listing bundled templates from `src/lib/obsidian/templates/`. Defaults to "Blank file".
+
+**Template system:**
+- Templates are plain `.md` files stored in `src/lib/obsidian/templates/`.
+- Supports `{{title}}` and `{{date}}` placeholders, interpolated at creation time.
+- Ships with a **Meeting** template including attendees, agenda, notes, and action items sections.
+- Adding new templates is as simple as dropping a `.md` file into the templates directory.
+
+**Server functions:**
+- `listObsidianTemplates()` — returns available templates from the bundled templates directory.
+- `listObsidianFolders()` — returns all folder paths in the vault (for the folder picker).
+- `createObsidianFile()` — creates the file on disk with template interpolation, path validation, and duplicate detection. Logs the creation to the activity log.
+
+**After creation:** the user is navigated to the new file, which can immediately be edited.
+
 ## Open Questions
 
 - Should Obsidian wiki-links (`[[page]]`) be resolved and rendered as navigable links?
@@ -161,3 +187,4 @@ A dedicated folder in the Obsidian vault (`OBSIDIAN_AI_MEMORY`) where the AI man
 - 2026-03-15: Added `obsidian_edit` AI tool for targeted search-and-replace edits to vault notes, reducing token usage and errors compared to full-file rewrites via `obsidian_write`.
 - 2026-03-15: Fixed AI tool prompt drift by documenting `obsidian_folders`/`obsidian_list` instead of the nonexistent `obsidian_tree`, clarified when to use `obsidian_edit` vs `obsidian_write`, and updated `obsidian_write` so it can create new notes without a prior read while still protecting overwrites of existing files.
 - 2026-03-15: Added AI memory folder support — `OBSIDIAN_AI_MEMORY` env var, auto-created subfolders (notes, templates, tasks, workflows), `obsidian_ai_notes_list` tool with JMESPath filtering, `{{aiMemoryPath}}` system prompt placeholder, and teal-highlighted sidebar section with brain icon.
+- 2026-03-15: Added new file creation — "New" button in tree nav, dialog with filename/folder/template selection, bundled Meeting template, server functions `listObsidianTemplates`, `listObsidianFolders`, `createObsidianFile`.

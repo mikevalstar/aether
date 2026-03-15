@@ -53,9 +53,7 @@ export default function Header() {
 		setMobileOpen(false);
 	}, [routerState.location.pathname]);
 
-	const visibleLinks = navLinks.filter(
-		(link) => !link.auth || session?.user,
-	);
+	const visibleLinks = navLinks.filter((link) => !link.auth || session?.user);
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-border bg-[var(--header-bg)] px-4 backdrop-blur-sm">
@@ -169,7 +167,10 @@ export default function Header() {
 								key={link.to}
 								to={link.to}
 								className="nav-link-mobile px-4 py-2.5 text-sm font-medium"
-								activeProps={{ className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium" }}
+								activeProps={{
+									className:
+										"nav-link-mobile is-active px-4 py-2.5 text-sm font-medium",
+								}}
 							>
 								{link.label}
 							</Link>
@@ -180,7 +181,10 @@ export default function Header() {
 								<Link
 									to="/settings/password"
 									className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
-									activeProps={{ className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2" }}
+									activeProps={{
+										className:
+											"nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",
+									}}
 								>
 									<Settings className="size-4" />
 									Settings
@@ -189,7 +193,10 @@ export default function Header() {
 									<Link
 										to="/users"
 										className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
-										activeProps={{ className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2" }}
+										activeProps={{
+											className:
+												"nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",
+										}}
 									>
 										<Users className="size-4" />
 										Users
