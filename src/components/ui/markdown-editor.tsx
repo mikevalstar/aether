@@ -45,7 +45,7 @@ interface ToolbarDivider {
 
 type ToolbarEntry = ToolbarItem | ToolbarDivider;
 
-const ico = "size-[18px] stroke-[1.5]";
+const ico = "size-[22px] stroke-[1.5]";
 
 const toolbarLayout: ToolbarEntry[] = [
 	{
@@ -134,7 +134,7 @@ function renderToolbarButton(
 	executeCommand: (command: ICommand, name?: string) => void,
 ) {
 	if (command.keyCommand === "divider") {
-		return <div className="mx-1 h-5 w-px bg-[var(--line)]" />;
+		return <div className="mx-2 h-6 w-px bg-[var(--teal)]/15" />;
 	}
 
 	const meta = toolbarMeta.get(command.name ?? "");
@@ -144,17 +144,17 @@ function renderToolbarButton(
 			<TooltipTrigger asChild>
 				<button
 					type="button"
-					className="inline-flex size-8 items-center justify-center rounded-md text-[var(--ink-soft)] transition-all duration-150 hover:bg-[var(--teal)]/10 hover:text-[var(--teal)] active:scale-95"
+					className="inline-flex size-[38px] items-center justify-center rounded-lg text-[var(--ink-soft)] transition-all duration-150 hover:bg-[var(--teal)]/12 hover:text-[var(--teal)] active:scale-90 active:bg-[var(--teal)]/20"
 					onClick={() => executeCommand(command)}
 				>
 					{command.icon}
 				</button>
 			</TooltipTrigger>
-			<TooltipContent side="bottom" sideOffset={4}>
-				<span className="flex items-center gap-2">
+			<TooltipContent side="bottom" sideOffset={6}>
+				<span className="flex items-center gap-2 text-[12px]">
 					{command.name}
 					{meta?.shortcut && (
-						<kbd className="rounded bg-background/20 px-1.5 py-0.5 font-mono text-[10px] leading-none">
+						<kbd className="rounded bg-background/20 px-1.5 py-0.5 font-mono text-[10px] leading-none tracking-wide">
 							{meta.shortcut}
 						</kbd>
 					)}
@@ -208,8 +208,8 @@ export function MarkdownEditor({
 				</div>
 
 				{showStatusBar && (
-					<div className="flex items-center justify-end border-t border-[var(--line)] bg-[var(--surface)] px-4 py-1.5">
-						<div className="flex items-center gap-3 font-mono text-[11px] text-[var(--ink-soft)]/60">
+					<div className="flex items-center justify-end border-t border-[var(--line)] bg-[var(--teal-subtle)]/40 px-4 py-2">
+						<div className="flex items-center gap-3 font-mono text-[11px] font-medium text-[var(--ink-soft)]/70">
 							<span>
 								{stats.words.toLocaleString()}{" "}
 								{stats.words === 1 ? "word" : "words"}

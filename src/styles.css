@@ -286,16 +286,16 @@ a {
 
 /* Custom toolbar — our own buttons, strip library chrome */
 .w-md-editor-toolbar {
-  background-color: var(--surface) !important;
-  border-bottom: 1px solid var(--line) !important;
-  padding: 6px 16px !important;
+  background-color: color-mix(in oklch, var(--teal-subtle) 35%, var(--surface)) !important;
+  border-bottom: 2px solid color-mix(in oklch, var(--teal) 15%, var(--line)) !important;
+  padding: 6px 12px !important;
   min-height: auto !important;
 }
 
 .w-md-editor-toolbar ul {
   display: flex !important;
   align-items: center !important;
-  gap: 1px !important;
+  gap: 4px !important;
 }
 
 /* Hide library's default button wrapper styling — we render our own */
