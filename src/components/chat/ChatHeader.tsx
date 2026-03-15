@@ -9,11 +9,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { CHAT_MODELS, type ChatModel } from "#/lib/chat";
+import {
+	CHAT_EFFORT_LEVELS,
+	CHAT_MODELS,
+	type ChatEffort,
+	type ChatModel,
+} from "#/lib/chat";
 
 export interface ChatHeaderProps {
 	title: string;
 	model: ChatModel;
+	effort: ChatEffort;
 	inputTokens?: number;
 	outputTokens?: number;
 	costLabel?: string;
@@ -23,13 +29,21 @@ export interface ChatHeaderProps {
 	editable?: boolean;
 	onMobileMenuClick?: () => void;
 	onModelChange?: (model: string) => void;
+	onEffortChange?: (effort: string) => void;
 	onTitleChange?: (title: string) => void;
 	onDelete?: () => void;
 }
 
+const EFFORT_LABELS: Record<ChatEffort, string> = {
+	low: "Low",
+	medium: "Med",
+	high: "High",
+};
+
 export function ChatHeader({
 	title,
 	model,
+	effort,
 	inputTokens = 0,
 	outputTokens = 0,
 	costLabel = "$0.0000",
@@ -39,9 +53,12 @@ export function ChatHeader({
 	editable = false,
 	onMobileMenuClick,
 	onModelChange,
+	onEffortChange,
 	onTitleChange,
 	onDelete,
 }: ChatHeaderProps) {
+	const currentModelSupportsEffort =
+		CHAT_MODELS.find((m) => m.id === model)?.supportsEffort ?? false;
 	const [isEditing, setIsEditing] = useState(false);
 	const [editValue, setEditValue] = useState(title);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -158,6 +175,25 @@ export function ChatHeader({
 							))}
 						</SelectContent>
 					</Select>
+
+					{currentModelSupportsEffort && (
+						<Select
+							value={effort}
+							onValueChange={(value) => onEffortChange?.(value)}
+							disabled={disabled}
+						>
+							<SelectTrigger className="w-20 border-[var(--coral)]/30 bg-[var(--coral)]/8 font-semibold text-[var(--coral)] hover:bg-[var(--coral)]/12">
+								<SelectValue placeholder="Effort" />
+							</SelectTrigger>
+							<SelectContent>
+								{CHAT_EFFORT_LEVELS.map((level) => (
+									<SelectItem key={level} value={level}>
+										{EFFORT_LABELS[level]}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					)}
 
 					<Button
 						type="button"

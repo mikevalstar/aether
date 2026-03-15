@@ -7,8 +7,10 @@ const meta = {
 	title: "Chat/Chat Header",
 	component: ChatHeader,
 	args: {
+		effort: "low",
 		onMobileMenuClick: noop,
 		onModelChange: noop,
+		onEffortChange: noop,
 		onDelete: noop,
 	},
 	decorators: [

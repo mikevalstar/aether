@@ -6,7 +6,9 @@ import { useEffect, useRef } from "react";
 import { Thread } from "#/components/assistant-ui/thread";
 import {
 	type AppChatMessage,
+	type ChatEffort,
 	type ChatModel,
+	DEFAULT_CHAT_EFFORT,
 	DEFAULT_CHAT_MODEL,
 	parseStoredMessages,
 } from "#/lib/chat";
@@ -14,6 +16,7 @@ import {
 type ChatWorkspaceProps = {
 	threadId: string;
 	model: ChatModel;
+	effort: ChatEffort;
 	messagesJson: string;
 	initialMessage?: string;
 	onFinish?: () => void;
@@ -22,6 +25,7 @@ type ChatWorkspaceProps = {
 export function ChatWorkspace({
 	threadId,
 	model,
+	effort,
 	messagesJson,
 	initialMessage,
 	onFinish,
@@ -41,6 +45,7 @@ export function ChatWorkspace({
 					trigger: options.trigger,
 					messageId: options.messageId,
 					model: model ?? DEFAULT_CHAT_MODEL,
+					effort: effort ?? DEFAULT_CHAT_EFFORT,
 				},
 			}),
 		}),

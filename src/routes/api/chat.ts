@@ -1,8 +1,7 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 
-const anthropic = createAnthropic({
-	cacheControl: true,
-});
+const anthropic = createAnthropic();
+
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	convertToModelMessages,
@@ -22,10 +21,12 @@ import {
 	addChatUsageTotals,
 	type ChatUsageEntry,
 	type ChatUsageTotals,
+	DEFAULT_CHAT_EFFORT,
 	DEFAULT_CHAT_MODEL,
 	estimateChatUsageCostUsd,
 	getChatTitleFromMessages,
 	getMessageText,
+	isChatEffort,
 	isChatModel,
 	parseStoredMessages,
 	parseUsageHistory,
@@ -33,7 +34,7 @@ import {
 	serializeUsageHistory,
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
-import { getWebToolVersion } from "#/lib/chat-models";
+import { CHAT_MODELS, getWebToolVersion } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
@@ -71,6 +72,7 @@ type ChatRequestBody = {
 	id?: string;
 	messages?: UIMessage[];
 	model?: string;
+	effort?: string;
 };
 
 export const Route = createFileRoute("/api/chat")({
@@ -112,6 +114,11 @@ export const Route = createFileRoute("/api/chat")({
 					body.model && isChatModel(body.model)
 						? body.model
 						: DEFAULT_CHAT_MODEL;
+				const effort =
+					body.effort && isChatEffort(body.effort)
+						? body.effort
+						: DEFAULT_CHAT_EFFORT;
+				const modelDef = CHAT_MODELS.find((m) => m.id === model);
 				const obsidianCtx = createObsidianToolContext(
 					session.user.id,
 					thread.id,
@@ -238,6 +245,12 @@ export const Route = createFileRoute("/api/chat")({
 					messages: await convertToModelMessages(incomingMessages),
 					tools,
 					stopWhen: stepCountIs(10),
+					providerOptions: {
+						anthropic: {
+							cacheControl: { type: "ephemeral" as const },
+							...(modelDef?.supportsEffort && { effort }),
+						},
+					},
 				});
 
 				return result.toUIMessageStreamResponse({

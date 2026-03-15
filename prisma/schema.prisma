@@ -76,6 +76,7 @@ model ChatThread {
   id           String   @id
   title        String   @default("New chat")
   model        String   @default("claude-haiku-4-5")
+  effort       String   @default("low")
   messagesJson String   @default("[]")
   usageHistoryJson String @default("[]")
   totalInputTokens Int    @default(0)

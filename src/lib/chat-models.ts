@@ -1,9 +1,18 @@
+export const CHAT_EFFORT_LEVELS = ["low", "medium", "high"] as const;
+export type ChatEffort = (typeof CHAT_EFFORT_LEVELS)[number];
+export const DEFAULT_CHAT_EFFORT: ChatEffort = "low";
+
+export function isChatEffort(value: string): value is ChatEffort {
+	return CHAT_EFFORT_LEVELS.includes(value as ChatEffort);
+}
+
 export const CHAT_MODELS = [
 	{
 		id: "claude-haiku-4-5",
 		label: "Claude Haiku 4.5",
 		description: "Fastest",
 		supportsWebTools: true,
+		supportsEffort: false,
 		webToolVersion: "legacy" as const,
 		pricing: {
 			inputCostPerMillionTokensUsd: 1,
@@ -15,6 +24,7 @@ export const CHAT_MODELS = [
 		label: "Claude Sonnet 4.6",
 		description: "Balanced",
 		supportsWebTools: true,
+		supportsEffort: true,
 		webToolVersion: "latest" as const,
 		pricing: {
 			inputCostPerMillionTokensUsd: 3,
@@ -26,6 +36,7 @@ export const CHAT_MODELS = [
 		label: "Claude Opus 4.6",
 		description: "Strongest",
 		supportsWebTools: true,
+		supportsEffort: true,
 		webToolVersion: "latest" as const,
 		pricing: {
 			inputCostPerMillionTokensUsd: 5,

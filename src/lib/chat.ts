@@ -1,10 +1,18 @@
 import type { LanguageModelUsage, UIMessage } from "ai";
-import { CHAT_MODELS, type ChatModel } from "#/lib/chat-models";
+import {
+	CHAT_MODELS,
+	type ChatEffort,
+	type ChatModel,
+} from "#/lib/chat-models";
 
 export {
+	CHAT_EFFORT_LEVELS,
 	CHAT_MODELS,
+	type ChatEffort,
 	type ChatModel,
+	DEFAULT_CHAT_EFFORT,
 	DEFAULT_CHAT_MODEL,
+	isChatEffort,
 	isChatModel,
 } from "#/lib/chat-models";
 
@@ -43,6 +51,7 @@ export type ChatThreadSummary = {
 	id: string;
 	title: string;
 	model: ChatModel;
+	effort: ChatEffort;
 	preview: string;
 	totalInputTokens: number;
 	totalOutputTokens: number;

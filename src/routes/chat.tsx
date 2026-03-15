@@ -31,13 +31,16 @@ import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import {
 	CHAT_MODELS,
+	type ChatEffort,
 	type ChatThreadSummary,
+	DEFAULT_CHAT_EFFORT,
 	DEFAULT_CHAT_MODEL,
 } from "#/lib/chat";
 import {
 	createChatThread,
 	deleteChatThread,
 	getChatPageData,
+	updateChatThreadEffort,
 	updateChatThreadModel,
 	updateChatThreadTitle,
 } from "#/lib/chat.functions";
@@ -79,6 +82,8 @@ function ChatPage() {
 	const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
 	const [isMutating, startTransition] = useTransition();
 	const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
+	const [draftEffort, setDraftEffort] =
+		useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
 	const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
 	const refreshPage = useCallback(async () => {
@@ -122,8 +127,10 @@ function ChatPage() {
 	);
 
 	const selectedModel = selectedThread?.model ?? DEFAULT_CHAT_MODEL;
+	const selectedEffort = selectedThread?.effort ?? DEFAULT_CHAT_EFFORT;
 	const isBusy = isMutating || pendingThreadId !== null;
 	const emptyStateModel = selectedThread?.model ?? draftModel;
+	const emptyStateEffort = selectedThread?.effort ?? draftEffort;
 	const selectedUsageTotals = {
 		inputTokens: selectedThread?.totalInputTokens ?? 0,
 		outputTokens: selectedThread?.totalOutputTokens ?? 0,
@@ -263,6 +270,7 @@ function ChatPage() {
 					<ChatHeader
 						title={selectedThread?.title ?? "New chat"}
 						model={selectedThread ? selectedModel : emptyStateModel}
+						effort={selectedThread ? selectedEffort : emptyStateEffort}
 						inputTokens={selectedUsageTotals.inputTokens}
 						outputTokens={selectedUsageTotals.outputTokens}
 						costLabel={selectedCostLabel}
@@ -271,6 +279,24 @@ function ChatPage() {
 						editable={!!selectedThread}
 						showMobileMenu
 						onMobileMenuClick={() => setMobileDrawerOpen(true)}
+						onEffortChange={(value) => {
+							if (!selectedThread) {
+								setDraftEffort(value as ChatEffort);
+								return;
+							}
+
+							startTransition(() => {
+								void updateChatThreadEffort({
+									data: {
+										threadId: selectedThread.id,
+										effort: value,
+									},
+								}).then(() => {
+									toast.success("Effort updated");
+									return refreshPage();
+								});
+							});
+						}}
 						onTitleChange={
 							selectedThread
 								? (newTitle) => {
@@ -316,9 +342,10 @@ function ChatPage() {
 					<div className="min-h-0 flex-1">
 						{selectedThread ? (
 							<ChatWorkspace
-								key={`${selectedThread.id}:${selectedModel}`}
+								key={`${selectedThread.id}:${selectedModel}:${selectedEffort}`}
 								threadId={selectedThread.id}
 								model={selectedModel}
+								effort={selectedEffort}
 								messagesJson={data.messagesJson}
 								initialMessage={initialMessage}
 								onFinish={() => {

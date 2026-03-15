@@ -3,8 +3,10 @@ import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import {
 	type ChatThreadSummary,
+	DEFAULT_CHAT_EFFORT,
 	DEFAULT_CHAT_MODEL,
 	getChatPreviewFromMessages,
+	isChatEffort,
 	isChatModel,
 	parseStoredMessages,
 } from "#/lib/chat";
@@ -35,6 +37,7 @@ function mapThreadSummary(thread: {
 	id: string;
 	title: string;
 	model: string;
+	effort: string;
 	messagesJson: string;
 	totalInputTokens: number;
 	totalOutputTokens: number;
@@ -48,6 +51,7 @@ function mapThreadSummary(thread: {
 		id: thread.id,
 		title: thread.title,
 		model: isChatModel(thread.model) ? thread.model : DEFAULT_CHAT_MODEL,
+		effort: isChatEffort(thread.effort) ? thread.effort : DEFAULT_CHAT_EFFORT,
 		preview: getChatPreviewFromMessages(messages),
 		totalInputTokens: thread.totalInputTokens,
 		totalOutputTokens: thread.totalOutputTokens,
@@ -121,6 +125,31 @@ export const updateChatThreadModel = createServerFn({ method: "POST" })
 		const updatedThread = await prisma.chatThread.update({
 			where: { id: data.threadId },
 			data: { model: data.model },
+		});
+
+		return mapThreadSummary(updatedThread);
+	});
+
+export const updateChatThreadEffort = createServerFn({ method: "POST" })
+	.inputValidator((data: { threadId: string; effort: string }) => data)
+	.handler(async ({ data }) => {
+		const session = await ensureSession();
+
+		if (!isChatEffort(data.effort)) {
+			throw new Error("Invalid effort level");
+		}
+
+		const thread = await prisma.chatThread.findFirst({
+			where: { id: data.threadId, userId: session.user.id },
+		});
+
+		if (!thread) {
+			throw new Error("Not found");
+		}
+
+		const updatedThread = await prisma.chatThread.update({
+			where: { id: data.threadId },
+			data: { effort: data.effort },
 		});
 
 		return mapThreadSummary(updatedThread);
