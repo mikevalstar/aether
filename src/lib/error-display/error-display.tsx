@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "#/components/ui/sonner";
 import { ErrorHeader } from "./error-header";
 import { formatErrorForCopy, parseError } from "./parser";
 import { StackTrace } from "./stack-trace";
@@ -28,9 +29,10 @@ export function ErrorDisplay({
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopied(true);
+			toast.success("Error copied to clipboard");
 			setTimeout(() => setCopied(false), 2000);
 		} catch {
-			console.error("Failed to copy error to clipboard");
+			toast.error("Failed to copy to clipboard");
 		}
 	};
 

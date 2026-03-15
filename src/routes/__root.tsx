@@ -10,6 +10,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ThemeProvider from "../components/ThemeProvider";
+import { Toaster } from "../components/ui/sonner";
 import { TooltipProvider } from "../components/ui/tooltip";
 import { ErrorBoundary, ErrorDisplay } from "../lib/error-display";
 
@@ -81,6 +82,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							<div id="main-content">{children}</div>
 						</ErrorBoundary>
 						<Footer />
+					<Toaster />
 					</ThemeProvider>
 				</TooltipProvider>
 				<TanStackDevtools

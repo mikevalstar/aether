@@ -15,6 +15,7 @@ import {
 	useState,
 } from "react";
 import Markdown from "react-markdown";
+import { toast } from "#/components/ui/sonner";
 import remarkGfm from "remark-gfm";
 import { Button } from "#/components/ui/button";
 
@@ -128,9 +129,12 @@ export function ObsidianEditor({
 				},
 			});
 			setSaveState("saved");
+			toast.success("File saved");
 			setTimeout(() => onSaved(), 600);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to save");
+			const message = err instanceof Error ? err.message : "Failed to save";
+			setError(message);
+			toast.error("Save failed", { description: message });
 			setSaveState("idle");
 		}
 	}

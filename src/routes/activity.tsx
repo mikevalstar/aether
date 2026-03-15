@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { History } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "#/components/ui/sonner";
 import { z } from "zod";
 import { ActivityDetailDialog } from "#/components/activity/ActivityDetailDialog";
 import { ActivityTable } from "#/components/activity/ActivityTable";
@@ -88,7 +89,13 @@ function ActivityPage() {
 		setReverting(true);
 		try {
 			await revertFileChange({ data: { activityLogId } });
+			toast.success("Change reverted");
 			closeDetail();
+		} catch (err) {
+			toast.error("Revert failed", {
+				description:
+					err instanceof Error ? err.message : "Could not revert the change",
+			});
 		} finally {
 			setReverting(false);
 		}

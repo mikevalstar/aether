@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "#/components/ui/sonner";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
@@ -54,9 +55,10 @@ function UsersPage() {
 			setEmail("");
 			setPassword("");
 			setRole("user");
-			setSuccess(
-				"User added. Share the email and temporary password with them.",
-			);
+			setSuccess("");
+			toast.success("User added", {
+				description: "Share the email and temporary password with them.",
+			});
 			await router.invalidate();
 		} catch (submissionError) {
 			setError(

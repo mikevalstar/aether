@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "#/components/ui/sonner";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
@@ -52,7 +53,8 @@ function PasswordSettingsPage() {
 			setCurrentPassword("");
 			setNewPassword("");
 			setConfirmPassword("");
-			setSuccess("Password updated.");
+			setSuccess("");
+			toast.success("Password updated");
 		} catch (submissionError) {
 			setError(
 				submissionError instanceof Error

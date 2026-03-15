@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { GripVerticalIcon, MessageSquarePlusIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { toast } from "#/components/ui/sonner";
 import { z } from "zod";
 import { ChatEmptyState } from "#/components/chat/ChatEmptyState";
 import { ChatHeader } from "#/components/chat/ChatHeader";
@@ -115,6 +116,7 @@ function ChatPage() {
 				search: isCurrentThread ? {} : { threadId: selectedThread?.id },
 			});
 			await router.invalidate();
+			toast.success("Thread deleted");
 		},
 		[navigate, router, selectedThread],
 	);
@@ -277,7 +279,10 @@ function ChatPage() {
 													threadId: selectedThread.id,
 													title: newTitle,
 												},
-											}).then(refreshPage);
+											}).then(() => {
+												toast.success("Title updated");
+												return refreshPage();
+											});
 										});
 									}
 								: undefined
@@ -294,7 +299,10 @@ function ChatPage() {
 										threadId: selectedThread.id,
 										model: value,
 									},
-								}).then(refreshPage);
+								}).then(() => {
+									toast.success("Model updated");
+									return refreshPage();
+								});
 							});
 						}}
 						onDelete={
