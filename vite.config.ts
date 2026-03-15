@@ -11,7 +11,7 @@ const config = defineConfig({
 		tsconfigPaths: true,
 	},
 	server: {
-		allowedHosts: [".trycloudflare.com", "aether.neural.kitchen"],
+		allowedHosts: [".trycloudflare.com", "aether-test.neural.kitchen"],
 	},
 	plugins: [devtools(), tailwindcss(), tanstackStart(), viteReact()],
 });

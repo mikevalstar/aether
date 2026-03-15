@@ -5,6 +5,7 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { prisma } from "#/db";
 
 export const auth = betterAuth({
+	trustedOrigins: ["https://aether-test.neural.kitchen"],
 	database: prismaAdapter(prisma, {
 		provider: "sqlite",
 	}),
