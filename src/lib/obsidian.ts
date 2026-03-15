@@ -17,6 +17,7 @@ export type ObsidianTreeNode =
 export type ObsidianDocument = {
 	title: string;
 	body: string;
+	rawContent: string;
 	routePath: string;
 	relativePath: string;
 };

@@ -18,5 +18,6 @@ export const Route = createFileRoute("/o/$")({
 });
 
 function ObsidianDocumentPage() {
-	return <ObsidianViewer data={Route.useLoaderData()} />;
+	const data = Route.useLoaderData();
+	return <ObsidianViewer key={data.requestedPath} data={data} />;
 }

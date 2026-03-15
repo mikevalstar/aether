@@ -1,6 +1,7 @@
-import type { ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Pencil } from "lucide-react";
 import {
 	CodeBlockPre,
 	createMarkdownComponents,
@@ -8,15 +9,21 @@ import {
 import type { ObsidianDocument, ObsidianViewerData } from "#/lib/obsidian";
 import { resolveObsidianLinkTarget } from "#/lib/obsidian";
 import { cn } from "#/lib/utils";
+import { Button } from "#/components/ui/button";
+import { ObsidianEditor } from "./ObsidianEditor";
 import { ObsidianMissingDocument } from "./ObsidianMissingDocument";
 import { ObsidianNavLink, ObsidianTreeNav } from "./ObsidianTreeNav";
 import { ObsidianWelcome } from "./ObsidianWelcome";
+import { useRouter } from "@tanstack/react-router";
 
 type ObsidianViewerProps = {
 	data: ObsidianViewerData;
 };
 
 export function ObsidianViewer({ data }: ObsidianViewerProps) {
+	const [editing, setEditing] = useState(false);
+	const router = useRouter();
+
 	if (!data.configured) {
 		return (
 			<main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
@@ -50,7 +57,21 @@ export function ObsidianViewer({ data }: ObsidianViewerProps) {
 
 				<section className="surface-card min-w-0 overflow-hidden">
 					{document ? (
-						<DocumentContent document={document} />
+						editing ? (
+							<ObsidianEditor
+								document={document}
+								onCancel={() => setEditing(false)}
+								onSaved={() => {
+									setEditing(false);
+									router.invalidate();
+								}}
+							/>
+						) : (
+							<DocumentContent
+								document={document}
+								onEdit={() => setEditing(true)}
+							/>
+						)
 					) : isIndex ? (
 						<ObsidianWelcome tree={data.tree} />
 					) : (
@@ -62,8 +83,11 @@ export function ObsidianViewer({ data }: ObsidianViewerProps) {
 	);
 }
 
-function DocumentContent(props: { document: ObsidianDocument }) {
-	const { document } = props;
+function DocumentContent(props: {
+	document: ObsidianDocument;
+	onEdit: () => void;
+}) {
+	const { document, onEdit } = props;
 	const markdownComponents = createMarkdownComponents("prose", {
 		a: ({ href, children, className, ...rest }) => (
 			<MarkdownAnchor
@@ -83,7 +107,7 @@ function DocumentContent(props: { document: ObsidianDocument }) {
 
 	return (
 		<div>
-			<DocumentHeader document={document} />
+			<DocumentHeader document={document} onEdit={onEdit} />
 
 			<div className="px-6 py-6 sm:px-8 sm:py-8">
 				<div className="max-w-none text-[var(--ink)]">
@@ -96,8 +120,11 @@ function DocumentContent(props: { document: ObsidianDocument }) {
 	);
 }
 
-function DocumentHeader(props: { document: ObsidianDocument }) {
-	const { document } = props;
+function DocumentHeader(props: {
+	document: ObsidianDocument;
+	onEdit: () => void;
+}) {
+	const { document, onEdit } = props;
 
 	return (
 		<div className="relative overflow-hidden border-b border-[var(--line)]">
@@ -109,15 +136,28 @@ function DocumentHeader(props: { document: ObsidianDocument }) {
 			/>
 
 			<div className="px-6 pb-5 pt-6 sm:px-8">
-				<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
-					Obsidian
-				</p>
-				<h2 className="display-title mt-2 text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
-					{document.title}
-				</h2>
-				<p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">
-					{document.relativePath}
-				</p>
+				<div className="flex items-start justify-between">
+					<div>
+						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
+							Obsidian
+						</p>
+						<h2 className="display-title mt-2 text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
+							{document.title}
+						</h2>
+						<p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">
+							{document.relativePath}
+						</p>
+					</div>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={onEdit}
+						className="mt-4 shrink-0"
+					>
+						<Pencil className="mr-1.5 size-3.5" />
+						Edit
+					</Button>
+				</div>
 			</div>
 		</div>
 	);

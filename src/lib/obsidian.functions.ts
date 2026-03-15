@@ -155,6 +155,7 @@ async function readObsidianDocument(
 	return {
 		title: toFrontmatterText(data.title) || humanizeFileName(relativePath),
 		body: parsed.content.trim(),
+		rawContent: rawDocument,
 		routePath,
 		relativePath,
 	};
@@ -193,6 +194,43 @@ function humanizeFileName(relativePath: string) {
 		.replace(/[-_]+/g, " ")
 		.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
+
+type SaveObsidianDocumentInput = {
+	relativePath: string;
+	content: string;
+};
+
+export const saveObsidianDocument = createServerFn({ method: "POST" })
+	.inputValidator((data: SaveObsidianDocumentInput) => data)
+	.handler(async ({ data }) => {
+		await ensureSession();
+
+		const obsidianRoot = getObsidianRoot();
+		if (!obsidianRoot) {
+			throw new Error("Obsidian vault not configured");
+		}
+
+		const normalized = data.relativePath.replace(/\\/g, "/").trim();
+		if (
+			!normalized ||
+			normalized.includes("..") ||
+			normalized.startsWith("/")
+		) {
+			throw new Error("Invalid file path");
+		}
+
+		const absolutePath = path.join(obsidianRoot, normalized);
+		const resolvedPath = path.resolve(absolutePath);
+		const resolvedRoot = path.resolve(obsidianRoot);
+
+		if (!resolvedPath.startsWith(resolvedRoot)) {
+			throw new Error("Path traversal detected");
+		}
+
+		await fs.writeFile(absolutePath, data.content, "utf8");
+
+		return { success: true };
+	});
 
 function normalizePosix(value: string) {
 	return value.replace(/\\/g, "/").replace(/\/+$/, "");

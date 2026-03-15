@@ -1,6 +1,6 @@
 ---
 title: Obsidian Integration
-status: in-progress
+status: done
 owner: self
 last_updated: 2026-03-14
 canonical_file: docs/requirements/obsidian.md
@@ -28,7 +28,7 @@ canonical_file: docs/requirements/obsidian.md
 | Tree navigation | done | Persistent left-hand tree of the vault's folder/file structure, performant for hundreds of files. |
 | Search by title | done | Title search that filters the tree or shows results, fast enough for large vaults. |
 | Markdown rendering | done | Render `.md` files as readable content, similar to the requirements viewer. |
-| Markdown editing | todo | Edit `.md` files with a Markdown editor and save back to disk. |
+| Markdown editing | done | Edit `.md` files with a Markdown editor and save back to disk. |
 | AI config section | done | Surface the `OBSIDIAN_AI_CONFIG` subdirectory as a distinct section with coral highlight for Aether config files. |
 | Access control | done | Only authenticated users can access the Obsidian routes and file content. |
 
@@ -41,7 +41,7 @@ canonical_file: docs/requirements/obsidian.md
 | Collapsible folders | done | Tree folders are collapsible with localStorage-persisted expanded state. Auto-expands path to current document. | Inline |
 | Title search | done | Client-side search input filters files by title and filename, showing matching files and ancestor folders. | Inline |
 | Document viewer | done | Markdown rendered with react-markdown + remark-gfm, reusing the shared markdown-components pipeline. | Inline |
-| Markdown editor | todo | In-app editor for `.md` files with preview, saving changes back to the filesystem. | Inline |
+| Markdown editor | done | In-app editor for `.md` files using `@uiw/react-md-editor`, with explicit save button writing back to the filesystem. | Inline |
 | AI config area | done | Config subdirectory appears as a separate coral-highlighted section at the top of the tree with a sparkles icon. | Inline |
 | Path traversal protection | done | Path normalization rejects `..` traversal that escapes the vault root. | Inline |
 | Missing file handling | done | Invalid paths show a not-found state with a link back to the vault root. | Inline |
@@ -70,9 +70,11 @@ canonical_file: docs/requirements/obsidian.md
 ### Markdown editing
 
 - When viewing a document, a user can switch to edit mode.
-- Editor should support Markdown syntax (consider CodeMirror, Monaco, or a purpose-built Markdown editor component).
-- Save writes back to the filesystem via a server function.
-- Consider autosave or explicit save button — start with explicit save.
+- Uses `@uiw/react-md-editor` for Markdown editing with syntax highlighting and toolbar.
+- Edit button in document header toggles between view and edit modes.
+- Edits the raw file content (including frontmatter) so nothing is lost on save.
+- Save writes back to the filesystem via `saveObsidianDocument` server function with path traversal protection.
+- Explicit save button with unsaved-changes indicator; cancel returns to view mode.
 
 ### AI config section
 
@@ -89,14 +91,13 @@ canonical_file: docs/requirements/obsidian.md
 | 3. Tree component | done | Collapsible tree in `src/components/obsidian/ObsidianTreeNav.tsx` with localStorage persistence. |
 | 4. Search | done | Title/filename search input filters the tree client-side. |
 | 5. Document rendering | done | `ObsidianViewer.tsx` renders Markdown with shared pipeline, link resolution, and document header. |
-| 6. Markdown editor | todo | Add edit mode with a Markdown editor component and save-to-disk server function. |
+| 6. Markdown editor | done | `ObsidianEditor.tsx` with `@uiw/react-md-editor`, edit button in document header, `saveObsidianDocument` server function. |
 | 7. Header nav | done | "Obsidian" link added to `Header.tsx` for authenticated users. |
 | 8. AI config section | done | Config dir shown as coral-highlighted section with sparkles icon in tree nav. |
 | 9. Polish | done | Welcome page, missing-document state, unconfigured state, path traversal protection. |
 
 ## Open Questions
 
-- Should the editor support live preview (side-by-side) or just a simple textarea with a preview toggle?
 - Should Obsidian wiki-links (`[[page]]`) be resolved and rendered as navigable links?
 - How should binary files (images, PDFs) referenced in Markdown be handled — serve them or ignore?
 
@@ -104,3 +105,4 @@ canonical_file: docs/requirements/obsidian.md
 
 - 2026-03-14: Created initial requirements doc for Obsidian vault integration with tree browsing, search, Markdown viewing/editing, and AI config section.
 - 2026-03-14: Implemented read-only vault browser with collapsible tree, title search, Markdown rendering, AI config highlighting, auth gating, and header nav link. Editing remains todo.
+- 2026-03-14: Added Markdown editing with `@uiw/react-md-editor`. Edit button in document header, explicit save, unsaved-changes indicator, path traversal protection on save.
