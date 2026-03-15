@@ -1,6 +1,6 @@
 ---
 title: Obsidian Integration
-status: in-progress
+status: done
 owner: self
 last_updated: 2026-03-14
 canonical_file: docs/requirements/obsidian.md
