@@ -7,8 +7,10 @@ import {
 	FileText,
 	KeyRound,
 	LogOut,
+	RefreshCw,
 	Sparkles,
 	Users,
+	Workflow,
 } from "lucide-react";
 import { useEffect } from "react";
 import { Button } from "#/components/ui/button";
@@ -121,6 +123,25 @@ function DashboardPage() {
 						</Link>
 
 						<Link
+							to="/o"
+							className="group relative rounded-xl border border-[var(--chart-4)]/20 bg-[var(--chart-4)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
+						>
+							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
+								<BookOpen className="size-5" strokeWidth={1.75} />
+							</div>
+							<p className="mb-1 text-base font-bold tracking-tight text-foreground">
+								Linked Notes
+							</p>
+							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+								Browse and search your Obsidian vault.
+							</p>
+							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-4)]">
+								Open vault
+								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+							</span>
+						</Link>
+
+						<Link
 							to="/requirements"
 							className="group relative rounded-xl border border-[var(--chart-3)]/20 bg-[var(--chart-3)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
 						>
@@ -166,7 +187,7 @@ function DashboardPage() {
 					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
 						Coming soon
 					</h2>
-					<div className="grid gap-4 sm:grid-cols-2">
+					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{UPCOMING.map(({ icon: Icon, title, desc, color, bg, border }) => (
 							<div
 								key={title}
@@ -214,19 +235,27 @@ function getGreeting(): string {
 
 const UPCOMING = [
 	{
-		icon: BookOpen,
-		title: "Linked Notes",
-		desc: "Browse and search your Obsidian vault directly from the dashboard.",
-		color: "text-[var(--chart-4)]",
-		bg: "bg-[var(--chart-4)]/8",
-		border: "border-[var(--chart-4)]/15",
-	},
-	{
 		icon: CalendarCheck,
 		title: "Daily Planner",
 		desc: "Manage your tasks, goals, and schedule for the day.",
 		color: "text-[var(--chart-5)]",
 		bg: "bg-[var(--chart-5)]/8",
 		border: "border-[var(--chart-5)]/15",
+	},
+	{
+		icon: RefreshCw,
+		title: "Recurring Tasks",
+		desc: "Track repeating tasks and habits with configurable schedules.",
+		color: "text-[var(--chart-3)]",
+		bg: "bg-[var(--chart-3)]/8",
+		border: "border-[var(--chart-3)]/15",
+	},
+	{
+		icon: Workflow,
+		title: "Workflows",
+		desc: "Define forms in Obsidian, fill them out here, and run prompts against the data.",
+		color: "text-[var(--chart-4)]",
+		bg: "bg-[var(--chart-4)]/8",
+		border: "border-[var(--chart-4)]/15",
 	},
 ];
