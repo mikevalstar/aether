@@ -80,13 +80,18 @@ canonical_file: docs/requirements/activity.md
 - "View current" button reads the file from disk and displays it; if the file is deleted, show a "File no longer exists" notice.
 - "Revert" button: writes `originalContent` back to disk at `filePath`, creates a new activity log entry (type: `file_change`, summary: `"Reverted {filename}"`, source: `manual`). If `originalContent` is null (file was new), revert should delete the file.
 
+## Resolved Decisions
+
+- **Retention**: No cleanup policy for now — keep all records.
+- **Diff view**: Unified inline diff (density-first).
+- **Cross-referencing**: Yes — store chatThreadId in `ActivityLog.metadata` JSON for AI-triggered changes.
+- **Page size**: 50 per page, using Shadcn pagination widget.
+
 ## Open Questions
 
-- Should there be a retention/cleanup policy for old activity records to manage DB size?
-- Should the diff view be inline (unified) or side-by-side? (Leaning inline for density.)
-- Should activity records capture the chat thread ID that triggered an AI write, for cross-referencing?
-- What's the desired page size for the activity list?
+- None at this time.
 
 ## Change Log
 
+- 2026-03-15: Resolved open questions — no cleanup, inline diff, chatThreadId in metadata, 50/page with Shadcn pagination.
 - 2026-03-15: Created initial activity log requirements from feature discussion.
