@@ -164,3 +164,24 @@ function normalizeRelativePath(value: string) {
 
 	return segments.join("/");
 }
+
+/**
+ * If `relativePath` is a top-level file inside the AI config directory,
+ * return its filename. Otherwise return null.
+ */
+export function getAiConfigFilename(
+	relativePath: string,
+	aiConfigPath: string | null,
+): string | null {
+	if (!aiConfigPath) return null;
+
+	const normalized = relativePath.replace(/\\/g, "/");
+	const prefix = `${aiConfigPath.replace(/\\/g, "/").replace(/\/+$/, "")}/`;
+
+	if (!normalized.startsWith(prefix)) return null;
+
+	const filename = normalized.slice(prefix.length);
+	if (filename.includes("/")) return null;
+
+	return filename;
+}

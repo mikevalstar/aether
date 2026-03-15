@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
 	convertToModelMessages,
 	createIdGenerator,
+	generateText,
 	type LanguageModelUsage,
 	stepCountIs,
 	streamText,
@@ -10,6 +11,7 @@ import {
 	type UIMessage,
 } from "ai";
 import { prisma } from "#/db";
+import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config";
 import { auth } from "#/lib/auth";
 import {
 	type AppChatMessage,
@@ -18,7 +20,7 @@ import {
 	type ChatUsageTotals,
 	DEFAULT_CHAT_MODEL,
 	estimateChatUsageCostUsd,
-	generateChatTitle,
+	getChatTitleFromMessages,
 	getMessageText,
 	isChatModel,
 	parseStoredMessages,
@@ -28,6 +30,29 @@ import {
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
+
+async function generateChatTitle(userMessage: string): Promise<string> {
+	try {
+		const titleConfig = await readTitlePromptConfig();
+		const titleModel = titleConfig?.model ?? "claude-haiku-4-5";
+		const titleSystemPrompt =
+			titleConfig?.prompt ??
+			"Generate a short, descriptive title for a chat conversation based on the user's first message. The title must be no more than 10 words. Output only the title text, nothing else. No quotes, no punctuation at the end.";
+
+		const { text } = await generateText({
+			model: anthropic(titleModel),
+			system: titleSystemPrompt,
+			prompt: userMessage,
+		});
+
+		const title = text.trim().replace(/[."']+$/, "");
+		return title || getChatTitleFromMessages([]);
+	} catch {
+		return userMessage.length <= 72
+			? userMessage
+			: `${userMessage.slice(0, 69).trimEnd()}...`;
+	}
+}
 
 type ChatRequestBody = {
 	id?: string;
@@ -155,13 +180,20 @@ export const Route = createFileRoute("/api/chat")({
 					},
 				});
 
-				const systemPrompt = [
-					"You are Aether, a helpful personal assistant. You are knowledgeable, concise, and friendly.",
-					`Today's date is ${new Date().toLocaleDateString("en-CA")}.`,
-					tools
-						? "You have access to web search, web fetch, and fetch_url_markdown tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. When the user shares a specific URL and wants you to read its content, prefer fetch_url_markdown as it returns clean, ad-free markdown."
-						: "You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.",
-				].join("\n\n");
+				const userName = session.user.name || "User";
+				const configuredPrompt = await readSystemPrompt(userName);
+
+				const toolInstruction = tools
+					? "You have access to web search, web fetch, and fetch_url_markdown tools. When the user asks about current events, recent information, or anything that might benefit from up-to-date data, use these tools to find accurate answers. When the user shares a specific URL and wants you to read its content, prefer fetch_url_markdown as it returns clean, ad-free markdown."
+					: "You do not have web search capabilities in this mode. If the user asks for real-time information, let them know they can switch to Sonnet or Opus for web search. Do not attempt to use any tools.";
+
+				const systemPrompt = configuredPrompt
+					? `${configuredPrompt}\n\n${toolInstruction}`
+					: [
+							"You are Aether, a helpful personal assistant. You are knowledgeable, concise, and friendly.",
+							`Today's date is ${new Date().toLocaleDateString("en-CA")}.`,
+							toolInstruction,
+						].join("\n\n");
 
 				const result = streamText({
 					model: anthropic(model),

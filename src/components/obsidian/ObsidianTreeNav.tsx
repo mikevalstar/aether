@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
 	BookOpenIcon,
 	ChevronRightIcon,
@@ -13,7 +14,6 @@ import {
 	useMemo,
 	useState,
 } from "react";
-import { Link } from "@tanstack/react-router";
 import { Input } from "#/components/ui/input";
 import { getObsidianHref, type ObsidianTreeNode } from "#/lib/obsidian";
 import { cn } from "#/lib/utils";

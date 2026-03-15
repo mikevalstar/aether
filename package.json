@@ -17,6 +17,8 @@
     "db:studio": "dotenv -e .env -- prisma studio",
     "db:seed": "dotenv -e .env -- prisma db seed",
     "create:first-admin": "dotenv -e .env -- tsx scripts/create-first-admin.ts",
+    "ai-config:seed": "dotenv -e .env -- tsx scripts/ai-config-seed.ts",
+    "ai-config:pull": "dotenv -e .env -- tsx scripts/ai-config-pull.ts",
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",

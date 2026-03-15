@@ -1,5 +1,12 @@
-import { anthropic } from "@ai-sdk/anthropic";
-import { generateText, type LanguageModelUsage, type UIMessage } from "ai";
+import type { LanguageModelUsage, UIMessage } from "ai";
+import { CHAT_MODELS, type ChatModel } from "#/lib/chat-models";
+
+export {
+	CHAT_MODELS,
+	type ChatModel,
+	DEFAULT_CHAT_MODEL,
+	isChatModel,
+} from "#/lib/chat-models";
 
 export const ANTHROPIC_PRICING_SOURCE_URL =
 	"https://docs.anthropic.com/en/docs/about-claude/models/overview";
@@ -30,41 +37,7 @@ export type ChatMessageMetadata = {
 	usageEntry?: ChatUsageEntry;
 };
 
-export const CHAT_MODELS = [
-	{
-		id: "claude-haiku-4-5",
-		label: "Claude Haiku 4.5",
-		description: "Fastest",
-		pricing: {
-			inputCostPerMillionTokensUsd: 1,
-			outputCostPerMillionTokensUsd: 5,
-		},
-	},
-	{
-		id: "claude-sonnet-4-6",
-		label: "Claude Sonnet 4.6",
-		description: "Balanced",
-		pricing: {
-			inputCostPerMillionTokensUsd: 3,
-			outputCostPerMillionTokensUsd: 15,
-		},
-	},
-	{
-		id: "claude-opus-4-6",
-		label: "Claude Opus 4.6",
-		description: "Strongest",
-		pricing: {
-			inputCostPerMillionTokensUsd: 5,
-			outputCostPerMillionTokensUsd: 25,
-		},
-	},
-] as const;
-
-export type ChatModel = (typeof CHAT_MODELS)[number]["id"];
-
 export type AppChatMessage = UIMessage<ChatMessageMetadata, never, never>;
-
-export const DEFAULT_CHAT_MODEL: ChatModel = "claude-haiku-4-5";
 
 export type ChatThreadSummary = {
 	id: string;
@@ -77,10 +50,6 @@ export type ChatThreadSummary = {
 	updatedAt: string;
 	createdAt: string;
 };
-
-export function isChatModel(value: string): value is ChatModel {
-	return CHAT_MODELS.some((model) => model.id === value);
-}
 
 export function parseStoredMessages(value: string): AppChatMessage[] {
 	try {
@@ -186,25 +155,6 @@ export function getChatTitleFromMessages(messages: AppChatMessage[]): string {
 	if (firstUserText.length <= 72) return firstUserText;
 
 	return `${firstUserText.slice(0, 69).trimEnd()}...`;
-}
-
-export async function generateChatTitle(userMessage: string): Promise<string> {
-	try {
-		const { text } = await generateText({
-			model: anthropic("claude-haiku-4-5"),
-			system:
-				"Generate a short, descriptive title for a chat conversation based on the user's first message. The title must be no more than 10 words. Output only the title text, nothing else. No quotes, no punctuation at the end.",
-			prompt: userMessage,
-		});
-
-		const title = text.trim().replace(/[."']+$/, "");
-		return title || getChatTitleFromMessages([]);
-	} catch {
-		// Fall back to truncation if AI generation fails
-		return userMessage.length <= 72
-			? userMessage
-			: `${userMessage.slice(0, 69).trimEnd()}...`;
-	}
 }
 
 export function getChatPreviewFromMessages(messages: AppChatMessage[]): string {
