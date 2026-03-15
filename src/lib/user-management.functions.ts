@@ -52,11 +52,7 @@ async function requireAdminUser() {
 		},
 	});
 
-	if (!user) {
-		throw new Error("User not found");
-	}
-
-	if (user.role !== "admin") {
+	if (!user || user.role !== "admin") {
 		throw new Error("Forbidden");
 	}
 
@@ -170,7 +166,7 @@ export const getPasswordSettingsData = createServerFn({
 	});
 
 	if (!user) {
-		throw new Error("User not found");
+		throw new Error("Not found");
 	}
 
 	return user;

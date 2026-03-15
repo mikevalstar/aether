@@ -139,7 +139,7 @@ export const revertFileChange = createServerFn({ method: "POST" })
 		});
 
 		if (!item || !item.fileChangeDetail) {
-			throw new Error("Activity not found or not a file change");
+			throw new Error("Not found");
 		}
 
 		const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";

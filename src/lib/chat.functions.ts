@@ -115,7 +115,7 @@ export const updateChatThreadModel = createServerFn({ method: "POST" })
 		});
 
 		if (!thread) {
-			throw new Error("Thread not found");
+			throw new Error("Not found");
 		}
 
 		const updatedThread = await prisma.chatThread.update({
@@ -136,7 +136,7 @@ export const updateChatThreadTitle = createServerFn({ method: "POST" })
 		});
 
 		if (!thread) {
-			throw new Error("Thread not found");
+			throw new Error("Not found");
 		}
 
 		const updatedThread = await prisma.chatThread.update({
@@ -157,7 +157,7 @@ export const deleteChatThread = createServerFn({ method: "POST" })
 		});
 
 		if (!thread) {
-			throw new Error("Thread not found");
+			throw new Error("Not found");
 		}
 
 		await prisma.chatThread.delete({ where: { id: data.threadId } });

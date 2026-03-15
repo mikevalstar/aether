@@ -157,6 +157,25 @@ export async function getIndexStats() {
 	};
 }
 
+/**
+ * Close the watcher and clear state. Safe to call multiple times.
+ * After closing, initVaultIndex() can be called again to restart.
+ */
+export async function closeVaultIndex(): Promise<void> {
+	if (rebuildTimer) {
+		clearTimeout(rebuildTimer);
+		rebuildTimer = null;
+	}
+	if (watcher) {
+		await watcher.close();
+		watcher = null;
+	}
+	notes.clear();
+	fuseIndex = null;
+	isReady = false;
+	initPromise = null;
+}
+
 // ── Internals ────────────────────────────────────────────────────────
 
 function getObsidianRoot() {
@@ -300,3 +319,18 @@ function deduplicateStrings(arr: string[]): string[] {
 // Consumers can await initVaultIndex() or searchVault() if they need
 // to guarantee the index is ready.
 void initVaultIndex();
+
+// ── Cleanup ──────────────────────────────────────────────────────────
+// Close watcher on process exit to avoid file descriptor leaks.
+function handleShutdown() {
+	void closeVaultIndex();
+}
+process.on("SIGTERM", handleShutdown);
+process.on("SIGINT", handleShutdown);
+
+// Clean up on Vite HMR to prevent stacking watchers during dev.
+if (import.meta.hot) {
+	import.meta.hot.dispose(() => {
+		void closeVaultIndex();
+	});
+}
