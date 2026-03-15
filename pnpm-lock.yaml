@@ -95,6 +95,9 @@ importers:
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
+      error-stack-parser-es:
+        specifier: ^1.0.5
+        version: 1.0.5
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -3118,6 +3121,9 @@ packages:
   entities@7.0.1:
     resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
+
+  error-stack-parser-es@1.0.5:
+    resolution: {integrity: sha512-5qucVt2XcuGMcEGgWI7i+yZpmpByQ8J1lHhcL7PwqCwu9FPP3VUXzT4ltHe5i2z9dePwEHcDVOAfSnHsOlCXRA==}
 
   es-module-lexer@2.0.0:
     resolution: {integrity: sha512-5POEcUuZybH7IdmGsD8wlf0AI55wMecM9rVBTI/qEAy2c1kTOm3DjFYjrBdI2K3BaJjJYfYFeRtM0t9ssnRuxw==}
@@ -8098,6 +8104,8 @@ snapshots:
   entities@6.0.1: {}
 
   entities@7.0.1: {}
+
+  error-stack-parser-es@1.0.5: {}
 
   es-module-lexer@2.0.0: {}
 

@@ -1,14 +1,22 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import {
+	type ErrorComponentProps,
+	createRootRoute,
+	HeadContent,
+	Scripts,
+	useRouter,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ThemeProvider from "../components/ThemeProvider";
+import { ErrorBoundary, ErrorDisplay } from "../lib/error-display";
 import { TooltipProvider } from "../components/ui/tooltip";
 
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
+	errorComponent: RootErrorComponent,
 	head: () => ({
 		meta: [
 			{
@@ -37,6 +45,21 @@ export const Route = createRootRoute({
 	shellComponent: RootDocument,
 });
 
+function RootErrorComponent({ error }: ErrorComponentProps) {
+	const router = useRouter();
+
+	return (
+		<div className="page-wrap py-12">
+			<div className="surface-card overflow-hidden">
+				<ErrorDisplay
+					error={error}
+					onRetry={() => router.invalidate()}
+				/>
+			</div>
+		</div>
+	);
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
@@ -47,7 +70,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<TooltipProvider>
 					<ThemeProvider>
 						<Header />
-						{children}
+						<ErrorBoundary>{children}</ErrorBoundary>
 						<Footer />
 					</ThemeProvider>
 				</TooltipProvider>

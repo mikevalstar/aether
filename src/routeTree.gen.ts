@@ -23,6 +23,7 @@ import { Route as SettingsPasswordRouteImport } from './routes/settings/password
 import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
 import { Route as OSplatRouteImport } from './routes/o/$'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
+import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
@@ -99,6 +100,11 @@ const DemoPrismaRoute = DemoPrismaRouteImport.update({
   path: '/demo/prisma',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoErrorDisplayRoute = DemoErrorDisplayRouteImport.update({
+  id: '/demo/error-display',
+  path: '/demo/error-display',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
   id: '/demo/better-auth',
   path: '/demo/better-auth',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
+  '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
+  '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
+  '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/chat'
     | '/demo/better-auth'
+    | '/demo/error-display'
     | '/demo/prisma'
     | '/o/$'
     | '/requirements/$'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/chat'
     | '/demo/better-auth'
+    | '/demo/error-display'
     | '/demo/prisma'
     | '/o/$'
     | '/requirements/$'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/chat'
     | '/demo/better-auth'
+    | '/demo/error-display'
     | '/demo/prisma'
     | '/o/$'
     | '/requirements/$'
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   UsersRoute: typeof UsersRoute
   ApiChatRoute: typeof ApiChatRoute
   DemoBetterAuthRoute: typeof DemoBetterAuthRoute
+  DemoErrorDisplayRoute: typeof DemoErrorDisplayRoute
   DemoPrismaRoute: typeof DemoPrismaRoute
   OSplatRoute: typeof OSplatRoute
   RequirementsSplatRoute: typeof RequirementsSplatRoute
@@ -377,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoPrismaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/error-display': {
+      id: '/demo/error-display'
+      path: '/demo/error-display'
+      fullPath: '/demo/error-display'
+      preLoaderRoute: typeof DemoErrorDisplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/better-auth': {
       id: '/demo/better-auth'
       path: '/demo/better-auth'
@@ -426,6 +446,7 @@ const rootRouteChildren: RootRouteChildren = {
   UsersRoute: UsersRoute,
   ApiChatRoute: ApiChatRoute,
   DemoBetterAuthRoute: DemoBetterAuthRoute,
+  DemoErrorDisplayRoute: DemoErrorDisplayRoute,
   DemoPrismaRoute: DemoPrismaRoute,
   OSplatRoute: OSplatRoute,
   RequirementsSplatRoute: RequirementsSplatRoute,
