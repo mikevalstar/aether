@@ -112,10 +112,7 @@ export function initVaultIndex(): Promise<void> {
 /**
  * Search the vault using fuzzy matching. Waits for index to be ready.
  */
-export async function searchVault(
-	query: string,
-	limit = 20,
-): Promise<VaultSearchResult[]> {
+export async function searchVault(query: string, limit = 20): Promise<VaultSearchResult[]> {
 	await initVaultIndex();
 
 	if (!fuseIndex || notes.size === 0) return [];
@@ -130,9 +127,7 @@ export async function searchVault(
 /**
  * Get a specific note from the index by relative path.
  */
-export async function getIndexedNote(
-	relativePath: string,
-): Promise<IndexedNote | undefined> {
+export async function getIndexedNote(relativePath: string): Promise<IndexedNote | undefined> {
 	await initVaultIndex();
 	return notes.get(relativePath);
 }
@@ -190,10 +185,7 @@ async function indexFile(root: string, absolutePath: string) {
 	const rel = toRelativePath(root, absolutePath);
 
 	try {
-		const [content, stat] = await Promise.all([
-			fs.readFile(absolutePath, "utf8"),
-			fs.stat(absolutePath),
-		]);
+		const [content, stat] = await Promise.all([fs.readFile(absolutePath, "utf8"), fs.stat(absolutePath)]);
 
 		const parsed = matter(content);
 		const data = parsed.data as Record<string, unknown>;
@@ -202,10 +194,7 @@ async function indexFile(root: string, absolutePath: string) {
 			relativePath: rel,
 			title: extractTitle(data, rel),
 			aliases: extractStringArray(data.aliases),
-			tags: deduplicateStrings([
-				...extractStringArray(data.tags),
-				...extractInlineTags(parsed.content),
-			]),
+			tags: deduplicateStrings([...extractStringArray(data.tags), ...extractInlineTags(parsed.content)]),
 			headings: extractHeadings(parsed.content),
 			folder: path.dirname(rel) === "." ? "" : path.dirname(rel),
 			mtime: stat.mtimeMs,
@@ -232,10 +221,7 @@ function rebuildFuseIndex() {
 
 // ── Parsers ──────────────────────────────────────────────────────────
 
-function extractTitle(
-	frontmatter: Record<string, unknown>,
-	relativePath: string,
-): string {
+function extractTitle(frontmatter: Record<string, unknown>, relativePath: string): string {
 	if (typeof frontmatter.title === "string" && frontmatter.title.trim()) {
 		return frontmatter.title.trim();
 	}
@@ -248,9 +234,7 @@ function extractTitle(
 
 function extractStringArray(value: unknown): string[] {
 	if (Array.isArray(value)) {
-		return value.filter(
-			(v): v is string => typeof v === "string" && !!v.trim(),
-		);
+		return value.filter((v): v is string => typeof v === "string" && !!v.trim());
 	}
 	if (typeof value === "string" && value.trim()) {
 		return value

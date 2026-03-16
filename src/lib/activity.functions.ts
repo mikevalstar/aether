@@ -107,10 +107,7 @@ export const getActivityDetail = createServerFn({ method: "GET" })
 		if (item.fileChangeDetail) {
 			const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
 			if (obsidianRoot) {
-				const absolutePath = path.join(
-					obsidianRoot,
-					item.fileChangeDetail.filePath,
-				);
+				const absolutePath = path.join(obsidianRoot, item.fileChangeDetail.filePath);
 				try {
 					currentFileContent = await fs.readFile(absolutePath, "utf8");
 					fileExists = true;

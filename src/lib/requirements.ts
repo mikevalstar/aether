@@ -69,10 +69,7 @@ export function normalizeRequirementRoutePath(input?: string | null) {
 	return stripIndexSuffix(stripMarkdownSuffix(normalized));
 }
 
-export function resolveRequirementLinkTarget(
-	currentRelativePath: string,
-	href?: string,
-) {
+export function resolveRequirementLinkTarget(currentRelativePath: string, href?: string) {
 	if (!href) {
 		return null;
 	}

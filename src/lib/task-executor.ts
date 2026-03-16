@@ -27,10 +27,7 @@ export type TaskConfig = {
 	body: string;
 };
 
-export async function executeTask(
-	filename: string,
-	config: TaskConfig,
-): Promise<void> {
+export async function executeTask(filename: string, config: TaskConfig): Promise<void> {
 	const startTime = Date.now();
 
 	// Find first admin user

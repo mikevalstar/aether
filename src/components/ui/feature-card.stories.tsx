@@ -1,11 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-	BookOpen,
-	BrainCircuit,
-	CalendarCheck,
-	Shield,
-	Zap,
-} from "lucide-react";
+import { BookOpen, BrainCircuit, CalendarCheck, Shield, Zap } from "lucide-react";
 import { FeatureCard } from "./feature-card";
 
 const meta = {
@@ -37,8 +31,7 @@ export const Coral: Story = {
 	args: {
 		icon: CalendarCheck,
 		title: "Daily Planner",
-		description:
-			"Organise your tasks and goals for each day. Stay focused on what matters most.",
+		description: "Organise your tasks and goals for each day. Stay focused on what matters most.",
 		color: "text-[var(--coral)]",
 		bg: "bg-[var(--coral)]/8",
 		border: "border-[var(--coral)]/20",
@@ -49,8 +42,7 @@ export const Blue: Story = {
 	args: {
 		icon: BookOpen,
 		title: "Linked Notes",
-		description:
-			"Browse and connect ideas across your entire vault. See relationships you didn't know existed.",
+		description: "Browse and connect ideas across your entire vault. See relationships you didn't know existed.",
 		color: "text-[var(--chart-3)]",
 		bg: "bg-[var(--chart-3)]/8",
 		border: "border-[var(--chart-3)]/20",
@@ -61,8 +53,7 @@ export const DefaultColors: Story = {
 	args: {
 		icon: Shield,
 		title: "Default Theme",
-		description:
-			"Uses primary/secondary tokens when no custom color props are provided.",
+		description: "Uses primary/secondary tokens when no custom color props are provided.",
 	},
 };
 

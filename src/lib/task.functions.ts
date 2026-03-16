@@ -1,15 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import {
-	type ChatModel,
-	DEFAULT_CHAT_MODEL,
-	isChatModel,
-} from "#/lib/chat-models";
-import {
-	getScheduledTasks,
-	triggerTask as schedulerTriggerTask,
-} from "#/lib/task-scheduler";
+import { type ChatModel, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-models";
+import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/task-scheduler";
 
 export type TaskListItem = {
 	id: string;
@@ -44,47 +37,43 @@ export type TaskRunItem = {
 	messagesJson: string;
 };
 
-export const getTasksPageData = createServerFn({ method: "GET" }).handler(
-	async () => {
-		await ensureSession();
+export const getTasksPageData = createServerFn({ method: "GET" }).handler(async () => {
+	await ensureSession();
 
-		const taskRows = await prisma.task.findMany({
-			orderBy: { title: "asc" },
-		});
+	const taskRows = await prisma.task.findMany({
+		orderBy: { title: "asc" },
+	});
 
-		const scheduledTasks = getScheduledTasks();
-		const scheduledByFilename = new Map(
-			scheduledTasks.map((t) => [t.filename, t]),
-		);
+	const scheduledTasks = getScheduledTasks();
+	const scheduledByFilename = new Map(scheduledTasks.map((t) => [t.filename, t]));
 
-		const cronDisabled = process.env.DISABLE_CRON === "true";
+	const cronDisabled = process.env.DISABLE_CRON === "true";
 
-		const items: TaskListItem[] = taskRows.map((row) => {
-			const scheduled = scheduledByFilename.get(row.filename);
-			return {
-				id: row.id,
-				filename: row.filename,
-				title: row.title,
-				cron: row.cron,
-				model: row.model,
-				effort: row.effort,
-				enabled: row.enabled,
-				endDate: row.endDate?.toISOString() ?? null,
-				maxTokens: row.maxTokens,
-				lastRunAt: row.lastRunAt?.toISOString() ?? null,
-				lastRunStatus: row.lastRunStatus,
-				lastThreadId: row.lastThreadId,
-				fileExists: row.fileExists,
-				nextRun: scheduled?.nextRun?.toISOString() ?? null,
-				isBusy: scheduled?.isBusy ?? false,
-				createdAt: row.createdAt.toISOString(),
-				updatedAt: row.updatedAt.toISOString(),
-			};
-		});
+	const items: TaskListItem[] = taskRows.map((row) => {
+		const scheduled = scheduledByFilename.get(row.filename);
+		return {
+			id: row.id,
+			filename: row.filename,
+			title: row.title,
+			cron: row.cron,
+			model: row.model,
+			effort: row.effort,
+			enabled: row.enabled,
+			endDate: row.endDate?.toISOString() ?? null,
+			maxTokens: row.maxTokens,
+			lastRunAt: row.lastRunAt?.toISOString() ?? null,
+			lastRunStatus: row.lastRunStatus,
+			lastThreadId: row.lastThreadId,
+			fileExists: row.fileExists,
+			nextRun: scheduled?.nextRun?.toISOString() ?? null,
+			isBusy: scheduled?.isBusy ?? false,
+			createdAt: row.createdAt.toISOString(),
+			updatedAt: row.updatedAt.toISOString(),
+		};
+	});
 
-		return { items, cronDisabled };
-	},
-);
+	return { items, cronDisabled };
+});
 
 export const getTaskRunHistory = createServerFn({ method: "GET" })
 	.inputValidator((data: { filename: string }) => data)

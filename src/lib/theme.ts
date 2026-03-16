@@ -2,21 +2,14 @@ import { atomWithStorage } from "jotai/utils";
 
 export type ThemeMode = "light" | "dark" | "auto";
 
-export const themeModeAtom = atomWithStorage<ThemeMode>(
-	"theme",
-	"auto",
-	undefined,
-	{
-		getOnInit: true,
-	},
-);
+export const themeModeAtom = atomWithStorage<ThemeMode>("theme", "auto", undefined, {
+	getOnInit: true,
+});
 
 export function getResolvedTheme(mode: ThemeMode): "light" | "dark" {
 	if (mode === "auto") {
 		if (typeof window === "undefined") return "light";
-		return window.matchMedia("(prefers-color-scheme: dark)").matches
-			? "dark"
-			: "light";
+		return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 	}
 	return mode;
 }

@@ -3,10 +3,7 @@ import { AlertCircle, Pencil } from "lucide-react";
 import { type ComponentPropsWithoutRef, useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {
-	CodeBlockPre,
-	createMarkdownComponents,
-} from "#/components/markdown/markdown-components";
+import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/markdown-components";
 import { Button } from "#/components/ui/button";
 import { getAiConfigValidatorInfo } from "#/lib/ai-config.functions";
 import {
@@ -34,13 +31,10 @@ export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
 		return (
 			<main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
 				<div className="surface-card mx-auto max-w-lg px-8 py-12 text-center">
-					<h2 className="text-xl font-semibold text-[var(--ink)]">
-						Obsidian not configured
-					</h2>
+					<h2 className="text-xl font-semibold text-[var(--ink)]">Obsidian not configured</h2>
 					<p className="mt-2 text-sm text-[var(--ink-soft)]">
-						Set the <code className="text-[12px]">OBSIDIAN_DIR</code>{" "}
-						environment variable to your vault path to enable the Obsidian
-						browser.
+						Set the <code className="text-[12px]">OBSIDIAN_DIR</code> environment variable to your vault path to enable the
+						Obsidian browser.
 					</p>
 				</div>
 			</main>
@@ -75,11 +69,7 @@ export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
 								}}
 							/>
 						) : (
-							<DocumentContent
-								document={document}
-								aiConfigPath={data.aiConfigPath}
-								onEdit={() => setEditing(true)}
-							/>
+							<DocumentContent document={document} aiConfigPath={data.aiConfigPath} onEdit={() => setEditing(true)} />
 						)
 					) : isIndex ? (
 						<ObsidianWelcome tree={data.tree} />
@@ -92,28 +82,19 @@ export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
 	);
 }
 
-function DocumentContent(props: {
-	document: ObsidianDocument;
-	aiConfigPath: string | null;
-	onEdit: () => void;
-}) {
+function DocumentContent(props: { document: ObsidianDocument; aiConfigPath: string | null; onEdit: () => void }) {
 	const { document, aiConfigPath, onEdit } = props;
 
-	const aiConfigFilename = getAiConfigFilename(
-		document.relativePath,
-		aiConfigPath,
-	);
+	const aiConfigFilename = getAiConfigFilename(document.relativePath, aiConfigPath);
 
 	const [isUnrecognizedConfig, setIsUnrecognizedConfig] = useState(false);
 
 	useEffect(() => {
 		if (!aiConfigFilename) return;
 
-		getAiConfigValidatorInfo({ data: { filename: aiConfigFilename } }).then(
-			(info) => {
-				if (!info) setIsUnrecognizedConfig(true);
-			},
-		);
+		getAiConfigValidatorInfo({ data: { filename: aiConfigFilename } }).then((info) => {
+			if (!info) setIsUnrecognizedConfig(true);
+		});
 	}, [aiConfigFilename]);
 
 	const markdownComponents = createMarkdownComponents("prose", {
@@ -141,8 +122,7 @@ function DocumentContent(props: {
 				<div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-6 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
 					<AlertCircle className="size-4 shrink-0" />
 					<span>
-						<strong>{aiConfigFilename}</strong> is not a recognized config file
-						and will not be used by Aether.
+						<strong>{aiConfigFilename}</strong> is not a recognized config file and will not be used by Aether.
 					</span>
 				</div>
 			)}
@@ -158,10 +138,7 @@ function DocumentContent(props: {
 	);
 }
 
-function DocumentHeader(props: {
-	document: ObsidianDocument;
-	onEdit: () => void;
-}) {
+function DocumentHeader(props: { document: ObsidianDocument; onEdit: () => void }) {
 	const { document, onEdit } = props;
 
 	return (
@@ -176,22 +153,13 @@ function DocumentHeader(props: {
 			<div className="px-6 pb-5 pt-6 sm:px-8">
 				<div className="flex items-start justify-between">
 					<div>
-						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
-							Obsidian
-						</p>
+						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Obsidian</p>
 						<h2 className="display-title mt-2 text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
 							{document.title}
 						</h2>
-						<p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">
-							{document.relativePath}
-						</p>
+						<p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">{document.relativePath}</p>
 					</div>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={onEdit}
-						className="mt-4 shrink-0"
-					>
+					<Button variant="outline" size="sm" onClick={onEdit} className="mt-4 shrink-0">
 						<Pencil className="mr-1.5 size-3.5" />
 						Edit
 					</Button>
@@ -214,12 +182,7 @@ function MarkdownAnchor({
 
 	if (target) {
 		return (
-			<ObsidianNavLink
-				routePath={target.routePath}
-				hash={target.hash}
-				className={className}
-				{...rest}
-			>
+			<ObsidianNavLink routePath={target.routePath} hash={target.hash} className={className} {...rest}>
 				{children}
 			</ObsidianNavLink>
 		);

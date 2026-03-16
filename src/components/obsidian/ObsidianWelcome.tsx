@@ -33,12 +33,9 @@ export function ObsidianWelcome({ tree }: ObsidianWelcomeProps) {
 				<div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-[var(--teal)]/10 text-[var(--teal)]">
 					<BookOpenIcon className="size-6" />
 				</div>
-				<h2 className="mt-5 text-2xl font-semibold text-[var(--ink)]">
-					Obsidian Vault
-				</h2>
+				<h2 className="mt-5 text-2xl font-semibold text-[var(--ink)]">Obsidian Vault</h2>
 				<p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[var(--ink-soft)]">
-					Select a file from the tree to start reading, or use the search to
-					find a specific page.
+					Select a file from the tree to start reading, or use the search to find a specific page.
 				</p>
 				<div className="mt-6 flex items-center justify-center gap-6 text-sm text-[var(--ink-soft)]">
 					<span className="flex items-center gap-1.5">

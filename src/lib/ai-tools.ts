@@ -17,11 +17,7 @@ const anthropic = createAnthropic();
  * Create the full set of AI tools for a given model/user/thread context.
  * Shared between the chat API endpoint and the task executor.
  */
-export function createAiTools(
-	model: ChatModel,
-	userId: string,
-	threadId: string,
-): ToolSet {
+export function createAiTools(model: ChatModel, userId: string, threadId: string): ToolSet {
 	const obsidianCtx = createObsidianToolContext(userId, threadId);
 	const obsidianTools: ToolSet = {
 		obsidian_folders: obsidianFolders,

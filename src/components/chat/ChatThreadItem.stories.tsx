@@ -39,10 +39,8 @@ export const Active: Story = {
 
 export const LongTitle: Story = {
 	args: {
-		title:
-			"This is a very long thread title that should truncate gracefully in the sidebar",
-		preview:
-			"And this preview text is also quite long and should be truncated as well to keep the layout clean",
+		title: "This is a very long thread title that should truncate gracefully in the sidebar",
+		preview: "And this preview text is also quite long and should be truncated as well to keep the layout clean",
 	},
 };
 

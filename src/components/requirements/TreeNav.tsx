@@ -1,10 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { FileTextIcon, FolderTreeIcon } from "lucide-react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import {
-	getRequirementHref,
-	type RequirementTreeNode,
-} from "#/lib/requirements";
+import { getRequirementHref, type RequirementTreeNode } from "#/lib/requirements";
 import { cn } from "#/lib/utils";
 import { StatusBadge } from "./StatusBadge";
 
@@ -17,17 +14,13 @@ export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
 	return (
 		<div className="surface-card h-fit overflow-hidden lg:sticky lg:top-24">
 			<div className="border-b border-[var(--line)] bg-[var(--teal-subtle)] px-5 py-4">
-				<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
-					Requirements
-				</p>
+				<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Requirements</p>
 				<h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
 					<FolderTreeIcon className="size-4 text-[var(--teal)]" />
 					Viewer
 				</h1>
 				<p className="mt-1 text-sm text-[var(--ink-soft)]">
-					Browse the docs in{" "}
-					<code className="text-[12px]">docs/requirements/</code> without
-					leaving Aether.
+					Browse the docs in <code className="text-[12px]">docs/requirements/</code> without leaving Aether.
 				</p>
 			</div>
 
@@ -38,11 +31,7 @@ export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
 	);
 }
 
-function TreeList(props: {
-	nodes: RequirementTreeNode[];
-	currentRoutePath: string;
-	depth?: number;
-}) {
+function TreeList(props: { nodes: RequirementTreeNode[]; currentRoutePath: string; depth?: number }) {
 	return (
 		<ul className={cn("space-y-0.5", props.depth ? "mt-0.5" : "")}>
 			{props.nodes.map((node) => (
@@ -58,11 +47,7 @@ function TreeList(props: {
 								<FolderTreeIcon className="size-3.5 text-[var(--teal)]/50" />
 								<span>{node.name}</span>
 							</div>
-							<TreeList
-								nodes={node.children}
-								currentRoutePath={props.currentRoutePath}
-								depth={(props.depth ?? 0) + 1}
-							/>
+							<TreeList nodes={node.children} currentRoutePath={props.currentRoutePath} depth={(props.depth ?? 0) + 1} />
 						</div>
 					) : (
 						<TreeNavLink
@@ -79,13 +64,7 @@ function TreeList(props: {
 	);
 }
 
-function TreeNavLink(props: {
-	routePath: string;
-	isActive: boolean;
-	depth: number;
-	title: string;
-	status?: string;
-}) {
+function TreeNavLink(props: { routePath: string; isActive: boolean; depth: number; title: string; status?: string }) {
 	return (
 		<Link
 			to={getRequirementHref(props.routePath)}
@@ -100,17 +79,12 @@ function TreeNavLink(props: {
 			}}
 		>
 			{props.isActive && (
-				<span
-					className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--teal)]"
-					aria-hidden
-				/>
+				<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--teal)]" aria-hidden />
 			)}
 			<FileTextIcon
 				className={cn(
 					"size-4 shrink-0",
-					props.isActive
-						? "text-[var(--teal)]"
-						: "text-[var(--ink-soft)]/50 group-hover:text-[var(--ink-soft)]",
+					props.isActive ? "text-[var(--teal)]" : "text-[var(--ink-soft)]/50 group-hover:text-[var(--ink-soft)]",
 				)}
 			/>
 			<span className="truncate">{props.title}</span>

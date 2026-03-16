@@ -41,19 +41,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function ControlledEditor(props: {
-	initialValue?: string;
-	showStatusBar?: boolean;
-}) {
+function ControlledEditor(props: { initialValue?: string; showStatusBar?: boolean }) {
 	const [value, setValue] = useState(props.initialValue ?? sampleMarkdown);
 	return (
 		<div className="h-[600px]">
-			<MarkdownEditor
-				value={value}
-				onChange={setValue}
-				showStatusBar={props.showStatusBar}
-				className="h-full"
-			/>
+			<MarkdownEditor value={value} onChange={setValue} showStatusBar={props.showStatusBar} className="h-full" />
 		</div>
 	);
 }
@@ -77,9 +69,7 @@ export const WithoutStatusBar: Story = {
 };
 
 export const EmptyState: Story = {
-	render: (args) => (
-		<ControlledEditor initialValue="" showStatusBar={args.showStatusBar} />
-	),
+	render: (args) => <ControlledEditor initialValue="" showStatusBar={args.showStatusBar} />,
 	args: {
 		showStatusBar: true,
 		value: "",

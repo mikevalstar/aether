@@ -104,8 +104,7 @@ export const WithMobileMenu: Story = {
 
 export const LongTitle: Story = {
 	args: {
-		title:
-			"This is a very long thread title that should be truncated when it exceeds the available space in the header bar",
+		title: "This is a very long thread title that should be truncated when it exceeds the available space in the header bar",
 		model: "claude-sonnet-4-6",
 		showStats: true,
 		inputTokens: 3_200,

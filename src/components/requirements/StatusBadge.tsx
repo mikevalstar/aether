@@ -1,9 +1,6 @@
 import { cn } from "#/lib/utils";
 
-const statusConfig: Record<
-	string,
-	{ label: string; className: string; dot: string }
-> = {
+const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
 	done: {
 		label: "Done",
 		className: "border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)]",
@@ -11,8 +8,7 @@ const statusConfig: Record<
 	},
 	"in-progress": {
 		label: "In Progress",
-		className:
-			"border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)]",
+		className: "border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)]",
 		dot: "bg-[var(--coral)]",
 	},
 	todo: {
@@ -28,11 +24,7 @@ type StatusBadgeProps = {
 	className?: string;
 };
 
-export function StatusBadge({
-	status,
-	size = "md",
-	className,
-}: StatusBadgeProps) {
+export function StatusBadge({ status, size = "md", className }: StatusBadgeProps) {
 	const config = statusConfig[status.toLowerCase()] ?? {
 		label: status,
 		className: "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]",

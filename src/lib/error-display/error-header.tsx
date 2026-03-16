@@ -2,23 +2,12 @@ import { AlertCircle, Copy, RotateCcw, X } from "lucide-react";
 import { IDESelector } from "./ide-selector";
 import type { ErrorHeaderProps } from "./types";
 
-export function ErrorHeader({
-	type,
-	message,
-	url,
-	onCopy,
-	onRetry,
-	onDismiss,
-	copied,
-}: ErrorHeaderProps) {
+export function ErrorHeader({ type, message, url, onCopy, onRetry, onDismiss, copied }: ErrorHeaderProps) {
 	return (
 		<div style={headerStyles.container}>
 			<div style={headerStyles.topRow}>
 				<div style={headerStyles.iconWrapper}>
-					<AlertCircle
-						size={18}
-						style={{ color: "var(--destructive-foreground)" }}
-					/>
+					<AlertCircle size={18} style={{ color: "var(--destructive-foreground)" }} />
 				</div>
 				<div style={headerStyles.content}>
 					<span style={headerStyles.type}>{type}</span>
@@ -39,23 +28,13 @@ export function ErrorHeader({
 						<span>{copied ? "Copied!" : "Copy"}</span>
 					</button>
 					{onRetry && (
-						<button
-							type="button"
-							onClick={onRetry}
-							style={headerStyles.button}
-							title="Try again"
-						>
+						<button type="button" onClick={onRetry} style={headerStyles.button} title="Try again">
 							<RotateCcw size={13} />
 							<span>Retry</span>
 						</button>
 					)}
 					{onDismiss && (
-						<button
-							type="button"
-							onClick={onDismiss}
-							style={{ ...headerStyles.button, padding: "4px 6px" }}
-							title="Dismiss"
-						>
+						<button type="button" onClick={onDismiss} style={{ ...headerStyles.button, padding: "4px 6px" }} title="Dismiss">
 							<X size={13} />
 						</button>
 					)}

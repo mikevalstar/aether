@@ -30,21 +30,16 @@ function ErrorDisplayDemo() {
 				<Link to="/dashboard" className="text-sm text-ink-soft hover:text-ink">
 					&larr; Back to Dashboard
 				</Link>
-				<h1 className="display-title text-2xl font-bold mt-2 mb-1">
-					Error Display Demo
-				</h1>
+				<h1 className="display-title text-2xl font-bold mt-2 mb-1">Error Display Demo</h1>
 				<p className="text-sm text-ink-soft">
-					Preview of the error display components — parsed stack traces, IDE
-					links, copy-to-clipboard, and ErrorBoundary.
+					Preview of the error display components — parsed stack traces, IDE links, copy-to-clipboard, and ErrorBoundary.
 				</p>
 			</div>
 
 			<div className="space-y-8">
 				{/* Real TypeError with stack */}
 				<section>
-					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">
-						TypeError — Real Stack Trace
-					</h2>
+					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">TypeError — Real Stack Trace</h2>
 					<div className="surface-card overflow-hidden">
 						<ErrorDisplay
 							error={createRealError()}
@@ -57,30 +52,19 @@ function ErrorDisplayDemo() {
 
 				{/* Simple error */}
 				<section>
-					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">
-						Simple Error Message
-					</h2>
+					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">Simple Error Message</h2>
 					<div className="surface-card overflow-hidden">
-						<ErrorDisplay
-							error={
-								new Error("Something went wrong while processing your request.")
-							}
-							defaultExpanded={true}
-						/>
+						<ErrorDisplay error={new Error("Something went wrong while processing your request.")} defaultExpanded={true} />
 					</div>
 				</section>
 
 				{/* Network error */}
 				<section>
-					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">
-						Network Error with URL
-					</h2>
+					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">Network Error with URL</h2>
 					<div className="surface-card overflow-hidden">
 						<ErrorDisplay
 							error={(() => {
-								const e = new Error(
-									"Failed to fetch data from API — connection refused.",
-								);
+								const e = new Error("Failed to fetch data from API — connection refused.");
 								e.name = "NetworkError";
 								return e;
 							})()}
@@ -92,22 +76,15 @@ function ErrorDisplayDemo() {
 
 				{/* String error */}
 				<section>
-					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">
-						String Error
-					</h2>
+					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">String Error</h2>
 					<div className="surface-card overflow-hidden">
-						<ErrorDisplay
-							error="An unexpected string error occurred"
-							defaultExpanded={true}
-						/>
+						<ErrorDisplay error="An unexpected string error occurred" defaultExpanded={true} />
 					</div>
 				</section>
 
 				{/* Object error */}
 				<section>
-					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">
-						Object Error
-					</h2>
+					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">Object Error</h2>
 					<div className="surface-card overflow-hidden">
 						<ErrorDisplay
 							error={{
@@ -122,12 +99,9 @@ function ErrorDisplayDemo() {
 
 				{/* ErrorBoundary demo */}
 				<section>
-					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">
-						ErrorBoundary
-					</h2>
+					<h2 className="text-sm font-semibold mb-2 text-ink-soft uppercase tracking-wide">ErrorBoundary</h2>
 					<p className="text-sm text-ink-soft mb-3">
-						Click to render a component that throws — the ErrorBoundary catches
-						it and shows the ErrorDisplay.
+						Click to render a component that throws — the ErrorBoundary catches it and shows the ErrorDisplay.
 					</p>
 					{showBoundary ? (
 						<div className="surface-card overflow-hidden">

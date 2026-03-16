@@ -1,11 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-	CircleDollarSign,
-	Coins,
-	Layers,
-	TrendingUp,
-	Users,
-} from "lucide-react";
+import { CircleDollarSign, Coins, Layers, TrendingUp, Users } from "lucide-react";
 import { StatCard } from "./stat-card";
 
 const meta = {
@@ -76,27 +70,9 @@ export const Grid: Story = {
 				icon={CircleDollarSign}
 				color="var(--coral)"
 			/>
-			<StatCard
-				label="Total tokens"
-				value="1,284,390"
-				detail="9,306 avg per exchange"
-				icon={Coins}
-				color="var(--teal)"
-			/>
-			<StatCard
-				label="Active users"
-				value="3"
-				detail="Last 30 days"
-				icon={Users}
-				color="var(--chart-3)"
-			/>
-			<StatCard
-				label="Average cost"
-				value="$0.031"
-				detail="Per exchange"
-				icon={TrendingUp}
-				color="var(--chart-4)"
-			/>
+			<StatCard label="Total tokens" value="1,284,390" detail="9,306 avg per exchange" icon={Coins} color="var(--teal)" />
+			<StatCard label="Active users" value="3" detail="Last 30 days" icon={Users} color="var(--chart-3)" />
+			<StatCard label="Average cost" value="$0.031" detail="Per exchange" icon={TrendingUp} color="var(--chart-4)" />
 		</div>
 	),
 };

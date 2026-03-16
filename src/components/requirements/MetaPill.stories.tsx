@@ -38,12 +38,8 @@ export const MetadataRow: Story = {
 	},
 	render: () => (
 		<div className="flex flex-wrap items-center gap-2">
-			<MetaPill icon={<UserRoundIcon className="size-3.5" />}>
-				Mike Valstar
-			</MetaPill>
-			<MetaPill icon={<CalendarDaysIcon className="size-3.5" />}>
-				2026-03-14
-			</MetaPill>
+			<MetaPill icon={<UserRoundIcon className="size-3.5" />}>Mike Valstar</MetaPill>
+			<MetaPill icon={<CalendarDaysIcon className="size-3.5" />}>2026-03-14</MetaPill>
 			<MetaPill icon={<TagIcon className="size-3.5" />}>v1.2.0</MetaPill>
 		</div>
 	),

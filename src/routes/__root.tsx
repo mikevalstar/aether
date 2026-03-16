@@ -1,11 +1,5 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import {
-	createRootRoute,
-	type ErrorComponentProps,
-	HeadContent,
-	Scripts,
-	useRouter,
-} from "@tanstack/react-router";
+import { createRootRoute, type ErrorComponentProps, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
 import Header from "../components/Header";

@@ -7,11 +7,7 @@ export interface GlowBgProps {
 	position?: string;
 }
 
-export function GlowBg({
-	color,
-	size = "size-[500px]",
-	position = "-right-40 -top-40",
-}: GlowBgProps) {
+export function GlowBg({ color, size = "size-[500px]", position = "-right-40 -top-40" }: GlowBgProps) {
 	return (
 		<div
 			aria-hidden

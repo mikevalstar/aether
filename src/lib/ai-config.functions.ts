@@ -42,15 +42,11 @@ export const validateAiConfigContent = createServerFn({ method: "POST" })
 
 export const getAiConfigValidatorInfo = createServerFn({ method: "GET" })
 	.inputValidator((data: { filename: string }) => data)
-	.handler(
-		async ({
-			data,
-		}): Promise<{ description: string; label: string } | null> => {
-			await ensureSession();
+	.handler(async ({ data }): Promise<{ description: string; label: string } | null> => {
+		await ensureSession();
 
-			const validator = getValidatorForFile(data.filename);
-			if (!validator) return null;
+		const validator = getValidatorForFile(data.filename);
+		if (!validator) return null;
 
-			return { description: validator.description, label: validator.label };
-		},
-	);
+		return { description: validator.description, label: validator.label };
+	});

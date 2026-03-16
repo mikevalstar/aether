@@ -2,11 +2,7 @@ import { useAtom } from "jotai";
 import { useEffect, useRef } from "react";
 import { applyTheme, themeModeAtom } from "#/lib/theme";
 
-export default function ThemeProvider({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
+export default function ThemeProvider({ children }: { children: React.ReactNode }) {
 	const [mode, setMode] = useAtom(themeModeAtom);
 	const initialized = useRef(false);
 
@@ -28,11 +24,7 @@ export default function ThemeProvider({
 		if (initialized.current) return;
 		initialized.current = true;
 
-		const stored = localStorage.getItem("theme") as
-			| "light"
-			| "dark"
-			| "auto"
-			| null;
+		const stored = localStorage.getItem("theme") as "light" | "dark" | "auto" | null;
 		if (stored && ["light", "dark", "auto"].includes(stored)) {
 			if (stored !== mode) {
 				setMode(stored);

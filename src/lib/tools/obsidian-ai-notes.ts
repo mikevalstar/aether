@@ -69,16 +69,10 @@ async function listNotesRecursively(
 	for (const entry of entries) {
 		if (entry.name.startsWith(".")) continue;
 
-		const relativePath = relativePrefix
-			? path.posix.join(relativePrefix, entry.name)
-			: entry.name;
+		const relativePath = relativePrefix ? path.posix.join(relativePrefix, entry.name) : entry.name;
 
 		if (entry.isDirectory()) {
-			const nested = await listNotesRecursively(
-				obsidianRoot,
-				path.join(absoluteDir, entry.name),
-				relativePath,
-			);
+			const nested = await listNotesRecursively(obsidianRoot, path.join(absoluteDir, entry.name), relativePath);
 			results.push(...nested);
 		} else if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) {
 			const indexed = await getIndexedNote(relativePath);
@@ -110,9 +104,7 @@ export const obsidianAiNotesList = tool({
 		search: z
 			.string()
 			.optional()
-			.describe(
-				"Optional case-insensitive search term to filter results by title, path, or tags",
-			),
+			.describe("Optional case-insensitive search term to filter results by title, path, or tags"),
 		filter: z
 			.string()
 			.optional()
@@ -128,9 +120,7 @@ export const obsidianAiNotesList = tool({
 			return { error: "AI memory folder is not configured." };
 		}
 
-		const targetRel = subfolder
-			? path.posix.join(aiMemoryRel, subfolder.replace(/\\/g, "/"))
-			: aiMemoryRel;
+		const targetRel = subfolder ? path.posix.join(aiMemoryRel, subfolder.replace(/\\/g, "/")) : aiMemoryRel;
 
 		// Validate no path traversal
 		if (targetRel.includes("..") || targetRel.startsWith("/")) {
@@ -145,11 +135,7 @@ export const obsidianAiNotesList = tool({
 			return { error: "Path traversal detected." };
 		}
 
-		let notes = await listNotesRecursively(
-			obsidianRoot,
-			absoluteTarget,
-			targetRel,
-		);
+		let notes = await listNotesRecursively(obsidianRoot, absoluteTarget, targetRel);
 
 		// Apply search filter
 		if (search) {

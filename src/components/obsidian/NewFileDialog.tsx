@@ -1,43 +1,13 @@
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import {
-	CheckIcon,
-	ChevronsUpDownIcon,
-	FileTextIcon,
-	FolderPlusIcon,
-	Loader2Icon,
-} from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, FileTextIcon, FolderPlusIcon, Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "#/components/ui/command";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "#/components/ui/dialog";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#/components/ui/command";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "#/components/ui/popover";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { getObsidianHref } from "#/lib/obsidian";
 import {
 	createObsidianFile,
@@ -80,8 +50,7 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 	}, [open]);
 
 	const showCreateOption =
-		folderSearch.trim() !== "" &&
-		!folders.some((f) => f.toLowerCase() === folderSearch.trim().toLowerCase());
+		folderSearch.trim() !== "" && !folders.some((f) => f.toLowerCase() === folderSearch.trim().toLowerCase());
 
 	async function handleCreate() {
 		const trimmed = filename.trim();
@@ -98,8 +67,7 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 				data: {
 					folder,
 					filename: trimmed,
-					templateFilename:
-						templateFilename === NO_TEMPLATE ? undefined : templateFilename,
+					templateFilename: templateFilename === NO_TEMPLATE ? undefined : templateFilename,
 				},
 			});
 			onOpenChange(false);
@@ -123,9 +91,7 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 						<FileTextIcon className="size-4 text-[var(--teal)]" />
 						New File
 					</DialogTitle>
-					<DialogDescription>
-						Create a new Markdown file in your vault.
-					</DialogDescription>
+					<DialogDescription>Create a new Markdown file in your vault.</DialogDescription>
 				</DialogHeader>
 
 				<form
@@ -144,9 +110,7 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 							onChange={(e) => setFilename(e.target.value)}
 							autoFocus
 						/>
-						<p className="text-xs text-muted-foreground">
-							.md extension added automatically if omitted.
-						</p>
+						<p className="text-xs text-muted-foreground">.md extension added automatically if omitted.</p>
 					</div>
 
 					<div className="space-y-2">
@@ -171,11 +135,7 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 										onValueChange={setFolderSearch}
 									/>
 									<CommandList>
-										<CommandEmpty>
-											{folderSearch.trim()
-												? "No matching folders."
-												: "No folders in vault."}
-										</CommandEmpty>
+										<CommandEmpty>{folderSearch.trim() ? "No matching folders." : "No folders in vault."}</CommandEmpty>
 										<CommandGroup>
 											<CommandItem
 												value="/ (vault root)"
@@ -185,13 +145,8 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 													setFolderOpen(false);
 												}}
 											>
-												<CheckIcon
-													className={cn(
-														"mr-2 size-4",
-														folder === "" ? "opacity-100" : "opacity-0",
-													)}
-												/>
-												/ (vault root)
+												<CheckIcon className={cn("mr-2 size-4", folder === "" ? "opacity-100" : "opacity-0")} />/ (vault
+												root)
 											</CommandItem>
 											{folders.map((f) => (
 												<CommandItem
@@ -203,12 +158,7 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 														setFolderOpen(false);
 													}}
 												>
-													<CheckIcon
-														className={cn(
-															"mr-2 size-4",
-															folder === f ? "opacity-100" : "opacity-0",
-														)}
-													/>
+													<CheckIcon className={cn("mr-2 size-4", folder === f ? "opacity-100" : "opacity-0")} />
 													{f}
 												</CommandItem>
 											))}
@@ -232,17 +182,12 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 								</Command>
 							</PopoverContent>
 						</Popover>
-						<p className="text-xs text-muted-foreground">
-							New folders will be created automatically.
-						</p>
+						<p className="text-xs text-muted-foreground">New folders will be created automatically.</p>
 					</div>
 
 					<div className="space-y-2">
 						<Label>Template</Label>
-						<Select
-							value={templateFilename}
-							onValueChange={setTemplateFilename}
-						>
+						<Select value={templateFilename} onValueChange={setTemplateFilename}>
 							<SelectTrigger className="w-full">
 								<SelectValue placeholder="No template" />
 							</SelectTrigger>
@@ -260,17 +205,11 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
 					{error && <p className="text-sm text-destructive">{error}</p>}
 
 					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => onOpenChange(false)}
-						>
+						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
 							Cancel
 						</Button>
 						<Button type="submit" disabled={creating}>
-							{creating && (
-								<Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
-							)}
+							{creating && <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />}
 							Create
 						</Button>
 					</DialogFooter>

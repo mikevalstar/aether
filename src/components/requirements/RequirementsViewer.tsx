@@ -1,14 +1,8 @@
 import type { ComponentPropsWithoutRef } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {
-	CodeBlockPre,
-	createMarkdownComponents,
-} from "#/components/markdown/markdown-components";
-import type {
-	RequirementDocument,
-	RequirementsViewerData,
-} from "#/lib/requirements";
+import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/markdown-components";
+import type { RequirementDocument, RequirementsViewerData } from "#/lib/requirements";
 import { resolveRequirementLinkTarget } from "#/lib/requirements";
 import { cn } from "#/lib/utils";
 import { DocumentHeader } from "./DocumentHeader";
@@ -26,18 +20,11 @@ export function RequirementsViewer({ data }: RequirementsViewerProps) {
 		<main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
 			<div className="grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
 				<aside>
-					<TreeNav
-						nodes={data.tree}
-						currentRoutePath={document?.routePath ?? data.requestedPath}
-					/>
+					<TreeNav nodes={data.tree} currentRoutePath={document?.routePath ?? data.requestedPath} />
 				</aside>
 
 				<section className="surface-card min-w-0 overflow-hidden">
-					{document ? (
-						<DocumentContent document={document} />
-					) : (
-						<MissingDocument requestedPath={data.requestedPath} />
-					)}
+					{document ? <DocumentContent document={document} /> : <MissingDocument requestedPath={data.requestedPath} />}
 				</section>
 			</div>
 		</main>
@@ -91,12 +78,7 @@ function MarkdownAnchor({
 
 	if (target) {
 		return (
-			<RequirementNavLink
-				routePath={target.routePath}
-				hash={target.hash}
-				className={className}
-				{...rest}
-			>
+			<RequirementNavLink routePath={target.routePath} hash={target.hash} className={className} {...rest}>
 				{children}
 			</RequirementNavLink>
 		);

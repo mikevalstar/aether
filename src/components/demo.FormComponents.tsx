@@ -21,18 +21,11 @@ export function SubscribeButton({ label }: { label: string }) {
 	);
 }
 
-function ErrorMessages({
-	errors,
-}: {
-	errors: Array<string | { message: string }>;
-}) {
+function ErrorMessages({ errors }: { errors: Array<string | { message: string }> }) {
 	return (
 		<>
 			{errors.map((error) => (
-				<div
-					key={typeof error === "string" ? error : error.message}
-					className="text-red-500 mt-1 font-bold"
-				>
+				<div key={typeof error === "string" ? error : error.message} className="text-red-500 mt-1 font-bold">
 					{typeof error === "string" ? error : error.message}
 				</div>
 			))}
@@ -40,13 +33,7 @@ function ErrorMessages({
 	);
 }
 
-export function TextField({
-	label,
-	placeholder,
-}: {
-	label: string;
-	placeholder?: string;
-}) {
+export function TextField({ label, placeholder }: { label: string; placeholder?: string }) {
 	const field = useFieldContext<string>();
 	const errors = useStore(field.store, (state) => state.meta.errors);
 
@@ -66,13 +53,7 @@ export function TextField({
 	);
 }
 
-export function TextArea({
-	label,
-	rows = 3,
-}: {
-	label: string;
-	rows?: number;
-}) {
+export function TextArea({ label, rows = 3 }: { label: string; rows?: number }) {
 	const field = useFieldContext<string>();
 	const errors = useStore(field.store, (state) => state.meta.errors);
 
@@ -107,11 +88,7 @@ export function Select({
 
 	return (
 		<div>
-			<ShadcnSelect.Select
-				name={field.name}
-				value={field.state.value}
-				onValueChange={(value) => field.handleChange(value)}
-			>
+			<ShadcnSelect.Select name={field.name} value={field.state.value} onValueChange={(value) => field.handleChange(value)}>
 				<ShadcnSelect.SelectTrigger className="w-full">
 					<ShadcnSelect.SelectValue placeholder={placeholder} />
 				</ShadcnSelect.SelectTrigger>
@@ -119,11 +96,7 @@ export function Select({
 					<ShadcnSelect.SelectGroup>
 						<ShadcnSelect.SelectLabel>{label}</ShadcnSelect.SelectLabel>
 						{values.map((value) => (
-							<ShadcnSelect.SelectItem
-								key={value.value}
-								value={value.value}
-								className="text-foreground"
-							>
+							<ShadcnSelect.SelectItem key={value.value} value={value.value} className="text-foreground">
 								{value.label}
 							</ShadcnSelect.SelectItem>
 						))}

@@ -2,12 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import dayjs from "dayjs";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import {
-	buildUsageDateRange,
-	getChatModelLabel,
-	normalizeUsageSearch,
-	type UsageSearchInput,
-} from "#/lib/chat-usage";
+import { buildUsageDateRange, getChatModelLabel, normalizeUsageSearch, type UsageSearchInput } from "#/lib/chat-usage";
 
 type DailyUsagePoint = {
 	date: string;
@@ -88,11 +83,7 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 		});
 
 		const threadIds: string[] = [
-			...new Set(
-				events
-					.map((event) => event.threadId)
-					.filter((threadId): threadId is string => Boolean(threadId)),
-			),
+			...new Set(events.map((event) => event.threadId).filter((threadId): threadId is string => Boolean(threadId))),
 		];
 		const threads = threadIds.length
 			? await prisma.chatThread.findMany({
@@ -103,9 +94,7 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 					select: { id: true, title: true },
 				})
 			: [];
-		const threadTitleById = new Map(
-			threads.map((thread) => [thread.id, thread.title]),
-		);
+		const threadTitleById = new Map(threads.map((thread) => [thread.id, thread.title]));
 
 		const totals = events.reduce(
 			(acc, event) => ({
@@ -169,10 +158,7 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 		const modelBreakdown = [...modelBreakdownMap.values()]
 			.map((item) => ({
 				...item,
-				shareOfCost:
-					totals.estimatedCostUsd > 0
-						? item.estimatedCostUsd / totals.estimatedCostUsd
-						: 0,
+				shareOfCost: totals.estimatedCostUsd > 0 ? item.estimatedCostUsd / totals.estimatedCostUsd : 0,
 			}))
 			.sort((left, right) => right.estimatedCostUsd - left.estimatedCostUsd);
 
@@ -186,9 +172,7 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 				modelLabel: getChatModelLabel(event.model),
 				taskType: event.taskType,
 				threadId: event.threadId,
-				threadTitle: event.threadId
-					? (threadTitleById.get(event.threadId) ?? "Deleted thread")
-					: null,
+				threadTitle: event.threadId ? (threadTitleById.get(event.threadId) ?? "Deleted thread") : null,
 				inputTokens: event.inputTokens,
 				outputTokens: event.outputTokens,
 				totalTokens: event.totalTokens,
@@ -199,10 +183,8 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 			search,
 			totals: {
 				...totals,
-				averageCostPerEvent:
-					totals.events > 0 ? totals.estimatedCostUsd / totals.events : 0,
-				averageTokensPerEvent:
-					totals.events > 0 ? totals.totalTokens / totals.events : 0,
+				averageCostPerEvent: totals.events > 0 ? totals.estimatedCostUsd / totals.events : 0,
+				averageTokensPerEvent: totals.events > 0 ? totals.totalTokens / totals.events : 0,
 				activeDays: dailyUsage.length,
 			},
 			dailyUsage,

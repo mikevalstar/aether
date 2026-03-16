@@ -93,8 +93,7 @@ function ActivityPage() {
 			closeDetail();
 		} catch (err) {
 			toast.error("Revert failed", {
-				description:
-					err instanceof Error ? err.message : "Could not revert the change",
+				description: err instanceof Error ? err.message : "Could not revert the change",
 			});
 		} finally {
 			setReverting(false);
@@ -114,11 +113,7 @@ function ActivityPage() {
 
 	return (
 		<main className="relative overflow-hidden">
-			<GlowBg
-				color="var(--teal)"
-				size="size-[500px]"
-				position="-right-48 -top-48"
-			/>
+			<GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
 
 			<div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
 				<section className="mb-8">
@@ -154,10 +149,7 @@ function ActivityPage() {
 					))}
 				</section>
 
-				<ActivityTable
-					items={data.items}
-					onItemClick={(id) => void openDetail(id)}
-				/>
+				<ActivityTable items={data.items} onItemClick={(id) => void openDetail(id)} />
 
 				{data.totalPages > 1 && (
 					<section className="mt-4 flex justify-center">
@@ -179,12 +171,7 @@ function ActivityPage() {
 									</PaginationItem>
 								)}
 								{Array.from({ length: data.totalPages }, (_, i) => i + 1)
-									.filter(
-										(p) =>
-											p === 1 ||
-											p === data.totalPages ||
-											Math.abs(p - data.page) <= 2,
-									)
+									.filter((p) => p === 1 || p === data.totalPages || Math.abs(p - data.page) <= 2)
 									.map((p) => (
 										<PaginationItem key={p}>
 											<PaginationLink

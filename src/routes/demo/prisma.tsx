@@ -49,23 +49,20 @@ function DemoPrisma() {
 		<div
 			className="flex items-center justify-center min-h-screen p-4 text-white"
 			style={{
-				background:
-					"linear-gradient(135deg, #0c1a2b 0%, #1a2332 50%, #16202e 100%)",
+				background: "linear-gradient(135deg, #0c1a2b 0%, #1a2332 50%, #16202e 100%)",
 			}}
 		>
 			<div
 				className="w-full max-w-2xl p-8 rounded-xl shadow-2xl border border-white/10"
 				style={{
-					background:
-						"linear-gradient(135deg, rgba(22, 32, 46, 0.95) 0%, rgba(12, 26, 43, 0.95) 100%)",
+					background: "linear-gradient(135deg, rgba(22, 32, 46, 0.95) 0%, rgba(12, 26, 43, 0.95) 100%)",
 					backdropFilter: "blur(10px)",
 				}}
 			>
 				<div
 					className="flex items-center justify-center gap-4 mb-8 p-4 rounded-lg"
 					style={{
-						background:
-							"linear-gradient(90deg, rgba(93, 103, 227, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)",
+						background: "linear-gradient(90deg, rgba(93, 103, 227, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)",
 						border: "1px solid rgba(93, 103, 227, 0.2)",
 					}}
 				>
@@ -92,8 +89,7 @@ function DemoPrisma() {
 							key={todo.id}
 							className="rounded-lg p-4 shadow-md border transition-all hover:scale-[1.02] cursor-pointer group"
 							style={{
-								background:
-									"linear-gradient(135deg, rgba(93, 103, 227, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)",
+								background: "linear-gradient(135deg, rgba(93, 103, 227, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)",
 								borderColor: "rgba(93, 103, 227, 0.3)",
 							}}
 						>
@@ -105,11 +101,7 @@ function DemoPrisma() {
 							</div>
 						</li>
 					))}
-					{todos.length === 0 && (
-						<li className="text-center py-8 text-indigo-300/70">
-							No todos yet. Create one below!
-						</li>
-					)}
+					{todos.length === 0 && <li className="text-center py-8 text-indigo-300/70">No todos yet. Create one below!</li>}
 				</ul>
 
 				<form onSubmit={handleSubmit} className="flex gap-2">
@@ -142,39 +134,23 @@ function DemoPrisma() {
 						borderColor: "rgba(93, 103, 227, 0.2)",
 					}}
 				>
-					<h3 className="text-lg font-semibold mb-2 text-indigo-200">
-						Powered by Prisma ORM
-					</h3>
-					<p className="text-sm text-indigo-300/80 mb-4">
-						Next-generation ORM for Node.js & TypeScript with PostgreSQL
-					</p>
+					<h3 className="text-lg font-semibold mb-2 text-indigo-200">Powered by Prisma ORM</h3>
+					<p className="text-sm text-indigo-300/80 mb-4">Next-generation ORM for Node.js & TypeScript with PostgreSQL</p>
 					<div className="space-y-2 text-sm">
 						<p className="text-indigo-200 font-medium">Setup Instructions:</p>
 						<ol className="list-decimal list-inside space-y-2 text-indigo-300/80">
 							<li>
-								Configure your{" "}
-								<code className="px-2 py-1 rounded bg-black/30 text-purple-300">
-									DATABASE_URL
-								</code>{" "}
-								in .env.local
+								Configure your <code className="px-2 py-1 rounded bg-black/30 text-purple-300">DATABASE_URL</code> in
+								.env.local
 							</li>
 							<li>
-								Run:{" "}
-								<code className="px-2 py-1 rounded bg-black/30 text-purple-300">
-									pnpm dlx prisma generate
-								</code>
+								Run: <code className="px-2 py-1 rounded bg-black/30 text-purple-300">pnpm dlx prisma generate</code>
 							</li>
 							<li>
-								Run:{" "}
-								<code className="px-2 py-1 rounded bg-black/30 text-purple-300">
-									pnpm dlx prisma db push
-								</code>
+								Run: <code className="px-2 py-1 rounded bg-black/30 text-purple-300">pnpm dlx prisma db push</code>
 							</li>
 							<li>
-								Optional:{" "}
-								<code className="px-2 py-1 rounded bg-black/30 text-purple-300">
-									pnpm dlx prisma studio
-								</code>
+								Optional: <code className="px-2 py-1 rounded bg-black/30 text-purple-300">pnpm dlx prisma studio</code>
 							</li>
 						</ol>
 					</div>

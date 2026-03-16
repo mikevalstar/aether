@@ -1,9 +1,5 @@
 import matter from "gray-matter";
-import {
-	type AiConfigValidationResult,
-	type AiConfigValidator,
-	getValidatorForFile,
-} from "#/lib/ai-config-validators";
+import { type AiConfigValidationResult, type AiConfigValidator, getValidatorForFile } from "#/lib/ai-config-validators";
 
 export type AiConfigReadResult = {
 	frontmatter: Record<string, unknown>;
@@ -17,10 +13,7 @@ export type AiConfigReadResult = {
  * Parse raw content and validate it against the matching validator.
  * Safe to use in both server and client contexts.
  */
-export function parseAndValidateAiConfig(
-	filename: string,
-	rawContent: string,
-): AiConfigReadResult {
+export function parseAndValidateAiConfig(filename: string, rawContent: string): AiConfigReadResult {
 	const parsed = matter(rawContent);
 	const frontmatter = (parsed.data ?? {}) as Record<string, unknown>;
 	const body = parsed.content.trim();

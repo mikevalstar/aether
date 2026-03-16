@@ -114,9 +114,7 @@ export const AllManual: Story = {
 	args: {
 		items: sampleItems.map((item) => ({
 			...item,
-			fileChangeDetail: item.fileChangeDetail
-				? { ...item.fileChangeDetail, changeSource: "manual" }
-				: null,
+			fileChangeDetail: item.fileChangeDetail ? { ...item.fileChangeDetail, changeSource: "manual" } : null,
 		})),
 	},
 };
@@ -125,9 +123,7 @@ export const AllAI: Story = {
 	args: {
 		items: sampleItems.map((item) => ({
 			...item,
-			fileChangeDetail: item.fileChangeDetail
-				? { ...item.fileChangeDetail, changeSource: "ai" }
-				: null,
+			fileChangeDetail: item.fileChangeDetail ? { ...item.fileChangeDetail, changeSource: "ai" } : null,
 		})),
 	},
 };

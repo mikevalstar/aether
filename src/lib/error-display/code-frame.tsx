@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CodeFrameProps } from "./types";
 
-export function CodeFrame({
-	filePath,
-	line,
-	column = 1,
-	sourceCode,
-	contextLines = 3,
-}: CodeFrameProps) {
+export function CodeFrame({ filePath, line, column = 1, sourceCode, contextLines = 3 }: CodeFrameProps) {
 	const [code, setCode] = useState<string | null>(sourceCode || null);
 	const [loading, setLoading] = useState(!sourceCode);
 	const [error, setError] = useState(false);
@@ -124,8 +118,7 @@ const styles = {
 		lineHeight: 1.5,
 	},
 	errorLine: {
-		background:
-			"color-mix(in srgb, var(--destructive-foreground) 15%, transparent)",
+		background: "color-mix(in srgb, var(--destructive-foreground) 15%, transparent)",
 	},
 	lineNum: {
 		display: "block",

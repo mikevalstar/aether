@@ -55,16 +55,12 @@ export const taskValidator: AiConfigValidator = {
 			}
 		} else {
 			if (!isValidCron(fmResult.data.cron)) {
-				errors.push(
-					"Frontmatter — cron: Invalid cron expression. Use 5-field format: min hour dom mon dow",
-				);
+				errors.push("Frontmatter — cron: Invalid cron expression. Use 5-field format: min hour dom mon dow");
 			}
 			if (fmResult.data.endDate) {
 				const d = new Date(fmResult.data.endDate);
 				if (Number.isNaN(d.getTime())) {
-					errors.push(
-						"Frontmatter — endDate: Must be a valid ISO 8601 date string",
-					);
+					errors.push("Frontmatter — endDate: Must be a valid ISO 8601 date string");
 				}
 			}
 		}

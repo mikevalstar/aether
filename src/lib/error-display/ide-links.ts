@@ -38,24 +38,14 @@ export function getIDEResolver(ide: IDEType): IDEResolver {
 	return IDE_OPTIONS.find((opt) => opt.id === ide) || IDE_OPTIONS[0];
 }
 
-export function generateIDELink(
-	filePath: string,
-	line: number,
-	column: number,
-	ide: IDEType = getStoredIDE(),
-): string {
+export function generateIDELink(filePath: string, line: number, column: number, ide: IDEType = getStoredIDE()): string {
 	const resolver = getIDEResolver(ide);
 	// Ensure absolute path
 	const absolutePath = filePath.startsWith("/") ? filePath : `/${filePath}`;
 	return `${resolver.deepLinkPrefix}${absolutePath}:${line}:${column}`;
 }
 
-export function openInIDE(
-	filePath: string,
-	line: number,
-	column: number = 1,
-	ide?: IDEType,
-): void {
+export function openInIDE(filePath: string, line: number, column: number = 1, ide?: IDEType): void {
 	const resolvedIDE = ide || getStoredIDE();
 	const link = generateIDELink(filePath, line, column, resolvedIDE);
 	window.open(link, "_blank");

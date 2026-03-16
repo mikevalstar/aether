@@ -13,13 +13,7 @@ export interface ChartCardProps {
 	children?: ReactNode;
 }
 
-export function ChartCard({
-	title,
-	subtitle,
-	icon: Icon,
-	accentColor,
-	children,
-}: ChartCardProps) {
+export function ChartCard({ title, subtitle, icon: Icon, accentColor, children }: ChartCardProps) {
 	return (
 		<section className="surface-card p-5">
 			<div className="mb-4 flex items-start gap-3">

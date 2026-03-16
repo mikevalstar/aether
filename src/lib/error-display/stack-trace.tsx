@@ -3,18 +3,12 @@ import { useEffect, useState } from "react";
 import { StackFrameRow } from "./stack-frame";
 import type { StackFrame, StackTraceProps } from "./types";
 
-export function StackTrace({
-	frames,
-	projectRoot,
-	defaultExpanded = true,
-}: StackTraceProps) {
+export function StackTrace({ frames, projectRoot, defaultExpanded = true }: StackTraceProps) {
 	const [expandedFrames, setExpandedFrames] = useState<Set<number>>(new Set());
 
 	useEffect(() => {
 		if (defaultExpanded) {
-			const userCodeIndices = frames
-				.map((f, i) => (!f.isInternal && !f.isNative ? i : -1))
-				.filter((i) => i >= 0);
+			const userCodeIndices = frames.map((f, i) => (!f.isInternal && !f.isNative ? i : -1)).filter((i) => i >= 0);
 			setExpandedFrames(new Set(userCodeIndices.slice(0, 2)));
 		}
 	}, [frames, defaultExpanded]);
@@ -72,13 +66,8 @@ export function StackTrace({
 
 				{internalFrames.length > 0 && (
 					<div style={stackStyles.internalSection}>
-						<button
-							type="button"
-							onClick={() => setShowInternal(!showInternal)}
-							style={stackStyles.internalToggle}
-						>
-							{showInternal ? "Hide" : "Show"} {internalFrames.length} internal
-							frames
+						<button type="button" onClick={() => setShowInternal(!showInternal)} style={stackStyles.internalToggle}>
+							{showInternal ? "Hide" : "Show"} {internalFrames.length} internal frames
 						</button>
 
 						{showInternal && (

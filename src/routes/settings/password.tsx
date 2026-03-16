@@ -5,10 +5,7 @@ import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
-import {
-	changeOwnPassword,
-	getPasswordSettingsData,
-} from "#/lib/user-management.functions";
+import { changeOwnPassword, getPasswordSettingsData } from "#/lib/user-management.functions";
 
 export const Route = createFileRoute("/settings/password")({
 	beforeLoad: async () => {
@@ -56,11 +53,7 @@ function PasswordSettingsPage() {
 			setSuccess("");
 			toast.success("Password updated");
 		} catch (submissionError) {
-			setError(
-				submissionError instanceof Error
-					? submissionError.message
-					: "Failed to change password",
-			);
+			setError(submissionError instanceof Error ? submissionError.message : "Failed to change password");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -69,20 +62,14 @@ function PasswordSettingsPage() {
 	return (
 		<main className="page-wrap px-4 pb-12 pt-10">
 			<section className="mb-8 max-w-2xl">
-				<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
-					Account Settings
-				</p>
-				<h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl">
-					Change password
-				</h1>
+				<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">Account Settings</p>
+				<h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl">Change password</h1>
 				<p className="mt-2 text-sm text-muted-foreground">
-					Use this page to replace the temporary password your admin shared with
-					you or rotate your current one.
+					Use this page to replace the temporary password your admin shared with you or rotate your current one.
 				</p>
 				{settings.mustChangePassword ? (
 					<div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-						This account is still using a temporary password. Change it now to
-						finish setup.
+						This account is still using a temporary password. Change it now to finish setup.
 					</div>
 				) : null}
 			</section>

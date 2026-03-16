@@ -54,9 +54,7 @@ export function normalizeObsidianRoutePath(input?: string | null) {
 	}
 
 	const decoded = safeDecodeURIComponent(stripHashAndQuery(input).trim());
-	const withoutPrefix = decoded
-		.replace(/^\/+/, "")
-		.replace(new RegExp(`^${OBSIDIAN_ROUTE_PREFIX}(?:/|$)`), "");
+	const withoutPrefix = decoded.replace(/^\/+/, "").replace(new RegExp(`^${OBSIDIAN_ROUTE_PREFIX}(?:/|$)`), "");
 
 	const normalized = normalizeRelativePath(withoutPrefix);
 
@@ -67,10 +65,7 @@ export function normalizeObsidianRoutePath(input?: string | null) {
 	return stripMarkdownSuffix(normalized);
 }
 
-export function resolveObsidianLinkTarget(
-	currentRelativePath: string,
-	href?: string,
-) {
+export function resolveObsidianLinkTarget(currentRelativePath: string, href?: string) {
 	if (!href) {
 		return null;
 	}
@@ -172,10 +167,7 @@ function normalizeRelativePath(value: string) {
  * one level of subdirectory like `tasks/`), return its config-relative path.
  * Otherwise return null.
  */
-export function getAiConfigFilename(
-	relativePath: string,
-	aiConfigPath: string | null,
-): string | null {
+export function getAiConfigFilename(relativePath: string, aiConfigPath: string | null): string | null {
 	if (!aiConfigPath) return null;
 
 	const normalized = relativePath.replace(/\\/g, "/");

@@ -1,11 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-	Avatar,
-	AvatarBadge,
-	AvatarFallback,
-	AvatarGroup,
-	AvatarImage,
-} from "./avatar";
+import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarImage } from "./avatar";
 
 const meta = {
 	title: "Design System/Data Display/Avatar",
@@ -24,10 +18,7 @@ type Story = StoryObj<typeof meta>;
 export const WithImage: Story = {
 	render: (args) => (
 		<Avatar {...args}>
-			<AvatarImage
-				src="https://api.dicebear.com/9.x/avataaars/svg?seed=Aether"
-				alt="User"
-			/>
+			<AvatarImage src="https://api.dicebear.com/9.x/avataaars/svg?seed=Aether" alt="User" />
 			<AvatarFallback>MV</AvatarFallback>
 		</Avatar>
 	),

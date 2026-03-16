@@ -1,19 +1,5 @@
-import {
-	AlertCircle,
-	CheckCircle2,
-	Info,
-	Loader2,
-	Save,
-	X,
-} from "lucide-react";
-import {
-	lazy,
-	Suspense,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
+import { AlertCircle, CheckCircle2, Info, Loader2, Save, X } from "lucide-react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "#/components/ui/button";
@@ -35,9 +21,7 @@ import { saveObsidianDocument } from "#/lib/obsidian.functions";
 
 // ─── Platform detection ─────────────────────────────────────────────────
 
-const isMac =
-	typeof navigator !== "undefined" &&
-	/Mac|iPhone|iPad/.test(navigator.userAgent);
+const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
 const modKey = isMac ? "\u2318" : "Ctrl+";
 
 // ─── Types ──────────────────────────────────────────────────────────────
@@ -51,43 +35,31 @@ type ObsidianEditorProps = {
 
 type SaveState = "idle" | "saving" | "saved";
 
-export function ObsidianEditor({
-	document,
-	aiConfigPath,
-	onCancel,
-	onSaved,
-}: ObsidianEditorProps) {
+export function ObsidianEditor({ document, aiConfigPath, onCancel, onSaved }: ObsidianEditorProps) {
 	const [content, setContent] = useState(document.rawContent);
 	const [saveState, setSaveState] = useState<SaveState>("idle");
 	const [error, setError] = useState<string | null>(null);
 
-	const aiConfigFilename = getAiConfigFilename(
-		document.relativePath,
-		aiConfigPath,
-	);
+	const aiConfigFilename = getAiConfigFilename(document.relativePath, aiConfigPath);
 
 	const [validatorInfo, setValidatorInfo] = useState<{
 		description: string;
 		label: string;
 	} | null>(null);
 	const [validatorLoaded, setValidatorLoaded] = useState(false);
-	const [validation, setValidation] =
-		useState<AiConfigValidationResponse | null>(null);
+	const [validation, setValidation] = useState<AiConfigValidationResponse | null>(null);
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	const isUnrecognizedConfig =
-		aiConfigFilename !== null && validatorLoaded && validatorInfo === null;
+	const isUnrecognizedConfig = aiConfigFilename !== null && validatorLoaded && validatorInfo === null;
 
 	// Load validator info on mount
 	useEffect(() => {
 		if (!aiConfigFilename) return;
 
-		getAiConfigValidatorInfo({ data: { filename: aiConfigFilename } }).then(
-			(info) => {
-				if (info) setValidatorInfo(info);
-				setValidatorLoaded(true);
-			},
-		);
+		getAiConfigValidatorInfo({ data: { filename: aiConfigFilename } }).then((info) => {
+			if (info) setValidatorInfo(info);
+			setValidatorLoaded(true);
+		});
 	}, [aiConfigFilename]);
 
 	const runValidation = useCallback(
@@ -163,9 +135,7 @@ export function ObsidianEditor({
 				/>
 				<div className="flex items-center justify-between px-6 py-3 pt-4">
 					<div className="flex min-w-0 items-center gap-3">
-						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
-							Editing
-						</p>
+						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Editing</p>
 						<h2 className="display-title min-w-0 truncate text-lg font-bold tracking-tight text-[var(--ink)]">
 							{document.title}
 						</h2>
@@ -189,11 +159,7 @@ export function ObsidianEditor({
 							size="sm"
 							onClick={handleSave}
 							disabled={saveState !== "idle" || !hasChanges}
-							className={
-								saveState === "saved"
-									? "bg-emerald-600 text-white hover:bg-emerald-600"
-									: undefined
-							}
+							className={saveState === "saved" ? "bg-emerald-600 text-white hover:bg-emerald-600" : undefined}
 						>
 							{saveState === "saving" ? (
 								<Loader2 className="mr-1.5 size-3.5 animate-spin" />
@@ -220,9 +186,7 @@ export function ObsidianEditor({
 				</div>
 			)}
 
-			{isUnrecognizedConfig && (
-				<UnrecognizedConfigBanner filename={aiConfigFilename} />
-			)}
+			{isUnrecognizedConfig && <UnrecognizedConfigBanner filename={aiConfigFilename} />}
 
 			{/* ─── Editor ─── */}
 			<Suspense
@@ -232,26 +196,15 @@ export function ObsidianEditor({
 					</div>
 				}
 			>
-				<MarkdownEditor
-					value={content}
-					onChange={handleContentChange}
-					className="min-h-0 flex-1"
-				/>
+				<MarkdownEditor value={content} onChange={handleContentChange} className="min-h-0 flex-1" />
 			</Suspense>
 
 			{/* ─── File path ─── */}
 			<div className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-1.5">
-				<span className="font-mono text-[11px] text-[var(--ink-soft)]/60">
-					{document.relativePath}
-				</span>
+				<span className="font-mono text-[11px] text-[var(--ink-soft)]/60">{document.relativePath}</span>
 			</div>
 
-			{aiConfigFilename && (
-				<AiConfigValidationPanel
-					validatorInfo={validatorInfo}
-					validation={validation}
-				/>
-			)}
+			{aiConfigFilename && <AiConfigValidationPanel validatorInfo={validatorInfo} validation={validation} />}
 		</div>
 	);
 }
@@ -261,8 +214,7 @@ function UnrecognizedConfigBanner(props: { filename: string }) {
 		<div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-6 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
 			<AlertCircle className="size-4 shrink-0" />
 			<span>
-				<strong>{props.filename}</strong> is not a recognized config file and
-				will not be used by Aether.
+				<strong>{props.filename}</strong> is not a recognized config file and will not be used by Aether.
 			</span>
 		</div>
 	);
@@ -291,16 +243,12 @@ function AiConfigValidationPanel(props: {
 							<div className="flex items-center gap-2 text-sm font-medium text-destructive-foreground">
 								<AlertCircle className="size-4" />
 								<span>
-									{validation.errors.length} validation{" "}
-									{validation.errors.length === 1 ? "error" : "errors"}
+									{validation.errors.length} validation {validation.errors.length === 1 ? "error" : "errors"}
 								</span>
 							</div>
 							<ul className="space-y-0.5 pl-6">
 								{validation.errors.map((err) => (
-									<li
-										key={err}
-										className="text-[13px] text-destructive-foreground"
-									>
+									<li key={err} className="text-[13px] text-destructive-foreground">
 										{err}
 									</li>
 								))}
@@ -318,9 +266,7 @@ function AiConfigValidationPanel(props: {
 						{validatorInfo.label} — Requirements
 					</div>
 					<div className="mt-2 text-[13px] leading-relaxed text-[var(--ink-soft)] [&_code]:rounded [&_code]:bg-[var(--surface)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[12px] [&_li]:ml-4 [&_li]:list-disc [&_p]:mt-1 [&_strong]:font-semibold [&_strong]:text-[var(--ink)]">
-						<Markdown remarkPlugins={[remarkGfm]}>
-							{validatorInfo.description}
-						</Markdown>
+						<Markdown remarkPlugins={[remarkGfm]}>{validatorInfo.description}</Markdown>
 					</div>
 				</div>
 			)}

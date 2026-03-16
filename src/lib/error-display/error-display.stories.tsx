@@ -39,20 +39,14 @@ export const RealTypeError: Story = {
 
 export const SimpleError: Story = {
 	args: {
-		error: createError(
-			"Error",
-			"Something went wrong while processing the request.",
-		),
+		error: createError("Error", "Something went wrong while processing the request."),
 		defaultExpanded: true,
 	},
 };
 
 export const NetworkError: Story = {
 	args: {
-		error: createError(
-			"NetworkError",
-			"Failed to fetch data from https://api.example.com/v1/users — connection refused.",
-		),
+		error: createError("NetworkError", "Failed to fetch data from https://api.example.com/v1/users — connection refused."),
 		defaultExpanded: true,
 		showURL: true,
 	},
@@ -60,10 +54,7 @@ export const NetworkError: Story = {
 
 export const ValidationError: Story = {
 	args: {
-		error: createError(
-			"ValidationError",
-			'Field "email" must be a valid email address. Received: "not-an-email"',
-		),
+		error: createError("ValidationError", 'Field "email" must be a valid email address. Received: "not-an-email"'),
 		defaultExpanded: true,
 	},
 };

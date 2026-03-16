@@ -48,14 +48,8 @@ export const Interactive: Story = {
 
 		return (
 			<div className="w-[320px]">
-				<DateRangePicker
-					from={state.from}
-					to={state.to}
-					onChange={(next) => setState(next)}
-				/>
-				<p className="mt-3 text-xs text-muted-foreground">
-					State: {JSON.stringify(state)}
-				</p>
+				<DateRangePicker from={state.from} to={state.to} onChange={(next) => setState(next)} />
+				<p className="mt-3 text-xs text-muted-foreground">State: {JSON.stringify(state)}</p>
 			</div>
 		);
 	},

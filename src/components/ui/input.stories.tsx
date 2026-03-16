@@ -47,13 +47,7 @@ export const Invalid: Story = {
 	render: () => (
 		<div className="grid w-full max-w-sm gap-1.5">
 			<Label htmlFor="invalid">Email</Label>
-			<Input
-				type="email"
-				id="invalid"
-				placeholder="you@example.com"
-				aria-invalid="true"
-				defaultValue="not-an-email"
-			/>
+			<Input type="email" id="invalid" placeholder="you@example.com" aria-invalid="true" defaultValue="not-an-email" />
 		</div>
 	),
 };

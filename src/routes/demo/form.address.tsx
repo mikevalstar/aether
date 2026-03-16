@@ -44,8 +44,7 @@ function AddressForm() {
 		<div
 			className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-4 text-white"
 			style={{
-				backgroundImage:
-					"radial-gradient(50% 50% at 5% 40%, #f4a460 0%, #8b4513 70%, #1a0f0a 100%)",
+				backgroundImage: "radial-gradient(50% 50% at 5% 40%, #f4a460 0%, #8b4513 70%, #1a0f0a 100%)",
 			}}
 		>
 			<div className="w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10">
@@ -57,9 +56,7 @@ function AddressForm() {
 					}}
 					className="space-y-6"
 				>
-					<form.AppField name="fullName">
-						{(field) => <field.TextField label="Full Name" />}
-					</form.AppField>
+					<form.AppField name="fullName">{(field) => <field.TextField label="Full Name" />}</form.AppField>
 
 					<form.AppField
 						name="email"
@@ -172,20 +169,14 @@ function AddressForm() {
 								if (!value || value.trim().length === 0) {
 									return "Phone number is required";
 								}
-								if (
-									!/^(\+\d{1,3})?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(
-										value,
-									)
-								) {
+								if (!/^(\+\d{1,3})?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value)) {
 									return "Invalid phone number format";
 								}
 								return undefined;
 							},
 						}}
 					>
-						{(field) => (
-							<field.TextField label="Phone" placeholder="123-456-7890" />
-						)}
+						{(field) => <field.TextField label="Phone" placeholder="123-456-7890" />}
 					</form.AppField>
 
 					<div className="flex justify-end">

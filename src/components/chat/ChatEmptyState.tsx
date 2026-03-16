@@ -2,13 +2,7 @@ import { SendIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
 import { CHAT_MODELS, type ChatModel } from "#/lib/chat";
 
@@ -52,11 +46,7 @@ export function ChatEmptyState({
 				</div>
 
 				<div className="flex justify-center">
-					<Select
-						value={model}
-						onValueChange={(value) => onModelChange?.(value)}
-						disabled={disabled}
-					>
+					<Select value={model} onValueChange={(value) => onModelChange?.(value)} disabled={disabled}>
 						<SelectTrigger className="w-auto min-w-48 border-[var(--teal)]/30 bg-[var(--teal-subtle)] font-semibold text-[var(--teal)]">
 							<SelectValue placeholder="Choose model" />
 						</SelectTrigger>
@@ -98,9 +88,7 @@ export function ChatEmptyState({
 						<SendIcon className="size-4" />
 					</Button>
 				</div>
-				<p className="text-center text-xs text-[var(--ink-soft)]">
-					Enter to send, Shift+Enter for new line
-				</p>
+				<p className="text-center text-xs text-[var(--ink-soft)]">Enter to send, Shift+Enter for new line</p>
 			</div>
 		</div>
 	);

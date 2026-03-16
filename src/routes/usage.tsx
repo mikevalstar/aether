@@ -1,18 +1,5 @@
-import {
-	createFileRoute,
-	Link,
-	redirect,
-	useNavigate,
-} from "@tanstack/react-router";
-import {
-	ChartLine,
-	CircleDollarSign,
-	Coins,
-	Hash,
-	Layers,
-	MessageSquare,
-	TrendingUp,
-} from "lucide-react";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { ChartLine, CircleDollarSign, Coins, Hash, Layers, MessageSquare, TrendingUp } from "lucide-react";
 import {
 	Area,
 	AreaChart,
@@ -34,30 +21,12 @@ import { ChartCard } from "#/components/ui/chart-card";
 import { DateRangePicker } from "#/components/ui/date-range-picker";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { StatCard } from "#/components/ui/stat-card";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "#/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import { getSession } from "#/lib/auth.functions";
-import {
-	formatUsageCurrency,
-	getTaskTypeLabel,
-	normalizeUsageSearch,
-	TASK_TYPES,
-} from "#/lib/chat-usage";
-import {
-	type ChatUsageStatsResult,
-	getChatUsageStats,
-} from "#/lib/chat-usage.functions";
+import { formatUsageCurrency, getTaskTypeLabel, normalizeUsageSearch, TASK_TYPES } from "#/lib/chat-usage";
+import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat-usage.functions";
 import { formatDateTime } from "#/lib/date";
 
 const usageSearchSchema = z.object({
@@ -67,13 +36,7 @@ const usageSearchSchema = z.object({
 	taskType: z.string().optional(),
 });
 
-const CHART_COLORS = [
-	"var(--chart-1)",
-	"var(--chart-2)",
-	"var(--chart-3)",
-	"var(--chart-4)",
-	"var(--chart-5)",
-];
+const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 
 export const Route = createFileRoute("/usage")({
 	validateSearch: usageSearchSchema,
@@ -104,12 +67,7 @@ function UsagePage() {
 
 	const hasData = data.totals.events > 0;
 
-	function updateSearch(next: {
-		from?: string;
-		to?: string;
-		model?: string;
-		taskType?: string;
-	}) {
+	function updateSearch(next: { from?: string; to?: string; model?: string; taskType?: string }) {
 		void navigate({
 			search: {
 				from: next.from,
@@ -123,16 +81,8 @@ function UsagePage() {
 
 	return (
 		<main className="relative overflow-hidden">
-			<GlowBg
-				color="var(--coral)"
-				size="size-[500px]"
-				position="-right-48 -top-48"
-			/>
-			<GlowBg
-				color="var(--teal)"
-				size="size-[350px]"
-				position="-left-36 top-96"
-			/>
+			<GlowBg color="var(--coral)" size="size-[500px]" position="-right-48 -top-48" />
+			<GlowBg color="var(--teal)" size="size-[350px]" position="-left-36 top-96" />
 
 			<div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
 				<section className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -144,8 +94,7 @@ function UsagePage() {
 							Chat cost <span className="text-[var(--coral)]">stats</span>
 						</h1>
 						<p className="max-w-2xl text-sm text-muted-foreground">
-							Track estimated spend, token volume, and model mix across every
-							completed chat exchange.
+							Track estimated spend, token volume, and model mix across every completed chat exchange.
 						</p>
 					</div>
 
@@ -160,9 +109,7 @@ function UsagePage() {
 				<section className="surface-card mb-6 p-4 sm:p-5">
 					<div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px_180px]">
 						<div>
-							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-								Date range
-							</p>
+							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Date range</p>
 							<DateRangePicker
 								from={search.from}
 								to={search.to}
@@ -177,9 +124,7 @@ function UsagePage() {
 							/>
 						</div>
 						<div>
-							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-								Model
-							</p>
+							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Model</p>
 							<Select
 								value={search.model}
 								onValueChange={(value) => {
@@ -205,9 +150,7 @@ function UsagePage() {
 							</Select>
 						</div>
 						<div>
-							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-								Task type
-							</p>
+							<p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Task type</p>
 							<Select
 								value={search.taskType}
 								onValueChange={(value) => {
@@ -279,43 +222,17 @@ function UsagePage() {
 									<ResponsiveContainer width="100%" height="100%">
 										<AreaChart data={data.dailyUsage}>
 											<defs>
-												<linearGradient
-													id="usageCostFill"
-													x1="0"
-													y1="0"
-													x2="0"
-													y2="1"
-												>
-													<stop
-														offset="5%"
-														stopColor="var(--chart-2)"
-														stopOpacity={0.32}
-													/>
-													<stop
-														offset="95%"
-														stopColor="var(--chart-2)"
-														stopOpacity={0.02}
-													/>
+												<linearGradient id="usageCostFill" x1="0" y1="0" x2="0" y2="1">
+													<stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.32} />
+													<stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0.02} />
 												</linearGradient>
 											</defs>
 											<CartesianGrid stroke="var(--line)" vertical={false} />
-											<XAxis
-												dataKey="label"
-												tickLine={false}
-												axisLine={false}
-											/>
-											<YAxis
-												tickLine={false}
-												axisLine={false}
-												tickFormatter={(value) => formatAxisCurrency(value)}
-											/>
+											<XAxis dataKey="label" tickLine={false} axisLine={false} />
+											<YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatAxisCurrency(value)} />
 											<RechartsTooltip
-												formatter={(value) =>
-													formatUsageCurrency(toChartNumber(value))
-												}
-												labelFormatter={(_, payload) =>
-													payload?.[0]?.payload?.date ?? ""
-												}
+												formatter={(value) => formatUsageCurrency(toChartNumber(value))}
+												labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
 											/>
 											<Area
 												type="monotone"
@@ -347,17 +264,10 @@ function UsagePage() {
 												paddingAngle={3}
 											>
 												{data.modelBreakdown.map((entry, index) => (
-													<Cell
-														key={entry.model}
-														fill={CHART_COLORS[index % CHART_COLORS.length]}
-													/>
+													<Cell key={entry.model} fill={CHART_COLORS[index % CHART_COLORS.length]} />
 												))}
 											</Pie>
-											<RechartsTooltip
-												formatter={(value) =>
-													formatUsageCurrency(toChartNumber(value))
-												}
-											/>
+											<RechartsTooltip formatter={(value) => formatUsageCurrency(toChartNumber(value))} />
 										</PieChart>
 									</ResponsiveContainer>
 								</div>
@@ -373,16 +283,11 @@ function UsagePage() {
 												}}
 											>
 												<div className="flex min-w-0 items-center gap-2">
-													<span
-														className="size-2.5 rounded-full"
-														style={{ backgroundColor: color }}
-													/>
+													<span className="size-2.5 rounded-full" style={{ backgroundColor: color }} />
 													<span className="truncate">{item.label}</span>
 												</div>
 												<div className="flex items-center gap-2">
-													<span className="text-muted-foreground">
-														{formatUsageCurrency(item.estimatedCostUsd)}
-													</span>
+													<span className="text-muted-foreground">{formatUsageCurrency(item.estimatedCostUsd)}</span>
 													<span className="font-semibold" style={{ color }}>
 														{Math.round(item.shareOfCost * 100)}%
 													</span>
@@ -405,36 +310,14 @@ function UsagePage() {
 									<ResponsiveContainer width="100%" height="100%">
 										<BarChart data={data.dailyUsage}>
 											<CartesianGrid stroke="var(--line)" vertical={false} />
-											<XAxis
-												dataKey="label"
-												tickLine={false}
-												axisLine={false}
-											/>
-											<YAxis
-												tickLine={false}
-												axisLine={false}
-												tickFormatter={(value) => formatAxisTokens(value)}
-											/>
+											<XAxis dataKey="label" tickLine={false} axisLine={false} />
+											<YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatAxisTokens(value)} />
 											<RechartsTooltip
-												formatter={(value) =>
-													Math.round(toChartNumber(value)).toLocaleString()
-												}
-												labelFormatter={(_, payload) =>
-													payload?.[0]?.payload?.date ?? ""
-												}
+												formatter={(value) => Math.round(toChartNumber(value)).toLocaleString()}
+												labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
 											/>
-											<Bar
-												dataKey="inputTokens"
-												stackId="tokens"
-												fill="var(--chart-1)"
-												radius={[4, 4, 0, 0]}
-											/>
-											<Bar
-												dataKey="outputTokens"
-												stackId="tokens"
-												fill="var(--chart-3)"
-												radius={[4, 4, 0, 0]}
-											/>
+											<Bar dataKey="inputTokens" stackId="tokens" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+											<Bar dataKey="outputTokens" stackId="tokens" fill="var(--chart-3)" radius={[4, 4, 0, 0]} />
 										</BarChart>
 									</ResponsiveContainer>
 								</div>
@@ -457,24 +340,17 @@ function UsagePage() {
 											<div className="flex items-center justify-between gap-3">
 												<div className="flex items-center gap-3 text-[var(--ink-soft)]">
 													<span>{formatDateTime(event.createdAt)}</span>
-													<span className="text-[var(--ink)]">
-														{event.modelLabel}
-													</span>
-													<Badge variant="outline">
-														{getTaskTypeLabel(event.taskType)}
-													</Badge>
+													<span className="text-[var(--ink)]">{event.modelLabel}</span>
+													<Badge variant="outline">{getTaskTypeLabel(event.taskType)}</Badge>
 												</div>
 												<div className="flex items-center gap-3">
 													<Tooltip>
 														<TooltipTrigger asChild>
-															<span className="cursor-default">
-																{event.totalTokens.toLocaleString()} tokens
-															</span>
+															<span className="cursor-default">{event.totalTokens.toLocaleString()} tokens</span>
 														</TooltipTrigger>
 														<TooltipContent>
 															<p>
-																In: {event.inputTokens.toLocaleString()} / Out:{" "}
-																{event.outputTokens.toLocaleString()}
+																In: {event.inputTokens.toLocaleString()} / Out: {event.outputTokens.toLocaleString()}
 															</p>
 														</TooltipContent>
 													</Tooltip>
@@ -511,26 +387,11 @@ function UsagePage() {
 							>
 								<div className="grid gap-2 text-sm text-[var(--ink-soft)]">
 									<TrackedField label="User" value="Owner of the usage event" />
-									<TrackedField
-										label="Thread"
-										value="Optional chat thread id for drill-down"
-									/>
-									<TrackedField
-										label="Model"
-										value="Claude model used for the exchange"
-									/>
-									<TrackedField
-										label="Tokens"
-										value="Input, output, and total token counts"
-									/>
-									<TrackedField
-										label="Cost"
-										value="Estimated USD based on model pricing"
-									/>
-									<TrackedField
-										label="Time"
-										value="Timestamp recorded when the exchange finishes"
-									/>
+									<TrackedField label="Thread" value="Optional chat thread id for drill-down" />
+									<TrackedField label="Model" value="Claude model used for the exchange" />
+									<TrackedField label="Tokens" value="Input, output, and total token counts" />
+									<TrackedField label="Cost" value="Estimated USD based on model pricing" />
+									<TrackedField label="Time" value="Timestamp recorded when the exchange finishes" />
 								</div>
 							</ChartCard>
 						</section>
@@ -542,8 +403,7 @@ function UsagePage() {
 						</div>
 						<h2 className="text-lg font-semibold">No usage data yet</h2>
 						<p className="mt-2 max-w-md text-sm text-muted-foreground">
-							Start chatting and completed responses will appear here with
-							costs, tokens, and model trends.
+							Start chatting and completed responses will appear here with costs, tokens, and model trends.
 						</p>
 						<Button asChild className="mt-5 gap-2">
 							<Link to="/chat">
@@ -579,9 +439,7 @@ function formatAxisTokens(value: number) {
 	return `${Math.round(value)}`;
 }
 
-function toChartNumber(
-	value: number | string | ReadonlyArray<number | string> | undefined,
-) {
+function toChartNumber(value: number | string | ReadonlyArray<number | string> | undefined) {
 	if (Array.isArray(value)) return toChartNumber(value[0]);
 	if (typeof value === "number") return value;
 	if (typeof value === "string") return Number(value) || 0;

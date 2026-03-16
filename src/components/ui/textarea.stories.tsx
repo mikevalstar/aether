@@ -35,18 +35,13 @@ export const Invalid: Story = {
 	render: () => (
 		<div className="grid w-full max-w-sm gap-1.5">
 			<Label htmlFor="bio">Bio</Label>
-			<Textarea
-				id="bio"
-				aria-invalid="true"
-				defaultValue="This field has an error"
-			/>
+			<Textarea id="bio" aria-invalid="true" defaultValue="This field has an error" />
 		</div>
 	),
 };
 
 export const WithDefaultValue: Story = {
 	args: {
-		defaultValue:
-			"This textarea auto-sizes to fit its content thanks to field-sizing-content.",
+		defaultValue: "This textarea auto-sizes to fit its content thanks to field-sizing-content.",
 	},
 };

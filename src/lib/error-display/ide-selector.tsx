@@ -17,29 +17,18 @@ export function IDESelector() {
 		setIsOpen(false);
 	};
 
-	const currentOption =
-		IDE_OPTIONS.find((opt) => opt.id === currentIDE) ?? IDE_OPTIONS[0];
+	const currentOption = IDE_OPTIONS.find((opt) => opt.id === currentIDE) ?? IDE_OPTIONS[0];
 
 	return (
 		<div style={selectorStyles.container}>
-			<button
-				type="button"
-				onClick={() => setIsOpen(!isOpen)}
-				style={selectorStyles.trigger}
-				title="Select IDE"
-			>
+			<button type="button" onClick={() => setIsOpen(!isOpen)} style={selectorStyles.trigger} title="Select IDE">
 				<span style={selectorStyles.label}>{currentOption.label}</span>
 				<ChevronDown size={12} style={{ opacity: 0.6 }} />
 			</button>
 
 			{isOpen && (
 				<>
-					<button
-						type="button"
-						style={selectorStyles.backdrop}
-						onClick={() => setIsOpen(false)}
-						aria-label="Close menu"
-					/>
+					<button type="button" style={selectorStyles.backdrop} onClick={() => setIsOpen(false)} aria-label="Close menu" />
 					<div style={selectorStyles.dropdown}>
 						{IDE_OPTIONS.map((option) => (
 							<button
@@ -48,9 +37,7 @@ export function IDESelector() {
 								onClick={() => handleChange(option.id)}
 								style={{
 									...selectorStyles.option,
-									...(option.id === currentIDE
-										? selectorStyles.optionActive
-										: {}),
+									...(option.id === currentIDE ? selectorStyles.optionActive : {}),
 								}}
 							>
 								{option.label}

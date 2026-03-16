@@ -1,15 +1,5 @@
-import {
-	AuiIf,
-	ThreadListItemMorePrimitive,
-	ThreadListItemPrimitive,
-	ThreadListPrimitive,
-} from "@assistant-ui/react";
-import {
-	ArchiveIcon,
-	MoreHorizontalIcon,
-	PlusIcon,
-	TrashIcon,
-} from "lucide-react";
+import { AuiIf, ThreadListItemMorePrimitive, ThreadListItemPrimitive, ThreadListPrimitive } from "@assistant-ui/react";
+import { ArchiveIcon, MoreHorizontalIcon, PlusIcon, TrashIcon } from "lucide-react";
 import type { FC } from "react";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -54,11 +44,7 @@ const ThreadListSkeleton: FC = () => {
 	return (
 		<div className="flex flex-col gap-1">
 			{THREAD_LIST_SKELETON_KEYS.map((key) => (
-				<div
-					key={key}
-					aria-hidden="true"
-					className="aui-thread-list-skeleton-wrapper flex h-9 items-center px-3"
-				>
+				<div key={key} aria-hidden="true" className="aui-thread-list-skeleton-wrapper flex h-9 items-center px-3">
 					<Skeleton className="aui-thread-list-skeleton h-4 w-full" />
 				</div>
 			))}

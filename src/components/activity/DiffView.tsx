@@ -72,26 +72,12 @@ function DiffStats({ lines }: { lines: DiffLine[] }) {
 	);
 }
 
-export function DiffView({
-	original,
-	modified,
-	filePath,
-}: {
-	original: string;
-	modified: string;
-	filePath: string;
-}) {
+export function DiffView({ original, modified, filePath }: { original: string; modified: string; filePath: string }) {
 	const patch = useMemo(
-		() =>
-			original
-				? createPatch(filePath, original, modified, "", "", { context: 3 })
-				: "",
+		() => (original ? createPatch(filePath, original, modified, "", "", { context: 3 }) : ""),
 		[filePath, original, modified],
 	);
-	const diffLines = useMemo(
-		() => (patch ? parseDiffLines(patch) : []),
-		[patch],
-	);
+	const diffLines = useMemo(() => (patch ? parseDiffLines(patch) : []), [patch]);
 
 	if (!original && modified) {
 		const fileLines = modified.split("\n");
@@ -118,9 +104,7 @@ export function DiffView({
 									</td>
 									<td className="w-[3px] select-none bg-green-500/30" />
 									<td className="px-3 py-0 whitespace-pre">
-										<span className="text-green-700 dark:text-green-400">
-											{line}
-										</span>
+										<span className="text-green-700 dark:text-green-400">{line}</span>
 									</td>
 								</tr>
 							))}
@@ -145,10 +129,7 @@ export function DiffView({
 										key={i}
 										className="bg-blue-500/[0.06]"
 									>
-										<td
-											colSpan={4}
-											className="px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400"
-										>
+										<td colSpan={4} className="px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400">
 											{line.content}
 										</td>
 									</tr>
@@ -162,12 +143,7 @@ export function DiffView({
 										? "bg-red-500/[0.06] hover:bg-red-500/[0.12]"
 										: "hover:bg-muted/40";
 
-							const gutterColor =
-								line.type === "add"
-									? "bg-green-500/30"
-									: line.type === "remove"
-										? "bg-red-500/30"
-										: "";
+							const gutterColor = line.type === "add" ? "bg-green-500/30" : line.type === "remove" ? "bg-red-500/30" : "";
 
 							const textColor =
 								line.type === "add"
@@ -191,11 +167,7 @@ export function DiffView({
 									<td className={`w-[3px] select-none ${gutterColor}`} />
 									<td className="px-3 py-0 whitespace-pre">
 										<span className={textColor}>
-											{line.type === "add"
-												? "+"
-												: line.type === "remove"
-													? "-"
-													: " "}
+											{line.type === "add" ? "+" : line.type === "remove" ? "-" : " "}
 											{line.content}
 										</span>
 									</td>

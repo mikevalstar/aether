@@ -147,7 +147,6 @@ export const WithLists: Story = {
 
 export const ShortReply: Story = {
 	args: {
-		content:
-			"Yes, that's correct! You can use `pnpm dev` to start the dev server on port 3000.",
+		content: "Yes, that's correct! You can use `pnpm dev` to start the dev server on port 3000.",
 	},
 };

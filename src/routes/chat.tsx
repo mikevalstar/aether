@@ -1,9 +1,4 @@
-import {
-	createFileRoute,
-	redirect,
-	useNavigate,
-	useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { GripVerticalIcon, MessageSquarePlusIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { z } from "zod";
@@ -12,30 +7,11 @@ import { ChatHeader } from "#/components/chat/ChatHeader";
 import { ChatThreadItem } from "#/components/chat/ChatThreadItem";
 import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { Button } from "#/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "#/components/ui/dialog";
-import {
-	Drawer,
-	DrawerClose,
-	DrawerContent,
-	DrawerHeader,
-	DrawerTitle,
-} from "#/components/ui/drawer";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#/components/ui/dialog";
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "#/components/ui/drawer";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
-import {
-	CHAT_MODELS,
-	type ChatEffort,
-	type ChatThreadSummary,
-	DEFAULT_CHAT_EFFORT,
-	DEFAULT_CHAT_MODEL,
-} from "#/lib/chat";
+import { CHAT_MODELS, type ChatEffort, type ChatThreadSummary, DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL } from "#/lib/chat";
 import {
 	createChatThread,
 	deleteChatThread,
@@ -77,13 +53,11 @@ function ChatPage() {
 	const router = useRouter();
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
-	const [pendingDeleteThread, setPendingDeleteThread] =
-		useState<ChatThreadSummary | null>(null);
+	const [pendingDeleteThread, setPendingDeleteThread] = useState<ChatThreadSummary | null>(null);
 	const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
 	const [isMutating, startTransition] = useTransition();
 	const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
-	const [draftEffort, setDraftEffort] =
-		useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
+	const [draftEffort, setDraftEffort] = useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
 	const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
 	const refreshPage = useCallback(async () => {
@@ -137,14 +111,11 @@ function ChatPage() {
 		estimatedCostUsd: selectedThread?.totalEstimatedCostUsd ?? 0,
 	};
 	const selectedCostLabel =
-		selectedUsageTotals.estimatedCostUsd > 0 &&
-		selectedUsageTotals.estimatedCostUsd < 0.0001
+		selectedUsageTotals.estimatedCostUsd > 0 && selectedUsageTotals.estimatedCostUsd < 0.0001
 			? "<$0.0001"
 			: `$${selectedUsageTotals.estimatedCostUsd.toFixed(4)}`;
 
-	const currentModelDef = CHAT_MODELS.find(
-		(m) => m.id === (selectedThread ? selectedModel : emptyStateModel),
-	);
+	const currentModelDef = CHAT_MODELS.find((m) => m.id === (selectedThread ? selectedModel : emptyStateModel));
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -155,9 +126,7 @@ function ChatPage() {
 		const parsedWidth = Number.parseInt(storedWidth, 10);
 		if (Number.isNaN(parsedWidth)) return;
 
-		setSidebarWidth(
-			Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, parsedWidth)),
-		);
+		setSidebarWidth(Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, parsedWidth)));
 	}, []);
 
 	// Consume pending message from sessionStorage.
@@ -165,11 +134,7 @@ function ChatPage() {
 	// so the message survives re-renders but is only read once per thread.
 	const consumedThreadRef = useRef<string | null>(null);
 	const initialMessageRef = useRef<string | undefined>(undefined);
-	if (
-		typeof window !== "undefined" &&
-		selectedThread?.id &&
-		consumedThreadRef.current !== selectedThread.id
-	) {
+	if (typeof window !== "undefined" && selectedThread?.id && consumedThreadRef.current !== selectedThread.id) {
 		const key = `${PENDING_MESSAGE_KEY}:${selectedThread.id}`;
 		const pendingMessage = window.sessionStorage.getItem(key) ?? undefined;
 		if (pendingMessage) {
@@ -196,9 +161,7 @@ function ChatPage() {
 			if (!containerRect) return;
 
 			const nextWidth = Math.round(containerRect.right - event.clientX);
-			setSidebarWidth(
-				Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, nextWidth)),
-			);
+			setSidebarWidth(Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, nextWidth)));
 		};
 
 		const handlePointerUp = () => {
@@ -251,9 +214,7 @@ function ChatPage() {
 			{data.threads.length === 0 && (
 				<div className="px-3 py-8 text-center">
 					<p className="text-sm text-[var(--ink-soft)]">No threads yet</p>
-					<p className="mt-1 text-xs text-[var(--ink-soft)]">
-						Start a conversation to begin
-					</p>
+					<p className="mt-1 text-xs text-[var(--ink-soft)]">Start a conversation to begin</p>
 				</div>
 			)}
 		</div>
@@ -261,10 +222,7 @@ function ChatPage() {
 
 	return (
 		<main className="page-wrap flex h-[calc(100vh-8rem)] px-4 py-6">
-			<div
-				ref={containerRef}
-				className="flex min-h-0 w-full flex-col gap-0 lg:flex-row lg:gap-0"
-			>
+			<div ref={containerRef} className="flex min-h-0 w-full flex-col gap-0 lg:flex-row lg:gap-0">
 				{/* Main chat area */}
 				<section className="order-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:rounded-r-none lg:border-r-0">
 					<ChatHeader
@@ -332,11 +290,7 @@ function ChatPage() {
 								});
 							});
 						}}
-						onDelete={
-							selectedThread
-								? () => handleRequestDelete(selectedThread)
-								: undefined
-						}
+						onDelete={selectedThread ? () => handleRequestDelete(selectedThread) : undefined}
 					/>
 
 					<div className="min-h-0 flex-1">
@@ -394,9 +348,7 @@ function ChatPage() {
 					style={{ width: `${sidebarWidth}px` }}
 				>
 					<div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-3">
-						<h2 className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
-							Threads
-						</h2>
+						<h2 className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">Threads</h2>
 						<Button
 							type="button"
 							size="sm"
@@ -417,11 +369,7 @@ function ChatPage() {
 				</aside>
 
 				{/* Mobile drawer */}
-				<Drawer
-					open={mobileDrawerOpen}
-					onOpenChange={setMobileDrawerOpen}
-					direction="right"
-				>
+				<Drawer open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen} direction="right">
 					<DrawerContent className="h-full">
 						<DrawerHeader className="flex flex-row items-center justify-between border-b border-[var(--line)]">
 							<DrawerTitle className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
@@ -450,9 +398,7 @@ function ChatPage() {
 								</DrawerClose>
 							</div>
 						</DrawerHeader>
-						<div className="flex-1 overflow-y-auto p-2">
-							{threadListContent}
-						</div>
+						<div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
 					</DrawerContent>
 				</Drawer>
 			</div>
@@ -475,12 +421,7 @@ function ChatPage() {
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => setPendingDeleteThread(null)}
-							disabled={isBusy}
-						>
+						<Button type="button" variant="outline" onClick={() => setPendingDeleteThread(null)} disabled={isBusy}>
 							Cancel
 						</Button>
 						<Button

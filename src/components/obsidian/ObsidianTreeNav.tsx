@@ -9,13 +9,7 @@ import {
 	SearchIcon,
 	SparklesIcon,
 } from "lucide-react";
-import {
-	type ReactNode,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { getObsidianHref, type ObsidianTreeNode } from "#/lib/obsidian";
@@ -54,19 +48,13 @@ function getAncestorPaths(routePath: string): string[] {
 	return paths;
 }
 
-function filterTree(
-	nodes: ObsidianTreeNode[],
-	query: string,
-): ObsidianTreeNode[] {
+function filterTree(nodes: ObsidianTreeNode[], query: string): ObsidianTreeNode[] {
 	const lower = query.toLowerCase();
 	const result: ObsidianTreeNode[] = [];
 
 	for (const node of nodes) {
 		if (node.type === "file") {
-			if (
-				node.title.toLowerCase().includes(lower) ||
-				node.name.toLowerCase().includes(lower)
-			) {
+			if (node.title.toLowerCase().includes(lower) || node.name.toLowerCase().includes(lower)) {
 				result.push(node);
 			}
 		} else {
@@ -80,12 +68,7 @@ function filterTree(
 	return result;
 }
 
-export function ObsidianTreeNav({
-	nodes,
-	aiConfigPath,
-	aiMemoryPath,
-	currentRoutePath,
-}: ObsidianTreeNavProps) {
+export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRoutePath }: ObsidianTreeNavProps) {
 	const [search, setSearch] = useState("");
 	const [expanded, setExpanded] = useState<Set<string>>(() => {
 		const stored = loadExpanded();
@@ -171,20 +154,13 @@ export function ObsidianTreeNav({
 			<div className="border-b border-[var(--line)] bg-[var(--teal-subtle)] px-5 py-4">
 				<div className="flex items-start justify-between">
 					<div>
-						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
-							Obsidian
-						</p>
+						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Obsidian</p>
 						<h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
 							<BookOpenIcon className="size-4 text-[var(--teal)]" />
 							Vault Browser
 						</h1>
 					</div>
-					<Button
-						variant="outline"
-						size="sm"
-						className="mt-1"
-						onClick={() => setNewFileOpen(true)}
-					>
+					<Button variant="outline" size="sm" className="mt-1" onClick={() => setNewFileOpen(true)}>
 						<PlusIcon className="mr-1 size-3.5" />
 						New
 					</Button>
@@ -209,9 +185,7 @@ export function ObsidianTreeNav({
 				<div className="border-b border-[var(--coral)]/20 bg-[var(--coral)]/5 px-3 py-2">
 					<div className="mb-1 flex items-center gap-1.5 px-2">
 						<SparklesIcon className="size-3 text-[var(--coral)]" />
-						<span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--coral)]">
-							AI Config
-						</span>
+						<span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--coral)]">AI Config</span>
 					</div>
 					<TreeList
 						nodes={aiConfigNode.children}
@@ -228,9 +202,7 @@ export function ObsidianTreeNav({
 				<div className="border-b border-[var(--teal)]/20 bg-[var(--teal)]/5 px-3 py-2">
 					<div className="mb-1 flex items-center gap-1.5 px-2">
 						<BrainIcon className="size-3 text-[var(--teal)]" />
-						<span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--teal)]">
-							AI Memory
-						</span>
+						<span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--teal)]">AI Memory</span>
 					</div>
 					<TreeList
 						nodes={aiMemoryNode.children}
@@ -319,12 +291,7 @@ function FolderNode(props: {
 					paddingLeft: `${props.depth * 14 + 10}px`,
 				}}
 			>
-				<ChevronRightIcon
-					className={cn(
-						"size-3 shrink-0 transition-transform duration-150",
-						isExpanded && "rotate-90",
-					)}
-				/>
+				<ChevronRightIcon className={cn("size-3 shrink-0 transition-transform duration-150", isExpanded && "rotate-90")} />
 				<FolderTreeIcon className="size-3.5 text-[var(--teal)]/50" />
 				<span className="truncate">{node.name}</span>
 			</button>
@@ -342,12 +309,7 @@ function FolderNode(props: {
 	);
 }
 
-function TreeNavLink(props: {
-	routePath: string;
-	isActive: boolean;
-	depth: number;
-	title: string;
-}) {
+function TreeNavLink(props: { routePath: string; isActive: boolean; depth: number; title: string }) {
 	return (
 		<Link
 			to={getObsidianHref(props.routePath)}
@@ -362,17 +324,12 @@ function TreeNavLink(props: {
 			}}
 		>
 			{props.isActive && (
-				<span
-					className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--teal)]"
-					aria-hidden
-				/>
+				<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--teal)]" aria-hidden />
 			)}
 			<FileTextIcon
 				className={cn(
 					"size-4 shrink-0",
-					props.isActive
-						? "text-[var(--teal)]"
-						: "text-[var(--ink-soft)]/50 group-hover:text-[var(--ink-soft)]",
+					props.isActive ? "text-[var(--teal)]" : "text-[var(--ink-soft)]/50 group-hover:text-[var(--ink-soft)]",
 				)}
 			/>
 			<span className="truncate">{props.title}</span>
@@ -392,11 +349,7 @@ export function ObsidianNavLink({
 	children: ReactNode;
 }) {
 	return (
-		<Link
-			to={`${getObsidianHref(routePath)}${hash ?? ""}`}
-			className={className}
-			{...rest}
-		>
+		<Link to={`${getObsidianHref(routePath)}${hash ?? ""}`} className={className} {...rest}>
 			{children}
 		</Link>
 	);

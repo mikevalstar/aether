@@ -26,11 +26,7 @@ function TaskRunHistoryPage() {
 
 	return (
 		<main className="relative overflow-hidden">
-			<GlowBg
-				color="var(--teal)"
-				size="size-[500px]"
-				position="-right-48 -top-48"
-			/>
+			<GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
 
 			<div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
 				<Link
@@ -45,9 +41,7 @@ function TaskRunHistoryPage() {
 					<SectionLabel icon={CalendarClock} color="text-[var(--teal)]">
 						Task History
 					</SectionLabel>
-					<h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
-						{data.task.title}
-					</h1>
+					<h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">{data.task.title}</h1>
 				</section>
 
 				<TaskRunHistory task={data.task} runs={data.runs} />

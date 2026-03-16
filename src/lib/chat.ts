@@ -1,9 +1,5 @@
 import type { LanguageModelUsage, UIMessage } from "ai";
-import {
-	CHAT_MODELS,
-	type ChatEffort,
-	type ChatModel,
-} from "#/lib/chat-models";
+import { CHAT_MODELS, type ChatEffort, type ChatModel } from "#/lib/chat-models";
 
 export {
 	CHAT_EFFORT_LEVELS,
@@ -16,8 +12,7 @@ export {
 	isChatModel,
 } from "#/lib/chat-models";
 
-export const ANTHROPIC_PRICING_SOURCE_URL =
-	"https://docs.anthropic.com/en/docs/about-claude/models/overview";
+export const ANTHROPIC_PRICING_SOURCE_URL = "https://docs.anthropic.com/en/docs/about-claude/models/overview";
 
 export type ChatUsageTotals = {
 	inputTokens: number;
@@ -89,9 +84,7 @@ export function serializeUsageHistory(entries: ChatUsageEntry[]): string {
 	return JSON.stringify(entries);
 }
 
-export function usageTotalsFromLanguageModelUsage(
-	usage: LanguageModelUsage | undefined,
-): ChatUsageTotals {
+export function usageTotalsFromLanguageModelUsage(usage: LanguageModelUsage | undefined): ChatUsageTotals {
 	const inputTokens = usage?.inputTokens ?? 0;
 	const outputTokens = usage?.outputTokens ?? 0;
 
@@ -107,9 +100,7 @@ export function estimateChatUsageCostUsd(
 	model: ChatModel,
 	usage: Pick<ChatUsageTotals, "inputTokens" | "outputTokens">,
 ): number {
-	const pricing = CHAT_MODELS.find(
-		(candidate) => candidate.id === model,
-	)?.pricing;
+	const pricing = CHAT_MODELS.find((candidate) => candidate.id === model)?.pricing;
 
 	if (!pricing) return 0;
 
@@ -119,10 +110,7 @@ export function estimateChatUsageCostUsd(
 	);
 }
 
-export function addChatUsageTotals(
-	left: ChatUsageTotals,
-	right: ChatUsageTotals,
-): ChatUsageTotals {
+export function addChatUsageTotals(left: ChatUsageTotals, right: ChatUsageTotals): ChatUsageTotals {
 	return {
 		inputTokens: left.inputTokens + right.inputTokens,
 		outputTokens: left.outputTokens + right.outputTokens,

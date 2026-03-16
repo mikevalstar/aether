@@ -17,12 +17,8 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 		inputSchema: z.object({
 			relativePath: z
 				.string()
-				.describe(
-					"The relative path for the file within the vault, e.g. 'folder/note.md'. Must end in .md",
-				),
-			content: z
-				.string()
-				.describe("The full markdown content to write to the file"),
+				.describe("The relative path for the file within the vault, e.g. 'folder/note.md'. Must end in .md"),
+			content: z.string().describe("The full markdown content to write to the file"),
 		}),
 		execute: async ({ relativePath, content }) => {
 			const obsidianRoot = getObsidianRoot();
@@ -31,11 +27,7 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 			}
 
 			const normalized = relativePath.replace(/\\/g, "/").trim();
-			if (
-				!normalized ||
-				normalized.includes("..") ||
-				normalized.startsWith("/")
-			) {
+			if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
 				return { error: "Invalid file path." };
 			}
 
@@ -99,9 +91,7 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 						changeSource: "ai",
 						toolName: "obsidian_write",
 						summary: `AI wrote ${fileName}`,
-						metadata: ctx.chatThreadId
-							? { chatThreadId: ctx.chatThreadId }
-							: undefined,
+						metadata: ctx.chatThreadId ? { chatThreadId: ctx.chatThreadId } : undefined,
 					});
 				} catch (err) {
 					logger.error({ err }, "Activity log failed");

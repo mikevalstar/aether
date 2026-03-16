@@ -28,12 +28,8 @@ function BetterAuthDemo() {
 			<div className="flex justify-center py-10 px-4">
 				<div className="w-full max-w-md p-6 space-y-6">
 					<div className="space-y-1.5">
-						<h1 className="text-lg font-semibold leading-none tracking-tight">
-							Welcome back
-						</h1>
-						<p className="text-sm text-neutral-500 dark:text-neutral-400">
-							You're signed in as {session.user.email}
-						</p>
+						<h1 className="text-lg font-semibold leading-none tracking-tight">Welcome back</h1>
+						<p className="text-sm text-neutral-500 dark:text-neutral-400">You're signed in as {session.user.email}</p>
 					</div>
 
 					<div className="flex items-center gap-3">
@@ -47,12 +43,8 @@ function BetterAuthDemo() {
 							</div>
 						)}
 						<div className="flex-1 min-w-0">
-							<p className="text-sm font-medium truncate">
-								{session.user.name}
-							</p>
-							<p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
-								{session.user.email}
-							</p>
+							<p className="text-sm font-medium truncate">{session.user.name}</p>
+							<p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{session.user.email}</p>
 						</div>
 					</div>
 
@@ -117,22 +109,15 @@ function BetterAuthDemo() {
 	return (
 		<div className="flex justify-center py-10 px-4">
 			<div className="w-full max-w-md p-6">
-				<h1 className="text-lg font-semibold leading-none tracking-tight">
-					{isSignUp ? "Create an account" : "Sign in"}
-				</h1>
+				<h1 className="text-lg font-semibold leading-none tracking-tight">{isSignUp ? "Create an account" : "Sign in"}</h1>
 				<p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2 mb-6">
-					{isSignUp
-						? "Enter your information to create an account"
-						: "Enter your email below to login to your account"}
+					{isSignUp ? "Enter your information to create an account" : "Enter your email below to login to your account"}
 				</p>
 
 				<form onSubmit={handleSubmit} className="grid gap-4">
 					{isSignUp && (
 						<div className="grid gap-2">
-							<label
-								htmlFor="name"
-								className="text-sm font-medium leading-none"
-							>
+							<label htmlFor="name" className="text-sm font-medium leading-none">
 								Name
 							</label>
 							<input
@@ -161,10 +146,7 @@ function BetterAuthDemo() {
 					</div>
 
 					<div className="grid gap-2">
-						<label
-							htmlFor="password"
-							className="text-sm font-medium leading-none"
-						>
+						<label htmlFor="password" className="text-sm font-medium leading-none">
 							Password
 						</label>
 						<input
@@ -211,9 +193,7 @@ function BetterAuthDemo() {
 						}}
 						className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
 					>
-						{isSignUp
-							? "Already have an account? Sign in"
-							: "Don't have an account? Sign up"}
+						{isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
 					</button>
 				</div>
 

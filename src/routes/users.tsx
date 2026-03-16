@@ -3,21 +3,11 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import { formatDate } from "#/lib/date";
-import {
-	createManagedUser,
-	getUsersPageData,
-	type ManagedUserRole,
-} from "#/lib/user-management.functions";
+import { createManagedUser, getUsersPageData, type ManagedUserRole } from "#/lib/user-management.functions";
 
 export const Route = createFileRoute("/users")({
 	beforeLoad: async () => {
@@ -61,11 +51,7 @@ function UsersPage() {
 			});
 			await router.invalidate();
 		} catch (submissionError) {
-			setError(
-				submissionError instanceof Error
-					? submissionError.message
-					: "Failed to add user",
-			);
+			setError(submissionError instanceof Error ? submissionError.message : "Failed to add user");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -75,24 +61,15 @@ function UsersPage() {
 		<main className="page-wrap px-4 pb-12 pt-10">
 			<section className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 				<div>
-					<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
-						Invite-only Access
-					</p>
-					<h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl">
-						Users
-					</h1>
+					<p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">Invite-only Access</p>
+					<h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl">Users</h1>
 					<p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-						Accounts are created by admins here instead of public signup. If
-						someone does not have a real inbox yet, use a placeholder like
-						`name@local.test` and have them change their password after first
-						login.
+						Accounts are created by admins here instead of public signup. If someone does not have a real inbox yet, use a
+						placeholder like `name@local.test` and have them change their password after first login.
 					</p>
 				</div>
 				<div className="rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
-					Signed in as{" "}
-					<span className="font-semibold text-foreground">
-						{currentUser.email}
-					</span>
+					Signed in as <span className="font-semibold text-foreground">{currentUser.email}</span>
 				</div>
 			</section>
 
@@ -143,10 +120,7 @@ function UsersPage() {
 
 						<div className="grid gap-1.5">
 							<Label htmlFor="role">Role</Label>
-							<Select
-								value={role}
-								onValueChange={(v) => setRole(v as ManagedUserRole)}
-							>
+							<Select value={role} onValueChange={(v) => setRole(v as ManagedUserRole)}>
 								<SelectTrigger id="role">
 									<SelectValue />
 								</SelectTrigger>
@@ -191,36 +165,23 @@ function UsersPage() {
 							>
 								<div>
 									<p className="font-semibold">{user.name}</p>
-									<p className="mt-1 text-sm text-muted-foreground">
-										{user.email}
+									<p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
+								</div>
+								<div className="text-sm text-muted-foreground">
+									<p>
+										<span className="font-medium text-foreground">Role:</span> {user.role === "admin" ? "Admin" : "Member"}
+									</p>
+									<p className="mt-1">
+										<span className="font-medium text-foreground">Password:</span>{" "}
+										{user.mustChangePassword ? "Needs reset" : "Updated by user"}
 									</p>
 								</div>
 								<div className="text-sm text-muted-foreground">
 									<p>
-										<span className="font-medium text-foreground">Role:</span>{" "}
-										{user.role === "admin" ? "Admin" : "Member"}
+										<span className="font-medium text-foreground">Invited by:</span> {user.invitedBy?.name ?? "Bootstrap"}
 									</p>
 									<p className="mt-1">
-										<span className="font-medium text-foreground">
-											Password:
-										</span>{" "}
-										{user.mustChangePassword
-											? "Needs reset"
-											: "Updated by user"}
-									</p>
-								</div>
-								<div className="text-sm text-muted-foreground">
-									<p>
-										<span className="font-medium text-foreground">
-											Invited by:
-										</span>{" "}
-										{user.invitedBy?.name ?? "Bootstrap"}
-									</p>
-									<p className="mt-1">
-										<span className="font-medium text-foreground">
-											Created:
-										</span>{" "}
-										{formatDate(user.createdAt)}
+										<span className="font-medium text-foreground">Created:</span> {formatDate(user.createdAt)}
 									</p>
 								</div>
 							</article>

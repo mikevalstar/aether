@@ -14,9 +14,7 @@ export function ContentView({ content }: { content: string }) {
 								<td className="min-w-[3ch] select-none whitespace-nowrap border-r border-border/30 px-2.5 py-0 text-right text-muted-foreground/50 tabular-nums">
 									{i + 1}
 								</td>
-								<td className="px-3 py-0 whitespace-pre text-muted-foreground">
-									{line}
-								</td>
+								<td className="px-3 py-0 whitespace-pre text-muted-foreground">{line}</td>
 							</tr>
 						))}
 					</tbody>

@@ -12,9 +12,6 @@ export type ObsidianToolContext = {
 	chatThreadId?: string;
 };
 
-export function createObsidianToolContext(
-	userId: string,
-	chatThreadId?: string,
-): ObsidianToolContext {
+export function createObsidianToolContext(userId: string, chatThreadId?: string): ObsidianToolContext {
 	return { readFiles: new Map(), userId, chatThreadId };
 }

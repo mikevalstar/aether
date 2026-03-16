@@ -13,20 +13,11 @@ import { memo } from "react";
 import remarkGfm from "remark-gfm";
 
 import { TooltipIconButton } from "#/components/assistant-ui/tooltip-icon-button";
-import {
-	createMarkdownComponents,
-	useCopyToClipboard,
-} from "#/components/markdown/markdown-components";
+import { createMarkdownComponents, useCopyToClipboard } from "#/components/markdown/markdown-components";
 import { cn } from "#/lib/utils";
 
 const MarkdownTextImpl = () => {
-	return (
-		<MarkdownTextPrimitive
-			remarkPlugins={[remarkGfm]}
-			className="aui-md"
-			components={defaultComponents}
-		/>
-	);
+	return <MarkdownTextPrimitive remarkPlugins={[remarkGfm]} className="aui-md" components={defaultComponents} />;
 };
 
 export const MarkdownText = memo(MarkdownTextImpl);
@@ -38,9 +29,7 @@ const CodeHeader = ({ language, code }: CodeHeaderProps) => {
 
 	return (
 		<div className="aui-code-header-root mt-2.5 flex items-center justify-between rounded-t-lg border border-b-0 border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-xs">
-			<span className="aui-code-header-language font-medium lowercase text-[var(--ink-soft)]">
-				{language}
-			</span>
+			<span className="aui-code-header-language font-medium lowercase text-[var(--ink-soft)]">{language}</span>
 			<TooltipIconButton tooltip="Copy" onClick={() => code && copy(code)}>
 				{!isCopied && <CopyIcon />}
 				{isCopied && <CheckIcon />}
@@ -52,9 +41,7 @@ const CodeHeader = ({ language, code }: CodeHeaderProps) => {
 // Start from the shared compact components, then override code-related ones
 // that need assistant-ui-specific hooks (useIsMarkdownCodeBlock, CodeHeader)
 const sharedComponents = createMarkdownComponents("compact");
-type AssistantMarkdownComponents = NonNullable<
-	Parameters<typeof memoizeMarkdownComponents>[0]
->;
+type AssistantMarkdownComponents = NonNullable<Parameters<typeof memoizeMarkdownComponents>[0]>;
 
 const defaultComponents = memoizeMarkdownComponents({
 	...sharedComponents,

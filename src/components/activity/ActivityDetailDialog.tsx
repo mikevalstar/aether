@@ -1,23 +1,8 @@
-import {
-	Bot,
-	CheckCircle,
-	Clock,
-	Copy,
-	FileText,
-	PenLine,
-	RotateCcw,
-	Trash2,
-	Wrench,
-} from "lucide-react";
+import { Bot, CheckCircle, Clock, Copy, FileText, PenLine, RotateCcw, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "#/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import type { ActivityDetail } from "#/lib/activity.functions";
 import { formatDateTime } from "#/lib/date";
@@ -54,15 +39,8 @@ export function ActivityDetailDialog({
 						<DialogHeader className="shrink-0 border-b border-border bg-[var(--teal-subtle)]/40 px-6 pt-6 pb-4">
 							{/* Row 1: Summary title + revert */}
 							<div className="flex items-start justify-between gap-4 pr-4">
-								<DialogTitle className="text-lg font-semibold leading-tight">
-									{detail.summary}
-								</DialogTitle>
-								{detail.fileChangeDetail && (
-									<RevertButton
-										reverting={reverting}
-										onRevert={() => onRevert(detail.id)}
-									/>
-								)}
+								<DialogTitle className="text-lg font-semibold leading-tight">{detail.summary}</DialogTitle>
+								{detail.fileChangeDetail && <RevertButton reverting={reverting} onRevert={() => onRevert(detail.id)} />}
 							</div>
 
 							{detail.fileChangeDetail && (
@@ -72,14 +50,9 @@ export function ActivityDetailDialog({
 
 									{/* Row 3: Metadata chips */}
 									<div className="mt-2.5 flex flex-wrap items-center gap-2">
-										<SourceBadge
-											source={detail.fileChangeDetail.changeSource}
-										/>
+										<SourceBadge source={detail.fileChangeDetail.changeSource} />
 										{detail.fileChangeDetail.toolName && (
-											<Badge
-												variant="outline"
-												className="gap-1 px-2 py-1 text-xs font-mono"
-											>
+											<Badge variant="outline" className="gap-1 px-2 py-1 text-xs font-mono">
 												<Wrench className="size-3" />
 												{detail.fileChangeDetail.toolName}
 											</Badge>
@@ -89,9 +62,7 @@ export function ActivityDetailDialog({
 										{/* Timestamp — right-aligned */}
 										<span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
 											<Clock className="size-3" />
-											<span title={formatDateTime(detail.createdAt)}>
-												{formatRelativeTime(detail.createdAt)}
-											</span>
+											<span title={formatDateTime(detail.createdAt)}>{formatRelativeTime(detail.createdAt)}</span>
 										</span>
 									</div>
 								</>
@@ -107,10 +78,7 @@ export function ActivityDetailDialog({
 
 						{/* Content area */}
 						{detail.fileChangeDetail && (
-							<Tabs
-								defaultValue="diff"
-								className="flex min-h-0 flex-1 flex-col px-6 pt-4 pb-6"
-							>
+							<Tabs defaultValue="diff" className="flex min-h-0 flex-1 flex-col px-6 pt-4 pb-6">
 								<div className="shrink-0">
 									{!detail.fileExists && (
 										<div className="mb-3 flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-500/8 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
@@ -122,16 +90,11 @@ export function ActivityDetailDialog({
 										<TabsTrigger value="diff">Diff</TabsTrigger>
 										<TabsTrigger value="original">Original</TabsTrigger>
 										<TabsTrigger value="new">New</TabsTrigger>
-										{detail.fileExists && (
-											<TabsTrigger value="current">Current</TabsTrigger>
-										)}
+										{detail.fileExists && <TabsTrigger value="current">Current</TabsTrigger>}
 									</TabsList>
 								</div>
 
-								<TabsContent
-									value="diff"
-									className="mt-3 min-h-0 flex-1 overflow-y-auto"
-								>
+								<TabsContent value="diff" className="mt-3 min-h-0 flex-1 overflow-y-auto">
 									<DiffView
 										original={detail.fileChangeDetail.originalContent ?? ""}
 										modified={detail.fileChangeDetail.newContent}
@@ -139,30 +102,16 @@ export function ActivityDetailDialog({
 									/>
 								</TabsContent>
 
-								<TabsContent
-									value="original"
-									className="mt-3 min-h-0 flex-1 overflow-y-auto"
-								>
-									<ContentView
-										content={
-											detail.fileChangeDetail.originalContent ??
-											"(new file — no original content)"
-										}
-									/>
+								<TabsContent value="original" className="mt-3 min-h-0 flex-1 overflow-y-auto">
+									<ContentView content={detail.fileChangeDetail.originalContent ?? "(new file — no original content)"} />
 								</TabsContent>
 
-								<TabsContent
-									value="new"
-									className="mt-3 min-h-0 flex-1 overflow-y-auto"
-								>
+								<TabsContent value="new" className="mt-3 min-h-0 flex-1 overflow-y-auto">
 									<ContentView content={detail.fileChangeDetail.newContent} />
 								</TabsContent>
 
 								{detail.fileExists && (
-									<TabsContent
-										value="current"
-										className="mt-3 min-h-0 flex-1 overflow-y-auto"
-									>
+									<TabsContent value="current" className="mt-3 min-h-0 flex-1 overflow-y-auto">
 										<ContentView content={detail.currentFileContent ?? ""} />
 									</TabsContent>
 								)}
@@ -175,13 +124,7 @@ export function ActivityDetailDialog({
 	);
 }
 
-function RevertButton({
-	reverting,
-	onRevert,
-}: {
-	reverting: boolean;
-	onRevert: () => void;
-}) {
+function RevertButton({ reverting, onRevert }: { reverting: boolean; onRevert: () => void }) {
 	return (
 		<Button
 			variant="outline"
@@ -190,9 +133,7 @@ function RevertButton({
 			onClick={onRevert}
 			className="shrink-0 border-amber-500/40 text-amber-700 hover:bg-amber-500/10 hover:text-amber-800 dark:text-amber-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-300"
 		>
-			<RotateCcw
-				className={`mr-1.5 size-3.5 ${reverting ? "animate-spin" : ""}`}
-			/>
+			<RotateCcw className={`mr-1.5 size-3.5 ${reverting ? "animate-spin" : ""}`} />
 			{reverting ? "Reverting..." : "Revert"}
 		</Button>
 	);
@@ -245,10 +186,7 @@ function SourceBadge({ source }: { source: string }) {
 function FileStatus({ detail }: { detail: ActivityDetail }) {
 	if (!detail.fileExists) {
 		return (
-			<Badge
-				variant="outline"
-				className="gap-1 border-red-500/20 px-2 py-1 text-xs text-red-500"
-			>
+			<Badge variant="outline" className="gap-1 border-red-500/20 px-2 py-1 text-xs text-red-500">
 				<Trash2 className="size-3" />
 				Deleted
 			</Badge>
@@ -256,10 +194,7 @@ function FileStatus({ detail }: { detail: ActivityDetail }) {
 	}
 	if (detail.currentFileContent === detail.fileChangeDetail?.newContent) {
 		return (
-			<Badge
-				variant="outline"
-				className="gap-1 border-green-500/20 px-2 py-1 text-xs text-green-600 dark:text-green-400"
-			>
+			<Badge variant="outline" className="gap-1 border-green-500/20 px-2 py-1 text-xs text-green-600 dark:text-green-400">
 				<span className="relative flex size-2">
 					<span className="absolute inline-flex size-full animate-ping rounded-full bg-green-500/40" />
 					<span className="relative inline-flex size-2 rounded-full bg-green-500" />
@@ -269,10 +204,7 @@ function FileStatus({ detail }: { detail: ActivityDetail }) {
 		);
 	}
 	return (
-		<Badge
-			variant="outline"
-			className="gap-1 border-amber-500/20 px-2 py-1 text-xs text-amber-600 dark:text-amber-400"
-		>
+		<Badge variant="outline" className="gap-1 border-amber-500/20 px-2 py-1 text-xs text-amber-600 dark:text-amber-400">
 			<PenLine className="size-3" />
 			Modified since
 		</Badge>
@@ -291,11 +223,7 @@ function DetailSkeleton() {
 			</div>
 			<div className="space-y-1 pt-4">
 				{[1, 2, 3, 4, 5, 6].map((i) => (
-					<div
-						key={i}
-						className="h-5 rounded bg-muted"
-						style={{ width: `${60 + Math.random() * 35}%` }}
-					/>
+					<div key={i} className="h-5 rounded bg-muted" style={{ width: `${60 + Math.random() * 35}%` }} />
 				))}
 			</div>
 		</div>

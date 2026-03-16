@@ -4,35 +4,12 @@ import {
 	type ToolCallMessagePartStatus,
 	useAuiState,
 } from "@assistant-ui/react";
-import {
-	AlertCircleIcon,
-	CheckIcon,
-	LoaderIcon,
-	WrenchIcon,
-	XCircleIcon,
-} from "lucide-react";
-import {
-	createContext,
-	type FC,
-	type ReactNode,
-	useContext,
-	useMemo,
-	useState,
-} from "react";
+import { AlertCircleIcon, CheckIcon, LoaderIcon, WrenchIcon, XCircleIcon } from "lucide-react";
+import { createContext, type FC, type ReactNode, useContext, useMemo, useState } from "react";
 import { ToolActivitySummary } from "#/components/assistant-ui/tool-activity-summary";
 import { Badge } from "#/components/ui/badge";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "#/components/ui/collapsible";
-import {
-	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerHeader,
-	DrawerTitle,
-} from "#/components/ui/drawer";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "#/components/ui/collapsible";
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "#/components/ui/drawer";
 import { cn } from "#/lib/utils";
 
 // ── Constants & Types ────────────────────────────────────────────────
@@ -52,20 +29,14 @@ type ToolInspectorContextValue = {
 	setSelectedTool: (tool: ToolInspection | null) => void;
 };
 
-const ToolInspectorContext = createContext<ToolInspectorContextValue | null>(
-	null,
-);
+const ToolInspectorContext = createContext<ToolInspectorContextValue | null>(null);
 
 // ── Provider ─────────────────────────────────────────────────────────
 
 export function ToolInspectorProvider({ children }: { children: ReactNode }) {
 	const [selectedTool, setSelectedTool] = useState<ToolInspection | null>(null);
 
-	return (
-		<ToolInspectorContext.Provider value={{ selectedTool, setSelectedTool }}>
-			{children}
-		</ToolInspectorContext.Provider>
-	);
+	return <ToolInspectorContext.Provider value={{ selectedTool, setSelectedTool }}>{children}</ToolInspectorContext.Provider>;
 }
 
 export function useToolInspector() {
@@ -78,11 +49,7 @@ export function useToolInspector() {
 
 // ── Tool Status Helpers ──────────────────────────────────────────────
 
-export type ToolStatusType =
-	| "complete"
-	| "incomplete"
-	| "requires-action"
-	| "running";
+export type ToolStatusType = "complete" | "incomplete" | "requires-action" | "running";
 
 export function getToolStatusMeta(status?: ToolCallMessagePartStatus) {
 	if (!status || status.type === "complete") {
@@ -142,12 +109,7 @@ function useToolParts(indices: number[]) {
 
 	return useMemo(
 		() =>
-			indices
-				.map((index) => parts[index])
-				.filter(
-					(part): part is ToolCallMessagePartProps =>
-						part?.type === "tool-call",
-				),
+			indices.map((index) => parts[index]).filter((part): part is ToolCallMessagePartProps => part?.type === "tool-call"),
 		[indices, parts],
 	);
 }
@@ -155,25 +117,12 @@ function useToolParts(indices: number[]) {
 // ── Tool Summary Helpers ─────────────────────────────────────────────
 
 function summarizeToolGroup(parts: ToolCallMessagePartProps[]) {
-	const runningCount = parts.filter(
-		(part) => part.status?.type === "running",
-	).length;
-	const actionCount = parts.filter(
-		(part) => part.status?.type === "requires-action",
-	).length;
-	const errorCount = parts.filter(
-		(part) =>
-			part.status?.type === "incomplete" && part.status.reason !== "cancelled",
-	).length;
+	const runningCount = parts.filter((part) => part.status?.type === "running").length;
+	const actionCount = parts.filter((part) => part.status?.type === "requires-action").length;
+	const errorCount = parts.filter((part) => part.status?.type === "incomplete" && part.status.reason !== "cancelled").length;
 
 	const statusType: ToolStatusType =
-		runningCount > 0
-			? "running"
-			: errorCount > 0
-				? "incomplete"
-				: actionCount > 0
-					? "requires-action"
-					: "complete";
+		runningCount > 0 ? "running" : errorCount > 0 ? "incomplete" : actionCount > 0 ? "requires-action" : "complete";
 
 	return {
 		total: parts.length,
@@ -202,9 +151,7 @@ function summarizeArgs(argsText: string) {
 		if (parsed && typeof parsed === "object") {
 			const keys = Object.keys(parsed as Record<string, unknown>);
 			if (keys.length === 0) return "No args";
-			return keys.length <= 3
-				? keys.join(", ")
-				: `${keys.slice(0, 3).join(", ")} +${keys.length - 3}`;
+			return keys.length <= 3 ? keys.join(", ") : `${keys.slice(0, 3).join(", ")} +${keys.length - 3}`;
 		}
 	} catch {
 		// Fall through to plain-text summary.
@@ -245,9 +192,7 @@ function summarizeOutput(result: unknown, status?: ToolCallMessagePartStatus) {
 	return String(result);
 }
 
-function summarizeTool(
-	tool: Pick<ToolCallMessagePartProps, "argsText" | "result" | "status">,
-) {
+function summarizeTool(tool: Pick<ToolCallMessagePartProps, "argsText" | "result" | "status">) {
 	const argsSummary = summarizeArgs(tool.argsText);
 	const outputSummary = summarizeOutput(tool.result, tool.status);
 	return `${argsSummary} • ${outputSummary}`;
@@ -262,9 +207,7 @@ function getOutputText(tool: Pick<ToolInspection, "result" | "status">) {
 		const error = tool.status.error;
 		if (typeof error === "string") return error;
 		if (error !== undefined) return JSON.stringify(error, null, 2);
-		return tool.status.reason === "cancelled"
-			? "Tool call was cancelled."
-			: "Tool call failed without an error payload.";
+		return tool.status.reason === "cancelled" ? "Tool call was cancelled." : "Tool call failed without an error payload.";
 	}
 
 	if (tool.status?.type === "requires-action") {
@@ -289,10 +232,7 @@ function getOutputText(tool: Pick<ToolInspection, "result" | "status">) {
 function formatIfJson(text: string): string {
 	if (!text) return text;
 	const trimmed = text.trim();
-	if (
-		(trimmed.startsWith("{") && trimmed.endsWith("}")) ||
-		(trimmed.startsWith("[") && trimmed.endsWith("]"))
-	) {
+	if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
 		try {
 			return JSON.stringify(JSON.parse(trimmed), null, 2);
 		} catch {
@@ -337,9 +277,7 @@ export const InspectorToolActivity: FC<{
 				/>
 			</CollapsibleTrigger>
 			<CollapsibleContent className="pl-3 pb-2">
-				<div className="mt-1 flex flex-col gap-1.5 border-l border-border/60 pl-3">
-					{children}
-				</div>
+				<div className="mt-1 flex flex-col gap-1.5 border-l border-border/60 pl-3">{children}</div>
 			</CollapsibleContent>
 		</Collapsible>
 	);
@@ -353,24 +291,16 @@ export const InspectorToolRow: ToolCallMessagePartComponent = (tool) => {
 	return (
 		<button
 			type="button"
-			onClick={() =>
-				inspector.setSelectedTool(isSelected ? null : toInspection(tool))
-			}
+			onClick={() => inspector.setSelectedTool(isSelected ? null : toInspection(tool))}
 			className={cn(
 				"flex w-full items-center gap-3 rounded-lg border px-2.5 py-2 text-left transition-colors",
-				isSelected
-					? "border-foreground/25 bg-accent/60"
-					: "border-border/60 bg-background hover:bg-muted/40",
+				isSelected ? "border-foreground/25 bg-accent/60" : "border-border/60 bg-background hover:bg-muted/40",
 			)}
 		>
 			<ToolStatusGlyph status={statusMeta.type} />
 			<div className="min-w-0 flex-1">
-				<div className="truncate font-medium text-sm text-foreground">
-					{tool.toolName}
-				</div>
-				<div className="truncate text-xs text-muted-foreground">
-					{summarizeTool(tool)}
-				</div>
+				<div className="truncate font-medium text-sm text-foreground">{tool.toolName}</div>
+				<div className="truncate text-xs text-muted-foreground">{summarizeTool(tool)}</div>
 			</div>
 			<div className="flex items-center gap-2">
 				<StatusBadge statusType={statusMeta.type} />
@@ -416,12 +346,9 @@ export const ToolInspectorDrawer: FC = () => {
 							<div className="mx-auto flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
 								<WrenchIcon className="size-5" />
 							</div>
-							<h3 className="mt-4 font-medium text-foreground">
-								No tool selected
-							</h3>
+							<h3 className="mt-4 font-medium text-foreground">No tool selected</h3>
 							<p className="mt-2 text-sm text-muted-foreground">
-								Choose a tool call from the conversation to inspect the raw
-								payload.
+								Choose a tool call from the conversation to inspect the raw payload.
 							</p>
 						</div>
 					</div>
@@ -431,12 +358,8 @@ export const ToolInspectorDrawer: FC = () => {
 							<div className="flex items-center gap-3">
 								<ToolStatusGlyph status={statusMeta.type} />
 								<div className="min-w-0 flex-1">
-									<div className="truncate font-medium text-sm text-foreground">
-										{selectedTool.toolName}
-									</div>
-									<div className="truncate text-xs text-muted-foreground">
-										{summarizeInspection(selectedTool)}
-									</div>
+									<div className="truncate font-medium text-sm text-foreground">{selectedTool.toolName}</div>
+									<div className="truncate text-xs text-muted-foreground">{summarizeInspection(selectedTool)}</div>
 								</div>
 								<StatusBadge statusType={statusMeta.type} />
 							</div>
@@ -445,53 +368,29 @@ export const ToolInspectorDrawer: FC = () => {
 						<div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
 							<div className="flex flex-col gap-4">
 								<div className="grid gap-4 xl:grid-cols-2">
-									<ToolPayloadCard
-										title="Input"
-										value={selectedTool.argsText}
-									/>
-									<ToolPayloadCard
-										title={
-											selectedTool.status?.type === "incomplete"
-												? "Error"
-												: "Output"
-										}
-										value={output}
-									/>
+									<ToolPayloadCard title="Input" value={selectedTool.argsText} />
+									<ToolPayloadCard title={selectedTool.status?.type === "incomplete" ? "Error" : "Output"} value={output} />
 								</div>
 								<div className="rounded-2xl border border-border/70 bg-background p-4">
 									<div className="mb-3 flex items-center justify-between gap-3">
-										<h3 className="font-medium text-sm text-foreground">
-											Meta
-										</h3>
+										<h3 className="font-medium text-sm text-foreground">Meta</h3>
 									</div>
 									<dl className="grid gap-3 text-sm sm:grid-cols-2">
 										<div>
-											<dt className="font-medium text-foreground">
-												Tool call ID
-											</dt>
-											<dd className="mt-1 break-all font-mono text-xs text-muted-foreground">
-												{selectedTool.toolCallId}
-											</dd>
+											<dt className="font-medium text-foreground">Tool call ID</dt>
+											<dd className="mt-1 break-all font-mono text-xs text-muted-foreground">{selectedTool.toolCallId}</dd>
 										</div>
 										<div>
 											<dt className="font-medium text-foreground">Status</dt>
-											<dd className="mt-1 text-muted-foreground">
-												{statusMeta.label}
-											</dd>
+											<dd className="mt-1 text-muted-foreground">{statusMeta.label}</dd>
 										</div>
 										<div>
 											<dt className="font-medium text-foreground">Args size</dt>
-											<dd className="mt-1 text-muted-foreground">
-												{selectedTool.argsText.length} chars
-											</dd>
+											<dd className="mt-1 text-muted-foreground">{selectedTool.argsText.length} chars</dd>
 										</div>
 										<div>
-											<dt className="font-medium text-foreground">
-												Output size
-											</dt>
-											<dd className="mt-1 text-muted-foreground">
-												{output.length} chars
-											</dd>
+											<dt className="font-medium text-foreground">Output size</dt>
+											<dd className="mt-1 text-muted-foreground">{output.length} chars</dd>
 										</div>
 									</dl>
 								</div>
@@ -536,19 +435,13 @@ function ToolStatusGlyph({ status }: { status: ToolStatusType }) {
 		<span
 			className={cn(
 				"inline-flex size-7 shrink-0 items-center justify-center rounded-full border",
-				status === "complete" &&
-					"border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-				status === "running" &&
-					"border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-				status === "requires-action" &&
-					"border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-				status === "incomplete" &&
-					"border-destructive/20 bg-destructive/10 text-destructive",
+				status === "complete" && "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+				status === "running" && "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+				status === "requires-action" && "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+				status === "incomplete" && "border-destructive/20 bg-destructive/10 text-destructive",
 			)}
 		>
-			<Icon
-				className={cn("size-3.5", status === "running" && "animate-spin")}
-			/>
+			<Icon className={cn("size-3.5", status === "running" && "animate-spin")} />
 		</span>
 	);
 }
@@ -563,12 +456,10 @@ function StatusBadge({ statusType }: { statusType: ToolStatusType }) {
 			variant="outline"
 			className={cn(
 				"shrink-0 text-[11px] font-medium",
-				statusType === "complete" &&
-					"border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+				statusType === "complete" && "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 				(statusType === "running" || statusType === "requires-action") &&
 					"border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-				statusType === "incomplete" &&
-					"border-destructive/25 bg-destructive/10 text-destructive",
+				statusType === "incomplete" && "border-destructive/25 bg-destructive/10 text-destructive",
 			)}
 		>
 			{meta.label}

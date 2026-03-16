@@ -17,13 +17,9 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 		inputSchema: z.object({
 			relativePath: z
 				.string()
-				.describe(
-					"The relative path for the file within the vault, e.g. 'folder/note.md'. Must end in .md",
-				),
+				.describe("The relative path for the file within the vault, e.g. 'folder/note.md'. Must end in .md"),
 			old_string: z.string().describe("The exact text to find in the file"),
-			new_string: z
-				.string()
-				.describe("The replacement text (must differ from old_string)"),
+			new_string: z.string().describe("The replacement text (must differ from old_string)"),
 		}),
 		execute: async ({ relativePath, old_string, new_string }) => {
 			const obsidianRoot = getObsidianRoot();
@@ -32,11 +28,7 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 			}
 
 			const normalized = relativePath.replace(/\\/g, "/").trim();
-			if (
-				!normalized ||
-				normalized.includes("..") ||
-				normalized.startsWith("/")
-			) {
+			if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
 				return { error: "Invalid file path." };
 			}
 
@@ -53,8 +45,7 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 			const readModifiedAt = ctx.readFiles.get(normalized);
 			if (!readModifiedAt) {
 				return {
-					error:
-						"You must use obsidian_read on this path before editing it. Please read the file first.",
+					error: "You must use obsidian_read on this path before editing it. Please read the file first.",
 				};
 			}
 
@@ -88,8 +79,7 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 				const secondIndex = content.indexOf(old_string, firstIndex + 1);
 				if (secondIndex !== -1) {
 					return {
-						error:
-							"The specified text appears multiple times. Provide more surrounding context to make it unique.",
+						error: "The specified text appears multiple times. Provide more surrounding context to make it unique.",
 					};
 				}
 
@@ -108,9 +98,7 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 						changeSource: "ai",
 						toolName: "obsidian_edit",
 						summary: `AI edited ${fileName}`,
-						metadata: ctx.chatThreadId
-							? { chatThreadId: ctx.chatThreadId }
-							: undefined,
+						metadata: ctx.chatThreadId ? { chatThreadId: ctx.chatThreadId } : undefined,
 					});
 				} catch (err) {
 					logger.error({ err }, "Activity log failed");
@@ -122,11 +110,7 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 					message: "File edited successfully.",
 				};
 			} catch (err) {
-				if (
-					err instanceof Error &&
-					"code" in err &&
-					(err as NodeJS.ErrnoException).code === "ENOENT"
-				) {
+				if (err instanceof Error && "code" in err && (err as NodeJS.ErrnoException).code === "ENOENT") {
 					return {
 						error: "File not found. Use obsidian_write to create new files.",
 					};

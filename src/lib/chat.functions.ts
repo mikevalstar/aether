@@ -79,9 +79,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
 		return {
 			threads,
 			selectedThreadId: selectedThreadRecord?.id ?? null,
-			selectedThread: selectedThreadRecord
-				? mapThreadSummary(selectedThreadRecord)
-				: null,
+			selectedThread: selectedThreadRecord ? mapThreadSummary(selectedThreadRecord) : null,
 			messagesJson: selectedThreadRecord?.messagesJson ?? "[]",
 			usageHistoryJson: selectedThreadRecord?.usageHistoryJson ?? "[]",
 		};
@@ -91,8 +89,7 @@ export const createChatThread = createServerFn({ method: "POST" })
 	.inputValidator((data: CreateThreadInput) => data)
 	.handler(async ({ data }) => {
 		const session = await ensureSession();
-		const model =
-			data.model && isChatModel(data.model) ? data.model : DEFAULT_CHAT_MODEL;
+		const model = data.model && isChatModel(data.model) ? data.model : DEFAULT_CHAT_MODEL;
 
 		const thread = await prisma.chatThread.create({
 			data: {

@@ -11,8 +11,5 @@ export type AiConfigValidator = {
 	/** Human-readable description of validation requirements (markdown) */
 	description: string;
 	/** Validate parsed frontmatter and body content */
-	validate(
-		frontmatter: Record<string, unknown>,
-		body: string,
-	): AiConfigValidationResult;
+	validate(frontmatter: Record<string, unknown>, body: string): AiConfigValidationResult;
 };

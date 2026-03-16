@@ -26,11 +26,7 @@ function TasksPage() {
 
 	return (
 		<main className="relative overflow-hidden">
-			<GlowBg
-				color="var(--teal)"
-				size="size-[500px]"
-				position="-right-48 -top-48"
-			/>
+			<GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
 
 			<div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
 				<section className="mb-8">
@@ -49,18 +45,13 @@ function TasksPage() {
 					<Alert variant="destructive" className="mb-6">
 						<AlertTriangle className="size-4" />
 						<AlertDescription>
-							The task scheduler is globally disabled (
-							<code className="text-xs">DISABLE_CRON=true</code>). Tasks will
-							not run automatically. You can still trigger them manually.
+							The task scheduler is globally disabled (<code className="text-xs">DISABLE_CRON=true</code>). Tasks will not
+							run automatically. You can still trigger them manually.
 						</AlertDescription>
 					</Alert>
 				)}
 
-				{data.items.length === 0 ? (
-					<TaskEmptyState />
-				) : (
-					<TaskTable items={data.items} />
-				)}
+				{data.items.length === 0 ? <TaskEmptyState /> : <TaskTable items={data.items} />}
 			</div>
 		</main>
 	);

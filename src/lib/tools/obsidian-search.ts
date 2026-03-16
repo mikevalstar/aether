@@ -46,16 +46,8 @@ export const obsidianSearch = tool({
 	description:
 		"Search the user's Obsidian vault for notes matching a query. Uses fuzzy matching across titles, tags, aliases, headings, and content. Returns ranked results with relevance scores.",
 	inputSchema: z.object({
-		query: z
-			.string()
-			.describe(
-				"Search term to match against note titles, tags, aliases, headings, and content",
-			),
-		limit: z
-			.number()
-			.optional()
-			.default(20)
-			.describe("Maximum number of results to return (default 20)"),
+		query: z.string().describe("Search term to match against note titles, tags, aliases, headings, and content"),
+		limit: z.number().optional().default(20).describe("Maximum number of results to return (default 20)"),
 	}),
 	execute: async ({ query, limit }) => {
 		const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";

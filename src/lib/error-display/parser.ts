@@ -1,16 +1,7 @@
 import { parse } from "error-stack-parser-es";
 import type { ParsedError, StackFrame } from "./types";
 
-const INTERNAL_PATTERNS = [
-	/node_modules/,
-	/__test__/,
-	/\.test\./,
-	/\.spec\./,
-	/nitro/,
-	/vite/,
-	/@tanstack/,
-	/\.nitro/,
-];
+const INTERNAL_PATTERNS = [/node_modules/, /__test__/, /\.test\./, /\.spec\./, /nitro/, /vite/, /@tanstack/, /\.nitro/];
 
 const NATIVE_PATTERNS = [/^native/, /^eval$/, /^\w+$/];
 
@@ -64,8 +55,7 @@ export function parseStack(error: Error | undefined): StackFrame[] {
 		return parsed.map((frame) => {
 			const rawFileName = frame.fileName || "";
 			const fileName = cleanFilePath(rawFileName);
-			const isNative =
-				NATIVE_PATTERNS.some((p) => p.test(rawFileName)) || false;
+			const isNative = NATIVE_PATTERNS.some((p) => p.test(rawFileName)) || false;
 			const isInternal = INTERNAL_PATTERNS.some((p) => p.test(rawFileName));
 
 			return {
@@ -123,8 +113,7 @@ export function parseError(error: unknown, url?: string): ParsedError {
 		message,
 		stack,
 		frames,
-		url:
-			url || (typeof window !== "undefined" ? window.location.href : undefined),
+		url: url || (typeof window !== "undefined" ? window.location.href : undefined),
 		timestamp: new Date().toISOString(),
 	};
 }
@@ -143,9 +132,7 @@ export function formatErrorForCopy(parsed: ParsedError): string {
 		parts.push("");
 		parts.push("Stack trace:");
 		for (const frame of parsed.frames) {
-			const location = frame.file
-				? `${frame.file}:${frame.line}:${frame.column}`
-				: "<native>";
+			const location = frame.file ? `${frame.file}:${frame.line}:${frame.column}` : "<native>";
 			parts.push(`  at ${frame.functionName} (${location})`);
 		}
 	} else if (parsed.stack) {

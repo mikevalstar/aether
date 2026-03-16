@@ -1,27 +1,14 @@
 import { z } from "zod";
 import type { AiConfigValidator } from "./types";
 
-const REQUIRED_PLACEHOLDERS = [
-	"{{date}}",
-	"{{userName}}",
-	"{{aiMemoryPath}}",
-] as const;
+const REQUIRED_PLACEHOLDERS = ["{{date}}", "{{userName}}", "{{aiMemoryPath}}"] as const;
 
 const bodySchema: z.ZodType<string> = z
 	.string()
 	.min(1, "System prompt body cannot be empty")
-	.refine(
-		(body) => body.includes("{{date}}"),
-		"Body must contain the {{date}} placeholder",
-	)
-	.refine(
-		(body) => body.includes("{{userName}}"),
-		"Body must contain the {{userName}} placeholder",
-	)
-	.refine(
-		(body) => body.includes("{{aiMemoryPath}}"),
-		"Body must contain the {{aiMemoryPath}} placeholder",
-	);
+	.refine((body) => body.includes("{{date}}"), "Body must contain the {{date}} placeholder")
+	.refine((body) => body.includes("{{userName}}"), "Body must contain the {{userName}} placeholder")
+	.refine((body) => body.includes("{{aiMemoryPath}}"), "Body must contain the {{aiMemoryPath}} placeholder");
 
 export const systemPromptValidator: AiConfigValidator = {
 	filename: "system-prompt.md",

@@ -2,11 +2,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "#/lib/utils";
 
-export type ToolActivityStatusType =
-	| "complete"
-	| "incomplete"
-	| "requires-action"
-	| "running";
+export type ToolActivityStatusType = "complete" | "incomplete" | "requires-action" | "running";
 
 type ToolActivitySummaryProps = {
 	total: number;
@@ -71,10 +67,7 @@ export function ToolActivitySummary({
 						aria-hidden
 						className="pointer-events-none absolute inset-y-0 left-0 w-28 bg-linear-to-r from-amber-500/8 via-amber-500/18 to-transparent opacity-80 motion-reduce:hidden"
 					/>
-					<span
-						className="relative flex shrink-0 items-end gap-0.5 text-amber-600 dark:text-amber-400"
-						aria-hidden
-					>
+					<span className="relative flex shrink-0 items-end gap-0.5 text-amber-600 dark:text-amber-400" aria-hidden>
 						<span className="h-2 w-0.5 animate-pulse rounded-full bg-current" />
 						<span className="h-3 w-0.5 animate-pulse rounded-full bg-current [animation-delay:120ms]" />
 						<span className="h-2.5 w-0.5 animate-pulse rounded-full bg-current [animation-delay:240ms]" />
@@ -121,8 +114,7 @@ function buildSummaryLine({
 	const toolLabel = `${total} ${total === 1 ? "tool call" : "tool calls"}`;
 
 	if (status === "running") {
-		const runningLabel =
-			runningCount > 1 ? `${runningCount} running` : "running";
+		const runningLabel = runningCount > 1 ? `${runningCount} running` : "running";
 		return `${toolLabel} • ${runningLabel} • ${runningMessage}...`;
 	}
 

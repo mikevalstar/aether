@@ -6,35 +6,24 @@ import type { AiConfigValidator } from "./types";
 
 export type { AiConfigValidationResult, AiConfigValidator } from "./types";
 
-const validators: AiConfigValidator[] = [
-	systemPromptValidator,
-	titlePromptValidator,
-	taskPromptValidator,
-	taskValidator,
-];
+const validators: AiConfigValidator[] = [systemPromptValidator, titlePromptValidator, taskPromptValidator, taskValidator];
 
 const validatorsByFilename = new Map<string, AiConfigValidator>(
-	validators
-		.filter((v) => !v.filename.endsWith("/"))
-		.map((v) => [v.filename, v]),
+	validators.filter((v) => !v.filename.endsWith("/")).map((v) => [v.filename, v]),
 );
 
 /** Validators that match by directory prefix (e.g. "tasks/") */
 const directoryValidators: Array<{
 	prefix: string;
 	validator: AiConfigValidator;
-}> = validators
-	.filter((v) => v.filename.endsWith("/"))
-	.map((v) => ({ prefix: v.filename, validator: v }));
+}> = validators.filter((v) => v.filename.endsWith("/")).map((v) => ({ prefix: v.filename, validator: v }));
 
 /**
  * Look up a validator by the config file's filename (e.g. "system-prompt.md").
  * Also matches directory-based validators (e.g. "tasks/daily-summary.md" matches "tasks/").
  * Returns undefined for files that don't have a dedicated validator.
  */
-export function getValidatorForFile(
-	filename: string,
-): AiConfigValidator | undefined {
+export function getValidatorForFile(filename: string): AiConfigValidator | undefined {
 	const exact = validatorsByFilename.get(filename);
 	if (exact) return exact;
 

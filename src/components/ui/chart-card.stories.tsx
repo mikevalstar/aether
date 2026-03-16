@@ -1,11 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-	ChartLine,
-	CircleDollarSign,
-	Hash,
-	Layers,
-	MessageSquare,
-} from "lucide-react";
+import { ChartLine, CircleDollarSign, Hash, Layers, MessageSquare } from "lucide-react";
 import { ChartCard } from "./chart-card";
 
 const meta = {
@@ -58,9 +52,7 @@ export const NoIcon: Story = {
 	},
 	render: (args) => (
 		<ChartCard {...args}>
-			<p className="text-sm text-muted-foreground">
-				Any content can go here — tables, charts, lists.
-			</p>
+			<p className="text-sm text-muted-foreground">Any content can go here — tables, charts, lists.</p>
 		</ChartCard>
 	),
 };
@@ -84,12 +76,7 @@ export const Grid: Story = {
 					Area chart
 				</div>
 			</ChartCard>
-			<ChartCard
-				title="Model mix"
-				subtitle="Cost share by model."
-				icon={Layers}
-				accentColor="var(--chart-3)"
-			>
+			<ChartCard title="Model mix" subtitle="Cost share by model." icon={Layers} accentColor="var(--chart-3)">
 				<div className="flex h-48 items-center justify-center rounded-md border border-dashed border-[var(--line)] text-sm text-muted-foreground">
 					Pie chart
 				</div>
@@ -104,12 +91,7 @@ export const Grid: Story = {
 					Table
 				</div>
 			</ChartCard>
-			<ChartCard
-				title="What gets tracked"
-				subtitle="Fields saved per response."
-				icon={Hash}
-				accentColor="var(--chart-4)"
-			>
+			<ChartCard title="What gets tracked" subtitle="Fields saved per response." icon={Hash} accentColor="var(--chart-4)">
 				<div className="flex h-48 items-center justify-center rounded-md border border-dashed border-[var(--line)] text-sm text-muted-foreground">
 					Field list
 				</div>

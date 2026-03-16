@@ -41,9 +41,7 @@ type TitleGenerationResult = {
 	usage: LanguageModelUsage | undefined;
 };
 
-async function generateChatTitle(
-	userMessage: string,
-): Promise<TitleGenerationResult> {
+async function generateChatTitle(userMessage: string): Promise<TitleGenerationResult> {
 	try {
 		const titleConfig = await readTitlePromptConfig();
 		const titleModel = (titleConfig?.model ?? "claude-haiku-4-5") as ChatModel;
@@ -65,10 +63,7 @@ async function generateChatTitle(
 		};
 	} catch {
 		return {
-			title:
-				userMessage.length <= 72
-					? userMessage
-					: `${userMessage.slice(0, 69).trimEnd()}...`,
+			title: userMessage.length <= 72 ? userMessage : `${userMessage.slice(0, 69).trimEnd()}...`,
 			model: "claude-haiku-4-5",
 			usage: undefined,
 		};
@@ -93,14 +88,9 @@ export const Route = createFileRoute("/api/chat")({
 				}
 
 				const body = (await request.json()) as ChatRequestBody;
-				logger.info(
-					{ userId: session.user.id, threadId: body.id, model: body.model },
-					"Chat request received",
-				);
+				logger.info({ userId: session.user.id, threadId: body.id, model: body.model }, "Chat request received");
 				const threadId = body.id;
-				const incomingMessages = Array.isArray(body.messages)
-					? (body.messages as AppChatMessage[])
-					: [];
+				const incomingMessages = Array.isArray(body.messages) ? (body.messages as AppChatMessage[]) : [];
 
 				if (!threadId || incomingMessages.length === 0) {
 					return new Response("Invalid chat request", { status: 400 });
@@ -117,21 +107,14 @@ export const Route = createFileRoute("/api/chat")({
 					return new Response("Not found", { status: 404 });
 				}
 
-				const model =
-					body.model && isChatModel(body.model)
-						? body.model
-						: DEFAULT_CHAT_MODEL;
-				const effort =
-					body.effort && isChatEffort(body.effort)
-						? body.effort
-						: DEFAULT_CHAT_EFFORT;
+				const model = body.model && isChatModel(body.model) ? body.model : DEFAULT_CHAT_MODEL;
+				const effort = body.effort && isChatEffort(body.effort) ? body.effort : DEFAULT_CHAT_EFFORT;
 				const modelDef = CHAT_MODELS.find((m) => m.id === model);
 				const tools = createAiTools(model, session.user.id, thread.id);
 				let currentTotals: ChatUsageTotals = {
 					inputTokens: thread.totalInputTokens ?? 0,
 					outputTokens: thread.totalOutputTokens ?? 0,
-					totalTokens:
-						(thread.totalInputTokens ?? 0) + (thread.totalOutputTokens ?? 0),
+					totalTokens: (thread.totalInputTokens ?? 0) + (thread.totalOutputTokens ?? 0),
 					estimatedCostUsd: thread.totalEstimatedCostUsd ?? 0,
 				};
 				let usageHistory = parseUsageHistory(thread.usageHistoryJson ?? "[]");
@@ -158,9 +141,7 @@ export const Route = createFileRoute("/api/chat")({
 						estimatedCostUsd: estimateChatUsageCostUsd(usageModel, usageTotals),
 					};
 					const nextTotals = addChatUsageTotals(currentTotals, exchangeUsage);
-					const assistantMessage = [...messages]
-						.reverse()
-						.find((message) => message.role === "assistant");
+					const assistantMessage = [...messages].reverse().find((message) => message.role === "assistant");
 					const usageEntry: ChatUsageEntry = {
 						id: `usage_${crypto.randomUUID()}`,
 						model: usageModel,
@@ -183,11 +164,8 @@ export const Route = createFileRoute("/api/chat")({
 				};
 
 				// Only generate an AI title on the first message (thread still has default title)
-				const existingMessages = parseStoredMessages(
-					thread.messagesJson ?? "[]",
-				);
-				const isFirstMessage =
-					existingMessages.length === 0 && thread.title === "New chat";
+				const existingMessages = parseStoredMessages(thread.messagesJson ?? "[]");
+				const isFirstMessage = existingMessages.length === 0 && thread.title === "New chat";
 
 				let title = thread.title;
 				if (isFirstMessage) {
@@ -202,14 +180,10 @@ export const Route = createFileRoute("/api/chat")({
 
 						// Track title generation usage
 						if (titleResult.usage) {
-							const titleUpdate = createUsageUpdate(
-								titleResult.usage,
-								incomingMessages,
-								{
-									taskType: "title",
-									usageModel: titleResult.model,
-								},
-							);
+							const titleUpdate = createUsageUpdate(titleResult.usage, incomingMessages, {
+								taskType: "title",
+								usageModel: titleResult.model,
+							});
 							// Advance cumulative totals so the chat usage stacks on top
 							currentTotals = titleUpdate.nextTotals;
 							usageHistory = titleUpdate.nextUsageHistory;
@@ -272,10 +246,7 @@ export const Route = createFileRoute("/api/chat")({
 						}
 
 						if (part.type === "finish") {
-							const update = createUsageUpdate(
-								part.totalUsage,
-								incomingMessages,
-							);
+							const update = createUsageUpdate(part.totalUsage, incomingMessages);
 
 							return {
 								model,
@@ -323,9 +294,7 @@ export const Route = createFileRoute("/api/chat")({
 								data: {
 									model,
 									messagesJson: serializeMessages(finalMessages),
-									usageHistoryJson: serializeUsageHistory(
-										update.nextUsageHistory,
-									),
+									usageHistoryJson: serializeUsageHistory(update.nextUsageHistory),
 									totalInputTokens: update.nextTotals.inputTokens,
 									totalOutputTokens: update.nextTotals.outputTokens,
 									totalEstimatedCostUsd: update.nextTotals.estimatedCostUsd,

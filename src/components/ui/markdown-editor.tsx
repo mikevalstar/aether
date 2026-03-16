@@ -22,19 +22,12 @@ import {
 	TableIcon,
 } from "lucide-react";
 import { useMemo } from "react";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "#/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "#/components/ui/tooltip";
 import { cn } from "#/lib/utils";
 
 // ─── Platform detection ─────────────────────────────────────────────────
 
-const isMac =
-	typeof navigator !== "undefined" &&
-	/Mac|iPhone|iPad/.test(navigator.userAgent);
+const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
 const modKey = isMac ? "\u2318" : "Ctrl+";
 
 // ─── Toolbar config ─────────────────────────────────────────────────────
@@ -193,9 +186,7 @@ function renderToolbarButton(
 	}
 
 	const meta = toolbarMeta.get(command.name ?? "");
-	const isExtra = extraToolbarLayout.some(
-		(e) => !("type" in e) && e.label === command.name,
-	);
+	const isExtra = extraToolbarLayout.some((e) => !("type" in e) && e.label === command.name);
 
 	return (
 		<Tooltip>
@@ -234,12 +225,7 @@ export type MarkdownEditorProps = {
 	className?: string;
 };
 
-export function MarkdownEditor({
-	value,
-	onChange,
-	showStatusBar = true,
-	className,
-}: MarkdownEditorProps) {
+export function MarkdownEditor({ value, onChange, showStatusBar = true, className }: MarkdownEditorProps) {
 	const stats = useMemo(() => {
 		const chars = value.length;
 		const words = value.trim() ? value.trim().split(/\s+/).length : 0;
@@ -272,8 +258,7 @@ export function MarkdownEditor({
 					<div className="flex items-center justify-end border-t border-[var(--line)] bg-[var(--teal-subtle)]/40 px-4 py-2">
 						<div className="flex items-center gap-3 font-mono text-[11px] font-medium text-[var(--ink-soft)]/70">
 							<span>
-								{stats.words.toLocaleString()}{" "}
-								{stats.words === 1 ? "word" : "words"}
+								{stats.words.toLocaleString()} {stats.words === 1 ? "word" : "words"}
 							</span>
 							<span className="text-[var(--line)]">/</span>
 							<span>{stats.chars.toLocaleString()} chars</span>

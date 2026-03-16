@@ -1,30 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import cronstrue from "cronstrue";
-import {
-	AlertCircle,
-	CheckCircle2,
-	Clock,
-	FileX,
-	Loader2,
-	Play,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Play } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "#/components/ui/table";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "#/components/ui/tooltip";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import type { TaskListItem } from "#/lib/task.functions";
 import { triggerTaskRun } from "#/lib/task.functions";
 
@@ -114,25 +96,15 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
 						const dimmed = !item.fileExists || !item.enabled;
 
 						return (
-							<TableRow
-								key={item.id}
-								className={dimmed ? "opacity-50" : undefined}
-							>
+							<TableRow key={item.id} className={dimmed ? "opacity-50" : undefined}>
 								<TableCell>
-									<Link
-										to="/tasks/$"
-										params={{ _splat: item.filename }}
-										className="font-medium hover:underline"
-									>
+									<Link to="/tasks/$" params={{ _splat: item.filename }} className="font-medium hover:underline">
 										{item.title}
 									</Link>
 									<div className="text-xs text-muted-foreground mt-0.5">
 										{item.model}
 										{!item.fileExists && (
-											<Badge
-												variant="outline"
-												className="ml-2 text-amber-600 border-amber-300"
-											>
+											<Badge variant="outline" className="ml-2 text-amber-600 border-amber-300">
 												<FileX className="mr-1 size-3" />
 												File removed
 											</Badge>
@@ -146,9 +118,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
 								</TableCell>
 								<TableCell>
 									<Tooltip>
-										<TooltipTrigger className="text-sm">
-											{formatCron(item.cron)}
-										</TooltipTrigger>
+										<TooltipTrigger className="text-sm">{formatCron(item.cron)}</TooltipTrigger>
 										<TooltipContent>
 											<code>{item.cron}</code>
 										</TooltipContent>
@@ -176,17 +146,8 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
 								</TableCell>
 								<TableCell>
 									{item.fileExists && (
-										<Button
-											variant="ghost"
-											size="sm"
-											disabled={isRunning}
-											onClick={() => void handleRunNow(item.filename)}
-										>
-											{isRunning ? (
-												<Loader2 className="size-4 animate-spin" />
-											) : (
-												<Play className="size-4" />
-											)}
+										<Button variant="ghost" size="sm" disabled={isRunning} onClick={() => void handleRunNow(item.filename)}>
+											{isRunning ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
 										</Button>
 									)}
 								</TableCell>

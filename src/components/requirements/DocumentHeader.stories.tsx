@@ -71,8 +71,7 @@ export const MinimalMetadata: Story = {
 export const LongTitle: Story = {
 	args: {
 		document: {
-			title:
-				"Authentication, Authorization, and Role-Based Access Control System",
+			title: "Authentication, Authorization, and Role-Based Access Control System",
 			body: "",
 			routePath: "auth",
 			relativePath: "auth.md",

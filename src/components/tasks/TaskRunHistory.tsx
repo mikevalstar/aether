@@ -1,29 +1,11 @@
 import cronstrue from "cronstrue";
-import {
-	AlertCircle,
-	Bot,
-	ChevronDown,
-	ChevronRight,
-	Trash2,
-	Wrench,
-} from "lucide-react";
+import { AlertCircle, Bot, ChevronDown, ChevronRight, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "#/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "#/components/ui/collapsible";
 import { toast } from "#/components/ui/sonner";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "#/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import type { TaskRunItem } from "#/lib/task.functions";
 import { deleteTaskRun } from "#/lib/task.functions";
 
@@ -64,13 +46,7 @@ function truncateJson(value: unknown, maxLength = 500): string {
 	return `${str.slice(0, maxLength)}…`;
 }
 
-function ToolCallBlock({
-	toolName,
-	input,
-}: {
-	toolName: string;
-	input: unknown;
-}) {
+function ToolCallBlock({ toolName, input }: { toolName: string; input: unknown }) {
 	return (
 		<Collapsible>
 			<CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground py-1">
@@ -87,13 +63,7 @@ function ToolCallBlock({
 	);
 }
 
-function ToolResultBlock({
-	toolName,
-	output,
-}: {
-	toolName: string;
-	output: unknown;
-}) {
+function ToolResultBlock({ toolName, output }: { toolName: string; output: unknown }) {
 	return (
 		<Collapsible>
 			<CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-foreground py-1">
@@ -146,22 +116,13 @@ function RunDetail({ run }: { run: TaskRunItem }) {
 							{content.map((block) => {
 								if (block.type === "text") {
 									return (
-										<div
-											key={`${msgKey}-text`}
-											className="whitespace-pre-wrap text-sm"
-										>
+										<div key={`${msgKey}-text`} className="whitespace-pre-wrap text-sm">
 											{block.text}
 										</div>
 									);
 								}
 								if (block.type === "tool-call") {
-									return (
-										<ToolCallBlock
-											key={block.toolCallId}
-											toolName={block.toolName}
-											input={block.input}
-										/>
-									);
+									return <ToolCallBlock key={block.toolCallId} toolName={block.toolName} input={block.input} />;
 								}
 								return null;
 							})}
@@ -174,18 +135,11 @@ function RunDetail({ run }: { run: TaskRunItem }) {
 					if (content.length === 0) return null;
 
 					return (
-						<div
-							key={msgKey}
-							className="space-y-1 pl-4 border-l-2 border-emerald-200 dark:border-emerald-800"
-						>
+						<div key={msgKey} className="space-y-1 pl-4 border-l-2 border-emerald-200 dark:border-emerald-800">
 							{content.map((block) => {
 								if (block.type === "tool-result") {
 									return (
-										<ToolResultBlock
-											key={block.toolCallId}
-											toolName={block.toolName ?? "tool"}
-											output={block.output}
-										/>
+										<ToolResultBlock key={block.toolCallId} toolName={block.toolName ?? "tool"} output={block.output} />
 									);
 								}
 								return null;
@@ -263,32 +217,23 @@ export function TaskRunHistory({
 			<div className="mb-6 space-y-1">
 				<div className="flex items-center gap-2 flex-wrap">
 					<span className="text-sm text-muted-foreground">{cronHuman}</span>
-					<code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-						{task.cron}
-					</code>
+					<code className="text-xs bg-muted px-1.5 py-0.5 rounded">{task.cron}</code>
 					<Badge variant="outline" className="text-xs">
 						{task.model}
 					</Badge>
 					{!task.fileExists && (
-						<Badge
-							variant="outline"
-							className="text-amber-600 border-amber-300"
-						>
+						<Badge variant="outline" className="text-amber-600 border-amber-300">
 							File removed
 						</Badge>
 					)}
-					{!task.enabled && task.fileExists && (
-						<Badge variant="outline">Paused</Badge>
-					)}
+					{!task.enabled && task.fileExists && <Badge variant="outline">Paused</Badge>}
 				</div>
 			</div>
 
 			{runs.length === 0 ? (
 				<div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
 					<AlertCircle className="size-8 text-muted-foreground mb-3" />
-					<p className="text-sm text-muted-foreground">
-						No runs yet for this task.
-					</p>
+					<p className="text-sm text-muted-foreground">No runs yet for this task.</p>
 				</div>
 			) : (
 				<div className="rounded-md border">
@@ -316,24 +261,14 @@ export function TaskRunHistory({
 											onClick={() => setExpandedId(isExpanded ? null : run.id)}
 										>
 											<TableCell>
-												{isExpanded ? (
-													<ChevronDown className="size-4" />
-												) : (
-													<ChevronRight className="size-4" />
-												)}
+												{isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
 											</TableCell>
-											<TableCell className="text-sm">
-												{formatDateTime(run.createdAt)}
-											</TableCell>
+											<TableCell className="text-sm">{formatDateTime(run.createdAt)}</TableCell>
 											<TableCell className="text-sm">{run.model}</TableCell>
 											<TableCell className="text-sm tabular-nums">
-												{(
-													run.totalInputTokens + run.totalOutputTokens
-												).toLocaleString()}
+												{(run.totalInputTokens + run.totalOutputTokens).toLocaleString()}
 											</TableCell>
-											<TableCell className="text-sm tabular-nums">
-												{formatCost(run.totalEstimatedCostUsd)}
-											</TableCell>
+											<TableCell className="text-sm tabular-nums">{formatCost(run.totalEstimatedCostUsd)}</TableCell>
 											<TableCell>
 												<Button
 													variant="ghost"

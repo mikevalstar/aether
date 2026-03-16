@@ -39,15 +39,9 @@ export function ChatThreadItem({
 			>
 				<div className="flex items-baseline justify-between gap-2">
 					<p className="truncate text-sm font-semibold">{title}</p>
-					{updatedAt && (
-						<span className="shrink-0 text-[10px] text-[var(--ink-soft)]/60">
-							{dayjs(updatedAt).fromNow()}
-						</span>
-					)}
+					{updatedAt && <span className="shrink-0 text-[10px] text-[var(--ink-soft)]/60">{dayjs(updatedAt).fromNow()}</span>}
 				</div>
-				<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">
-					{preview}
-				</p>
+				<p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">{preview}</p>
 			</button>
 			<Button
 				type="button"

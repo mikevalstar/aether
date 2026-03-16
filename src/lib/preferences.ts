@@ -2,9 +2,7 @@ export type UserPreferences = {
 	obsidianTemplatesFolder?: string;
 };
 
-export function parsePreferences(
-	raw: string | null | undefined,
-): UserPreferences {
+export function parsePreferences(raw: string | null | undefined): UserPreferences {
 	if (!raw) return {};
 	try {
 		return JSON.parse(raw) as UserPreferences;

@@ -4,12 +4,7 @@ import { CodeFrame } from "./code-frame";
 import { getStoredIDE, openInIDE } from "./ide-links";
 import type { StackFrameRowProps } from "./types";
 
-export function StackFrameRow({
-	frame,
-	isUserCode,
-	projectRoot,
-	onToggle,
-}: StackFrameRowProps) {
+export function StackFrameRow({ frame, isUserCode, projectRoot, onToggle }: StackFrameRowProps) {
 	const [showCode, setShowCode] = useState(false);
 
 	const handleOpenInIDE = (e: React.MouseEvent) => {
@@ -24,18 +19,10 @@ export function StackFrameRow({
 		onToggle();
 	};
 
-	const displayPath = projectRoot
-		? frame.file.replace(projectRoot, "").replace(/^\//, "")
-		: frame.file;
+	const displayPath = projectRoot ? frame.file.replace(projectRoot, "").replace(/^\//, "") : frame.file;
 
 	return (
-		<div
-			style={
-				isUserCode
-					? frameRowStyles.userCodeContainer
-					: frameRowStyles.internalContainer
-			}
-		>
+		<div style={isUserCode ? frameRowStyles.userCodeContainer : frameRowStyles.internalContainer}>
 			<div style={frameRowStyles.row}>
 				<button
 					type="button"
@@ -43,22 +30,16 @@ export function StackFrameRow({
 					onClick={handleToggleCode}
 					onKeyDown={(e) => e.key === "Enter" && handleToggleCode()}
 				>
-					<span style={frameRowStyles.expandIcon}>
-						{showCode ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-					</span>
+					<span style={frameRowStyles.expandIcon}>{showCode ? <ChevronDown size={12} /> : <ChevronRight size={12} />}</span>
 					<span style={frameRowStyles.functionName}>{frame.functionName}</span>
 				</button>
 				{frame.file && (
 					<span style={frameRowStyles.fileInfo}>
-						<span style={frameRowStyles.filePath}>
-							{displayPath || frame.file}
-						</span>
+						<span style={frameRowStyles.filePath}>{displayPath || frame.file}</span>
 						<span style={frameRowStyles.lineNumber}>:{frame.line}</span>
 					</span>
 				)}
-				{frame.isNative && (
-					<span style={frameRowStyles.nativeLabel}>[native]</span>
-				)}
+				{frame.isNative && <span style={frameRowStyles.nativeLabel}>[native]</span>}
 				{frame.file && frame.line > 0 && (
 					<button
 						type="button"
@@ -72,11 +53,7 @@ export function StackFrameRow({
 			</div>
 			{showCode && frame.file && frame.line > 0 && (
 				<div style={frameRowStyles.codeWrapper}>
-					<CodeFrame
-						filePath={frame.file}
-						line={frame.line}
-						column={frame.column}
-					/>
+					<CodeFrame filePath={frame.file} line={frame.line} column={frame.column} />
 				</div>
 			)}
 		</div>

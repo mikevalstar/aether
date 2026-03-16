@@ -3,13 +3,7 @@ import { Badge } from "#/components/ui/badge";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { formatRelativeTime } from "./format-relative-time";
 
-export function ActivityTable({
-	items,
-	onItemClick,
-}: {
-	items: ActivityListItem[];
-	onItemClick: (id: string) => void;
-}) {
+export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[]; onItemClick: (id: string) => void }) {
 	if (items.length === 0) {
 		return <ActivityEmptyState />;
 	}
@@ -25,18 +19,10 @@ export function ActivityTable({
 				</colgroup>
 				<thead>
 					<tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-						<th className="border-b border-border px-4 py-3 font-semibold">
-							When
-						</th>
-						<th className="border-b border-border px-4 py-3 font-semibold">
-							Type
-						</th>
-						<th className="border-b border-border px-4 py-3 font-semibold">
-							Summary
-						</th>
-						<th className="border-b border-border px-4 py-3 font-semibold">
-							Source
-						</th>
+						<th className="border-b border-border px-4 py-3 font-semibold">When</th>
+						<th className="border-b border-border px-4 py-3 font-semibold">Type</th>
+						<th className="border-b border-border px-4 py-3 font-semibold">Summary</th>
+						<th className="border-b border-border px-4 py-3 font-semibold">Source</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -67,15 +53,11 @@ export function ActivityTable({
 							<td className="border-b border-border/50 px-4 py-3">
 								<span className="font-medium">{item.summary}</span>
 								{item.fileChangeDetail && (
-									<span className="ml-2 font-mono text-xs text-muted-foreground">
-										{item.fileChangeDetail.filePath}
-									</span>
+									<span className="ml-2 font-mono text-xs text-muted-foreground">{item.fileChangeDetail.filePath}</span>
 								)}
 							</td>
 							<td className="border-b border-border/50 px-4 py-3">
-								{item.fileChangeDetail && (
-									<SourceBadge source={item.fileChangeDetail.changeSource} />
-								)}
+								{item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}
 							</td>
 						</tr>
 					))}

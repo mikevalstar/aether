@@ -1,9 +1,4 @@
-import {
-	createFileRoute,
-	Link,
-	redirect,
-	useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BookOpen,
@@ -60,16 +55,8 @@ function DashboardPage() {
 
 	return (
 		<main className="relative overflow-hidden">
-			<GlowBg
-				color="var(--teal)"
-				size="size-[500px]"
-				position="-right-48 -top-48"
-			/>
-			<GlowBg
-				color="var(--coral)"
-				size="size-[350px]"
-				position="-left-36 top-64"
-			/>
+			<GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
+			<GlowBg color="var(--coral)" size="size-[350px]" position="-left-36 top-64" />
 
 			<div className="page-wrap relative px-4 pb-16 pt-12 sm:pt-16">
 				{/* Header */}
@@ -92,9 +79,7 @@ function DashboardPage() {
 
 				{/* Quick actions */}
 				<section className="mb-12">
-					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-						Quick actions
-					</h2>
+					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quick actions</h2>
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						<Link
 							to="/chat"
@@ -103,9 +88,7 @@ function DashboardPage() {
 							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)]">
 								<Sparkles className="size-5" strokeWidth={1.75} />
 							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">
-								AI Chat
-							</p>
+							<p className="mb-1 text-base font-bold tracking-tight text-foreground">AI Chat</p>
 							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
 								Ask questions, explore ideas, and chat with Claude.
 							</p>
@@ -122,9 +105,7 @@ function DashboardPage() {
 							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--coral)]/8 text-[var(--coral)]">
 								<ChartLine className="size-5" strokeWidth={1.75} />
 							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">
-								Usage
-							</p>
+							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Usage</p>
 							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
 								Token usage, costs, and model trends over time.
 							</p>
@@ -141,12 +122,8 @@ function DashboardPage() {
 							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
 								<BookOpen className="size-5" strokeWidth={1.75} />
 							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">
-								Linked Notes
-							</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-								Browse and search your Obsidian vault.
-							</p>
+							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Linked Notes</p>
+							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">Browse and search your Obsidian vault.</p>
 							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-4)]">
 								Open vault
 								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
@@ -160,12 +137,8 @@ function DashboardPage() {
 							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-3)]/8 text-[var(--chart-3)]">
 								<FileText className="size-5" strokeWidth={1.75} />
 							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">
-								Requirements
-							</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-								Feature specs and linked planning docs.
-							</p>
+							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Requirements</p>
+							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">Feature specs and linked planning docs.</p>
 							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-3)]">
 								Browse docs
 								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
@@ -196,23 +169,14 @@ function DashboardPage() {
 
 				{/* Upcoming features */}
 				<section className="mb-10">
-					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-						Coming soon
-					</h2>
+					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Coming soon</h2>
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{UPCOMING.map(({ icon: Icon, title, desc, color, bg, border }) => (
-							<div
-								key={title}
-								className={`rounded-xl border ${border} ${bg} p-6 opacity-75`}
-							>
-								<div
-									className={`mb-3 inline-flex size-9 items-center justify-center rounded-lg ${bg} ${color}`}
-								>
+							<div key={title} className={`rounded-xl border ${border} ${bg} p-6 opacity-75`}>
+								<div className={`mb-3 inline-flex size-9 items-center justify-center rounded-lg ${bg} ${color}`}>
 									<Icon className="size-4" strokeWidth={1.75} />
 								</div>
-								<h3 className="mb-1 text-sm font-semibold text-foreground">
-									{title}
-								</h3>
+								<h3 className="mb-1 text-sm font-semibold text-foreground">{title}</h3>
 								<p className="m-0 text-sm text-muted-foreground">{desc}</p>
 							</div>
 						))}

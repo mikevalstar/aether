@@ -22,14 +22,7 @@ type ChatWorkspaceProps = {
 	onFinish?: () => void;
 };
 
-export function ChatWorkspace({
-	threadId,
-	model,
-	effort,
-	messagesJson,
-	initialMessage,
-	onFinish,
-}: ChatWorkspaceProps) {
+export function ChatWorkspace({ threadId, model, effort, messagesJson, initialMessage, onFinish }: ChatWorkspaceProps) {
 	const hasBootstrappedMessage = useRef(false);
 
 	const chat = useChat<AppChatMessage>({

@@ -52,11 +52,7 @@ export const getObsidianViewerData = createServerFn({ method: "GET" })
 
 		const aiConfigRel = getAiConfigRelPath();
 		const aiMemoryRel = getAiMemoryRelPath();
-		const discovered = await discoverObsidianTree(
-			obsidianRoot,
-			aiConfigRel,
-			aiMemoryRel,
-		);
+		const discovered = await discoverObsidianTree(obsidianRoot, aiConfigRel, aiMemoryRel);
 		const requestedPath = normalizeObsidianRoutePath(data.path);
 
 		if (requestedPath === null) {
@@ -74,28 +70,15 @@ export const getObsidianViewerData = createServerFn({ method: "GET" })
 			tree: discovered.tree,
 			aiConfigPath: aiConfigRel || null,
 			aiMemoryPath: aiMemoryRel || null,
-			document:
-				discovered.documents.find(
-					(document) => document.routePath === requestedPath,
-				) ?? null,
+			document: discovered.documents.find((document) => document.routePath === requestedPath) ?? null,
 			requestedPath,
 			configured: true,
 		};
 	});
 
-async function discoverObsidianTree(
-	obsidianRoot: string,
-	aiConfigRel: string,
-	aiMemoryRel: string,
-) {
+async function discoverObsidianTree(obsidianRoot: string, aiConfigRel: string, aiMemoryRel: string) {
 	const documents: DiscoveredDocument[] = [];
-	const tree = await buildTree(
-		obsidianRoot,
-		"",
-		aiConfigRel,
-		aiMemoryRel,
-		documents,
-	);
+	const tree = await buildTree(obsidianRoot, "", aiConfigRel, aiMemoryRel, documents);
 
 	return { tree, documents };
 }
@@ -122,25 +105,15 @@ async function buildTree(
 			continue;
 		}
 
-		const relativePath = relativeDirectory
-			? path.posix.join(relativeDirectory, entry.name)
-			: entry.name;
+		const relativePath = relativeDirectory ? path.posix.join(relativeDirectory, entry.name) : entry.name;
 
 		if (entry.isDirectory()) {
-			const children = await buildTree(
-				obsidianRoot,
-				relativePath,
-				aiConfigRel,
-				aiMemoryRel,
-				documents,
-			);
+			const children = await buildTree(obsidianRoot, relativePath, aiConfigRel, aiMemoryRel, documents);
 
 			if (children.length > 0) {
 				const normalizedPath = normalizePosix(relativePath);
-				const isAiConfig =
-					aiConfigRel !== "" && normalizedPath === normalizePosix(aiConfigRel);
-				const isAiMemory =
-					aiMemoryRel !== "" && normalizedPath === normalizePosix(aiMemoryRel);
+				const isAiConfig = aiConfigRel !== "" && normalizedPath === normalizePosix(aiConfigRel);
+				const isAiMemory = aiMemoryRel !== "" && normalizedPath === normalizePosix(aiMemoryRel);
 
 				nodes.push({
 					type: "folder",
@@ -173,10 +146,7 @@ async function buildTree(
 	return sortTreeNodes(nodes);
 }
 
-async function readObsidianDocument(
-	obsidianRoot: string,
-	relativePath: string,
-): Promise<DiscoveredDocument> {
+async function readObsidianDocument(obsidianRoot: string, relativePath: string): Promise<DiscoveredDocument> {
 	const absolutePath = path.join(obsidianRoot, relativePath);
 	const rawDocument = await fs.readFile(absolutePath, "utf8");
 	const parsed = matter(rawDocument);
@@ -242,11 +212,7 @@ export const saveObsidianDocument = createServerFn({ method: "POST" })
 		}
 
 		const normalized = data.relativePath.replace(/\\/g, "/").trim();
-		if (
-			!normalized ||
-			normalized.includes("..") ||
-			normalized.startsWith("/")
-		) {
+		if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
 			throw new Error("Invalid file path");
 		}
 
@@ -308,29 +274,27 @@ async function readTemplatesFromDir(dir: string): Promise<ObsidianTemplate[]> {
 		.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(
-	async (): Promise<ObsidianTemplate[]> => {
-		const session = await ensureSession();
+export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(async (): Promise<ObsidianTemplate[]> => {
+	const session = await ensureSession();
 
-		const user = await prisma.user.findUnique({
-			where: { id: session.user.id },
-			select: { preferences: true },
-		});
-		const prefs = parsePreferences(user?.preferences);
-		const obsidianRoot = getObsidianRoot();
+	const user = await prisma.user.findUnique({
+		where: { id: session.user.id },
+		select: { preferences: true },
+	});
+	const prefs = parsePreferences(user?.preferences);
+	const obsidianRoot = getObsidianRoot();
 
-		if (prefs.obsidianTemplatesFolder && obsidianRoot) {
-			const vaultDir = path.join(obsidianRoot, prefs.obsidianTemplatesFolder);
-			const resolved = path.resolve(vaultDir);
-			if (resolved.startsWith(path.resolve(obsidianRoot))) {
-				const templates = await readTemplatesFromDir(vaultDir);
-				if (templates.length > 0) return templates;
-			}
+	if (prefs.obsidianTemplatesFolder && obsidianRoot) {
+		const vaultDir = path.join(obsidianRoot, prefs.obsidianTemplatesFolder);
+		const resolved = path.resolve(vaultDir);
+		if (resolved.startsWith(path.resolve(obsidianRoot))) {
+			const templates = await readTemplatesFromDir(vaultDir);
+			if (templates.length > 0) return templates;
 		}
+	}
 
-		return readTemplatesFromDir(TEMPLATES_DIR);
-	},
-);
+	return readTemplatesFromDir(TEMPLATES_DIR);
+});
 
 type CreateObsidianFileInput = {
 	folder: string;
@@ -393,14 +357,8 @@ export const createObsidianFile = createServerFn({ method: "POST" })
 			let templateBaseDir: string;
 
 			if (prefs.obsidianTemplatesFolder && obsidianRoot) {
-				const vaultTemplatesDir = path.join(
-					obsidianRoot,
-					prefs.obsidianTemplatesFolder,
-				);
-				const candidatePath = path.join(
-					vaultTemplatesDir,
-					data.templateFilename,
-				);
+				const vaultTemplatesDir = path.join(obsidianRoot, prefs.obsidianTemplatesFolder);
+				const candidatePath = path.join(vaultTemplatesDir, data.templateFilename);
 				const resolvedCandidate = path.resolve(candidatePath);
 				if (
 					resolvedCandidate.startsWith(path.resolve(obsidianRoot)) &&
@@ -427,9 +385,7 @@ export const createObsidianFile = createServerFn({ method: "POST" })
 			const raw = await fs.readFile(templatePath, "utf8");
 			const title = humanizeFileName(filename);
 			const date = new Date().toISOString().slice(0, 10);
-			content = raw
-				.replace(/\{\{title\}\}/g, title)
-				.replace(/\{\{date\}\}/g, date);
+			content = raw.replace(/\{\{title\}\}/g, title).replace(/\{\{date\}\}/g, date);
 		} else {
 			const title = humanizeFileName(filename);
 			content = `---\ntitle: "${title}"\n---\n\n`;
@@ -455,18 +411,16 @@ export const createObsidianFile = createServerFn({ method: "POST" })
 		return { relativePath, routePath: toObsidianRoutePath(relativePath) };
 	});
 
-export const listObsidianFolders = createServerFn({ method: "GET" }).handler(
-	async (): Promise<string[]> => {
-		await ensureSession();
+export const listObsidianFolders = createServerFn({ method: "GET" }).handler(async (): Promise<string[]> => {
+	await ensureSession();
 
-		const obsidianRoot = getObsidianRoot();
-		if (!obsidianRoot) return [];
+	const obsidianRoot = getObsidianRoot();
+	if (!obsidianRoot) return [];
 
-		const folders: string[] = [""];
-		await collectFolders(obsidianRoot, "", folders);
-		return folders;
-	},
-);
+	const folders: string[] = [""];
+	await collectFolders(obsidianRoot, "", folders);
+	return folders;
+});
 
 async function collectFolders(root: string, relative: string, out: string[]) {
 	const abs = path.join(root, relative);

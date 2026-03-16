@@ -1,11 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-	ArrowRight,
-	BookOpen,
-	CalendarCheck,
-	Lock,
-	Sparkles,
-} from "lucide-react";
+import { ArrowRight, BookOpen, CalendarCheck, Lock, Sparkles } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { FeatureCard } from "#/components/ui/feature-card";
 import { GlowBg } from "#/components/ui/glow-bg";
@@ -27,8 +21,7 @@ const features = [
 	{
 		icon: CalendarCheck,
 		title: "Daily Planner",
-		description:
-			"Organise your tasks and goals for each day. Stay focused on what matters most.",
+		description: "Organise your tasks and goals for each day. Stay focused on what matters most.",
 		color: "text-[var(--coral)]",
 		bg: "bg-[var(--coral)]/8",
 		border: "border-[var(--coral)]/20",
@@ -36,8 +29,7 @@ const features = [
 	{
 		icon: BookOpen,
 		title: "Linked Notes",
-		description:
-			"Browse and connect ideas across your entire vault. See relationships you didn't know existed.",
+		description: "Browse and connect ideas across your entire vault. See relationships you didn't know existed.",
 		color: "text-[var(--chart-3)]",
 		bg: "bg-[var(--chart-3)]/8",
 		border: "border-[var(--chart-3)]/20",
@@ -49,16 +41,8 @@ function HomePage() {
 
 	return (
 		<main className="relative overflow-hidden">
-			<GlowBg
-				color="var(--teal)"
-				size="size-[600px]"
-				position="-right-40 -top-40"
-			/>
-			<GlowBg
-				color="var(--coral)"
-				size="size-[400px]"
-				position="-left-32 top-1/3"
-			/>
+			<GlowBg color="var(--teal)" size="size-[600px]" position="-right-40 -top-40" />
+			<GlowBg color="var(--coral)" size="size-[400px]" position="-left-32 top-1/3" />
 
 			{/* Hero */}
 			<section className="page-wrap relative px-4 pb-24 pt-20 sm:pt-28">
@@ -69,8 +53,8 @@ function HomePage() {
 				</h1>
 
 				<p className="mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground">
-					Aether brings together your notes, tasks, and AI assistant in one
-					calm, focused space — so you can think clearly and act deliberately.
+					Aether brings together your notes, tasks, and AI assistant in one calm, focused space — so you can think clearly
+					and act deliberately.
 				</p>
 
 				<div className="flex flex-wrap items-center gap-4">

@@ -45,10 +45,7 @@ export const getRequirementsViewerData = createServerFn({ method: "GET" })
 
 		return {
 			tree: discovered.tree,
-			document:
-				discovered.documents.find(
-					(document) => document.routePath === requestedPath,
-				) ?? null,
+			document: discovered.documents.find((document) => document.routePath === requestedPath) ?? null,
 			requestedPath,
 		};
 	});
@@ -73,9 +70,7 @@ async function buildTree(
 			continue;
 		}
 
-		const relativePath = relativeDirectory
-			? path.posix.join(relativeDirectory, entry.name)
-			: entry.name;
+		const relativePath = relativeDirectory ? path.posix.join(relativeDirectory, entry.name) : entry.name;
 
 		if (entry.isDirectory()) {
 			const children = await buildTree(relativePath, documents);
@@ -112,9 +107,7 @@ async function buildTree(
 	return sortTreeNodes(nodes);
 }
 
-async function readRequirementDocument(
-	relativePath: string,
-): Promise<DiscoveredRequirementDocument> {
+async function readRequirementDocument(relativePath: string): Promise<DiscoveredRequirementDocument> {
 	const absolutePath = path.join(REQUIREMENTS_ROOT, relativePath);
 	const rawDocument = await fs.readFile(absolutePath, "utf8");
 	const parsed = matter(rawDocument);

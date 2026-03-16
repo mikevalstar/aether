@@ -1,28 +1,13 @@
 "use client";
 
-import {
-	AttachmentPrimitive,
-	ComposerPrimitive,
-	MessagePrimitive,
-	useAui,
-	useAuiState,
-} from "@assistant-ui/react";
+import { AttachmentPrimitive, ComposerPrimitive, MessagePrimitive, useAui, useAuiState } from "@assistant-ui/react";
 import { FileText, PlusIcon, XIcon } from "lucide-react";
 import { type FC, type PropsWithChildren, useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import { TooltipIconButton } from "#/components/assistant-ui/tooltip-icon-button";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
-import {
-	Dialog,
-	DialogContent,
-	DialogTitle,
-	DialogTrigger,
-} from "#/components/ui/dialog";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "#/components/ui/tooltip";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "#/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import { cn } from "#/lib/utils";
 
 const useFileSrc = (file: File | undefined) => {
@@ -50,8 +35,7 @@ const useAttachmentSrc = () => {
 		useShallow((s): { file?: File; src?: string } => {
 			if (s.attachment.type !== "image") return {};
 			if (s.attachment.file) return { file: s.attachment.file };
-			const src = s.attachment.content?.filter((c) => c.type === "image")[0]
-				?.image;
+			const src = s.attachment.content?.filter((c) => c.type === "image")[0]?.image;
 			if (!src) return {};
 			return { src };
 		}),
@@ -72,9 +56,7 @@ const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
 			alt="Preview"
 			className={cn(
 				"block h-auto max-h-[80vh] w-auto max-w-full object-contain",
-				isLoaded
-					? "aui-attachment-preview-image-loaded"
-					: "aui-attachment-preview-image-loading invisible",
+				isLoaded ? "aui-attachment-preview-image-loaded" : "aui-attachment-preview-image-loading invisible",
 			)}
 			onLoad={() => setIsLoaded(true)}
 		/>
@@ -88,16 +70,11 @@ const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
 
 	return (
 		<Dialog>
-			<DialogTrigger
-				className="aui-attachment-preview-trigger cursor-pointer transition-colors hover:bg-accent/50"
-				asChild
-			>
+			<DialogTrigger className="aui-attachment-preview-trigger cursor-pointer transition-colors hover:bg-accent/50" asChild>
 				{children}
 			</DialogTrigger>
 			<DialogContent className="aui-attachment-preview-dialog-content p-2 sm:max-w-3xl [&>button]:rounded-full [&>button]:bg-foreground/60 [&>button]:p-1 [&>button]:opacity-100 [&>button]:ring-0! [&_svg]:text-background [&>button]:hover:[&_svg]:text-destructive">
-				<DialogTitle className="aui-sr-only sr-only">
-					Image Attachment Preview
-				</DialogTitle>
+				<DialogTitle className="aui-sr-only sr-only">Image Attachment Preview</DialogTitle>
 				<div className="aui-attachment-preview relative mx-auto flex max-h-[80dvh] w-full items-center justify-center overflow-hidden bg-background">
 					<AttachmentPreview src={src} />
 				</div>
@@ -112,11 +89,7 @@ const AttachmentThumb: FC = () => {
 
 	return (
 		<Avatar className="aui-attachment-tile-avatar h-full w-full rounded-none">
-			<AvatarImage
-				src={src}
-				alt="Attachment preview"
-				className="aui-attachment-tile-image object-cover"
-			/>
+			<AvatarImage src={src} alt="Attachment preview" className="aui-attachment-tile-image object-cover" />
 			<AvatarFallback delayMs={isImage ? 200 : 0}>
 				<FileText className="aui-attachment-tile-fallback-icon size-8 text-muted-foreground" />
 			</AvatarFallback>
@@ -146,10 +119,7 @@ const AttachmentUI: FC = () => {
 	return (
 		<Tooltip>
 			<AttachmentPrimitive.Root
-				className={cn(
-					"aui-attachment-root relative",
-					isImage && "aui-attachment-root-composer only:*:first:size-24",
-				)}
+				className={cn("aui-attachment-root relative", isImage && "aui-attachment-root-composer only:*:first:size-24")}
 			>
 				<AttachmentPreviewDialog>
 					<TooltipTrigger asChild>
@@ -196,9 +166,7 @@ export const UserMessageAttachments: FC = () => {
 export const ComposerAttachments: FC = () => {
 	return (
 		<div className="aui-composer-attachments flex w-full flex-row items-center gap-2 overflow-x-auto empty:hidden">
-			<ComposerPrimitive.Attachments
-				components={{ Attachment: AttachmentUI }}
-			/>
+			<ComposerPrimitive.Attachments components={{ Attachment: AttachmentUI }} />
 		</div>
 	);
 };

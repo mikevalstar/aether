@@ -187,10 +187,7 @@ async function doInit(): Promise<void> {
 		});
 
 	const taskCount = tasks.size;
-	logger.info(
-		{ taskCount, dir: tasksDir },
-		`Task scheduler initialized with ${taskCount} task(s)`,
-	);
+	logger.info({ taskCount, dir: tasksDir }, `Task scheduler initialized with ${taskCount} task(s)`);
 }
 
 // ── File Handlers ────────────────────────────────────────────────────
@@ -276,10 +273,7 @@ async function parseTaskFile(filePath: string): Promise<TaskConfig | null> {
 			effort: typeof fm.effort === "string" ? fm.effort : undefined,
 			enabled: fm.enabled !== false,
 			endDate: typeof fm.endDate === "string" ? fm.endDate : undefined,
-			maxTokens:
-				typeof fm.maxTokens === "number" && fm.maxTokens > 0
-					? fm.maxTokens
-					: undefined,
+			maxTokens: typeof fm.maxTokens === "number" && fm.maxTokens > 0 ? fm.maxTokens : undefined,
 			body: parsed.content,
 		};
 	} catch (err) {
@@ -288,11 +282,7 @@ async function parseTaskFile(filePath: string): Promise<TaskConfig | null> {
 	}
 }
 
-function createCronJob(
-	filename: string,
-	config: TaskConfig,
-	lastRunAt: Date | null,
-): Cron | null {
+function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | null): Cron | null {
 	if (!config.enabled) {
 		// Create a paused job so nextRun is still available
 		try {
@@ -357,11 +347,7 @@ function createCronJob(
 	}
 }
 
-async function upsertTaskRow(
-	filename: string,
-	config: TaskConfig,
-	userId: string,
-): Promise<void> {
+async function upsertTaskRow(filename: string, config: TaskConfig, userId: string): Promise<void> {
 	await prisma.task.upsert({
 		where: { filename },
 		create: {

@@ -4,11 +4,7 @@ import { prisma } from "#/db";
 import { auth } from "#/lib/auth";
 import { ensureSession } from "#/lib/auth.functions";
 import { listObsidianFolders } from "#/lib/obsidian.functions";
-import {
-	parsePreferences,
-	serializePreferences,
-	type UserPreferences,
-} from "#/lib/preferences";
+import { parsePreferences, serializePreferences, type UserPreferences } from "#/lib/preferences";
 
 type UpdateProfileInput = {
 	name: string;
@@ -34,9 +30,7 @@ export const getPreferencesPageData = createServerFn({
 		throw new Error("Not found");
 	}
 
-	const obsidianFolders = await listObsidianFolders().catch(
-		() => [] as string[],
-	);
+	const obsidianFolders = await listObsidianFolders().catch(() => [] as string[]);
 
 	return {
 		name: user.name,

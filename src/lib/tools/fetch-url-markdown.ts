@@ -20,8 +20,7 @@ export const fetchUrlMarkdown = tool({
 			const response = await fetch(url, {
 				headers: {
 					"User-Agent": CHROME_USER_AGENT,
-					Accept:
-						"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+					Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 					"Accept-Language": "en-US,en;q=0.9",
 				},
 				redirect: "follow",
@@ -60,9 +59,7 @@ export const fetchUrlMarkdown = tool({
 			let markdown = turndown.turndown(article.content);
 
 			if (markdown.length > MAX_CONTENT_LENGTH) {
-				markdown =
-					markdown.slice(0, MAX_CONTENT_LENGTH) +
-					"\n\n[Content truncated due to length]";
+				markdown = markdown.slice(0, MAX_CONTENT_LENGTH) + "\n\n[Content truncated due to length]";
 			}
 
 			return {

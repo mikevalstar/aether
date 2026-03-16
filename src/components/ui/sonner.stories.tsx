@@ -22,9 +22,7 @@ export const AllTypes: Story = {
 	render: () => (
 		<div className="space-y-4">
 			<div className="flex flex-wrap gap-3">
-				<Button onClick={() => toast.success("File saved")}>
-					Success (8s)
-				</Button>
+				<Button onClick={() => toast.success("File saved")}>Success (8s)</Button>
 				<Button
 					variant="destructive"
 					onClick={() =>
@@ -35,10 +33,7 @@ export const AllTypes: Story = {
 				>
 					Error (persistent)
 				</Button>
-				<Button
-					variant="outline"
-					onClick={() => toast.warning("Unsaved changes")}
-				>
+				<Button variant="outline" onClick={() => toast.warning("Unsaved changes")}>
 					Warning (15s)
 				</Button>
 				<Button
@@ -56,19 +51,15 @@ export const AllTypes: Story = {
 				</Button>
 			</div>
 			<p className="text-xs text-[var(--ink-soft)]">
-				Errors stay until dismissed. Warnings last 15s. Everything else
-				auto-dismisses after 8s. All toasts have a close button.
+				Errors stay until dismissed. Warnings last 15s. Everything else auto-dismisses after 8s. All toasts have a close
+				button.
 			</p>
 		</div>
 	),
 };
 
 export const Success: Story = {
-	render: () => (
-		<Button onClick={() => toast.success("Password updated")}>
-			Show success toast
-		</Button>
-	),
+	render: () => <Button onClick={() => toast.success("Password updated")}>Show success toast</Button>,
 };
 
 export const ErrorWithDescription: Story = {
@@ -123,14 +114,11 @@ export const PromiseToast: Story = {
 	render: () => (
 		<Button
 			onClick={() =>
-				toast.promise(
-					new globalThis.Promise((resolve) => setTimeout(resolve, 2000)),
-					{
-						loading: "Saving...",
-						success: "Saved!",
-						error: "Failed to save",
-					},
-				)
+				toast.promise(new globalThis.Promise((resolve) => setTimeout(resolve, 2000)), {
+					loading: "Saving...",
+					success: "Saved!",
+					error: "Failed to save",
+				})
 			}
 		>
 			Promise toast

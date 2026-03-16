@@ -59,34 +59,32 @@ async function requireAdminUser() {
 	return { session, user };
 }
 
-export const getUsersPageData = createServerFn({ method: "GET" }).handler(
-	async () => {
-		const { user } = await requireAdminUser();
-		const users = await prisma.user.findMany({
-			orderBy: { createdAt: "desc" },
-			select: {
-				id: true,
-				name: true,
-				email: true,
-				role: true,
-				mustChangePassword: true,
-				createdAt: true,
-				invitedBy: {
-					select: {
-						id: true,
-						name: true,
-						email: true,
-					},
+export const getUsersPageData = createServerFn({ method: "GET" }).handler(async () => {
+	const { user } = await requireAdminUser();
+	const users = await prisma.user.findMany({
+		orderBy: { createdAt: "desc" },
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			role: true,
+			mustChangePassword: true,
+			createdAt: true,
+			invitedBy: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
 				},
 			},
-		});
+		},
+	});
 
-		return {
-			currentUser: user,
-			users: users.map(mapManagedUser),
-		};
-	},
-);
+	return {
+		currentUser: user,
+		users: users.map(mapManagedUser),
+	};
+});
 
 export const createManagedUser = createServerFn({ method: "POST" })
 	.inputValidator((data: CreateManagedUserInput) => {

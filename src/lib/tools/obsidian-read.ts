@@ -13,11 +13,7 @@ export function createObsidianRead(ctx: ObsidianToolContext) {
 		description:
 			"Read the contents of a note from the user's Obsidian vault. Returns the full markdown content including frontmatter. Use obsidian_search first to find the correct file path if you don't know it.",
 		inputSchema: z.object({
-			relativePath: z
-				.string()
-				.describe(
-					"The relative path to the file within the vault, e.g. 'folder/note.md'",
-				),
+			relativePath: z.string().describe("The relative path to the file within the vault, e.g. 'folder/note.md'"),
 		}),
 		execute: async ({ relativePath }) => {
 			const obsidianRoot = getObsidianRoot();
@@ -26,11 +22,7 @@ export function createObsidianRead(ctx: ObsidianToolContext) {
 			}
 
 			const normalized = relativePath.replace(/\\/g, "/").trim();
-			if (
-				!normalized ||
-				normalized.includes("..") ||
-				normalized.startsWith("/")
-			) {
+			if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
 				return { error: "Invalid file path." };
 			}
 
@@ -43,10 +35,7 @@ export function createObsidianRead(ctx: ObsidianToolContext) {
 			}
 
 			try {
-				const [content, stat] = await Promise.all([
-					fs.readFile(absolutePath, "utf8"),
-					fs.stat(absolutePath),
-				]);
+				const [content, stat] = await Promise.all([fs.readFile(absolutePath, "utf8"), fs.stat(absolutePath)]);
 				const modifiedAt = stat.mtime.toISOString();
 
 				// Track this read so obsidian_write can verify it

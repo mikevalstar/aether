@@ -24,18 +24,12 @@ export function FeatureCard({
 	border = "border-border",
 }: FeatureCardProps) {
 	return (
-		<article
-			className={`group relative rounded-xl border ${border} ${bg} p-7 transition-shadow hover:shadow-lg`}
-		>
-			<div
-				className={`mb-4 inline-flex size-10 items-center justify-center rounded-lg ${bg} ${color}`}
-			>
+		<article className={`group relative rounded-xl border ${border} ${bg} p-7 transition-shadow hover:shadow-lg`}>
+			<div className={`mb-4 inline-flex size-10 items-center justify-center rounded-lg ${bg} ${color}`}>
 				<Icon className="size-5" strokeWidth={1.75} />
 			</div>
 			<h2 className="mb-2 text-base font-bold tracking-tight">{title}</h2>
-			<p className="m-0 text-sm leading-relaxed text-muted-foreground">
-				{description}
-			</p>
+			<p className="m-0 text-sm leading-relaxed text-muted-foreground">{description}</p>
 		</article>
 	);
 }

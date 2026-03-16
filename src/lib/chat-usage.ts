@@ -28,8 +28,7 @@ export type UsageSearchInput = {
 
 export function normalizeUsageSearch(input: UsageSearchInput) {
 	const model = input.model && isChatModel(input.model) ? input.model : "all";
-	const taskType =
-		input.taskType && isTaskType(input.taskType) ? input.taskType : "all";
+	const taskType = input.taskType && isTaskType(input.taskType) ? input.taskType : "all";
 
 	const from = normalizeDateInput(input.from);
 	const to = normalizeDateInput(input.to);
@@ -41,16 +40,10 @@ export function normalizeUsageSearch(input: UsageSearchInput) {
 	return { model, taskType, from, to };
 }
 
-export function buildUsageDateRange(
-	search: ReturnType<typeof normalizeUsageSearch>,
-) {
+export function buildUsageDateRange(search: ReturnType<typeof normalizeUsageSearch>) {
 	return {
-		fromDate: search.from
-			? dayjs(`${search.from}T00:00:00`).toDate()
-			: undefined,
-		toDateExclusive: search.to
-			? dayjs(`${search.to}T00:00:00`).add(1, "day").toDate()
-			: undefined,
+		fromDate: search.from ? dayjs(`${search.from}T00:00:00`).toDate() : undefined,
+		toDateExclusive: search.to ? dayjs(`${search.to}T00:00:00`).add(1, "day").toDate() : undefined,
 	};
 }
 
@@ -68,9 +61,7 @@ export function formatUsageCurrency(value: number) {
 export function getChatModelLabel(model: string) {
 	return (
 		CHAT_MODELS.find((item) => item.id === model)?.label ??
-		(isChatModel(model)
-			? CHAT_MODELS.find((item) => item.id === model)?.label
-			: model) ??
+		(isChatModel(model) ? CHAT_MODELS.find((item) => item.id === model)?.label : model) ??
 		DEFAULT_CHAT_MODEL
 	);
 }

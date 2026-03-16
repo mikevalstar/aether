@@ -17,11 +17,7 @@ export function ErrorDisplay({
 
 	const parsed: ParsedError = parseError(
 		error,
-		showURL
-			? typeof window !== "undefined"
-				? window.location.href
-				: undefined
-			: undefined,
+		showURL ? (typeof window !== "undefined" ? window.location.href : undefined) : undefined,
 	);
 
 	const handleCopy = async () => {
@@ -48,11 +44,7 @@ export function ErrorDisplay({
 				copied={copied}
 			/>
 			{parsed.frames.length > 0 ? (
-				<StackTrace
-					frames={parsed.frames}
-					projectRoot={projectRoot}
-					defaultExpanded={defaultExpanded}
-				/>
+				<StackTrace frames={parsed.frames} projectRoot={projectRoot} defaultExpanded={defaultExpanded} />
 			) : parsed.stack ? (
 				<RawStackTrace stack={parsed.stack} />
 			) : null}

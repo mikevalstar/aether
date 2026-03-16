@@ -7,10 +7,7 @@ interface ErrorBoundaryState {
 	error: Error | null;
 }
 
-export class ErrorBoundary extends Component<
-	ErrorBoundaryProps,
-	ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = { hasError: false, error: null };
@@ -33,20 +30,10 @@ export class ErrorBoundary extends Component<
 		if (this.state.hasError && this.state.error) {
 			if (this.props.fallback) {
 				const FallbackComponent = this.props.fallback;
-				return (
-					<FallbackComponent
-						error={this.state.error}
-						resetErrorBoundary={this.resetErrorBoundary}
-					/>
-				);
+				return <FallbackComponent error={this.state.error} resetErrorBoundary={this.resetErrorBoundary} />;
 			}
 
-			return (
-				<ErrorDisplay
-					error={this.state.error}
-					onRetry={this.resetErrorBoundary}
-				/>
-			);
+			return <ErrorDisplay error={this.state.error} onRetry={this.resetErrorBoundary} />;
 		}
 
 		return this.props.children;

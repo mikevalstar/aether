@@ -4,11 +4,7 @@ import * as React from "react";
 import type { DateRange } from "react-day-picker";
 import { Button } from "#/components/ui/button";
 import { Calendar } from "#/components/ui/calendar";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "#/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { cn } from "#/lib/utils";
 
 // ── Built-in presets ────────────────────────────────────────────────
@@ -81,17 +77,9 @@ interface DateRangePickerProps {
 	onChange: (value: { from?: string; to?: string }) => void;
 }
 
-export function DateRangePicker({
-	from,
-	to,
-	showPresets = true,
-	defaultPreset = "30d",
-	onChange,
-}: DateRangePickerProps) {
+export function DateRangePicker({ from, to, showPresets = true, defaultPreset = "30d", onChange }: DateRangePickerProps) {
 	const [open, setOpen] = React.useState(false);
-	const [activePreset, setActivePreset] = React.useState<string | undefined>(
-		!from && !to ? defaultPreset : undefined,
-	);
+	const [activePreset, setActivePreset] = React.useState<string | undefined>(!from && !to ? defaultPreset : undefined);
 
 	// Resolve the default preset on mount when no dates are provided
 	const didInit = React.useRef(false);
@@ -106,8 +94,7 @@ export function DateRangePicker({
 	const fromDate = from ? dayjs(from).toDate() : undefined;
 	const toDate = to ? dayjs(to).toDate() : undefined;
 
-	const selected: DateRange | undefined =
-		fromDate || toDate ? { from: fromDate, to: toDate ?? fromDate } : undefined;
+	const selected: DateRange | undefined = fromDate || toDate ? { from: fromDate, to: toDate ?? fromDate } : undefined;
 
 	function handleRangeSelect(range: DateRange | undefined) {
 		setActivePreset(undefined);
@@ -178,11 +165,7 @@ export function DateRangePicker({
 							selected={selected}
 							onSelect={handleRangeSelect}
 							numberOfMonths={2}
-							defaultMonth={
-								toDate
-									? dayjs(toDate).subtract(1, "month").toDate()
-									: dayjs().subtract(1, "month").toDate()
-							}
+							defaultMonth={toDate ? dayjs(toDate).subtract(1, "month").toDate() : dayjs().subtract(1, "month").toDate()}
 							disabled={{ after: new Date() }}
 						/>
 					</div>

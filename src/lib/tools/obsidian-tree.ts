@@ -18,9 +18,7 @@ function validatePath(obsidianRoot: string, inputPath?: string) {
 		return { error: "Invalid path." } as const;
 	}
 
-	const absoluteStart = sanitized
-		? path.join(obsidianRoot, sanitized)
-		: obsidianRoot;
+	const absoluteStart = sanitized ? path.join(obsidianRoot, sanitized) : obsidianRoot;
 
 	const resolvedStart = path.resolve(absoluteStart);
 	if (!resolvedStart.startsWith(path.resolve(obsidianRoot))) {
@@ -51,10 +49,7 @@ export const obsidianFolders = tool({
 	},
 });
 
-async function buildFolderTree(
-	obsidianRoot: string,
-	relativeDir: string,
-): Promise<FolderEntry[]> {
+async function buildFolderTree(obsidianRoot: string, relativeDir: string): Promise<FolderEntry[]> {
 	const absoluteDir = path.join(obsidianRoot, relativeDir);
 	let entries: import("node:fs").Dirent[];
 	try {
@@ -68,9 +63,7 @@ async function buildFolderTree(
 	for (const entry of entries) {
 		if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
 
-		const relativePath = relativeDir
-			? path.posix.join(relativeDir, entry.name)
-			: entry.name;
+		const relativePath = relativeDir ? path.posix.join(relativeDir, entry.name) : entry.name;
 
 		const children = await buildFolderTree(obsidianRoot, relativePath);
 
@@ -109,9 +102,7 @@ export const obsidianList = tool({
 		folder: z
 			.string()
 			.optional()
-			.describe(
-				"Relative path to the folder to list, e.g. 'Projects'. Defaults to the vault root.",
-			),
+			.describe("Relative path to the folder to list, e.g. 'Projects'. Defaults to the vault root."),
 	}),
 	execute: async ({ folder }) => {
 		const obsidianRoot = getObsidianRoot();
@@ -136,9 +127,7 @@ export const obsidianList = tool({
 		for (const entry of entries) {
 			if (entry.name.startsWith(".")) continue;
 
-			const relativePath = sanitized
-				? path.posix.join(sanitized, entry.name)
-				: entry.name;
+			const relativePath = sanitized ? path.posix.join(sanitized, entry.name) : entry.name;
 
 			if (entry.isDirectory()) {
 				items.push({ type: "folder", name: entry.name, path: relativePath });

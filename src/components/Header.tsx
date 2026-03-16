@@ -10,12 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
-import {
-	Sheet,
-	SheetContent,
-	SheetHeader,
-	SheetTitle,
-} from "#/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "#/components/ui/sheet";
 import { authClient } from "#/lib/auth-client";
 import ThemeToggle from "./ThemeToggle";
 
@@ -60,22 +55,14 @@ export default function Header() {
 	return (
 		<header className="sticky top-0 z-50 border-b border-border bg-[var(--header-bg)] px-4 backdrop-blur-sm">
 			<nav className="page-wrap flex items-center gap-6 py-3">
-				<Link
-					to="/"
-					className="text-sm font-bold text-primary no-underline tracking-wide"
-				>
+				<Link to="/" className="text-sm font-bold text-primary no-underline tracking-wide">
 					Aether
 				</Link>
 
 				{/* Desktop nav links */}
 				<div className="hidden md:flex items-center gap-5 text-sm font-medium">
 					{visibleLinks.map((link) => (
-						<Link
-							key={link.to}
-							to={link.to}
-							className="nav-link"
-							activeProps={{ className: "nav-link is-active" }}
-						>
+						<Link key={link.to} to={link.to} className="nav-link" activeProps={{ className: "nav-link is-active" }}>
 							{link.label}
 						</Link>
 					))}
@@ -92,12 +79,7 @@ export default function Header() {
 									className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
 								>
 									<Avatar size="sm">
-										{session.user.image && (
-											<AvatarImage
-												src={session.user.image}
-												alt={session.user.name ?? ""}
-											/>
-										)}
+										{session.user.image && <AvatarImage src={session.user.image} alt={session.user.name ?? ""} />}
 										<AvatarFallback className="bg-primary text-xs text-primary-foreground">
 											{getInitials(session.user.name, session.user.email)}
 										</AvatarFallback>
@@ -106,26 +88,16 @@ export default function Header() {
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" className="w-48">
 								<div className="px-2 py-1.5 text-sm">
-									<p className="font-medium text-foreground">
-										{session.user.name}
-									</p>
-									<p className="text-xs text-muted-foreground">
-										{session.user.email}
-									</p>
+									<p className="font-medium text-foreground">{session.user.name}</p>
+									<p className="text-xs text-muted-foreground">{session.user.email}</p>
 								</div>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									onSelect={() =>
-										void navigate({ to: "/settings/preferences" })
-									}
-								>
+								<DropdownMenuItem onSelect={() => void navigate({ to: "/settings/preferences" })}>
 									<Settings className="mr-2 size-4" />
 									Settings
 								</DropdownMenuItem>
 								{session.user.role === "admin" && (
-									<DropdownMenuItem
-										onSelect={() => void navigate({ to: "/users" })}
-									>
+									<DropdownMenuItem onSelect={() => void navigate({ to: "/users" })}>
 										<Users className="mr-2 size-4" />
 										Users
 									</DropdownMenuItem>
@@ -161,9 +133,7 @@ export default function Header() {
 			<Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
 				<SheetContent side="right" className="w-64 p-0">
 					<SheetHeader className="border-b border-border px-4 py-3">
-						<SheetTitle className="text-sm font-bold text-primary">
-							Aether
-						</SheetTitle>
+						<SheetTitle className="text-sm font-bold text-primary">Aether</SheetTitle>
 					</SheetHeader>
 					<div className="flex flex-col py-2">
 						{visibleLinks.map((link) => (
@@ -172,8 +142,7 @@ export default function Header() {
 								to={link.to}
 								className="nav-link-mobile px-4 py-2.5 text-sm font-medium"
 								activeProps={{
-									className:
-										"nav-link-mobile is-active px-4 py-2.5 text-sm font-medium",
+									className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium",
 								}}
 							>
 								{link.label}
@@ -186,8 +155,7 @@ export default function Header() {
 									to="/settings/preferences"
 									className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
 									activeProps={{
-										className:
-											"nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",
+										className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",
 									}}
 								>
 									<Settings className="size-4" />
@@ -198,8 +166,7 @@ export default function Header() {
 										to="/users"
 										className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
 										activeProps={{
-											className:
-												"nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",
+											className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",
 										}}
 									>
 										<Users className="size-4" />

@@ -13,18 +13,9 @@ export interface StatCardProps {
 	color: string;
 }
 
-export function StatCard({
-	label,
-	value,
-	detail,
-	icon: Icon,
-	color,
-}: StatCardProps) {
+export function StatCard({ label, value, detail, icon: Icon, color }: StatCardProps) {
 	return (
-		<article
-			className="surface-card relative overflow-hidden p-5"
-			style={{ borderTopColor: color, borderTopWidth: 2 }}
-		>
+		<article className="surface-card relative overflow-hidden p-5" style={{ borderTopColor: color, borderTopWidth: 2 }}>
 			<div className="flex items-center gap-2">
 				<div
 					className="inline-flex size-7 items-center justify-center rounded-md"
@@ -35,9 +26,7 @@ export function StatCard({
 				>
 					<Icon className="size-3.5" strokeWidth={2} />
 				</div>
-				<p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-					{label}
-				</p>
+				<p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
 			</div>
 			<p className="mt-3 text-2xl font-semibold">{value}</p>
 			<p className="mt-2 text-sm text-muted-foreground">{detail}</p>

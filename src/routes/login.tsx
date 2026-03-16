@@ -48,9 +48,7 @@ function LoginPage() {
 		<main className="page-wrap flex items-center justify-center px-4 py-20">
 			<div className="surface-card w-full max-w-sm px-8 py-10">
 				<div className="mb-8">
-					<h1 className="display-title text-xl font-bold tracking-tight">
-						Welcome back
-					</h1>
+					<h1 className="display-title text-xl font-bold tracking-tight">Welcome back</h1>
 					<p className="mt-1 text-sm text-muted-foreground">
 						Sign in to your dashboard. New accounts are created by an admin.
 					</p>
@@ -100,9 +98,7 @@ function LoginPage() {
 					</Button>
 				</form>
 
-				<p className="mt-6 text-center text-sm text-muted-foreground">
-					Need access? Ask an admin to create your account.
-				</p>
+				<p className="mt-6 text-center text-sm text-muted-foreground">Need access? Ask an admin to create your account.</p>
 			</div>
 		</main>
 	);

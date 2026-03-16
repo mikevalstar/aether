@@ -1,16 +1,5 @@
-import {
-	CheckIcon,
-	InfoIcon,
-	Loader2Icon,
-	OctagonXIcon,
-	TriangleAlertIcon,
-} from "lucide-react";
-import {
-	type ExternalToast,
-	Toaster as Sonner,
-	type ToasterProps,
-	toast,
-} from "sonner";
+import { CheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from "lucide-react";
+import { type ExternalToast, Toaster as Sonner, type ToasterProps, toast } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
 	return (
@@ -41,9 +30,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 						<OctagonXIcon className="size-3" strokeWidth={2.5} />
 					</span>
 				),
-				loading: (
-					<Loader2Icon className="size-4 animate-spin text-[var(--teal)]" />
-				),
+				loading: <Loader2Icon className="size-4 animate-spin text-[var(--teal)]" />,
 			}}
 			toastOptions={{
 				unstyled: true,
@@ -75,24 +62,18 @@ const Toaster = ({ ...props }: ToasterProps) => {
  * - warning: 15 seconds
  * - success/info/default: 8 seconds (Toaster default)
  */
-const aetherToast = Object.assign(
-	(...args: Parameters<typeof toast>) => toast(...args),
-	{
-		success: (message: string | React.ReactNode, data?: ExternalToast) =>
-			toast.success(message, data),
-		info: (message: string | React.ReactNode, data?: ExternalToast) =>
-			toast.info(message, data),
-		warning: (message: string | React.ReactNode, data?: ExternalToast) =>
-			toast.warning(message, { duration: 15_000, ...data }),
-		error: (message: string | React.ReactNode, data?: ExternalToast) =>
-			toast.error(message, { duration: Number.POSITIVE_INFINITY, ...data }),
-		loading: (message: string | React.ReactNode, data?: ExternalToast) =>
-			toast.loading(message, data),
-		promise: toast.promise,
-		dismiss: toast.dismiss,
-		message: toast.message,
-		custom: toast.custom,
-	},
-);
+const aetherToast = Object.assign((...args: Parameters<typeof toast>) => toast(...args), {
+	success: (message: string | React.ReactNode, data?: ExternalToast) => toast.success(message, data),
+	info: (message: string | React.ReactNode, data?: ExternalToast) => toast.info(message, data),
+	warning: (message: string | React.ReactNode, data?: ExternalToast) =>
+		toast.warning(message, { duration: 15_000, ...data }),
+	error: (message: string | React.ReactNode, data?: ExternalToast) =>
+		toast.error(message, { duration: Number.POSITIVE_INFINITY, ...data }),
+	loading: (message: string | React.ReactNode, data?: ExternalToast) => toast.loading(message, data),
+	promise: toast.promise,
+	dismiss: toast.dismiss,
+	message: toast.message,
+	custom: toast.custom,
+});
 
 export { aetherToast as toast, Toaster };

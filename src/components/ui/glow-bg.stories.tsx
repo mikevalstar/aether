@@ -48,16 +48,8 @@ export const Combined: Story = {
 	},
 	render: () => (
 		<div className="relative h-[400px] w-full overflow-hidden rounded-xl border border-border bg-background">
-			<GlowBg
-				color="var(--teal)"
-				size="size-[600px]"
-				position="-right-40 -top-40"
-			/>
-			<GlowBg
-				color="var(--coral)"
-				size="size-[400px]"
-				position="-left-32 top-1/3"
-			/>
+			<GlowBg color="var(--teal)" size="size-[600px]" position="-right-40 -top-40" />
+			<GlowBg color="var(--coral)" size="size-[400px]" position="-left-32 top-1/3" />
 			<div className="relative z-10 flex h-full items-center justify-center text-sm text-muted-foreground">
 				Two glows layered together
 			</div>
