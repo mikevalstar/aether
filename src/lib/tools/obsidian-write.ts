@@ -4,6 +4,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import { logFileChange } from "#/lib/activity";
 import { logger } from "#/lib/logger";
+import { resolveNotePath } from "#/lib/obsidian/vault-index";
 import type { ObsidianToolContext } from "./obsidian-context";
 
 function getObsidianRoot() {
@@ -26,13 +27,20 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 				return { error: "Obsidian vault is not configured." };
 			}
 
-			const normalized = relativePath.replace(/\\/g, "/").trim();
+			let normalized = relativePath.replace(/\\/g, "/").trim();
 			if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
 				return { error: "Invalid file path." };
 			}
 
+			// Resolve partial paths (missing folder or .md extension) for existing files
+			const resolved = await resolveNotePath(normalized);
+			if (resolved) {
+				normalized = resolved;
+			}
+
 			if (!normalized.toLowerCase().endsWith(".md")) {
-				return { error: "Only markdown (.md) files can be written." };
+				// For new files, auto-append .md if missing
+				normalized = `${normalized}.md`;
 			}
 
 			const absolutePath = path.join(obsidianRoot, normalized);
@@ -44,7 +52,8 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
 			}
 
 			try {
-				const readModifiedAt = ctx.readFiles.get(normalized);
+				// Check readFiles with both the original and resolved path
+				const readModifiedAt = ctx.readFiles.get(normalized) ?? ctx.readFiles.get(relativePath.replace(/\\/g, "/").trim());
 				let fileExists = false;
 				let currentMtime: string | null = null;
 				let originalContent: string | null = null;

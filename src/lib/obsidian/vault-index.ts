@@ -141,6 +141,41 @@ export async function getAllIndexedNotes(): Promise<IndexedNote[]> {
 }
 
 /**
+ * Resolve a potentially incomplete path to the actual relative path in the vault.
+ * Tries (in order): exact match, with .md appended, basename match (unique).
+ * Returns null if no match or ambiguous.
+ */
+export async function resolveNotePath(input: string): Promise<string | null> {
+	await initVaultIndex();
+
+	const normalized = input.replace(/\\/g, "/").trim();
+	if (!normalized) return null;
+
+	// Exact match
+	if (notes.has(normalized)) return normalized;
+
+	// With .md appended
+	const withMd = normalized.endsWith(".md") ? normalized : `${normalized}.md`;
+	if (withMd !== normalized && notes.has(withMd)) return withMd;
+
+	// Strip trailing .md for basename comparison
+	const targetBase = path.basename(withMd, ".md").toLowerCase();
+
+	// Search for a unique basename match across all notes
+	const matches: string[] = [];
+	for (const [rel] of notes) {
+		const noteBase = path.basename(rel, ".md").toLowerCase();
+		if (noteBase === targetBase) {
+			matches.push(rel);
+		}
+	}
+
+	if (matches.length === 1) return matches[0];
+
+	return null;
+}
+
+/**
  * Get index stats for diagnostics.
  */
 export async function getIndexStats() {

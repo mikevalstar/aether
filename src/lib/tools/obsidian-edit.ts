@@ -4,6 +4,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import { logFileChange } from "#/lib/activity";
 import { logger } from "#/lib/logger";
+import { resolveNotePath } from "#/lib/obsidian/vault-index";
 import type { ObsidianToolContext } from "./obsidian-context";
 
 function getObsidianRoot() {
@@ -27,9 +28,15 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 				return { error: "Obsidian vault is not configured." };
 			}
 
-			const normalized = relativePath.replace(/\\/g, "/").trim();
+			let normalized = relativePath.replace(/\\/g, "/").trim();
 			if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
 				return { error: "Invalid file path." };
+			}
+
+			// Resolve partial paths (missing folder or .md extension)
+			const resolved = await resolveNotePath(normalized);
+			if (resolved) {
+				normalized = resolved;
 			}
 
 			if (!normalized.toLowerCase().endsWith(".md")) {
@@ -42,7 +49,8 @@ export function createObsidianEdit(ctx: ObsidianToolContext) {
 				};
 			}
 
-			const readModifiedAt = ctx.readFiles.get(normalized);
+			// Check readFiles with both the resolved and original path
+			const readModifiedAt = ctx.readFiles.get(normalized) ?? ctx.readFiles.get(relativePath.replace(/\\/g, "/").trim());
 			if (!readModifiedAt) {
 				return {
 					error: "You must use obsidian_read on this path before editing it. Please read the file first.",

@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
+import { resolveNotePath } from "#/lib/obsidian/vault-index";
 import type { ObsidianToolContext } from "./obsidian-context";
 
 function getObsidianRoot() {
@@ -21,9 +22,15 @@ export function createObsidianRead(ctx: ObsidianToolContext) {
 				return { error: "Obsidian vault is not configured." };
 			}
 
-			const normalized = relativePath.replace(/\\/g, "/").trim();
+			let normalized = relativePath.replace(/\\/g, "/").trim();
 			if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
 				return { error: "Invalid file path." };
+			}
+
+			// Resolve partial paths (missing folder or .md extension)
+			const resolved = await resolveNotePath(normalized);
+			if (resolved) {
+				normalized = resolved;
 			}
 
 			const absolutePath = path.join(obsidianRoot, normalized);

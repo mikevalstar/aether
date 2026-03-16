@@ -1,6 +1,7 @@
+import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
-import { searchVault } from "#/lib/obsidian/vault-index";
+import { getIndexedNote, type IndexedNote, resolveNotePath, searchVault } from "#/lib/obsidian/vault-index";
 
 /**
  * Obsidian vault search tool — exposed to the AI chat as `obsidian_search`.
@@ -55,7 +56,36 @@ export const obsidianSearch = tool({
 			return { error: "Obsidian vault is not configured." };
 		}
 
+		// Check if the query exactly matches a file path (with or without .md/folder)
+		const exactPath = await resolveNotePath(query);
+		if (exactPath) {
+			const note = await getIndexedNote(exactPath);
+			if (note) {
+				return {
+					query,
+					matches: [formatNote(note, 100)],
+					totalFound: 1,
+				};
+			}
+		}
+
 		const results = await searchVault(query, limit);
+
+		// Check if any result is an exact match on path or filename
+		const queryLower = query.toLowerCase().replace(/\.md$/i, "");
+		const exactResult = results.find((r) => {
+			const relLower = r.item.relativePath.toLowerCase().replace(/\.md$/i, "");
+			const baseLower = path.basename(r.item.relativePath, ".md").toLowerCase();
+			return relLower === queryLower || baseLower === queryLower;
+		});
+
+		if (exactResult) {
+			return {
+				query,
+				matches: [formatNote(exactResult.item, 100)],
+				totalFound: 1,
+			};
+		}
 
 		if (results.length === 0) {
 			return {
@@ -67,16 +97,20 @@ export const obsidianSearch = tool({
 
 		return {
 			query,
-			matches: results.map((r) => ({
-				relativePath: r.item.relativePath,
-				title: r.item.title,
-				tags: r.item.tags,
-				aliases: r.item.aliases,
-				headings: r.item.headings,
-				folder: r.item.folder,
-				score: Math.round((1 - r.score) * 100), // 100 = perfect match, 0 = worst
-			})),
+			matches: results.map((r) => formatNote(r.item, Math.round((1 - r.score) * 100))),
 			totalFound: results.length,
 		};
 	},
 });
+
+function formatNote(note: IndexedNote, score: number) {
+	return {
+		relativePath: note.relativePath,
+		title: note.title,
+		tags: note.tags,
+		aliases: note.aliases,
+		headings: note.headings,
+		folder: note.folder,
+		score,
+	};
+}
