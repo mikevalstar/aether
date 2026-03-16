@@ -1,6 +1,6 @@
 ---
 title: Requirements Index
-last_updated: 2026-03-15
+last_updated: 2026-03-16
 
 canonical_file: docs/requirements/index.md
 ---
@@ -20,6 +20,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Activity Log](activity.md) | done | Generic activity log with file-change tracking (AI & manual), diff viewing, and revert. Extensible to future activity types. | [activity](activity.md) | 2026-03-15 |
 | [User Preferences](user-preferences.md) | in-progress | Profile editing and app settings (Obsidian templates folder) at `/settings/preferences`. | [user-preferences](user-preferences.md) | 2026-03-15 |
 | [AI Skills](skills.md) | todo | Markdown-based skill files in AI config that teach the AI specialized tasks via two-phase loading (summary + on-demand instructions). | [skills](skills.md) | 2026-03-15 |
+| [Periodic Tasks](periodic-tasks.md) | todo | Cron-scheduled AI tasks defined as markdown in config `tasks/` folder, stored as ChatThread records, with list/history UI. | [periodic-tasks](periodic-tasks.md) | 2026-03-16 |
 
 
 # Ideas
@@ -28,7 +29,8 @@ Future ideas and things to build, but we don't have enough detail to write requi
 
 - Cards - cards in chat for obsidian items so that we can improve linking (also show activity?)
 - Push Notifications - we'll need an integration for this probably.. hopefully an oss thing exists.. or its easy to hook into some system
-- Jobs / Recurring tasks / Triggered Tasks - in the obsidian config folder
+- In-app Notification System - badges/alerts for failed task runs, system events, etc. (pinned from periodic tasks discussion)
+- ~~Jobs / Recurring tasks / Triggered Tasks~~ — promoted to [Periodic Tasks](periodic-tasks.md)
 - Workflows - Define a form; form shows in the ui - it then runs the prompt as a background workflow
 - Integrations - Calendars, Email?
 - Important Files list - this might just be config
