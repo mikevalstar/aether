@@ -1,0 +1,238 @@
+[
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "I'll help you create a daily note for today. Let me first find the template and check if the note already exists."
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "toolu_01HNYBjDHqzknwn8aeoZPBf9",
+        "toolName": "obsidian_search",
+        "input": { "query": "Daily Note Weekend", "limit": 20 },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "toolu_01Sdp7knNoJnqqDUbt3T26LS",
+        "toolName": "obsidian_list",
+        "input": { "folder": "Daily Notes" },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "toolu_01HNYBjDHqzknwn8aeoZPBf9",
+        "toolName": "obsidian_search",
+        "output": {
+          "type": "json",
+          "value": {
+            "query": "Daily Note Weekend",
+            "matches": [
+              {
+                "relativePath": "Templates/Daily Note Weekend.md",
+                "title": "Daily Note Weekend",
+                "tags": [],
+                "aliases": [],
+                "headings": [
+                  "Notes - <% tp.date.now(\"YYYY-MM-DD\") %>",
+                  "TODO",
+                  "Bullets",
+                  "Accomplishments",
+                  "The Details / Thoughts",
+                  "Crisis Points"
+                ],
+                "folder": "Templates",
+                "score": 100
+              },
+              {
+                "relativePath": "Templates/Daily Note Weekday.md",
+                "title": "Daily Note Weekday",
+                "tags": [],
+                "aliases": [],
+                "headings": [
+                  "Notes - <% tp.date.now(\"YYYY-MM-DD\") %>",
+                  "TODO",
+                  "Bullets",
+                  "Accomplishments",
+                  "Meetings & Links",
+                  "The Details / Thoughts"
+                ],
+                "folder": "Templates",
+                "score": 79
+              },
+              {
+                "relativePath": "Midlife Crisis/2026 - Crisis V3.md",
+                "title": "2026   Crisis V3",
+                "tags": [],
+                "aliases": [],
+                "headings": [
+                  "The Plan",
+                  "Long Term Goals",
+                  "Daily / Weekly Goals",
+                  "Work Goals",
+                  "Notes"
+                ],
+                "folder": "Midlife Crisis",
+                "score": 25
+              },
+              {
+                "relativePath": "ai-config/tasks/daily-tasks.md",
+                "title": "Daily Task",
+                "tags": [],
+                "aliases": [],
+                "headings": [],
+                "folder": "ai-config/tasks",
+                "score": 4
+              }
+            ],
+            "totalFound": 4
+          }
+        },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      },
+      {
+        "type": "tool-result",
+        "toolCallId": "toolu_01Sdp7knNoJnqqDUbt3T26LS",
+        "toolName": "obsidian_list",
+        "output": {
+          "type": "json",
+          "value": {
+            "folder": "Daily Notes",
+            "items": [
+              { "type": "folder", "name": "2022", "path": "Daily Notes/2022" },
+              { "type": "folder", "name": "2023", "path": "Daily Notes/2023" },
+              { "type": "folder", "name": "2024", "path": "Daily Notes/2024" },
+              { "type": "folder", "name": "2025", "path": "Daily Notes/2025" },
+              { "type": "folder", "name": "2026", "path": "Daily Notes/2026" }
+            ]
+          }
+        },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Good! I found the template. Now let me check the 2026 folder to see if today's date (2026-03-16) already has a note:"
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "toolu_01BcoGqkoqnxDwZo1VNSmKgy",
+        "toolName": "obsidian_list",
+        "input": { "folder": "Daily Notes/2026" },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "toolu_01CemjTGWQgyn56DAhtRzsv5",
+        "toolName": "obsidian_read",
+        "input": { "relativePath": "Templates/Daily Note Weekend.md" },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "toolu_01BcoGqkoqnxDwZo1VNSmKgy",
+        "toolName": "obsidian_list",
+        "output": {
+          "type": "json",
+          "value": {
+            "folder": "Daily Notes/2026",
+            "items": [
+              { "type": "folder", "name": "01", "path": "Daily Notes/2026/01" },
+              { "type": "folder", "name": "03", "path": "Daily Notes/2026/03" }
+            ]
+          }
+        },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      },
+      {
+        "type": "tool-result",
+        "toolCallId": "toolu_01CemjTGWQgyn56DAhtRzsv5",
+        "toolName": "obsidian_read",
+        "output": {
+          "type": "json",
+          "value": {
+            "relativePath": "Templates/Daily Note Weekend.md",
+            "content": "---\ncodedPersonal: false\ndailyPhoto: false\nworkout:\nworkoutLength:\n---\n# Notes - <% tp.date.now(\"YYYY-MM-DD\") %>\n<< [[<% fileDate = moment(tp.file.title, 'YYYY-MM-DD').subtract(1, 'd').format('YYYY-MM-DD') %>|Yesterday]] | [[<% fileDate = moment(tp.file.title, 'YYYY-MM-DD').add(1, 'd').format('YYYY-MM-DD') %>|Tomorrow]] >>\n\n## TODO\n- [ ] Post 1 Photo Online\n- [ ] Cycling\n- [ ] Create Scrapbook Page\n\t- [ ] Print Photos\n\t- [ ] Write paragraph\n\t- [ ] Work on page of stuff\n- [ ] Write Journal\n- [ ] Weekend Photo Adventure\n\n## Bullets\n- \n\n## Accomplishments\n* \n\n## The Details / Thoughts\n\n## Crisis Points\n_Write at least 100 words a day here_\n",
+            "modifiedAt": "2025-12-28T17:34:09.057Z"
+          }
+        },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Now let me check if the 03 folder exists and if the specific date is there:"
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "toolu_01QMEvEaexraSk21an1AGV7e",
+        "toolName": "obsidian_list",
+        "input": { "folder": "Daily Notes/2026/03" },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "toolu_01QMEvEaexraSk21an1AGV7e",
+        "toolName": "obsidian_list",
+        "output": {
+          "type": "json",
+          "value": {
+            "folder": "Daily Notes/2026/03",
+            "items": [
+              {
+                "type": "file",
+                "name": "2026-03-16.md",
+                "path": "Daily Notes/2026/03/2026-03-16.md",
+                "title": "2026 03 16",
+                "tags": [],
+                "aliases": [],
+                "headings": [
+                  "Notes - 2026-03-16",
+                  "TODO",
+                  "Bullets",
+                  "Accomplishments",
+                  "Meetings & Links",
+                  "The Details / Thoughts"
+                ]
+              }
+            ]
+          }
+        },
+        "providerOptions": { "anthropic": { "caller": { "type": "direct" } } }
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "The note for 2026-03-16 already exists (I can see it has headings which means it contains content). Since you mentioned I should skip it if it already exists, I'll skip creating it.\n\n**Result:** The daily note for 2026-03-16 already exists at `Daily Notes/2026/03/2026-03-16.md`, so no action was needed."
+      }
+    ]
+  }
+]

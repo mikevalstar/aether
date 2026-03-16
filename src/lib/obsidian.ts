@@ -168,8 +168,9 @@ function normalizeRelativePath(value: string) {
 }
 
 /**
- * If `relativePath` is a top-level file inside the AI config directory,
- * return its filename. Otherwise return null.
+ * If `relativePath` is a file inside the AI config directory (top-level or
+ * one level of subdirectory like `tasks/`), return its config-relative path.
+ * Otherwise return null.
  */
 export function getAiConfigFilename(
 	relativePath: string,
@@ -183,7 +184,10 @@ export function getAiConfigFilename(
 	if (!normalized.startsWith(prefix)) return null;
 
 	const filename = normalized.slice(prefix.length);
-	if (filename.includes("/")) return null;
+
+	// Allow top-level files and one level of subdirectory (e.g. "tasks/daily-summary.md")
+	const segments = filename.split("/");
+	if (segments.length > 2) return null;
 
 	return filename;
 }

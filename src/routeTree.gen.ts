@@ -17,8 +17,10 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TasksIndexRouteImport } from './routes/tasks/index'
 import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
 import { Route as OIndexRouteImport } from './routes/o/index'
+import { Route as TasksSplatRouteImport } from './routes/tasks/$'
 import { Route as SettingsPreferencesRouteImport } from './routes/settings/preferences'
 import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
 import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
@@ -71,6 +73,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TasksIndexRoute = TasksIndexRouteImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
   id: '/requirements/',
   path: '/requirements/',
@@ -79,6 +86,11 @@ const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
 const OIndexRoute = OIndexRouteImport.update({
   id: '/o/',
   path: '/o/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksSplatRoute = TasksSplatRouteImport.update({
+  id: '/tasks/$',
+  path: '/tasks/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsPreferencesRoute = SettingsPreferencesRouteImport.update({
@@ -154,8 +166,10 @@ export interface FileRoutesByFullPath {
   '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
+  '/tasks/$': typeof TasksSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
+  '/tasks/': typeof TasksIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -177,8 +191,10 @@ export interface FileRoutesByTo {
   '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
+  '/tasks/$': typeof TasksSplatRoute
   '/o': typeof OIndexRoute
   '/requirements': typeof RequirementsIndexRoute
+  '/tasks': typeof TasksIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -201,8 +217,10 @@ export interface FileRoutesById {
   '/requirements/$': typeof RequirementsSplatRoute
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
+  '/tasks/$': typeof TasksSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
+  '/tasks/': typeof TasksIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -226,8 +244,10 @@ export interface FileRouteTypes {
     | '/requirements/$'
     | '/settings/password'
     | '/settings/preferences'
+    | '/tasks/$'
     | '/o/'
     | '/requirements/'
+    | '/tasks/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -249,8 +269,10 @@ export interface FileRouteTypes {
     | '/requirements/$'
     | '/settings/password'
     | '/settings/preferences'
+    | '/tasks/$'
     | '/o'
     | '/requirements'
+    | '/tasks'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -272,8 +294,10 @@ export interface FileRouteTypes {
     | '/requirements/$'
     | '/settings/password'
     | '/settings/preferences'
+    | '/tasks/$'
     | '/o/'
     | '/requirements/'
+    | '/tasks/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -296,8 +320,10 @@ export interface RootRouteChildren {
   RequirementsSplatRoute: typeof RequirementsSplatRoute
   SettingsPasswordRoute: typeof SettingsPasswordRoute
   SettingsPreferencesRoute: typeof SettingsPreferencesRoute
+  TasksSplatRoute: typeof TasksSplatRoute
   OIndexRoute: typeof OIndexRoute
   RequirementsIndexRoute: typeof RequirementsIndexRoute
+  TasksIndexRoute: typeof TasksIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
@@ -361,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tasks/': {
+      id: '/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks/'
+      preLoaderRoute: typeof TasksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/requirements/': {
       id: '/requirements/'
       path: '/requirements'
@@ -373,6 +406,13 @@ declare module '@tanstack/react-router' {
       path: '/o'
       fullPath: '/o/'
       preLoaderRoute: typeof OIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks/$': {
+      id: '/tasks/$'
+      path: '/tasks/$'
+      fullPath: '/tasks/$'
+      preLoaderRoute: typeof TasksSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings/preferences': {
@@ -472,8 +512,10 @@ const rootRouteChildren: RootRouteChildren = {
   RequirementsSplatRoute: RequirementsSplatRoute,
   SettingsPasswordRoute: SettingsPasswordRoute,
   SettingsPreferencesRoute: SettingsPreferencesRoute,
+  TasksSplatRoute: TasksSplatRoute,
   OIndexRoute: OIndexRoute,
   RequirementsIndexRoute: RequirementsIndexRoute,
+  TasksIndexRoute: TasksIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,

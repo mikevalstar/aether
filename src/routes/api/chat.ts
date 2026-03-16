@@ -1,7 +1,3 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
-
-const anthropic = createAnthropic();
-
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	convertToModelMessages,
@@ -10,11 +6,11 @@ import {
 	type LanguageModelUsage,
 	stepCountIs,
 	streamText,
-	type ToolSet,
 	type UIMessage,
 } from "ai";
 import { prisma } from "#/db";
 import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config";
+import { anthropic, createAiTools } from "#/lib/ai-tools";
 import { auth } from "#/lib/auth";
 import {
 	type AppChatMessage,
@@ -36,16 +32,8 @@ import {
 	serializeUsageHistory,
 	usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
-import { CHAT_MODELS, getWebToolVersion } from "#/lib/chat-models";
+import { CHAT_MODELS } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
-import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
-import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
-import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
-import { createObsidianEdit } from "#/lib/tools/obsidian-edit";
-import { createObsidianRead } from "#/lib/tools/obsidian-read";
-import { obsidianSearch } from "#/lib/tools/obsidian-search";
-import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
-import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 
 type TitleGenerationResult = {
 	title: string;
@@ -138,45 +126,7 @@ export const Route = createFileRoute("/api/chat")({
 						? body.effort
 						: DEFAULT_CHAT_EFFORT;
 				const modelDef = CHAT_MODELS.find((m) => m.id === model);
-				const obsidianCtx = createObsidianToolContext(
-					session.user.id,
-					thread.id,
-				);
-				const obsidianTools: ToolSet = {
-					obsidian_folders: obsidianFolders,
-					obsidian_list: obsidianList,
-					obsidian_search: obsidianSearch,
-					obsidian_read: createObsidianRead(obsidianCtx),
-					obsidian_write: createObsidianWrite(obsidianCtx),
-					obsidian_edit: createObsidianEdit(obsidianCtx),
-					obsidian_ai_notes_list: obsidianAiNotesList,
-				};
-				const webToolVersion = getWebToolVersion(model);
-				const webTools: ToolSet =
-					webToolVersion === "latest"
-						? {
-								web_fetch: anthropic.tools.webFetch_20260209({
-									citations: { enabled: true },
-									maxUses: 5,
-								}),
-								web_search: anthropic.tools.webSearch_20260209({
-									maxUses: 5,
-								}),
-							}
-						: {
-								web_fetch: anthropic.tools.webFetch_20250910({
-									citations: { enabled: true },
-									maxUses: 5,
-								}),
-								web_search: anthropic.tools.webSearch_20250305({
-									maxUses: 5,
-								}),
-							};
-				const tools: ToolSet = {
-					...webTools,
-					fetch_url_markdown: fetchUrlMarkdown,
-					...obsidianTools,
-				};
+				const tools = createAiTools(model, session.user.id, thread.id);
 				let currentTotals: ChatUsageTotals = {
 					inputTokens: thread.totalInputTokens ?? 0,
 					outputTokens: thread.totalOutputTokens ?? 0,

@@ -76,3 +76,48 @@ export async function readTitlePromptConfig(): Promise<{
 
 	return { model, prompt: result.body };
 }
+
+const DEFAULT_TASK_SYSTEM_PROMPT = `You are an autonomous AI assistant running a scheduled background task. Today's date is {{date}}.
+
+You have access to tools for reading and writing files in the user's Obsidian vault, web search, and web fetch. Use them as needed to complete the task described in the user message.
+
+Be thorough but concise. Focus on producing useful output. If you write files, use clear filenames and organize content logically.`;
+
+/**
+ * Read the task prompt config and return model, effort, and interpolated prompt.
+ * Falls back to a hardcoded default if the file is missing or invalid.
+ */
+export async function readTaskPromptConfig(
+	userName: string,
+): Promise<{ model?: string; effort?: string; prompt: string }> {
+	const result = await readAiConfig("task-prompt.md");
+
+	const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
+
+	if (!result || !result.validation.isValid) {
+		return {
+			prompt: DEFAULT_TASK_SYSTEM_PROMPT.replace(
+				/\{\{date\}\}/g,
+				formatIsoDate(new Date()),
+			)
+				.replace(/\{\{userName\}\}/g, userName)
+				.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath),
+		};
+	}
+
+	const model =
+		typeof result.frontmatter.model === "string"
+			? result.frontmatter.model
+			: undefined;
+	const effort =
+		typeof result.frontmatter.effort === "string"
+			? result.frontmatter.effort
+			: undefined;
+
+	const prompt = result.body
+		.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
+		.replace(/\{\{userName\}\}/g, userName)
+		.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
+
+	return { model, effort, prompt };
+}

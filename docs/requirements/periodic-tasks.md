@@ -1,6 +1,6 @@
 ---
 title: Periodic Tasks
-status: todo
+status: done
 owner: Mike
 last_updated: 2026-03-16
 canonical_file: docs/requirements/periodic-tasks.md
@@ -24,33 +24,33 @@ canonical_file: docs/requirements/periodic-tasks.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Task file format | todo | Markdown files in `tasks/` subfolder with cron, title, model, effort, enabled, optional endDate in frontmatter; body is the prompt |
-| Task system prompt | todo | Configurable AI config file (`task-prompt.md`) similar to `system-prompt.md` and `title-prompt.md`, used as the system prompt for all task executions |
-| Zod validator | todo | Validators for task files and task-prompt following existing `ai-config-validators` pattern with real-time editor feedback |
-| Scheduler runtime | todo | In-process singleton scheduler (same pattern as `vault-index.ts`) with chokidar file watching on `tasks/` for dynamic add/remove/update |
-| Task execution | todo | Execute task prompt via shared chat harness (abstracted from chat API) with full tool access and multi-turn agent loop |
-| Database — Task table | todo | `Task` table tracking each task file's metadata, last run time, last status — persists across restarts and file deletions |
-| Database — ChatThread type | todo | Store task runs in `ChatThread` table with a `type` discriminator column (`chat` vs `task`) |
-| Usage tracking | todo | Track token usage per task run via `ChatUsageEvent` with `taskType: "task"` |
-| Activity logging | todo | Log task executions as `ActivityLog` entries with type `cron_task` |
-| UI — Task list | todo | Page at `/tasks` showing all configured tasks, their cron schedule, next run time, enabled/disabled status |
-| UI — Run history | todo | View past runs for a task with prompt, response, usage, and timestamp |
-| Seed/pull CLI | todo | Extend `ai-config:seed` and `ai-config:pull` to include example task files and task-prompt |
-| Env kill switch | todo | `DISABLE_CRON=true` env var to globally disable the scheduler |
-| Chat harness abstraction | todo | Extract shared execution logic from chat API into a reusable module for both chat and task execution |
+| Task file format | done | Markdown files in `tasks/` subfolder with cron, title, model, effort, enabled, optional endDate in frontmatter; body is the prompt |
+| Task system prompt | done | Configurable AI config file (`task-prompt.md`) similar to `system-prompt.md` and `title-prompt.md`, used as the system prompt for all task executions |
+| Zod validator | done | Validators for task files and task-prompt following existing `ai-config-validators` pattern with real-time editor feedback |
+| Scheduler runtime | done | In-process singleton scheduler (same pattern as `vault-index.ts`) with chokidar file watching on `tasks/` for dynamic add/remove/update |
+| Task execution | done | Execute task prompt via shared chat harness (abstracted from chat API) with full tool access and multi-turn agent loop |
+| Database — Task table | done | `Task` table tracking each task file's metadata, last run time, last status — persists across restarts and file deletions |
+| Database — ChatThread type | done | Store task runs in `ChatThread` table with a `type` discriminator column (`chat` vs `task`) |
+| Usage tracking | done | Track token usage per task run via `ChatUsageEvent` with `taskType: "task"` |
+| Activity logging | done | Log task executions as `ActivityLog` entries with type `cron_task` |
+| UI — Task list | done | Page at `/tasks` showing all configured tasks, their cron schedule, next run time, enabled/disabled status |
+| UI — Run history | done | View past runs for a task with prompt, response, usage, and timestamp |
+| Seed/pull CLI | done | Extend `ai-config:seed` and `ai-config:pull` to include example task files and task-prompt |
+| Env kill switch | done | `DISABLE_CRON=true` env var to globally disable the scheduler |
+| Chat harness abstraction | done | Extract shared execution logic from chat API into a reusable module for both chat and task execution |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Task file format & validation | todo | Frontmatter schema + zod validator for `tasks/*.md` | Inline |
-| Task system prompt config | todo | `task-prompt.md` AI config file for task system prompt | Inline |
-| Chat harness abstraction | todo | Extract shared AI execution pipeline from chat API route | Inline |
-| Scheduler engine | todo | Singleton with chokidar watcher, cron scheduling, eager init on import | Inline |
-| Task execution pipeline | todo | Prompt → agent loop (tools + multi-turn) → store result | Inline |
-| Schema migration | todo | New `Task` table + `type` column on `ChatThread`, filter existing queries | Inline |
-| Task management UI | todo | List view + run history viewer at `/tasks` | Inline |
-| CLI tooling | todo | Seed examples, pull config, manual trigger | Inline |
+| Task file format & validation | done | Frontmatter schema + zod validator for `tasks/*.md` | Inline |
+| Task system prompt config | done | `task-prompt.md` AI config file for task system prompt | Inline |
+| Chat harness abstraction | done | Extract shared AI execution pipeline from chat API route | Inline |
+| Scheduler engine | done | Singleton with chokidar watcher, cron scheduling, eager init on import | Inline |
+| Task execution pipeline | done | Prompt → agent loop (tools + multi-turn) → store result | Inline |
+| Schema migration | done | New `Task` table + `type` column on `ChatThread`, filter existing queries | Inline |
+| Task management UI | done | List view + run history viewer at `/tasks` | Inline |
+| CLI tooling | done | Seed examples, pull config, manual trigger | Inline |
 
 ## Detail
 

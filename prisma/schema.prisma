@@ -33,6 +33,7 @@ model User {
   chatThreads   ChatThread[]
   chatUsageEvents ChatUsageEvent[]
   activityLogs    ActivityLog[]
+  tasks           Task[]
 }
 
 model Session {
@@ -74,21 +75,24 @@ model Verification {
 }
 
 model ChatThread {
-  id           String   @id
-  title        String   @default("New chat")
-  model        String   @default("claude-haiku-4-5")
-  effort       String   @default("low")
-  messagesJson String   @default("[]")
+  id             String   @id
+  title          String   @default("New chat")
+  type           String   @default("chat")
+  model          String   @default("claude-haiku-4-5")
+  effort         String   @default("low")
+  messagesJson   String   @default("[]")
   usageHistoryJson String @default("[]")
   totalInputTokens Int    @default(0)
   totalOutputTokens Int   @default(0)
   totalEstimatedCostUsd Float @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceTaskFile String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, updatedAt])
+  @@index([userId, type, updatedAt])
 }
 
 model ChatUsageEvent {
@@ -131,4 +135,26 @@ model FileChangeDetail {
   newContent      String
   changeSource    String
   toolName        String?
+}
+
+model Task {
+  id             String    @id @default(cuid())
+  filename       String    @unique
+  title          String
+  cron           String
+  model          String    @default("claude-haiku-4-5")
+  effort         String    @default("low")
+  enabled        Boolean   @default(true)
+  endDate        DateTime?
+  maxTokens      Int?
+  lastRunAt      DateTime?
+  lastRunStatus  String?
+  lastThreadId   String?
+  fileExists     Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, filename])
 }
