@@ -1,6 +1,6 @@
 import cronstrue from "cronstrue";
 import { AlertCircle, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { RunMessages } from "#/components/shared/RunMessages";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -121,12 +121,8 @@ export function TaskRunHistory({
 								const isDeleting = deletingIds.has(run.id);
 
 								return (
-									<>
-										<TableRow
-											key={run.id}
-											className="cursor-pointer"
-											onClick={() => setExpandedId(isExpanded ? null : run.id)}
-										>
+									<Fragment key={run.id}>
+										<TableRow className="cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : run.id)}>
 											<TableCell>
 												{isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
 											</TableCell>
@@ -151,13 +147,13 @@ export function TaskRunHistory({
 											</TableCell>
 										</TableRow>
 										{isExpanded && (
-											<TableRow key={`${run.id}-detail`}>
+											<TableRow>
 												<TableCell colSpan={6} className="p-0">
 													<RunDetail run={run} />
 												</TableCell>
 											</TableRow>
 										)}
-									</>
+									</Fragment>
 								);
 							})}
 						</TableBody>

@@ -1,6 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import { AlertCircle, ChevronDown, ChevronRight, MessageSquare, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { RunMessages } from "#/components/shared/RunMessages";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
@@ -111,7 +111,7 @@ export function WorkflowRunHistory({ runs }: { runs: WorkflowRunItem[] }) {
 						const isConvertedOrChat = run.type === "chat";
 
 						return (
-							<>
+							<Fragment key={run.id}>
 								<TableRow key={run.id} className="cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : run.id)}>
 									<TableCell>
 										{isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
@@ -153,13 +153,13 @@ export function WorkflowRunHistory({ runs }: { runs: WorkflowRunItem[] }) {
 									</TableCell>
 								</TableRow>
 								{isExpanded && (
-									<TableRow key={`${run.id}-detail`}>
+									<TableRow>
 										<TableCell colSpan={6} className="p-0">
 											<RunDetail run={run} />
 										</TableCell>
 									</TableRow>
 								)}
-							</>
+							</Fragment>
 						);
 					})}
 				</TableBody>
