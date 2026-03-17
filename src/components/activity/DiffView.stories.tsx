@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DiffView } from "./DiffView";
 
 const meta = {
-	title: "Activity/Diff View",
+	title: "Features/Activity/Diff View",
+	tags: ["autodocs"],
 	component: DiffView,
 	decorators: [
 		(Story) => (

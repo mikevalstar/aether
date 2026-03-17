@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 
 const meta = {
 	title: "Design System/Navigation/Tabs",
+	tags: ["autodocs"],
 	component: Tabs,
 } satisfies Meta<typeof Tabs>;
 

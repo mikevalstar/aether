@@ -4,6 +4,7 @@ import { Slider } from "./slider";
 
 const meta = {
 	title: "Design System/Forms/Slider",
+	tags: ["autodocs"],
 	component: Slider,
 	argTypes: {
 		disabled: { control: "boolean" },

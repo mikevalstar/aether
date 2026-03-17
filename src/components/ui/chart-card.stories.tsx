@@ -4,6 +4,7 @@ import { ChartCard } from "./chart-card";
 
 const meta = {
 	title: "Design System/Data Display/Chart Card",
+	tags: ["autodocs"],
 	component: ChartCard,
 	argTypes: {
 		accentColor: { control: "text" },

@@ -3,7 +3,8 @@ import { Provider } from "jotai";
 import ThemeToggle from "./ThemeToggle";
 
 const meta = {
-	title: "ThemeToggle",
+	title: "Design System/Theme/ThemeToggle",
+	tags: ["autodocs"],
 	component: ThemeToggle,
 	decorators: [
 		(Story) => (

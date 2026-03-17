@@ -3,6 +3,7 @@ import { Spinner } from "./spinner";
 
 const meta = {
 	title: "Design System/Feedback/Spinner",
+	tags: ["autodocs"],
 	component: Spinner,
 	argTypes: {
 		size: {

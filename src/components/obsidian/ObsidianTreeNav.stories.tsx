@@ -64,7 +64,8 @@ const withAiConfig: ObsidianTreeNode[] = [
 ];
 
 const meta = {
-	title: "Obsidian/Tree Nav",
+	title: "Features/Obsidian/Tree Nav",
+	tags: ["autodocs"],
 	component: ObsidianTreeNav,
 	decorators: [
 		(Story) => (

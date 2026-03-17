@@ -29,7 +29,8 @@ Some observations from standup.`,
 } satisfies NonNullable<ActivityDetail["fileChangeDetail"]>;
 
 const meta = {
-	title: "Activity/Activity Detail Dialog",
+	title: "Features/Activity/Activity Detail Dialog",
+	tags: ["autodocs"],
 	component: ActivityDetailDialog,
 	args: {
 		onClose: noop,

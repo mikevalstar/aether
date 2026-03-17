@@ -6,6 +6,7 @@ import { Label } from "./label";
 
 const meta = {
 	title: "Design System/Overlays/Dialog",
+	tags: ["autodocs"],
 	component: Dialog,
 } satisfies Meta<typeof Dialog>;
 

@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DocumentHeader } from "./DocumentHeader";
 
 const meta = {
-	title: "Requirements/Document Header",
+	title: "Features/Requirements/Document Header",
+	tags: ["autodocs"],
 	component: DocumentHeader,
 	decorators: [
 		(Story) => (

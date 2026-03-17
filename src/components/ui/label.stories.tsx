@@ -4,6 +4,7 @@ import { Label } from "./label";
 
 const meta = {
 	title: "Design System/Forms/Label",
+	tags: ["autodocs"],
 	component: Label,
 } satisfies Meta<typeof Label>;
 

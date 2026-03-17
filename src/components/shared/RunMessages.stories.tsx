@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RunMessages } from "./RunMessages";
 
 const meta = {
-	title: "Shared/RunMessages",
+	title: "Components/RunMessages",
+	tags: ["autodocs"],
 	component: RunMessages,
 	parameters: {
 		layout: "padded",

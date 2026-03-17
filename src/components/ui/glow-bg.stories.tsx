@@ -3,6 +3,7 @@ import { GlowBg } from "./glow-bg";
 
 const meta = {
 	title: "Design System/Layout/Glow Background",
+	tags: ["autodocs"],
 	component: GlowBg,
 	decorators: [
 		(Story) => (

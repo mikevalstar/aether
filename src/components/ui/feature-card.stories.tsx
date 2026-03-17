@@ -4,6 +4,7 @@ import { FeatureCard } from "./feature-card";
 
 const meta = {
 	title: "Design System/Layout/Feature Card",
+	tags: ["autodocs"],
 	component: FeatureCard,
 	argTypes: {
 		color: { control: "text" },

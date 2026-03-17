@@ -3,7 +3,8 @@ import { ErrorBoundary } from "./error-boundary";
 import { ErrorDisplay } from "./error-display";
 
 const meta = {
-	title: "Lib/Error Display",
+	title: "Design System/Feedback/Error Display",
+	tags: ["autodocs"],
 	component: ErrorDisplay,
 	parameters: {
 		layout: "fullscreen",

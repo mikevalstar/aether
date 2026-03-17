@@ -3,6 +3,7 @@ import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarImage } from ".
 
 const meta = {
 	title: "Design System/Data Display/Avatar",
+	tags: ["autodocs"],
 	component: Avatar,
 	argTypes: {
 		size: {

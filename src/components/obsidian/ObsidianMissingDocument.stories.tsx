@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ObsidianMissingDocument } from "./ObsidianMissingDocument";
 
 const meta = {
-	title: "Obsidian/Missing Document",
+	title: "Features/Obsidian/Missing Document",
+	tags: ["autodocs"],
 	component: ObsidianMissingDocument,
 	decorators: [
 		(Story) => (

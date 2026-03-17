@@ -3,7 +3,8 @@ import { CalendarDaysIcon, TagIcon, UserRoundIcon } from "lucide-react";
 import { MetaPill } from "./MetaPill";
 
 const meta = {
-	title: "Requirements/Meta Pill",
+	title: "Features/Requirements/Meta Pill",
+	tags: ["autodocs"],
 	component: MetaPill,
 } satisfies Meta<typeof MetaPill>;
 

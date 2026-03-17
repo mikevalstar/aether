@@ -4,6 +4,7 @@ import { Button } from "./button";
 
 const meta = {
 	title: "Design System/Actions/Button",
+	tags: ["autodocs"],
 	component: Button,
 	argTypes: {
 		variant: {

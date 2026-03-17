@@ -60,7 +60,8 @@ const viewerDataNotConfigured: ObsidianViewerData = {
 };
 
 const meta = {
-	title: "Obsidian/Viewer",
+	title: "Features/Obsidian/Viewer",
+	tags: ["autodocs"],
 	component: ObsidianViewer,
 } satisfies Meta<typeof ObsidianViewer>;
 

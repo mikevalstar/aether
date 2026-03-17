@@ -4,6 +4,7 @@ import { Label } from "./label";
 
 const meta = {
 	title: "Design System/Forms/Input",
+	tags: ["autodocs"],
 	component: Input,
 	argTypes: {
 		type: {

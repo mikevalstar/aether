@@ -4,6 +4,7 @@ import { Switch } from "./switch";
 
 const meta = {
 	title: "Design System/Forms/Switch",
+	tags: ["autodocs"],
 	component: Switch,
 	argTypes: {
 		size: {

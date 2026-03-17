@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TaskEmptyState } from "./TaskEmptyState";
 
 const meta = {
-	title: "Tasks/Empty State",
+	title: "Features/Tasks/Empty State",
+	tags: ["autodocs"],
 	component: TaskEmptyState,
 	decorators: [
 		(Story) => (

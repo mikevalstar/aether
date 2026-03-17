@@ -4,6 +4,7 @@ import { StatCard } from "./stat-card";
 
 const meta = {
 	title: "Design System/Data Display/Stat Card",
+	tags: ["autodocs"],
 	component: StatCard,
 	argTypes: {
 		color: { control: "text" },

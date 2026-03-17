@@ -4,6 +4,7 @@ import { SectionLabel } from "./section-label";
 
 const meta = {
 	title: "Design System/Typography/Section Label",
+	tags: ["autodocs"],
 	component: SectionLabel,
 	argTypes: {
 		color: { control: "text" },

@@ -4,7 +4,8 @@ import { ChatThreadItem } from "./ChatThreadItem";
 const noop = () => {};
 
 const meta = {
-	title: "Chat/Thread Item",
+	title: "Features/Chat/Thread Item",
+	tags: ["autodocs"],
 	component: ChatThreadItem,
 	args: {
 		onClick: noop,

@@ -28,7 +28,8 @@ const sampleTree: ObsidianTreeNode[] = [
 ];
 
 const meta = {
-	title: "Obsidian/Welcome",
+	title: "Features/Obsidian/Welcome",
+	tags: ["autodocs"],
 	component: ObsidianWelcome,
 	decorators: [
 		(Story) => (

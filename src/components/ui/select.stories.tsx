@@ -13,6 +13,7 @@ import {
 
 const meta = {
 	title: "Design System/Forms/Select",
+	tags: ["autodocs"],
 	component: Select,
 } satisfies Meta<typeof Select>;
 

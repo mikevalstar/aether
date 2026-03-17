@@ -5,6 +5,7 @@ import { DateRangePicker } from "./date-range-picker";
 
 const meta = {
 	title: "Design System/Forms/DateRangePicker",
+	tags: ["autodocs"],
 	component: DateRangePicker,
 	args: {
 		onChange: fn(),

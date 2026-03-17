@@ -29,6 +29,7 @@ Try editing this content to see the word and character counts update in real tim
 
 const meta = {
 	title: "Design System/Forms/Markdown Editor",
+	tags: ["autodocs"],
 	component: MarkdownEditor,
 	argTypes: {
 		showStatusBar: { control: "boolean" },

@@ -4,6 +4,7 @@ import { Textarea } from "./textarea";
 
 const meta = {
 	title: "Design System/Forms/Textarea",
+	tags: ["autodocs"],
 	component: Textarea,
 	argTypes: {
 		disabled: { control: "boolean" },

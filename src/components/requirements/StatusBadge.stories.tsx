@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { StatusBadge } from "./StatusBadge";
 
 const meta = {
-	title: "Requirements/Status Badge",
+	title: "Features/Requirements/Status Badge",
+	tags: ["autodocs"],
 	component: StatusBadge,
 	argTypes: {
 		status: {

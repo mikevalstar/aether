@@ -87,7 +87,8 @@ const sampleItems = [
 ];
 
 const meta = {
-	title: "Tasks/Task Table",
+	title: "Features/Tasks/Task Table",
+	tags: ["autodocs"],
 	component: TaskTable,
 	decorators: [
 		(Story) => (

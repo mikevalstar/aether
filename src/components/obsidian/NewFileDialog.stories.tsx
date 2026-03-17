@@ -4,7 +4,8 @@ import { NewFileDialog } from "./NewFileDialog";
 const noop = () => {};
 
 const meta = {
-	title: "Obsidian/New File Dialog",
+	title: "Features/Obsidian/New File Dialog",
+	tags: ["autodocs"],
 	component: NewFileDialog,
 } satisfies Meta<typeof NewFileDialog>;
 

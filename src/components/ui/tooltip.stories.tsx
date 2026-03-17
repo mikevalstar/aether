@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tool
 
 const meta = {
 	title: "Design System/Overlays/Tooltip",
+	tags: ["autodocs"],
 	component: Tooltip,
 	decorators: [
 		(Story) => (

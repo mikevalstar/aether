@@ -16,7 +16,8 @@ function MarkdownRenderer({ content, variant }: { content: string; variant: Mark
 }
 
 const meta = {
-	title: "Components/Markdown/ProseMarkdown",
+	title: "Components/Markdown/Prose",
+	tags: ["autodocs"],
 	component: MarkdownRenderer,
 	argTypes: {
 		variant: {

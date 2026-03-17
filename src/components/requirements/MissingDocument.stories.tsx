@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { MissingDocument } from "./MissingDocument";
 
 const meta = {
-	title: "Requirements/Missing Document",
+	title: "Features/Requirements/Missing Document",
+	tags: ["autodocs"],
 	component: MissingDocument,
 	decorators: [
 		(Story) => (

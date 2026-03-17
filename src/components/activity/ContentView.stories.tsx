@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ContentView } from "./ContentView";
 
 const meta = {
-	title: "Activity/Content View",
+	title: "Features/Activity/Content View",
+	tags: ["autodocs"],
 	component: ContentView,
 	decorators: [
 		(Story) => (

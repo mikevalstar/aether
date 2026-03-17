@@ -4,6 +4,7 @@ import { Toaster, toast } from "./sonner";
 
 const meta = {
 	title: "Design System/Feedback/Toast",
+	tags: ["autodocs"],
 	component: Toaster,
 	decorators: [
 		(Story) => (

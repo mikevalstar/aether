@@ -6,7 +6,8 @@ import { ActivityTable } from "./ActivityTable";
 const noop = () => {};
 
 const meta = {
-	title: "Activity/Activity Table",
+	title: "Features/Activity/Activity Table",
+	tags: ["autodocs"],
 	component: ActivityTable,
 	args: {
 		onItemClick: noop,

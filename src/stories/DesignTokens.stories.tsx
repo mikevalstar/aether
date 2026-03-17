@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta = {
 	title: "Design System/Foundations/Tokens",
+	tags: ["autodocs"],
 } satisfies Meta;
 
 export default meta;

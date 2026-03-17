@@ -4,7 +4,8 @@ import { ChatHeader } from "./ChatHeader";
 const noop = () => {};
 
 const meta = {
-	title: "Chat/Chat Header",
+	title: "Features/Chat/Chat Header",
+	tags: ["autodocs"],
 	component: ChatHeader,
 	args: {
 		effort: "low",

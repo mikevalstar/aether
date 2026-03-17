@@ -4,7 +4,8 @@ import { ChatEmptyState } from "./ChatEmptyState";
 const noop = () => {};
 
 const meta = {
-	title: "Chat/Empty State",
+	title: "Features/Chat/Empty State",
+	tags: ["autodocs"],
 	component: ChatEmptyState,
 	args: {
 		onModelChange: noop,

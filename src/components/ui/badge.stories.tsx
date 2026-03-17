@@ -3,6 +3,7 @@ import { Badge } from "./badge";
 
 const meta = {
 	title: "Design System/Data Display/Badge",
+	tags: ["autodocs"],
 	component: Badge,
 	argTypes: {
 		variant: {

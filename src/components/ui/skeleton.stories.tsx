@@ -3,6 +3,7 @@ import { Skeleton } from "./skeleton";
 
 const meta = {
 	title: "Design System/Feedback/Skeleton",
+	tags: ["autodocs"],
 	component: Skeleton,
 } satisfies Meta<typeof Skeleton>;
 

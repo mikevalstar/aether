@@ -50,7 +50,8 @@ const sampleRuns = [
 ];
 
 const meta = {
-	title: "Tasks/Run History",
+	title: "Features/Tasks/Run History",
+	tags: ["autodocs"],
 	component: TaskRunHistory,
 	decorators: [
 		(Story) => (

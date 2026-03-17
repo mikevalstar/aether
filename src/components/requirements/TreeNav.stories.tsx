@@ -93,7 +93,8 @@ const nestedTree: RequirementTreeNode[] = [
 ];
 
 const meta = {
-	title: "Requirements/Tree Nav",
+	title: "Features/Requirements/Tree Nav",
+	tags: ["autodocs"],
 	component: TreeNav,
 	decorators: [
 		(Story) => (

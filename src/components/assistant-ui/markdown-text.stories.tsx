@@ -23,7 +23,8 @@ function ChatMarkdownPreview({ content }: { content: string }) {
 }
 
 const meta = {
-	title: "Components/Markdown/ChatMarkdown",
+	title: "Components/Markdown/Chat",
+	tags: ["autodocs"],
 	component: ChatMarkdownPreview,
 } satisfies Meta<typeof ChatMarkdownPreview>;
 
