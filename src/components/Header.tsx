@@ -36,6 +36,7 @@ const navLinks = [
 	{ to: "/tasks" as const, label: "Tasks", auth: true },
 	{ to: "/workflows" as const, label: "Workflows", auth: true },
 	{ to: "/activity" as const, label: "Activity", auth: true },
+	{ to: "/logs" as const, label: "Logs", auth: true },
 	{ to: "/o" as const, label: "Obsidian", auth: true },
 	{ to: "/requirements" as const, label: "Requirements", auth: true },
 ];

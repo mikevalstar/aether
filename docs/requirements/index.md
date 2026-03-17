@@ -1,6 +1,6 @@
 ---
 title: Requirements Index
-last_updated: 2026-03-16
+last_updated: 2026-03-17
 canonical_file: docs/requirements/index.md
 ---
 
@@ -17,6 +17,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Obsidian](obsidian.md) | done | Obsidian vault browser with tree nav, title search, Markdown rendering/editing, and AI config section at `/o/$`. | [obsidian](obsidian.md) | 2026-03-14 |
 | [System Settings](system-settings.md) | in-progress | AI config files in Obsidian with zod validation, real-time editor feedback, config library, seed/pull CLI scripts. | [system-settings](system-settings.md) | 2026-03-14 |
 | [Activity Log](activity.md) | done | Generic activity log with file-change tracking (AI & manual), diff viewing, and revert. Extensible to future activity types. | [activity](activity.md) | 2026-03-15 |
+| [Logs Viewer](logs.md) | done | Authenticated daily log browser for rotated `./logs` files with day selection, server-side search/filtering, pagination, and raw JSON inspection. | [logs](logs.md) | 2026-03-17 |
 | [User Preferences](user-preferences.md) | in-progress | Profile editing and app settings (Obsidian templates folder) at `/settings/preferences`. | [user-preferences](user-preferences.md) | 2026-03-15 |
 | [AI Skills](skills.md) | todo | Markdown-based skill files in AI config that teach the AI specialized tasks via two-phase loading (summary + on-demand instructions). | [skills](skills.md) | 2026-03-15 |
 | [Periodic Tasks](periodic-tasks.md) | todo | Cron-scheduled AI tasks defined as markdown in config `tasks/` folder, stored as ChatThread records, with list/history UI. | [periodic-tasks](periodic-tasks.md) | 2026-03-16 |

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as UsageRouteImport } from './routes/usage'
+import { Route as LogsRouteImport } from './routes/logs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ChatRouteImport } from './routes/chat'
@@ -43,6 +44,11 @@ const UsersRoute = UsersRouteImport.update({
 const UsageRoute = UsageRouteImport.update({
   id: '/usage',
   path: '/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogsRoute = LogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/logs': typeof LogsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/logs': typeof LogsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/logs': typeof LogsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/dashboard'
     | '/login'
+    | '/logs'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/dashboard'
     | '/login'
+    | '/logs'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/dashboard'
     | '/login'
+    | '/logs'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -334,6 +346,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  LogsRoute: typeof LogsRoute
   UsageRoute: typeof UsageRoute
   UsersRoute: typeof UsersRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -369,6 +382,13 @@ declare module '@tanstack/react-router' {
       path: '/usage'
       fullPath: '/usage'
       preLoaderRoute: typeof UsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logs': {
+      id: '/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof LogsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -542,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  LogsRoute: LogsRoute,
   UsageRoute: UsageRoute,
   UsersRoute: UsersRoute,
   ApiChatRoute: ApiChatRoute,
