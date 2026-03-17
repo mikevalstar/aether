@@ -5,6 +5,7 @@ import { z } from "zod";
 import { ChatEmptyState } from "#/components/chat/ChatEmptyState";
 import { ChatHeader } from "#/components/chat/ChatHeader";
 import { ChatThreadItem } from "#/components/chat/ChatThreadItem";
+import { ChatThreadSearchInput, useChatThreadSearch } from "#/components/chat/ChatThreadSearch";
 import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { Button } from "#/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#/components/ui/dialog";
@@ -59,6 +60,7 @@ function ChatPage() {
 	const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
 	const [draftEffort, setDraftEffort] = useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
 	const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+	const { query: threadSearchQuery, setQuery: setThreadSearchQuery, filtered: filteredThreads } = useChatThreadSearch(data.threads);
 
 	const refreshPage = useCallback(async () => {
 		await router.invalidate();
@@ -197,27 +199,38 @@ function ChatPage() {
 	}
 
 	const threadListContent = (
-		<div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-			{data.threads.map((thread: ChatThreadSummary) => (
-				<ChatThreadItem
-					key={thread.id}
-					title={thread.title}
-					preview={thread.preview}
-					updatedAt={thread.updatedAt}
-					isActive={thread.id === selectedThread?.id}
-					disabled={isBusy}
-					onClick={() => handleMobileThreadSelect(thread.id)}
-					onDelete={() => handleRequestDelete(thread)}
-				/>
-			))}
+		<>
+			<div className="px-2 pb-2">
+				<ChatThreadSearchInput value={threadSearchQuery} onChange={setThreadSearchQuery} />
+			</div>
+			<div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+				{filteredThreads.map((thread: ChatThreadSummary) => (
+					<ChatThreadItem
+						key={thread.id}
+						title={thread.title}
+						preview={thread.preview}
+						updatedAt={thread.updatedAt}
+						isActive={thread.id === selectedThread?.id}
+						disabled={isBusy}
+						onClick={() => handleMobileThreadSelect(thread.id)}
+						onDelete={() => handleRequestDelete(thread)}
+					/>
+				))}
 
-			{data.threads.length === 0 && (
-				<div className="px-3 py-8 text-center">
-					<p className="text-sm text-[var(--ink-soft)]">No threads yet</p>
-					<p className="mt-1 text-xs text-[var(--ink-soft)]">Start a conversation to begin</p>
-				</div>
-			)}
-		</div>
+				{data.threads.length === 0 && (
+					<div className="px-3 py-8 text-center">
+						<p className="text-sm text-[var(--ink-soft)]">No threads yet</p>
+						<p className="mt-1 text-xs text-[var(--ink-soft)]">Start a conversation to begin</p>
+					</div>
+				)}
+
+				{data.threads.length > 0 && filteredThreads.length === 0 && (
+					<div className="px-3 py-6 text-center">
+						<p className="text-xs text-[var(--ink-soft)]">No matching threads</p>
+					</div>
+				)}
+			</div>
+		</>
 	);
 
 	return (

@@ -69,6 +69,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
 		const threadRecords = await prisma.chatThread.findMany({
 			where: { userId: session.user.id, type: "chat" },
 			orderBy: { updatedAt: "desc" },
+			take: 500,
 		});
 
 		const threads = threadRecords.map(mapThreadSummary);
