@@ -1,6 +1,6 @@
 ---
 title: Notifications
-status: todo
+status: in-progress
 owner: self
 last_updated: 2026-03-16
 canonical_file: docs/requirements/notifications.md
@@ -37,27 +37,27 @@ canonical_file: docs/requirements/notifications.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Notification model | todo | Store notifications in SQLite for history and browser polling. |
-| Server-side send utility | todo | `src/lib/notify.ts` — creates DB record + optionally sends Pushover push. |
-| In-browser polling | todo | Poll every 10s for unread notifications, show toasts via sonner. |
-| Pushover integration | todo | POST to Pushover API when configured and `pushToPhone` flag is set. |
-| Preferences UI | todo | Add Pushover user key field to `/settings/preferences`. |
-| Notification UI | todo | Header bell icon with unread count badge, dropdown with auto-dismissing notifications. |
-| AI notify tool | todo | Chat tool that lets Claude send the user a notification (in-app + optional push). |
+| Notification model | done | Store notifications in SQLite for history and browser polling. |
+| Server-side send utility | done | `src/lib/notify.ts` — creates DB record + optionally sends Pushover push. |
+| In-browser polling | done | Poll every 10s for unread notifications, show toasts via sonner. |
+| Pushover integration | done | POST to Pushover API when configured and `pushToPhone` flag is set. |
+| Preferences UI | done | Add Pushover user key field to `/settings/preferences`. |
+| Notification UI | done | Header bell icon with unread count badge, dropdown with auto-dismissing notifications. |
+| AI notify tool | done | Chat tool that lets Claude send the user a notification (in-app + optional push). |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Notification DB model | todo | Prisma model for notifications with title, body, link, read status, timestamps. | Inline |
-| Notify utility | todo | Server function that writes to DB and optionally pushes to Pushover. | Inline |
-| Pushover client | todo | HTTP POST to `https://api.pushover.net/1/messages.json` with app token, user key, message, URL. | Inline |
-| Browser polling | todo | Client-side hook (`useNotifications`) polling server every 10s for unread notifications. | Inline |
-| Toast display | todo | New unread notifications trigger sonner toasts with title, message, and optional click-through link. | Inline |
-| Notification bell | todo | Header icon with unread count badge; click opens a dropdown/panel of recent notifications. | Inline |
-| Mark as read | todo | Clicking a notification or "mark all read" updates the DB. | Inline |
-| Preferences: Pushover key | todo | Text input for Pushover user key on `/settings/preferences` with a help link to pushover.net. | Inline |
-| AI notify tool | todo | AI chat tool so Claude can send notifications when asked or for important info. | Inline |
+| Notification DB model | done | Prisma model for notifications with title, body, link, read status, timestamps. | Inline |
+| Notify utility | done | Server function that writes to DB and optionally pushes to Pushover. | Inline |
+| Pushover client | done | HTTP POST to `https://api.pushover.net/1/messages.json` with app token, user key, message, URL. | Inline |
+| Browser polling | done | Client-side hook (`useNotifications`) polling server every 10s for unread notifications. | Inline |
+| Toast display | done | New unread notifications trigger sonner toasts with title, message, and optional click-through link. | Inline |
+| Notification bell | done | Header icon with unread count badge; click opens a dropdown/panel of recent notifications. | Inline |
+| Mark as read | done | Clicking a notification or "mark all read" updates the DB. | Inline |
+| Preferences: Pushover key | done | Text input for Pushover user key on `/settings/preferences` with a help link to pushover.net. | Inline |
+| AI notify tool | done | AI chat tool so Claude can send notifications when asked or for important info. | Inline |
 
 ## Detail
 
@@ -124,18 +124,18 @@ More sources can be added incrementally.
 
 | Step | Status | Plan |
 | --- | --- | --- |
-| 1. Schema | todo | Add `Notification` model to `prisma/schema.prisma`. |
-| 2. Env vars | todo | Add `PUSHOVER_APP_TOKEN` and `APP_URL` to `.env.example`. |
-| 3. Preferences | todo | Add `pushoverUserKey` to `UserPreferences` type and preferences page UI. |
-| 4. Pushover client | todo | Create `src/lib/pushover.ts` — thin wrapper around the Pushover REST API. |
-| 5. Notify utility | todo | Create `src/lib/notify.ts` with `notify()` function. |
-| 6. Server functions | todo | Create `src/lib/notifications.functions.ts` — getUnread, markRead, markAllRead. |
-| 7. Polling hook | todo | Create `src/hooks/useNotifications.ts` with 10s polling interval. |
-| 8. Toast integration | todo | Wire polling hook to sonner toasts for new notifications. |
-| 9. Header bell | todo | Add notification bell + dropdown to `src/components/Header.tsx`. |
-| 10. AI notify tool | todo | Register `send_notification` tool in chat API endpoint. |
+| 1. Schema | done | Add `Notification` model to `prisma/schema.prisma`. |
+| 2. Env vars | done | Add `PUSHOVER_APP_TOKEN` and `APP_URL` to `.env.example`. |
+| 3. Preferences | done | Add `pushoverUserKey` to `UserPreferences` type and preferences page UI. |
+| 4. Pushover client | done | Create `src/lib/pushover.ts` — thin wrapper around the Pushover REST API. |
+| 5. Notify utility | done | Create `src/lib/notify.ts` with `notify()` function. |
+| 6. Server functions | done | Create `src/lib/notifications.functions.ts` — getUnread, markRead, markAllRead. |
+| 7. Polling hook | done | Create `src/hooks/useNotifications.ts` with 10s polling interval. |
+| 8. Toast integration | done | Wire polling hook to sonner toasts for new notifications. |
+| 9. Header bell | done | Add notification bell + dropdown to `src/components/Header.tsx`. |
+| 10. AI notify tool | done | Register `send_notification` tool in chat API endpoint. |
 | 11. Wire up sources | todo | Add `notify()` calls to periodic tasks, workflows, system tasks. |
-| 12. Cleanup system task | todo | Add notification cleanup to system tasks (delete read notifications older than 30 days). |
+| 12. Cleanup system task | done | Add notification cleanup to system tasks (delete read notifications older than 30 days). |
 
 ## Open Questions
 

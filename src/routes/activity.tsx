@@ -55,6 +55,7 @@ const TYPE_FILTERS = [
 	{ value: "cron_task", label: "Cron Tasks" },
 	{ value: "workflow", label: "Workflows" },
 	{ value: "system_task", label: "System Tasks" },
+	{ value: "ai_notification", label: "Notifications" },
 ];
 
 function ActivityPage() {

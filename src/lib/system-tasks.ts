@@ -18,6 +18,11 @@ const systemTaskDefs: SystemTask[] = [
 		cron: "0 * * * *", // every hour
 		handler: cleanupStaleRecords,
 	},
+	{
+		name: "cleanup-old-notifications",
+		cron: "0 3 * * *", // daily at 3 AM
+		handler: cleanupOldNotifications,
+	},
 ];
 
 // ── Running jobs ─────────────────────────────────────────────────────
@@ -55,6 +60,36 @@ export function stopSystemTasks(): void {
 		job.stop();
 	}
 	systemJobs.length = 0;
+}
+
+// ── Task: Cleanup old notifications ──────────────────────────────────
+
+async function cleanupOldNotifications(): Promise<void> {
+	const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
+
+	const result = await prisma.notification.deleteMany({
+		where: { read: true, createdAt: { lt: cutoff } },
+	});
+
+	if (result.count === 0) return;
+
+	const adminUser = await prisma.user.findFirst({
+		where: { role: "admin" },
+		orderBy: { createdAt: "asc" },
+	});
+
+	if (!adminUser) return;
+
+	await prisma.activityLog.create({
+		data: {
+			type: "system_task",
+			summary: `Cleaned up ${result.count} old notification(s)`,
+			metadata: JSON.stringify({ taskName: "cleanup-old-notifications", deleted: result.count }),
+			userId: adminUser.id,
+		},
+	});
+
+	logger.info({ deleted: result.count }, "Cleaned up old notifications");
 }
 
 // ── Task: Cleanup stale records ──────────────────────────────────────

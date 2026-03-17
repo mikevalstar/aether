@@ -22,7 +22,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Periodic Tasks](periodic-tasks.md) | todo | Cron-scheduled AI tasks defined as markdown in config `tasks/` folder, stored as ChatThread records, with list/history UI. | [periodic-tasks](periodic-tasks.md) | 2026-03-16 |
 | [Workflows](workflows.md) | done | Form-based AI workflows defined as markdown in config `workflows/` folder, user-triggered via UI forms, background execution, convertible to chat. | [workflows](workflows.md) | 2026-03-16 |
 | [System Tasks](system-tasks.md) | done | Code-defined maintenance cron jobs (cleanup stale records, etc.) — no UI, logs to activity only when acting. | [system-tasks](system-tasks.md) | 2026-03-16 |
-| [Notifications](notifications.md) | todo | Two-channel notifications: in-browser toasts (10s polling) + Pushover push to phone. Bell icon in header with unread count. | [notifications](notifications.md) | 2026-03-16 |
+| [Notifications](notifications.md) | in-progress | Two-channel notifications: in-browser toasts (10s polling) + Pushover push to phone. Bell icon in header with unread count. | [notifications](notifications.md) | 2026-03-16 |
 
 
 # Ideas

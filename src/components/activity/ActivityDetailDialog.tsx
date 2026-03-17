@@ -1,4 +1,17 @@
-import { Bot, CheckCircle, Clock, Copy, FileText, PenLine, RotateCcw, Trash2, Wrench } from "lucide-react";
+import {
+	Bell,
+	Bot,
+	CheckCircle,
+	Clock,
+	Copy,
+	ExternalLink,
+	FileText,
+	PenLine,
+	RotateCcw,
+	Smartphone,
+	Trash2,
+	Wrench,
+} from "lucide-react";
 import { useState } from "react";
 import { RunMessages } from "#/components/shared/RunMessages";
 import { Badge } from "#/components/ui/badge";
@@ -118,6 +131,9 @@ export function ActivityDetailDialog({
 								)}
 							</Tabs>
 						)}
+
+						{/* Notification detail */}
+						{detail.type === "ai_notification" && <NotificationDetail detail={detail} />}
 
 						{/* Chat history for cron/workflow/system_task */}
 						{detail.chatThread && (
@@ -240,6 +256,41 @@ function ChatThreadMeta({ thread }: { thread: ActivityChatThread }) {
 			</Badge>
 			{totalTokens > 0 && <span className="tabular-nums">{totalTokens.toLocaleString()} tokens</span>}
 			{thread.totalEstimatedCostUsd > 0 && <span className="tabular-nums">{formatCost(thread.totalEstimatedCostUsd)}</span>}
+		</div>
+	);
+}
+
+function NotificationDetail({ detail }: { detail: ActivityDetail }) {
+	let meta: { title?: string; body?: string; link?: string; pushToPhone?: boolean } = {};
+	try {
+		meta = detail.metadata ? JSON.parse(detail.metadata) : {};
+	} catch {
+		// ignore
+	}
+
+	return (
+		<div className="flex flex-col gap-4 px-6 pt-4 pb-6">
+			<div className="flex items-center gap-2">
+				<Bell className="size-4 text-[var(--coral)]" />
+				<span className="text-sm font-semibold">Notification sent by AI</span>
+				{meta.pushToPhone && (
+					<Badge className="gap-1 border-[var(--coral)]/20 bg-[var(--coral)]/10 px-2 py-1 text-xs text-[var(--coral)]">
+						<Smartphone className="size-3" />
+						Pushed to phone
+					</Badge>
+				)}
+			</div>
+
+			<div className="rounded-lg border border-border bg-muted/30 p-4">
+				{meta.title && <p className="text-sm font-semibold">{meta.title}</p>}
+				{meta.body && <p className="mt-1 text-sm text-muted-foreground">{meta.body}</p>}
+				{meta.link && (
+					<p className="mt-2 flex items-center gap-1 text-xs text-[var(--teal)]">
+						<ExternalLink className="size-3" />
+						{meta.link}
+					</p>
+				)}
+			</div>
 		</div>
 	);
 }

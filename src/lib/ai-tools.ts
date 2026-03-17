@@ -10,6 +10,7 @@ import { createObsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
+import { createSendNotification } from "#/lib/tools/send-notification";
 
 const anthropic = createAnthropic();
 
@@ -55,6 +56,7 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
 		...webTools,
 		fetch_url_markdown: fetchUrlMarkdown,
 		...obsidianTools,
+		send_notification: createSendNotification(userId),
 	};
 }
 

@@ -1,4 +1,4 @@
-import { Bot, Clock, Cog, FileText, History, PenLine, Play, Timer } from "lucide-react";
+import { Bell, Bot, Clock, Cog, FileText, History, PenLine, Play, Timer } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { formatRelativeTime } from "./format-relative-time";
@@ -63,6 +63,7 @@ const TYPE_CONFIG: Record<string, { icon: typeof FileText; label: string; color:
 	cron_task: { icon: Timer, label: "Cron", color: "var(--coral)" },
 	workflow: { icon: Play, label: "Workflow", color: "oklch(0.65 0.15 270)" },
 	system_task: { icon: Cog, label: "System", color: "oklch(0.60 0.12 140)" },
+	ai_notification: { icon: Bell, label: "Notification", color: "oklch(0.65 0.14 25)" },
 };
 
 function TypeBadge({ type }: { type: string }) {

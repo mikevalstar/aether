@@ -12,6 +12,7 @@ import {
 } from "#/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "#/components/ui/sheet";
 import { authClient } from "#/lib/auth-client";
+import NotificationBell from "./NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 
 function getInitials(name?: string | null, email?: string | null) {
@@ -71,6 +72,7 @@ export default function Header() {
 
 				<div className="ml-auto flex items-center gap-2">
 					<ThemeToggle />
+					{session?.user && <NotificationBell />}
 					{session?.user ? (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>

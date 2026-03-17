@@ -6,6 +6,7 @@ import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
+import { testPushoverNotification } from "#/lib/notifications.functions";
 import { getPreferencesPageData, updateUserPreferences, updateUserProfile } from "#/lib/preferences.functions";
 
 const NO_TEMPLATES_FOLDER = "__bundled__";
@@ -30,6 +31,10 @@ function PreferencesPage() {
 
 	const [templatesFolder, setTemplatesFolder] = useState(data.preferences.obsidianTemplatesFolder || NO_TEMPLATES_FOLDER);
 	const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+	const [pushoverKey, setPushoverKey] = useState(data.preferences.pushoverUserKey || "");
+	const [isSavingPushover, setIsSavingPushover] = useState(false);
+	const [isTesting, setIsTesting] = useState(false);
 
 	const handleSaveProfile = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -61,6 +66,42 @@ function PreferencesPage() {
 			toast.error(err instanceof Error ? err.message : "Failed to save preferences");
 		} finally {
 			setIsSavingPrefs(false);
+		}
+	};
+
+	const handleSavePushover = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setIsSavingPushover(true);
+
+		try {
+			await updateUserPreferences({
+				data: { pushoverUserKey: pushoverKey.trim() || undefined },
+			});
+			toast.success("Pushover settings saved");
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : "Failed to save Pushover settings");
+		} finally {
+			setIsSavingPushover(false);
+		}
+	};
+
+	const handleTestPushover = async () => {
+		if (!pushoverKey.trim()) {
+			toast.error("Enter a Pushover user key first");
+			return;
+		}
+		setIsTesting(true);
+		try {
+			const result = await testPushoverNotification({ data: { userKey: pushoverKey.trim() } });
+			if (result.success) {
+				toast.success("Test notification sent! Check your phone.");
+			} else {
+				toast.error(result.error || "Failed to send test notification");
+			}
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : "Failed to send test notification");
+		} finally {
+			setIsTesting(false);
 		}
 	};
 
@@ -124,6 +165,37 @@ function PreferencesPage() {
 					</div>
 				</form>
 			)}
+			<form onSubmit={handleSavePushover} className="surface-card mt-6 max-w-2xl p-6">
+				<h2 className="mb-4 text-lg font-semibold">Push Notifications</h2>
+				<div className="grid gap-4">
+					<div className="grid gap-1.5">
+						<Label htmlFor="pref-pushover-key">Pushover User Key</Label>
+						<Input
+							id="pref-pushover-key"
+							type="text"
+							value={pushoverKey}
+							onChange={(e) => setPushoverKey(e.target.value)}
+							placeholder="Your Pushover user key"
+						/>
+						<p className="text-xs text-muted-foreground">
+							Get your user key from{" "}
+							<a href="https://pushover.net" target="_blank" rel="noopener noreferrer" className="underline">
+								pushover.net
+							</a>
+							. Leave blank to disable phone push notifications.
+						</p>
+					</div>
+
+					<div className="flex gap-2">
+						<Button type="submit" disabled={isSavingPushover}>
+							{isSavingPushover ? "Saving..." : "Save"}
+						</Button>
+						<Button type="button" variant="outline" disabled={isTesting || !pushoverKey.trim()} onClick={handleTestPushover}>
+							{isTesting ? "Sending..." : "Test send"}
+						</Button>
+					</div>
+				</div>
+			</form>
 		</main>
 	);
 }

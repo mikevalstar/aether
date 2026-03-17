@@ -1,5 +1,6 @@
 export type UserPreferences = {
 	obsidianTemplatesFolder?: string;
+	pushoverUserKey?: string;
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {
