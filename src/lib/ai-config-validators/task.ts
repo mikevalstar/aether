@@ -17,17 +17,14 @@ export const taskFrontmatterSchema = z.object({
 	maxTokens: z.number().int().positive().optional(),
 	timezone: z
 		.string()
-		.refine(
-			(val) => {
-				try {
-					Intl.DateTimeFormat(undefined, { timeZone: val });
-					return true;
-				} catch {
-					return false;
-				}
-			},
-			"Must be a valid IANA timezone (e.g. America/New_York)",
-		)
+		.refine((val) => {
+			try {
+				Intl.DateTimeFormat(undefined, { timeZone: val });
+				return true;
+			} catch {
+				return false;
+			}
+		}, "Must be a valid IANA timezone (e.g. America/Toronto)")
 		.optional(),
 	notification: z.enum(validNotificationLevels).optional(),
 });
@@ -57,7 +54,7 @@ export const taskValidator: AiConfigValidator = {
 		"- `enabled` — boolean (default true)",
 		"- `endDate` — ISO 8601 date after which the task stops",
 		"- `maxTokens` — positive integer output token limit",
-		"- `timezone` — IANA timezone (e.g. America/New_York). Defaults to server timezone",
+		"- `timezone` — IANA timezone (e.g. America/Toronto). Defaults to server timezone",
 		`- \`notification\` — one of: ${validNotificationLevels.join(", ")} (default: notify)`,
 		"",
 		"**Body:** The prompt sent to the AI. Must be non-empty.",
