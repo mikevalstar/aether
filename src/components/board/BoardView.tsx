@@ -25,6 +25,7 @@ interface BoardViewProps {
 export function BoardView({ columns: serverColumns, onAddTask, onRemoveTask, onMoveTask }: BoardViewProps) {
 	const [columns, setColumns] = useState(serverColumns);
 	const [activeTask, setActiveTask] = useState<KanbanTask | null>(null);
+	const [dragOrigin, setDragOrigin] = useState<{ column: string; index: number } | null>(null);
 
 	// Update local state when server data changes
 	if (serverColumns !== columns && !activeTask) {
@@ -47,9 +48,14 @@ export function BoardView({ columns: serverColumns, onAddTask, onRemoveTask, onM
 	);
 
 	const handleDragStart = (event: DragStartEvent) => {
-		const col = findColumnForTask(event.active.id as string);
-		const task = col?.tasks.find((t) => t.id === event.active.id);
+		const taskId = event.active.id as string;
+		const col = findColumnForTask(taskId);
+		const task = col?.tasks.find((t) => t.id === taskId);
 		setActiveTask(task ?? null);
+		if (col) {
+			const idx = col.tasks.findIndex((t) => t.id === taskId);
+			setDragOrigin({ column: col.name, index: idx });
+		}
 	};
 
 	const handleDragOver = (event: DragOverEvent) => {
@@ -98,9 +104,11 @@ export function BoardView({ columns: serverColumns, onAddTask, onRemoveTask, onM
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
+		const origin = dragOrigin;
 		setActiveTask(null);
+		setDragOrigin(null);
 
-		if (!over) return;
+		if (!over || !origin) return;
 
 		const activeId = active.id as string;
 		const overId = over.id as string;
@@ -129,12 +137,8 @@ export function BoardView({ columns: serverColumns, onAddTask, onRemoveTask, onM
 
 		const finalIdx = finalCol.tasks.findIndex((t) => t.id === activeId);
 
-		// Determine original column from the drag data
-		const origData = active.data.current as { column: string; index: number } | undefined;
-		if (!origData) return;
-
-		if (origData.column !== finalCol.name || origData.index !== finalIdx) {
-			void onMoveTask(origData.column, origData.index, finalCol.name, finalIdx);
+		if (origin.column !== finalCol.name || origin.index !== finalIdx) {
+			void onMoveTask(origin.column, origin.index, finalCol.name, finalIdx);
 		}
 	};
 
