@@ -1,6 +1,6 @@
 ---
 title: System Settings (AI Config)
-status: in-progress
+status: done
 owner: self
 last_updated: 2026-03-14
 canonical_file: docs/requirements/system-settings.md
@@ -174,7 +174,7 @@ examples/ai-config/
 | 5. Editor validation UI | done | Detect AI config files in editor, show requirements panel + real-time validation widget below editor. |
 | 6. Chat prompt integration | done | Updated `src/routes/api/chat.ts` to read system-prompt.md via config library, fall back to hardcoded. |
 | 7. Title prompt integration | done | `generateChatTitle` moved to `src/routes/api/chat.ts`, reads title-prompt.md via config library, uses configured model, falls back to hardcoded. |
-| 8. Jobs folder | todo | Future: schema, UI, and runner for cron-based AI job files. |
+| 8. Jobs folder | done | done in periodic-tasks.md |
 
 ## Open Questions
 

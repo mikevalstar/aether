@@ -1,6 +1,6 @@
 ---
 title: Notifications
-status: in-progress
+status: done
 owner: self
 last_updated: 2026-03-16
 canonical_file: docs/requirements/notifications.md
@@ -134,7 +134,7 @@ More sources can be added incrementally.
 | 8. Toast integration | done | Wire polling hook to sonner toasts for new notifications. |
 | 9. Header bell | done | Add notification bell + dropdown to `src/components/Header.tsx`. |
 | 10. AI notify tool | done | Register `send_notification` tool in chat API endpoint. |
-| 11. Wire up sources | todo | Add `notify()` calls to periodic tasks, workflows, system tasks. |
+| 11. Wire up sources | done | Add `notify()` calls to periodic tasks, workflows, system tasks. |
 | 12. Cleanup system task | done | Add notification cleanup to system tasks (delete read notifications older than 30 days). |
 
 ## Open Questions

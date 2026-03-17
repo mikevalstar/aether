@@ -1,6 +1,6 @@
 ---
 title: Command Palette
-status: todo
+status: done
 owner: Mike
 last_updated: 2026-03-17
 canonical_file: docs/requirements/command-palette.md
@@ -16,7 +16,7 @@ canonical_file: docs/requirements/command-palette.md
 
 ## Current Reality
 
-- Current behavior: `cmdk` (`^1.1.1`) is installed and `src/components/ui/command.tsx` has the full Shadcn command component set (`CommandDialog`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandShortcut`). None of it is wired up anywhere.
+- Current behavior: Command palette is fully implemented. `Cmd+K` / `Ctrl+K` opens a palette with page navigation, lazy-loaded workflows, debounced obsidian vault search, and quick actions. A search button with `⌘K` hint is shown in the header for authenticated users.
 - Constraints: Single-user app, so no multi-tenant scoping needed. Vault index is server-side (fuse.js in memory), so obsidian search requires a server function call.
 - Non-goals: Not a full spotlight/Alfred replacement. Not for running arbitrary shell commands. Not for in-page text search.
 
@@ -24,24 +24,24 @@ canonical_file: docs/requirements/command-palette.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Keyboard shortcut | todo | `Cmd+K` (Mac) / `Ctrl+K` (other) opens the palette from anywhere in the app |
-| Page navigation | todo | Static list of all major pages (Dashboard, Chat, Tasks, Workflows, Obsidian, Activity, Usage, Logs, Requirements, Settings, Users, About) |
-| Workflow navigation | todo | Lazy-loaded list of workflows from the `Workflow` table, navigates to `/workflows/:filename` |
-| Obsidian document search | todo | Lazy-loaded fuzzy search against the vault index, navigates to `/o/:path` |
-| Quick actions | todo | Common actions: New Chat, Toggle Theme, Sign Out |
-| Lazy loading | todo | Workflow list and obsidian search data fetched only when the palette opens, not on page load |
-| Palette UI | todo | Uses existing `CommandDialog` component with grouped sections and keyboard navigation |
+| Keyboard shortcut | done | `Cmd+K` (Mac) / `Ctrl+K` (other) opens the palette from anywhere in the app |
+| Page navigation | done | Static list of all major pages (Dashboard, Chat, Tasks, Workflows, Obsidian, Activity, Usage, Logs, Requirements, Settings, Users) |
+| Workflow navigation | done | Lazy-loaded list of workflows from the `Workflow` table, navigates to `/workflows/:filename` |
+| Obsidian document search | done | Lazy-loaded fuzzy search against the vault index, navigates to `/o/:path` |
+| Quick actions | done | Common actions: New Chat, Toggle Theme, Sign Out |
+| Lazy loading | done | Workflow list and obsidian search data fetched only when the palette opens, not on page load |
+| Palette UI | done | Uses existing `CommandDialog` component with grouped sections and keyboard navigation |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Global keyboard listener | todo | `Cmd+K` / `Ctrl+K` to toggle palette open/close | Inline |
-| Static pages group | todo | Hardcoded navigation items for all app routes | Inline |
-| Workflows group | todo | Lazy-fetched workflow list with titles | Inline |
-| Obsidian search group | todo | Fuzzy search against vault index, results appear as user types | Inline |
-| Actions group | todo | Quick actions (new chat, toggle theme, sign out) | Inline |
-| Command palette component | todo | Wrapper component mounted in root layout | Inline |
+| Global keyboard listener | done | `Cmd+K` / `Ctrl+K` to toggle palette open/close | Inline |
+| Static pages group | done | Hardcoded navigation items for all app routes | Inline |
+| Workflows group | done | Lazy-fetched workflow list with titles | Inline |
+| Obsidian search group | done | Fuzzy search against vault index, results appear as user types | Inline |
+| Actions group | done | Quick actions (new chat, toggle theme, sign out) | Inline |
+| Command palette component | done | Wrapper component mounted in root layout | Inline |
 
 ## Detail
 
@@ -122,9 +122,13 @@ canonical_file: docs/requirements/command-palette.md
 
 ## Open Questions
 
-- Should the header show a visible `Cmd+K` button/search bar as an affordance, or just rely on the keyboard shortcut?
 - Should recent/frequent pages be shown as a "Recent" group at the top?
+
+## Resolved Questions
+
+- Header shows a visible `⌘K` search button as an affordance (desktop only, authenticated users).
 
 ## Change Log
 
 - 2026-03-17: Initial requirements draft
+- 2026-03-17: Full implementation complete — all major requirements and sub-features done

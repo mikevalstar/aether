@@ -1,6 +1,6 @@
 ---
 title: User Preferences
-status: in-progress
+status: done
 owner: self
 last_updated: 2026-03-15
 canonical_file: docs/requirements/user-preferences.md
