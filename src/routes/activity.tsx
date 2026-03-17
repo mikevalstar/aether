@@ -52,6 +52,9 @@ export const Route = createFileRoute("/activity")({
 const TYPE_FILTERS = [
 	{ value: "all", label: "All" },
 	{ value: "file_change", label: "File Changes" },
+	{ value: "cron_task", label: "Cron Tasks" },
+	{ value: "workflow", label: "Workflows" },
+	{ value: "system_task", label: "System Tasks" },
 ];
 
 function ActivityPage() {

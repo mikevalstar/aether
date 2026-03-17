@@ -1,4 +1,4 @@
-import { Bot, Clock, FileText, History, PenLine } from "lucide-react";
+import { Bot, Clock, Cog, FileText, History, PenLine, Play, Timer } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { formatRelativeTime } from "./format-relative-time";
@@ -39,16 +39,7 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
 								</div>
 							</td>
 							<td className="border-b border-border/50 px-4 py-3">
-								<Badge variant="outline" className="text-xs">
-									{item.type === "file_change" ? (
-										<>
-											<FileText className="mr-1 size-3" />
-											File
-										</>
-									) : (
-										item.type
-									)}
-								</Badge>
+								<TypeBadge type={item.type} />
 							</td>
 							<td className="border-b border-border/50 px-4 py-3">
 								<span className="font-medium">{item.summary}</span>
@@ -64,6 +55,37 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
 				</tbody>
 			</table>
 		</section>
+	);
+}
+
+const TYPE_CONFIG: Record<string, { icon: typeof FileText; label: string; color: string }> = {
+	file_change: { icon: FileText, label: "File", color: "var(--teal)" },
+	cron_task: { icon: Timer, label: "Cron", color: "var(--coral)" },
+	workflow: { icon: Play, label: "Workflow", color: "oklch(0.65 0.15 270)" },
+	system_task: { icon: Cog, label: "System", color: "oklch(0.60 0.12 140)" },
+};
+
+function TypeBadge({ type }: { type: string }) {
+	const config = TYPE_CONFIG[type];
+	if (!config) {
+		return (
+			<Badge variant="outline" className="text-xs">
+				{type}
+			</Badge>
+		);
+	}
+	const Icon = config.icon;
+	return (
+		<Badge
+			className="gap-1 py-0 text-xs border-transparent"
+			style={{
+				backgroundColor: `color-mix(in oklch, ${config.color} 12%, transparent)`,
+				color: config.color,
+			}}
+		>
+			<Icon className="size-3" />
+			{config.label}
+		</Badge>
 	);
 }
 

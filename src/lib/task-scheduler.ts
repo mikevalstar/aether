@@ -5,6 +5,7 @@ import { Cron } from "croner";
 import matter from "gray-matter";
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
+import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
 import { executeTask, type TaskConfig } from "#/lib/task-executor";
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -70,6 +71,8 @@ export async function triggerTask(filename: string): Promise<void> {
 }
 
 export async function closeScheduler(): Promise<void> {
+	stopSystemTasks();
+
 	for (const [, { job }] of tasks) {
 		job?.stop();
 	}
@@ -185,6 +188,9 @@ async function doInit(): Promise<void> {
 		.on("error", (err: unknown) => {
 			logger.error({ err }, "Task watcher error");
 		});
+
+	// Register code-defined system tasks (cleanup, etc.)
+	startSystemTasks();
 
 	const taskCount = tasks.size;
 	logger.info({ taskCount, dir: tasksDir }, `Task scheduler initialized with ${taskCount} task(s)`);
