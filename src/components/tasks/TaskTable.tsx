@@ -121,8 +121,14 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
 										<TooltipTrigger className="text-sm">{formatCron(item.cron)}</TooltipTrigger>
 										<TooltipContent>
 											<code>{item.cron}</code>
+											{item.timezone && (
+												<div className="mt-1 text-xs text-muted-foreground">{item.timezone}</div>
+											)}
 										</TooltipContent>
 									</Tooltip>
+									{item.timezone && (
+										<div className="text-xs text-muted-foreground">{item.timezone}</div>
+									)}
 								</TableCell>
 								<TableCell className="text-sm">
 									{item.nextRun ? (

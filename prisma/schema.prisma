@@ -152,6 +152,7 @@ model Task {
   enabled        Boolean   @default(true)
   endDate        DateTime?
   maxTokens      Int?
+  timezone       String?
   lastRunAt      DateTime?
   lastRunStatus  String?
   lastThreadId   String?

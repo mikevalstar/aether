@@ -14,6 +14,7 @@ export type TaskListItem = {
 	enabled: boolean;
 	endDate: string | null;
 	maxTokens: number | null;
+	timezone: string | null;
 	lastRunAt: string | null;
 	lastRunStatus: string | null;
 	lastThreadId: string | null;
@@ -63,6 +64,7 @@ export const getTasksPageData = createServerFn({ method: "GET" }).handler(async 
 			enabled: row.enabled,
 			endDate: row.endDate?.toISOString() ?? null,
 			maxTokens: row.maxTokens,
+			timezone: row.timezone ?? null,
 			lastRunAt: row.lastRunAt?.toISOString() ?? null,
 			lastRunStatus: row.lastRunStatus,
 			lastThreadId: row.lastThreadId,
@@ -119,6 +121,7 @@ export const getTaskRunHistory = createServerFn({ method: "GET" })
 				model: task.model,
 				effort: task.effort,
 				enabled: task.enabled,
+				timezone: task.timezone ?? null,
 				fileExists: task.fileExists,
 			},
 			runs,

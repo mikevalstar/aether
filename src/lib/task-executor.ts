@@ -25,6 +25,7 @@ export type TaskConfig = {
 	enabled: boolean;
 	endDate?: string;
 	maxTokens?: number;
+	timezone?: string;
 	notification: NotificationLevel;
 	body: string;
 };

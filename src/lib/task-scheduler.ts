@@ -20,6 +20,7 @@ export type ScheduledTaskInfo = {
 	enabled: boolean;
 	endDate?: string;
 	maxTokens?: number;
+	timezone?: string;
 	nextRun: Date | null;
 	isBusy: boolean;
 	isRunning: boolean;
@@ -57,6 +58,7 @@ export function getScheduledTasks(): ScheduledTaskInfo[] {
 		enabled: config.enabled,
 		endDate: config.endDate,
 		maxTokens: config.maxTokens,
+		timezone: config.timezone,
 		nextRun: job?.nextRun() ?? null,
 		isBusy: job?.isBusy() ?? false,
 		isRunning: job?.isRunning() ?? false,
@@ -276,6 +278,7 @@ async function parseTaskFile(filePath: string): Promise<TaskConfig | null> {
 			enabled: data.enabled !== false,
 			endDate: data.endDate,
 			maxTokens: data.maxTokens,
+			timezone: data.timezone,
 			notification: data.notification ?? "notify",
 			body: parsed.content,
 		};
@@ -291,7 +294,7 @@ function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | n
 		try {
 			return new Cron(config.cron, {
 				name: config.title,
-				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				timezone: config.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
 				paused: true,
 				unref: true,
 				...(config.endDate ? { stopAt: config.endDate } : {}),
@@ -305,7 +308,8 @@ function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | n
 	let startAt: Date | undefined;
 	if (lastRunAt) {
 		try {
-			const tempJob = new Cron(config.cron, { paused: true });
+			const tz = config.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+			const tempJob = new Cron(config.cron, { paused: true, timezone: tz });
 			const nextAfterLastRun = tempJob.nextRun(lastRunAt);
 			tempJob.stop();
 			if (nextAfterLastRun) {
@@ -313,7 +317,7 @@ function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | n
 				const nextTime = nextAfterLastRun.getTime();
 				if (nextTime <= now && now - nextTime < GRACE_WINDOW_MS) {
 					// The next scheduled run just passed — skip it to avoid double-run
-					const skipJob = new Cron(config.cron, { paused: true });
+					const skipJob = new Cron(config.cron, { paused: true, timezone: tz });
 					const futureRun = skipJob.nextRun();
 					skipJob.stop();
 					if (futureRun) {
@@ -331,7 +335,7 @@ function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | n
 			config.cron,
 			{
 				name: config.title,
-				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				timezone: config.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
 				protect: true,
 				catch: (err: unknown) => {
 					logger.error({ task: filename, err }, "Task cron error");
@@ -362,6 +366,7 @@ async function upsertTaskRow(filename: string, config: TaskConfig, userId: strin
 			enabled: config.enabled,
 			endDate: config.endDate ? new Date(config.endDate) : null,
 			maxTokens: config.maxTokens ?? null,
+			timezone: config.timezone ?? null,
 			fileExists: true,
 			userId,
 		},
@@ -373,6 +378,7 @@ async function upsertTaskRow(filename: string, config: TaskConfig, userId: strin
 			enabled: config.enabled,
 			endDate: config.endDate ? new Date(config.endDate) : null,
 			maxTokens: config.maxTokens ?? null,
+			timezone: config.timezone ?? null,
 			fileExists: true,
 		},
 	});

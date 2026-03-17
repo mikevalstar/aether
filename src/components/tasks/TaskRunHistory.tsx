@@ -47,6 +47,7 @@ export function TaskRunHistory({
 		model: string;
 		effort: string;
 		enabled: boolean;
+		timezone: string | null;
 		fileExists: boolean;
 	};
 	runs: TaskRunItem[];
@@ -88,6 +89,11 @@ export function TaskRunHistory({
 					<Badge variant="outline" className="text-xs">
 						{task.model}
 					</Badge>
+					{task.timezone && (
+						<Badge variant="outline" className="text-xs">
+							{task.timezone}
+						</Badge>
+					)}
 					{!task.fileExists && (
 						<Badge variant="outline" className="text-amber-600 border-amber-300">
 							File removed
