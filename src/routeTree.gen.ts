@@ -17,9 +17,11 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
 import { Route as TasksIndexRouteImport } from './routes/tasks/index'
 import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
 import { Route as OIndexRouteImport } from './routes/o/index'
+import { Route as WorkflowsSplatRouteImport } from './routes/workflows/$'
 import { Route as TasksSplatRouteImport } from './routes/tasks/$'
 import { Route as SettingsPreferencesRouteImport } from './routes/settings/preferences'
 import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
@@ -73,6 +75,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkflowsIndexRoute = WorkflowsIndexRouteImport.update({
+  id: '/workflows/',
+  path: '/workflows/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
@@ -86,6 +93,11 @@ const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
 const OIndexRoute = OIndexRouteImport.update({
   id: '/o/',
   path: '/o/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsSplatRoute = WorkflowsSplatRouteImport.update({
+  id: '/workflows/$',
+  path: '/workflows/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TasksSplatRoute = TasksSplatRouteImport.update({
@@ -167,9 +179,11 @@ export interface FileRoutesByFullPath {
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
   '/tasks/$': typeof TasksSplatRoute
+  '/workflows/$': typeof WorkflowsSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/tasks/': typeof TasksIndexRoute
+  '/workflows/': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -192,9 +206,11 @@ export interface FileRoutesByTo {
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
   '/tasks/$': typeof TasksSplatRoute
+  '/workflows/$': typeof WorkflowsSplatRoute
   '/o': typeof OIndexRoute
   '/requirements': typeof RequirementsIndexRoute
   '/tasks': typeof TasksIndexRoute
+  '/workflows': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -218,9 +234,11 @@ export interface FileRoutesById {
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
   '/tasks/$': typeof TasksSplatRoute
+  '/workflows/$': typeof WorkflowsSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/tasks/': typeof TasksIndexRoute
+  '/workflows/': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -245,9 +263,11 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/settings/preferences'
     | '/tasks/$'
+    | '/workflows/$'
     | '/o/'
     | '/requirements/'
     | '/tasks/'
+    | '/workflows/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -270,9 +290,11 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/settings/preferences'
     | '/tasks/$'
+    | '/workflows/$'
     | '/o'
     | '/requirements'
     | '/tasks'
+    | '/workflows'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -295,9 +317,11 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/settings/preferences'
     | '/tasks/$'
+    | '/workflows/$'
     | '/o/'
     | '/requirements/'
     | '/tasks/'
+    | '/workflows/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -321,9 +345,11 @@ export interface RootRouteChildren {
   SettingsPasswordRoute: typeof SettingsPasswordRoute
   SettingsPreferencesRoute: typeof SettingsPreferencesRoute
   TasksSplatRoute: typeof TasksSplatRoute
+  WorkflowsSplatRoute: typeof WorkflowsSplatRoute
   OIndexRoute: typeof OIndexRoute
   RequirementsIndexRoute: typeof RequirementsIndexRoute
   TasksIndexRoute: typeof TasksIndexRoute
+  WorkflowsIndexRoute: typeof WorkflowsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
@@ -387,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workflows/': {
+      id: '/workflows/'
+      path: '/workflows'
+      fullPath: '/workflows/'
+      preLoaderRoute: typeof WorkflowsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tasks/': {
       id: '/tasks/'
       path: '/tasks'
@@ -406,6 +439,13 @@ declare module '@tanstack/react-router' {
       path: '/o'
       fullPath: '/o/'
       preLoaderRoute: typeof OIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/$': {
+      id: '/workflows/$'
+      path: '/workflows/$'
+      fullPath: '/workflows/$'
+      preLoaderRoute: typeof WorkflowsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tasks/$': {
@@ -513,9 +553,11 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsPasswordRoute: SettingsPasswordRoute,
   SettingsPreferencesRoute: SettingsPreferencesRoute,
   TasksSplatRoute: TasksSplatRoute,
+  WorkflowsSplatRoute: WorkflowsSplatRoute,
   OIndexRoute: OIndexRoute,
   RequirementsIndexRoute: RequirementsIndexRoute,
   TasksIndexRoute: TasksIndexRoute,
+  WorkflowsIndexRoute: WorkflowsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,

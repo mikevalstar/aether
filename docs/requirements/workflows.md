@@ -1,6 +1,6 @@
 ---
 title: Workflows
-status: todo
+status: done
 owner: Mike
 last_updated: 2026-03-16
 canonical_file: docs/requirements/workflows.md
@@ -24,31 +24,31 @@ canonical_file: docs/requirements/workflows.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Workflow file format | todo | Markdown files in `workflows/` with `title`, `fields` array, `model`, `effort` in frontmatter; body is the prompt template with `{{fieldName}}` placeholders |
-| Workflow system prompt | todo | `workflow-prompt.md` AI config file — shared system prompt for all workflow executions |
-| Zod validator | todo | Validators for workflow files and workflow-prompt following existing `ai-config-validators` pattern |
-| Workflow execution | todo | Execute workflow via shared AI harness with full tool access, agent loop, background (non-streaming) |
-| Database — Workflow table | todo | `Workflow` table tracking each workflow file's metadata and last run info |
-| Database — ChatThread type | todo | Store workflow runs in `ChatThread` with `type: "workflow"`, `sourceWorkflowFile` |
-| Convert to chat | todo | Button on a completed workflow run to convert it into a regular chat thread for follow-up conversation |
-| Usage tracking | todo | Track token usage per workflow run via `ChatUsageEvent` with `taskType: "workflow"` |
-| Activity logging | todo | Log workflow executions as `ActivityLog` entries with `type: "workflow"` |
-| UI — Workflow list | todo | Page at `/workflows` showing available workflows and recent runs across all workflows |
-| UI — Workflow detail | todo | Page at `/workflows/:filename` showing the form to run + past runs for that specific workflow |
-| Seed/pull CLI | todo | Extend `ai-config:seed` and `ai-config:pull` to include example workflow files and workflow-prompt |
-| File watching | todo | Chokidar watcher on `workflows/` for dynamic add/remove/update (same pattern as tasks) |
+| Workflow file format | done | Markdown files in `workflows/` with `title`, `fields` array, `model`, `effort` in frontmatter; body is the prompt template with `{{fieldName}}` placeholders |
+| Workflow system prompt | done | `workflow-prompt.md` AI config file — shared system prompt for all workflow executions |
+| Zod validator | done | Validators for workflow files and workflow-prompt following existing `ai-config-validators` pattern |
+| Workflow execution | done | Execute workflow via shared AI harness with full tool access, agent loop, background (non-streaming) |
+| Database — Workflow table | done | `Workflow` table tracking each workflow file's metadata and last run info |
+| Database — ChatThread type | done | Store workflow runs in `ChatThread` with `type: "workflow"`, `sourceWorkflowFile` |
+| Convert to chat | done | Button on a completed workflow run to convert it into a regular chat thread for follow-up conversation |
+| Usage tracking | done | Track token usage per workflow run via `ChatUsageEvent` with `taskType: "workflow"` |
+| Activity logging | done | Log workflow executions as `ActivityLog` entries with `type: "workflow"` |
+| UI — Workflow list | done | Page at `/workflows` showing available workflows and recent runs across all workflows |
+| UI — Workflow detail | done | Page at `/workflows/:filename` showing the form to run + past runs for that specific workflow |
+| Seed/pull CLI | done | Extend `ai-config:seed` and `ai-config:pull` to include example workflow files and workflow-prompt |
+| File watching | done | Chokidar watcher on `workflows/` for dynamic add/remove/update (same pattern as tasks) |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Workflow file format & validation | todo | Frontmatter schema with form field definitions + zod validator | Inline |
-| Workflow system prompt config | todo | `workflow-prompt.md` AI config file for workflow system prompt | Inline |
-| Workflow execution pipeline | todo | Form input → prompt assembly → background agent loop → store result | Inline |
-| Convert to chat | todo | Promote a workflow run's ChatThread to a regular chat for follow-up | Inline |
-| Schema migration | todo | New `Workflow` table, extend `ChatThread.type` to include `"workflow"` | Inline |
-| Workflow management UI | todo | List view + form + run history at `/workflows` | Inline |
-| CLI tooling | todo | Seed examples, pull config | Inline |
+| Workflow file format & validation | done | Frontmatter schema with form field definitions + zod validator | Inline |
+| Workflow system prompt config | done | `workflow-prompt.md` AI config file for workflow system prompt | Inline |
+| Workflow execution pipeline | done | Form input → prompt assembly → background agent loop → store result | Inline |
+| Convert to chat | done | Promote a workflow run's ChatThread to a regular chat for follow-up | Inline |
+| Schema migration | done | New `Workflow` table, extend `ChatThread.type` to include `"workflow"` | Inline |
+| Workflow management UI | done | List view + form + run history at `/workflows` | Inline |
+| CLI tooling | done | Seed examples, pull config | Inline |
 
 ## Detail
 
@@ -270,3 +270,4 @@ Suggested build order:
 
 - 2026-03-16: Initial requirements draft
 - 2026-03-16: Resolved open questions — no conditional template syntax (empty fields → "not entered"), toast notifications for now, thread title is just the workflow title
+- 2026-03-16: Full implementation complete — schema, validators, executor, watcher, server functions, UI (list + form + run history), convert-to-chat, example files, nav link

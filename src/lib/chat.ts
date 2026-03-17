@@ -21,7 +21,7 @@ export type ChatUsageTotals = {
 	estimatedCostUsd: number;
 };
 
-export type ChatTaskType = "chat" | "title" | "task";
+export type ChatTaskType = "chat" | "title" | "task" | "workflow";
 
 export type ChatUsageEntry = ChatUsageTotals & {
 	id: string;

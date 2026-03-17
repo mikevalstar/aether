@@ -3,10 +3,19 @@ import { taskValidator } from "./task";
 import { taskPromptValidator } from "./task-prompt";
 import { titlePromptValidator } from "./title-prompt";
 import type { AiConfigValidator } from "./types";
+import { workflowValidator } from "./workflow";
+import { workflowPromptValidator } from "./workflow-prompt";
 
 export type { AiConfigValidationResult, AiConfigValidator } from "./types";
 
-const validators: AiConfigValidator[] = [systemPromptValidator, titlePromptValidator, taskPromptValidator, taskValidator];
+const validators: AiConfigValidator[] = [
+	systemPromptValidator,
+	titlePromptValidator,
+	taskPromptValidator,
+	taskValidator,
+	workflowPromptValidator,
+	workflowValidator,
+];
 
 const validatorsByFilename = new Map<string, AiConfigValidator>(
 	validators.filter((v) => !v.filename.endsWith("/")).map((v) => [v.filename, v]),

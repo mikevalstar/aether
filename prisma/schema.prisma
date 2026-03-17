@@ -34,6 +34,7 @@ model User {
   chatUsageEvents ChatUsageEvent[]
   activityLogs    ActivityLog[]
   tasks           Task[]
+  workflows       Workflow[]
 }
 
 model Session {
@@ -85,7 +86,8 @@ model ChatThread {
   totalInputTokens Int    @default(0)
   totalOutputTokens Int   @default(0)
   totalEstimatedCostUsd Float @default(0)
-  sourceTaskFile String?
+  sourceTaskFile     String?
+  sourceWorkflowFile String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   userId         String
@@ -147,6 +149,27 @@ model Task {
   enabled        Boolean   @default(true)
   endDate        DateTime?
   maxTokens      Int?
+  lastRunAt      DateTime?
+  lastRunStatus  String?
+  lastThreadId   String?
+  fileExists     Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, filename])
+}
+
+model Workflow {
+  id             String    @id @default(cuid())
+  filename       String    @unique
+  title          String
+  description    String?
+  model          String    @default("claude-haiku-4-5")
+  effort         String    @default("low")
+  maxTokens      Int?
+  fieldsJson     String    @default("[]")
   lastRunAt      DateTime?
   lastRunStatus  String?
   lastThreadId   String?
