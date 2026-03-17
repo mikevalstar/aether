@@ -86,6 +86,8 @@ File-based routing lives in `src/routes/`. TanStack Router auto-generates `src/r
 
 Server functions are created with `createServerFn()`. API routes use a `server` property in route definitions. Data loading uses loaders in route files.
 
+**When adding a new route:** Update the `PAGES` array in `src/components/CommandPalette.tsx` so the new page appears in the `Cmd+K` command palette.
+
 **Routes:**
 - `/` — Home page
 - `/login` — Sign in / sign up

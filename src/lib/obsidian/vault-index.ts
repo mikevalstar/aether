@@ -263,7 +263,7 @@ function extractTitle(frontmatter: Record<string, unknown>, relativePath: string
 	// Humanize filename
 	return path
 		.basename(relativePath, ".md")
-		.replace(/[-_]+/g, " ")
+		.replace(/_+/g, " ")
 		.replace(/\b\w/g, (l) => l.toUpperCase());
 }
 

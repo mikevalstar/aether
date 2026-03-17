@@ -15,9 +15,7 @@ export function DayDetailPanel({ date, events }: Props) {
 	const showCalendarName = uniqueCalendars.size > 1;
 
 	// Deduplicate all-day events by title (same event from multi-day span or multiple feeds)
-	const uniqueAllDay = allDayEvents.filter(
-		(event, i, arr) => arr.findIndex((e) => e.title === event.title) === i,
-	);
+	const uniqueAllDay = allDayEvents.filter((event, i, arr) => arr.findIndex((e) => e.title === event.title) === i);
 
 	return (
 		<div className="flex max-h-[calc(100vh-16rem)] min-h-0 flex-col rounded-xl border border-border bg-card">
@@ -25,9 +23,7 @@ export function DayDetailPanel({ date, events }: Props) {
 				<h3 className="text-sm font-semibold">
 					{format(date, "EEEE, MMM d")}
 					{isToday(date) && (
-						<span className="ml-2 rounded-full bg-[var(--teal)] px-2 py-0.5 text-[10px] font-medium text-white">
-							Today
-						</span>
+						<span className="ml-2 rounded-full bg-[var(--teal)] px-2 py-0.5 text-[10px] font-medium text-white">Today</span>
 					)}
 				</h3>
 
@@ -39,10 +35,7 @@ export function DayDetailPanel({ date, events }: Props) {
 								key={event.uid}
 								className="inline-flex items-center gap-1 rounded-full bg-accent/60 px-2 py-0.5 text-[11px] font-medium"
 							>
-								<span
-									className="size-1.5 shrink-0 rounded-full"
-									style={{ backgroundColor: event.color }}
-								/>
+								<span className="size-1.5 shrink-0 rounded-full" style={{ backgroundColor: event.color }} />
 								<span className="max-w-[140px] truncate">{event.title}</span>
 							</span>
 						))}
@@ -56,11 +49,7 @@ export function DayDetailPanel({ date, events }: Props) {
 				<div className="min-h-0 overflow-y-auto px-4 pb-4">
 					<div className="grid gap-1.5">
 						{timedEvents.map((event) => (
-							<EventCard
-								key={event.uid}
-								event={event}
-								showCalendarName={showCalendarName}
-							/>
+							<EventCard key={event.uid} event={event} showCalendarName={showCalendarName} />
 						))}
 					</div>
 				</div>
@@ -69,20 +58,14 @@ export function DayDetailPanel({ date, events }: Props) {
 	);
 }
 
-function EventCard({
-	event,
-	showCalendarName,
-}: { event: CalendarEvent; showCalendarName: boolean }) {
+function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCalendarName: boolean }) {
 	const startTime = format(new Date(event.start), "h:mm a");
 	const endTime = format(new Date(event.end), "h:mm a");
 	const eventPast = isPast(new Date(event.end));
 
 	return (
 		<div
-			className={cn(
-				"min-w-0 rounded-md border-l-2 bg-accent/50 p-2 text-xs transition-opacity",
-				eventPast && "opacity-45",
-			)}
+			className={cn("min-w-0 rounded-md border-l-2 bg-accent/50 p-2 text-xs transition-opacity", eventPast && "opacity-45")}
 			style={{ borderLeftColor: event.color }}
 		>
 			<p className="truncate font-medium leading-tight" title={event.title}>
@@ -103,9 +86,7 @@ function EventCard({
 				</p>
 			)}
 
-			{showCalendarName && (
-				<p className="mt-1 text-muted-foreground/70">{event.calendarName}</p>
-			)}
+			{showCalendarName && <p className="mt-1 text-muted-foreground/70">{event.calendarName}</p>}
 		</div>
 	);
 }

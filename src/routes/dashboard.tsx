@@ -198,9 +198,7 @@ function QuickActionCards() {
 					<ChartLine className="size-4" strokeWidth={1.75} />
 				</div>
 				<p className="mb-1 text-sm font-bold tracking-tight text-foreground">Usage</p>
-				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">
-					Token usage, costs, and model trends over time.
-				</p>
+				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">Token usage, costs, and model trends over time.</p>
 				<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--coral)]">
 					View stats
 					<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />

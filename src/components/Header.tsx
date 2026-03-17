@@ -17,6 +17,7 @@ import {
 	Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import CommandKButton from "#/components/CommandKButton";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
 import { Button } from "#/components/ui/button";
 import {
@@ -136,6 +137,7 @@ export default function Header() {
 				</div>
 
 				<div className="ml-auto flex items-center gap-2">
+					{isAuthed && <CommandKButton />}
 					<ThemeToggle />
 					{isAuthed && <NotificationBell />}
 					{isAuthed ? (

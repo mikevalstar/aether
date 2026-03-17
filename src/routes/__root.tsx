@@ -1,6 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, type ErrorComponentProps, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import CommandPalette from "../components/CommandPalette";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ThemeProvider from "../components/ThemeProvider";
@@ -76,6 +77,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							<div id="main-content">{children}</div>
 						</ErrorBoundary>
 						<Footer />
+						<CommandPalette />
 						<Toaster />
 					</ThemeProvider>
 				</TooltipProvider>
