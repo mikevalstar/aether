@@ -1,6 +1,6 @@
 ---
 title: Calendar Integration
-status: todo
+status: done
 owner: self
 last_updated: 2026-03-17
 canonical_file: docs/requirements/calendar.md
@@ -24,25 +24,25 @@ canonical_file: docs/requirements/calendar.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| iCal URL management | todo | Users can add/remove any number of iCal feed URLs in preferences, each with a display name, color, and sync interval. |
-| Periodic sync | todo | A system task fetches each iCal feed on its configured interval and caches parsed events to disk. |
-| Dashboard calendar widget | todo | Full interactive month calendar with day selection and hourly event layout for the selected day. |
-| AI tool | todo | `calendar_events` tool lets the AI query events for a date range. |
+| iCal URL management | done | Users can add/remove any number of iCal feed URLs in preferences, each with a display name, color, and sync interval. |
+| Periodic sync | done | A system task fetches each iCal feed on its configured interval and caches parsed events to disk. |
+| Dashboard calendar widget | done | Full interactive month calendar with day selection and hourly event layout for the selected day. |
+| AI tool | done | `calendar_events` tool lets the AI query events for a date range. |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Preferences UI | todo | Section on `/settings/preferences` to manage iCal feed list. | Inline |
-| Preferences storage | todo | Extend `UserPreferences` with `calendarFeeds` array. | Inline |
-| iCal fetcher | todo | Server-side fetch + parse of `.ics` feeds using an iCal library. | Inline |
-| File cache | todo | Parsed events cached as JSON files in a data folder, one per feed. | Inline |
-| Sync scheduler | todo | System task that runs sync per-feed based on each feed's configured interval. | Inline |
-| Month calendar view | todo | Full-width month grid with left/right arrows to navigate months. Today highlighted. | Inline |
-| Day detail panel | todo | Selecting a day shows events laid out across hours, similar to Google Calendar day view. | Inline |
-| Multi-calendar colors | todo | Each feed gets a user-chosen color; events render in that color on the calendar. | Inline |
-| AI tool: `calendar_events` | todo | Tool accepting start/end dates, returns event summaries (title, time, duration, calendar name). | Inline |
-| Server functions | todo | API layer to read cached calendar data for both the dashboard widget and AI tool. | Inline |
+| Preferences UI | done | Section on `/settings/preferences` to manage iCal feed list. | Inline |
+| Preferences storage | done | Extend `UserPreferences` with `calendarFeeds` array. | Inline |
+| iCal fetcher | done | Server-side fetch + parse of `.ics` feeds using an iCal library. | Inline |
+| File cache | done | Parsed events cached as JSON files in a data folder, one per feed. | Inline |
+| Sync scheduler | done | System task that runs sync per-feed based on each feed's configured interval. | Inline |
+| Month calendar view | done | Full-width month grid with left/right arrows to navigate months. Today highlighted. | Inline |
+| Day detail panel | done | Selecting a day shows events laid out across hours, similar to Google Calendar day view. | Inline |
+| Multi-calendar colors | done | Each feed gets a user-chosen color; events render in that color on the calendar. | Inline |
+| AI tool: `calendar_events` | done | Tool accepting start/end dates, returns event summaries (title, time, duration, calendar name). | Inline |
+| Server functions | done | API layer to read cached calendar data for both the dashboard widget and AI tool. | Inline |
 
 ## Detail
 
@@ -118,16 +118,17 @@ canonical_file: docs/requirements/calendar.md
 
 | Step | Status | Plan |
 | --- | --- | --- |
-| 1. Preferences type | todo | Extend `UserPreferences` with `calendarFeeds` array, add types for `CalendarFeed`. |
-| 2. Preferences UI | todo | Add calendar feeds management section to `/settings/preferences`. |
-| 3. iCal parser | todo | Add iCal parsing library, create `src/lib/calendar/ical-parser.ts`. |
-| 4. Sync system task | todo | Register calendar sync in `system-tasks.ts`, implement per-feed interval logic. |
-| 5. File cache layer | todo | `src/lib/calendar/cache.ts` — read/write cached events, query by date range. |
-| 6. Server functions | todo | `src/lib/calendar/calendar.functions.ts` — API for dashboard + AI tool. |
-| 7. Calendar widget | todo | `src/components/calendar/` — month grid, day detail panel, event rendering. |
-| 8. Dashboard integration | todo | Add calendar widget to `/dashboard`. |
-| 9. AI tool | todo | Add `calendar_events` tool to `ai-tools.ts`. |
+| 1. Preferences type | done | Extend `UserPreferences` with `calendarFeeds` array, add types for `CalendarFeed`. |
+| 2. Preferences UI | done | Add calendar feeds management section to `/settings/preferences`. |
+| 3. iCal parser | done | Add iCal parsing library (`node-ical`), create `src/lib/calendar/ical-parser.ts`. |
+| 4. Sync system task | done | Register calendar sync in `system-tasks.ts`, implement per-feed interval logic. |
+| 5. File cache layer | done | `src/lib/calendar/cache.ts` — read/write cached events, query by date range. |
+| 6. Server functions | done | `src/lib/calendar/calendar.functions.ts` — API for dashboard + AI tool. |
+| 7. Calendar widget | done | `src/components/calendar/` — month grid, day detail panel, event rendering. |
+| 8. Dashboard integration | done | Add calendar widget to `/dashboard`. |
+| 9. AI tool | done | Add `calendar_events` tool to `ai-tools.ts`. |
 
 ## Change Log
 
+- 2026-03-17: Implemented all calendar integration features: preferences UI, iCal sync, file cache, dashboard widget, and AI tool.
 - 2026-03-17: Initial requirements for calendar integration feature.

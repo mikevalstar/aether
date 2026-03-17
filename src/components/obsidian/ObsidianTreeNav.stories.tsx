@@ -11,7 +11,13 @@ const sampleNodes: ObsidianTreeNode[] = [
 		isAiMemory: false,
 		children: [
 			{ type: "file", name: "aether.md", title: "Aether", routePath: "Projects/aether", relativePath: "Projects/aether.md" },
-			{ type: "file", name: "blog.md", title: "Blog Redesign", routePath: "Projects/blog", relativePath: "Projects/blog.md" },
+			{
+				type: "file",
+				name: "blog.md",
+				title: "Blog Redesign",
+				routePath: "Projects/blog",
+				relativePath: "Projects/blog.md",
+			},
 			{
 				type: "folder",
 				name: "Archive",
@@ -19,7 +25,13 @@ const sampleNodes: ObsidianTreeNode[] = [
 				isAiConfig: false,
 				isAiMemory: false,
 				children: [
-					{ type: "file", name: "old.md", title: "Old Project", routePath: "Projects/Archive/old", relativePath: "Projects/Archive/old.md" },
+					{
+						type: "file",
+						name: "old.md",
+						title: "Old Project",
+						routePath: "Projects/Archive/old",
+						relativePath: "Projects/Archive/old.md",
+					},
 				],
 			},
 		],
@@ -46,8 +58,20 @@ const withAiConfig: ObsidianTreeNode[] = [
 		isAiConfig: true,
 		isAiMemory: false,
 		children: [
-			{ type: "file", name: "system.md", title: "System Prompt", routePath: "ai-config/system", relativePath: "ai-config/system.md" },
-			{ type: "file", name: "tools.md", title: "Tools Config", routePath: "ai-config/tools", relativePath: "ai-config/tools.md" },
+			{
+				type: "file",
+				name: "system.md",
+				title: "System Prompt",
+				routePath: "ai-config/system",
+				relativePath: "ai-config/system.md",
+			},
+			{
+				type: "file",
+				name: "tools.md",
+				title: "Tools Config",
+				routePath: "ai-config/tools",
+				relativePath: "ai-config/tools.md",
+			},
 		],
 	},
 	{
@@ -57,7 +81,13 @@ const withAiConfig: ObsidianTreeNode[] = [
 		isAiConfig: false,
 		isAiMemory: true,
 		children: [
-			{ type: "file", name: "context.md", title: "Context", routePath: "ai-memory/context", relativePath: "ai-memory/context.md" },
+			{
+				type: "file",
+				name: "context.md",
+				title: "Context",
+				routePath: "ai-memory/context",
+				relativePath: "ai-memory/context.md",
+			},
 		],
 	},
 	...sampleNodes,

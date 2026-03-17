@@ -11,7 +11,13 @@ const sampleTree: ObsidianTreeNode[] = [
 		isAiMemory: false,
 		children: [
 			{ type: "file", name: "aether.md", title: "Aether", routePath: "Projects/aether", relativePath: "Projects/aether.md" },
-			{ type: "file", name: "blog.md", title: "Blog Redesign", routePath: "Projects/blog", relativePath: "Projects/blog.md" },
+			{
+				type: "file",
+				name: "blog.md",
+				title: "Blog Redesign",
+				routePath: "Projects/blog",
+				relativePath: "Projects/blog.md",
+			},
 		],
 	},
 	{
@@ -20,9 +26,7 @@ const sampleTree: ObsidianTreeNode[] = [
 		path: "Notes",
 		isAiConfig: false,
 		isAiMemory: false,
-		children: [
-			{ type: "file", name: "daily.md", title: "Daily", routePath: "Notes/daily", relativePath: "Notes/daily.md" },
-		],
+		children: [{ type: "file", name: "daily.md", title: "Daily", routePath: "Notes/daily", relativePath: "Notes/daily.md" }],
 	},
 	{ type: "file", name: "index.md", title: "Index", routePath: "index", relativePath: "index.md" },
 ];

@@ -1,6 +1,9 @@
+import type { CalendarFeed } from "#/lib/calendar/types";
+
 export type UserPreferences = {
 	obsidianTemplatesFolder?: string;
 	pushoverUserKey?: string;
+	calendarFeeds?: CalendarFeed[];
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {

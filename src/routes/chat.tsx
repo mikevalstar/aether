@@ -60,7 +60,11 @@ function ChatPage() {
 	const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
 	const [draftEffort, setDraftEffort] = useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
 	const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-	const { query: threadSearchQuery, setQuery: setThreadSearchQuery, filtered: filteredThreads } = useChatThreadSearch(data.threads);
+	const {
+		query: threadSearchQuery,
+		setQuery: setThreadSearchQuery,
+		filtered: filteredThreads,
+	} = useChatThreadSearch(data.threads);
 
 	const refreshPage = useCallback(async () => {
 		await router.invalidate();

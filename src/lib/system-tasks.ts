@@ -23,6 +23,14 @@ const systemTaskDefs: SystemTask[] = [
 		cron: "0 3 * * *", // daily at 3 AM
 		handler: cleanupOldNotifications,
 	},
+	{
+		name: "calendar-sync",
+		cron: "* * * * *", // every minute — checks per-feed intervals internally
+		handler: async () => {
+			const { syncCalendarFeeds } = await import("#/lib/calendar/sync");
+			await syncCalendarFeeds();
+		},
+	},
 ];
 
 // ── Running jobs ─────────────────────────────────────────────────────

@@ -13,12 +13,14 @@ import {
 	Workflow,
 } from "lucide-react";
 import { useEffect } from "react";
+import { CalendarWidget } from "#/components/calendar/CalendarWidget";
 import { Button } from "#/components/ui/button";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { Spinner } from "#/components/ui/spinner";
 import { getSession } from "#/lib/auth.functions";
 import { authClient } from "#/lib/auth-client";
+import { getAllCalendarEvents } from "#/lib/calendar/calendar.functions";
 import { getCurrentHour } from "#/lib/date";
 
 export const Route = createFileRoute("/dashboard")({
@@ -28,11 +30,16 @@ export const Route = createFileRoute("/dashboard")({
 			throw redirect({ to: "/login" });
 		}
 	},
+	loader: async () => {
+		const calendarEvents = await getAllCalendarEvents().catch(() => []);
+		return { calendarEvents };
+	},
 	component: DashboardPage,
 });
 
 function DashboardPage() {
 	const navigate = useNavigate();
+	const { calendarEvents } = Route.useLoaderData();
 	const { data: session, isPending } = authClient.useSession();
 
 	useEffect(() => {
@@ -76,6 +83,14 @@ function DashboardPage() {
 					</h1>
 					<p className="text-sm text-muted-foreground">{user.email}</p>
 				</section>
+
+				{/* Calendar */}
+				{calendarEvents.length > 0 && (
+					<section className="mb-12">
+						<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Calendar</h2>
+						<CalendarWidget events={calendarEvents} />
+					</section>
+				)}
 
 				{/* Quick actions */}
 				<section className="mb-12">
