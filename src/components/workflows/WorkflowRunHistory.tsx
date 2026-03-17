@@ -112,7 +112,7 @@ export function WorkflowRunHistory({ runs }: { runs: WorkflowRunItem[] }) {
 
 						return (
 							<Fragment key={run.id}>
-								<TableRow key={run.id} className="cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : run.id)}>
+								<TableRow className="cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : run.id)}>
 									<TableCell>
 										{isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
 									</TableCell>
