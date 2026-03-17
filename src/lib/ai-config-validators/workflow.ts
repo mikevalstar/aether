@@ -7,7 +7,7 @@ const validEfforts = ["low", "medium", "high"] as const;
 const validNotificationLevels = ["silent", "notify", "push"] as const;
 const validFieldTypes = ["text", "textarea", "url", "select"] as const;
 
-const fieldSchema = z.object({
+export const workflowFieldSchema = z.object({
 	name: z.string().min(1, "field name is required"),
 	label: z.string().min(1, "field label is required"),
 	type: z.enum(validFieldTypes).optional().default("text"),
@@ -17,14 +17,14 @@ const fieldSchema = z.object({
 	default: z.string().optional(),
 });
 
-const frontmatterSchema = z.object({
+export const workflowFrontmatterSchema = z.object({
 	title: z.string().min(1, "title is required"),
 	description: z.string().optional(),
 	model: z.enum(validModelIds).optional(),
 	effort: z.enum(validEfforts).optional(),
 	maxTokens: z.number().int().positive().optional(),
 	notification: z.enum(validNotificationLevels).optional(),
-	fields: z.array(fieldSchema).min(1, "at least one field is required"),
+	fields: z.array(workflowFieldSchema).min(1, "at least one field is required"),
 });
 
 export const workflowValidator: AiConfigValidator = {
@@ -51,7 +51,7 @@ export const workflowValidator: AiConfigValidator = {
 	validate(frontmatter: Record<string, unknown>, body: string) {
 		const errors: string[] = [];
 
-		const fmResult = frontmatterSchema.safeParse(frontmatter);
+		const fmResult = workflowFrontmatterSchema.safeParse(frontmatter);
 		if (!fmResult.success) {
 			for (const issue of fmResult.error.issues) {
 				const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";

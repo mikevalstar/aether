@@ -7,7 +7,7 @@ const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
 const validEfforts = ["low", "medium", "high"] as const;
 const validNotificationLevels = ["silent", "notify", "push"] as const;
 
-const frontmatterSchema = z.object({
+export const taskFrontmatterSchema = z.object({
 	title: z.string().min(1, "title is required"),
 	cron: z.string().min(1, "cron expression is required"),
 	model: z.enum(validModelIds).optional(),
@@ -50,7 +50,7 @@ export const taskValidator: AiConfigValidator = {
 	validate(frontmatter: Record<string, unknown>, body: string) {
 		const errors: string[] = [];
 
-		const fmResult = frontmatterSchema.safeParse(frontmatter);
+		const fmResult = taskFrontmatterSchema.safeParse(frontmatter);
 		if (!fmResult.success) {
 			for (const issue of fmResult.error.issues) {
 				const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";

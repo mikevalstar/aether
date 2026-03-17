@@ -4,8 +4,8 @@ import chokidar from "chokidar";
 import matter from "gray-matter";
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
-import { isNotificationLevel } from "#/lib/notify";
-import type { WorkflowConfig, WorkflowField } from "#/lib/workflow-executor";
+import { workflowFrontmatterSchema, workflowValidator } from "#/lib/ai-config-validators/workflow";
+import type { WorkflowConfig } from "#/lib/workflow-executor";
 
 // ── State ────────────────────────────────────────────────────────────
 
@@ -183,36 +183,25 @@ export async function parseWorkflowFile(filePath: string): Promise<WorkflowConfi
 		const parsed = matter(content);
 		const fm = parsed.data as Record<string, unknown>;
 
-		if (typeof fm.title !== "string" || !fm.title.trim()) return null;
-		if (!Array.isArray(fm.fields) || fm.fields.length === 0) return null;
-		if (!parsed.content.trim()) return null;
-
-		const fields: WorkflowField[] = [];
-		for (const f of fm.fields) {
-			if (typeof f !== "object" || f === null) return null;
-			const field = f as Record<string, unknown>;
-			if (typeof field.name !== "string" || !field.name.trim()) return null;
-			if (typeof field.label !== "string" || !field.label.trim()) return null;
-
-			fields.push({
-				name: field.name,
-				label: field.label,
-				type: typeof field.type === "string" ? field.type : "text",
-				required: field.required !== false,
-				placeholder: typeof field.placeholder === "string" ? field.placeholder : undefined,
-				options: Array.isArray(field.options) ? field.options.map(String) : undefined,
-				default: typeof field.default === "string" ? field.default : undefined,
-			});
+		const validation = workflowValidator.validate(fm, parsed.content);
+		if (!validation.isValid) {
+			logger.warn({ file: filePath, errors: validation.errors }, "Workflow validation failed");
+			return null;
 		}
 
+		const data = workflowFrontmatterSchema.parse(fm);
+
 		return {
-			title: fm.title,
-			description: typeof fm.description === "string" ? fm.description : undefined,
-			model: typeof fm.model === "string" ? fm.model : undefined,
-			effort: typeof fm.effort === "string" ? fm.effort : undefined,
-			maxTokens: typeof fm.maxTokens === "number" && fm.maxTokens > 0 ? fm.maxTokens : undefined,
-			notification: isNotificationLevel(fm.notification) ? fm.notification : "notify",
-			fields,
+			title: data.title,
+			description: data.description,
+			model: data.model,
+			effort: data.effort,
+			maxTokens: data.maxTokens,
+			notification: data.notification ?? "notify",
+			fields: data.fields.map((field) => ({
+				...field,
+				options: field.options?.map(String),
+			})),
 			body: parsed.content,
 		};
 	} catch (err) {

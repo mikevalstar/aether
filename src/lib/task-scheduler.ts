@@ -5,7 +5,7 @@ import { Cron } from "croner";
 import matter from "gray-matter";
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
-import { isNotificationLevel } from "#/lib/notify";
+import { taskFrontmatterSchema, taskValidator } from "#/lib/ai-config-validators/task";
 import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
 import { executeTask, type TaskConfig } from "#/lib/task-executor";
 
@@ -260,28 +260,23 @@ async function parseTaskFile(filePath: string): Promise<TaskConfig | null> {
 		const parsed = matter(content);
 		const fm = parsed.data as Record<string, unknown>;
 
-		if (typeof fm.title !== "string" || !fm.title.trim()) return null;
-		if (typeof fm.cron !== "string" || !fm.cron.trim()) return null;
-
-		// Validate cron expression
-		try {
-			new Cron(fm.cron as string, { paused: true });
-		} catch {
-			logger.warn({ file: filePath, cron: fm.cron }, "Invalid cron expression");
+		const validation = taskValidator.validate(fm, parsed.content);
+		if (!validation.isValid) {
+			logger.warn({ file: filePath, errors: validation.errors }, "Task validation failed");
 			return null;
 		}
 
-		if (!parsed.content.trim()) return null;
+		const data = taskFrontmatterSchema.parse(fm);
 
 		return {
-			title: fm.title as string,
-			cron: fm.cron as string,
-			model: typeof fm.model === "string" ? fm.model : undefined,
-			effort: typeof fm.effort === "string" ? fm.effort : undefined,
-			enabled: fm.enabled !== false,
-			endDate: typeof fm.endDate === "string" ? fm.endDate : undefined,
-			maxTokens: typeof fm.maxTokens === "number" && fm.maxTokens > 0 ? fm.maxTokens : undefined,
-			notification: isNotificationLevel(fm.notification) ? fm.notification : "notify",
+			title: data.title,
+			cron: data.cron,
+			model: data.model,
+			effort: data.effort,
+			enabled: data.enabled !== false,
+			endDate: data.endDate,
+			maxTokens: data.maxTokens,
+			notification: data.notification ?? "notify",
 			body: parsed.content,
 		};
 	} catch (err) {
