@@ -35,6 +35,8 @@ export type TaskRunItem = {
 	createdAt: string;
 	updatedAt: string;
 	messagesJson: string;
+	systemPromptJson: string | null;
+	availableToolsJson: string | null;
 };
 
 export const getTasksPageData = createServerFn({ method: "GET" }).handler(async () => {
@@ -105,6 +107,8 @@ export const getTaskRunHistory = createServerFn({ method: "GET" })
 			createdAt: t.createdAt.toISOString(),
 			updatedAt: t.updatedAt.toISOString(),
 			messagesJson: t.messagesJson,
+			systemPromptJson: t.systemPromptJson,
+			availableToolsJson: t.availableToolsJson,
 		}));
 
 		return {

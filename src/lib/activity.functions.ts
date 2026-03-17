@@ -76,6 +76,8 @@ export type ActivityChatThread = {
 	title: string;
 	model: string;
 	messagesJson: string;
+	systemPromptJson: string | null;
+	availableToolsJson: string | null;
 	totalInputTokens: number;
 	totalOutputTokens: number;
 	totalEstimatedCostUsd: number;
@@ -143,6 +145,8 @@ export const getActivityDetail = createServerFn({ method: "GET" })
 							title: true,
 							model: true,
 							messagesJson: true,
+							systemPromptJson: true,
+							availableToolsJson: true,
 							totalInputTokens: true,
 							totalOutputTokens: true,
 							totalEstimatedCostUsd: true,

@@ -124,7 +124,11 @@ export function ActivityDetailDialog({
 							<div className="flex min-h-0 flex-1 flex-col px-6 pt-4 pb-6">
 								<ChatThreadMeta thread={detail.chatThread} />
 								<div className="mt-3 min-h-0 flex-1 overflow-y-auto rounded-md border bg-muted/30 p-4">
-									<RunMessages messagesJson={detail.chatThread.messagesJson} />
+									<RunMessages
+										messagesJson={detail.chatThread.messagesJson}
+										systemPromptJson={detail.chatThread.systemPromptJson}
+										availableToolsJson={detail.chatThread.availableToolsJson}
+									/>
 								</div>
 							</div>
 						)}

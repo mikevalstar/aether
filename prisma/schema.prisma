@@ -86,6 +86,8 @@ model ChatThread {
   totalInputTokens Int    @default(0)
   totalOutputTokens Int   @default(0)
   totalEstimatedCostUsd Float @default(0)
+  systemPromptJson   String?
+  availableToolsJson String?
   sourceTaskFile     String?
   sourceWorkflowFile String?
   createdAt      DateTime @default(now())

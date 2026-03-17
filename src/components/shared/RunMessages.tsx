@@ -1,4 +1,4 @@
-import { Bot, ChevronRight, Wrench } from "lucide-react";
+import { Bot, ChevronRight, FileText, Settings, Wrench } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "#/components/ui/collapsible";
 
 type ResponseMessageContent =
@@ -72,15 +72,77 @@ function ToolResultBlock({ toolName, output }: { toolName: string; output: unkno
 	);
 }
 
-export function RunMessages({ messagesJson }: { messagesJson: string }) {
+type RunMessagesProps = {
+	messagesJson: string;
+	systemPromptJson?: string | null;
+	availableToolsJson?: string | null;
+};
+
+function SystemPromptBlock({ json }: { json: string }) {
+	try {
+		const prompt = JSON.parse(json);
+		const text = typeof prompt === "string" ? prompt : JSON.stringify(prompt, null, 2);
+		return (
+			<Collapsible>
+				<CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground py-1">
+					<FileText className="size-3" />
+					<span>System Prompt</span>
+					<ChevronRight className="size-3 transition-transform [[data-state=open]>&]:rotate-90" />
+				</CollapsibleTrigger>
+				<CollapsibleContent>
+					<pre className="mt-1 rounded bg-muted p-2 text-xs overflow-x-auto max-h-64 overflow-y-auto whitespace-pre-wrap">
+						{text}
+					</pre>
+				</CollapsibleContent>
+			</Collapsible>
+		);
+	} catch {
+		return null;
+	}
+}
+
+function AvailableToolsBlock({ json }: { json: string }) {
+	try {
+		const tools = JSON.parse(json);
+		if (!Array.isArray(tools) || tools.length === 0) return null;
+		return (
+			<Collapsible>
+				<CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground py-1">
+					<Settings className="size-3" />
+					<span>Available Tools ({tools.length})</span>
+					<ChevronRight className="size-3 transition-transform [[data-state=open]>&]:rotate-90" />
+				</CollapsibleTrigger>
+				<CollapsibleContent>
+					<div className="mt-1 flex flex-wrap gap-1">
+						{tools.map((tool: string) => (
+							<span key={tool} className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground">
+								{tool}
+							</span>
+						))}
+					</div>
+				</CollapsibleContent>
+			</Collapsible>
+		);
+	} catch {
+		return null;
+	}
+}
+
+export function RunMessages({ messagesJson, systemPromptJson, availableToolsJson }: RunMessagesProps) {
 	const messages = parseMessages(messagesJson);
 
-	if (messages.length === 0) {
+	if (messages.length === 0 && !systemPromptJson && !availableToolsJson) {
 		return <p className="text-muted-foreground italic text-sm">No messages recorded</p>;
 	}
 
 	return (
 		<div className="text-sm space-y-3">
+			{(systemPromptJson || availableToolsJson) && (
+				<div className="space-y-1 border-b border-border pb-2 mb-2">
+					{systemPromptJson && <SystemPromptBlock json={systemPromptJson} />}
+					{availableToolsJson && <AvailableToolsBlock json={availableToolsJson} />}
+				</div>
+			)}
 			{messages.map((msg, msgIdx) => {
 				const msgKey = `${msg.role}-${msgIdx}`;
 

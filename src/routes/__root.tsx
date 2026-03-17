@@ -25,7 +25,7 @@ export const Route = createRootRoute({
 				title: "Aether",
 			},
 			{
-				"http-equiv": "X-Frame-Options",
+				httpEquiv: "X-Frame-Options",
 				content: "DENY",
 			},
 		],

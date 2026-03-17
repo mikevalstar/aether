@@ -35,6 +35,8 @@ export type WorkflowRunItem = {
 	createdAt: string;
 	updatedAt: string;
 	messagesJson: string;
+	systemPromptJson: string | null;
+	availableToolsJson: string | null;
 };
 
 export const getWorkflowsPageData = createServerFn({ method: "GET" }).handler(async () => {
@@ -111,6 +113,8 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
 			createdAt: t.createdAt.toISOString(),
 			updatedAt: t.updatedAt.toISOString(),
 			messagesJson: t.messagesJson,
+			systemPromptJson: t.systemPromptJson,
+			availableToolsJson: t.availableToolsJson,
 		}));
 
 		return {

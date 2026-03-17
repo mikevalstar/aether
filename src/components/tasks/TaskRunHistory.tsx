@@ -12,7 +12,11 @@ import { deleteTaskRun } from "#/lib/task.functions";
 function RunDetail({ run }: { run: TaskRunItem }) {
 	return (
 		<div className="px-4 py-3 bg-muted/50 max-h-[600px] overflow-y-auto">
-			<RunMessages messagesJson={run.messagesJson} />
+			<RunMessages
+				messagesJson={run.messagesJson}
+				systemPromptJson={run.systemPromptJson}
+				availableToolsJson={run.availableToolsJson}
+			/>
 		</div>
 	);
 }

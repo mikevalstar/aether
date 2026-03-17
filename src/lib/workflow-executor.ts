@@ -85,6 +85,7 @@ export async function executeWorkflow(
 	}
 
 	const tools = createAiTools(model, userId, threadId);
+	const toolNames = Object.keys(tools);
 
 	try {
 		const result = await generateText({
@@ -130,6 +131,8 @@ export async function executeWorkflow(
 					totalInputTokens: usage.inputTokens,
 					totalOutputTokens: usage.outputTokens,
 					totalEstimatedCostUsd: estimatedCost,
+					systemPromptJson: JSON.stringify(systemPrompt),
+					availableToolsJson: JSON.stringify(toolNames),
 				},
 			}),
 			prisma.chatUsageEvent.create({

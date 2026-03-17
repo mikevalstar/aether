@@ -71,6 +71,7 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
 		.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
 
 	const tools = createAiTools(model, adminUser.id, threadId);
+	const toolNames = Object.keys(tools);
 
 	try {
 		const result = await generateText({
@@ -117,6 +118,8 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
 					totalInputTokens: usage.inputTokens,
 					totalOutputTokens: usage.outputTokens,
 					totalEstimatedCostUsd: estimatedCost,
+					systemPromptJson: JSON.stringify(systemPrompt),
+					availableToolsJson: JSON.stringify(toolNames),
 				},
 			}),
 			prisma.chatUsageEvent.create({

@@ -216,6 +216,7 @@ export const Route = createFileRoute("/api/chat")({
 				}
 
 				const systemPrompt = configuredPrompt;
+				const toolNames = Object.keys(tools);
 
 				const result = streamText({
 					model: anthropic(model),
@@ -298,6 +299,8 @@ export const Route = createFileRoute("/api/chat")({
 									totalInputTokens: update.nextTotals.inputTokens,
 									totalOutputTokens: update.nextTotals.outputTokens,
 									totalEstimatedCostUsd: update.nextTotals.estimatedCostUsd,
+									systemPromptJson: JSON.stringify(systemPrompt),
+									availableToolsJson: JSON.stringify(toolNames),
 								},
 							}),
 							prisma.chatUsageEvent.create({
