@@ -115,8 +115,8 @@ function DashboardPage() {
 							</span>
 						</Link>
 
-						<Link
-							to="/o"
+						<a
+							href="/o/"
 							className="group relative rounded-xl border border-[var(--chart-4)]/20 bg-[var(--chart-4)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
 						>
 							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
@@ -128,7 +128,41 @@ function DashboardPage() {
 								Open vault
 								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
 							</span>
-						</Link>
+						</a>
+
+						<a
+							href="/tasks/"
+							className="group relative rounded-xl border border-[var(--chart-3)]/20 bg-[var(--chart-3)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
+						>
+							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-3)]/8 text-[var(--chart-3)]">
+								<RefreshCw className="size-5" strokeWidth={1.75} />
+							</div>
+							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Recurring Tasks</p>
+							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+								Track scheduled AI tasks, review run history, and tune your automations.
+							</p>
+							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-3)]">
+								Open tasks
+								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+							</span>
+						</a>
+
+						<a
+							href="/workflows/"
+							className="group relative rounded-xl border border-[var(--chart-4)]/20 bg-[var(--chart-4)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
+						>
+							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
+								<Workflow className="size-5" strokeWidth={1.75} />
+							</div>
+							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Workflows</p>
+							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+								Launch form-based AI workflows from your Obsidian config and review past runs.
+							</p>
+							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-4)]">
+								Open workflows
+								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+							</span>
+						</a>
 
 						<Link
 							to="/requirements"
@@ -169,7 +203,7 @@ function DashboardPage() {
 
 				{/* Upcoming features */}
 				<section className="mb-10">
-					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Coming soon</h2>
+					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Still to build</h2>
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{UPCOMING.map(({ icon: Icon, title, desc, color, bg, border }) => (
 							<div key={title} className={`rounded-xl border ${border} ${bg} p-6 opacity-75`}>
@@ -217,21 +251,5 @@ const UPCOMING = [
 		color: "text-[var(--chart-5)]",
 		bg: "bg-[var(--chart-5)]/8",
 		border: "border-[var(--chart-5)]/15",
-	},
-	{
-		icon: RefreshCw,
-		title: "Recurring Tasks",
-		desc: "Track repeating tasks and habits with configurable schedules.",
-		color: "text-[var(--chart-3)]",
-		bg: "bg-[var(--chart-3)]/8",
-		border: "border-[var(--chart-3)]/15",
-	},
-	{
-		icon: Workflow,
-		title: "Workflows",
-		desc: "Define forms in Obsidian, fill them out here, and run prompts against the data.",
-		color: "text-[var(--chart-4)]",
-		bg: "bg-[var(--chart-4)]/8",
-		border: "border-[var(--chart-4)]/15",
 	},
 ];
