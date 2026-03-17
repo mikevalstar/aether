@@ -24,6 +24,8 @@ Status legend: `todo`, `in-progress`, `done`
 | [Workflows](workflows.md) | done | Form-based AI workflows defined as markdown in config `workflows/` folder, user-triggered via UI forms, background execution, convertible to chat. | [workflows](workflows.md) | 2026-03-16 |
 | [System Tasks](system-tasks.md) | done | Code-defined maintenance cron jobs (cleanup stale records, etc.) — no UI, logs to activity only when acting. | [system-tasks](system-tasks.md) | 2026-03-16 |
 | [Notifications](notifications.md) | in-progress | Two-channel notifications: in-browser toasts (10s polling) + Pushover push to phone. Bell icon in header with unread count. | [notifications](notifications.md) | 2026-03-16 |
+| [Command Palette](command-palette.md) | todo | `Cmd+K` command palette for quick navigation to pages, workflows, obsidian docs, and common actions. Lazy-loaded data. | [command-palette](command-palette.md) | 2026-03-17 |
+| [Calendar](calendar.md) | todo | iCal feed sync with file cache, interactive month/day calendar widget on dashboard, and AI tool for date-range queries. | [calendar](calendar.md) | 2026-03-17 |
 
 
 # Ideas
@@ -35,6 +37,7 @@ Future ideas and things to build, but we don't have enough detail to write requi
 - ~~In-app Notification System~~ — promoted to [Notifications](notifications.md)
 - ~~Jobs / Recurring tasks / Triggered Tasks~~ — promoted to [Periodic Tasks](periodic-tasks.md)
 - ~~Workflows~~ — promoted to [Workflows](workflows.md)
-- Integrations - Calendars, Email?
+- ~~Integrations - Calendars~~ — promoted to [Calendar](calendar.md)
+- Integrations - Email?
 - Important Files list - this might just be config
 - https://exa.ai/ to get around AI blocking - would replace url markdown thing
