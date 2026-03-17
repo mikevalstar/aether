@@ -56,12 +56,12 @@ const primaryLinks: NavLink[] = [
 	{ to: "/chat", label: "Chat", icon: MessageSquare, auth: true },
 	{ to: "/tasks", label: "Tasks", icon: CheckSquare, auth: true },
 	{ to: "/workflows", label: "Workflows", icon: GitBranch, auth: true },
-	{ to: "/usage", label: "Usage", icon: BarChart3, auth: true },
 	{ to: "/o", label: "Obsidian", icon: BookOpen, auth: true },
 ];
 
 const systemLinks: NavLink[] = [
 	{ to: "/activity", label: "Activity", icon: Activity, auth: true },
+	{ to: "/usage", label: "Usage", icon: BarChart3, auth: true },
 	{ to: "/logs", label: "Logs", icon: ScrollText, auth: true },
 	{ to: "/requirements", label: "Requirements", icon: FileText, auth: true },
 ];
