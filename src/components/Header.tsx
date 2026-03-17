@@ -6,6 +6,7 @@ import {
 	BookOpen,
 	CheckSquare,
 	ChevronDown,
+	Columns3,
 	FileText,
 	GitBranch,
 	LayoutDashboard,
@@ -57,6 +58,7 @@ const primaryLinks: NavLink[] = [
 	{ to: "/chat", label: "Chat", icon: MessageSquare, auth: true },
 	{ to: "/tasks", label: "Tasks", icon: CheckSquare, auth: true },
 	{ to: "/workflows", label: "Workflows", icon: GitBranch, auth: true },
+	{ to: "/board", label: "Board", icon: Columns3, auth: true },
 	{ to: "/o", label: "Obsidian", icon: BookOpen, auth: true },
 ];
 

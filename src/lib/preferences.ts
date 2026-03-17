@@ -4,6 +4,7 @@ export type UserPreferences = {
 	obsidianTemplatesFolder?: string;
 	pushoverUserKey?: string;
 	calendarFeeds?: CalendarFeed[];
+	kanbanFile?: string;
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {

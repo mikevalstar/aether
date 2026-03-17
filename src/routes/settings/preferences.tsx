@@ -1,16 +1,24 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CalendarFeedManager } from "#/components/calendar/CalendarFeedManager";
 import { Button } from "#/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#/components/ui/command";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import { type FeedSyncResult, syncCalendarFeedsNow } from "#/lib/calendar/calendar.functions";
 import type { CalendarFeed } from "#/lib/calendar/types";
 import { testPushoverNotification } from "#/lib/notifications.functions";
-import { getPreferencesPageData, updateUserPreferences, updateUserProfile } from "#/lib/preferences.functions";
+import {
+	getPreferencesPageData,
+	searchVaultFiles,
+	updateUserPreferences,
+	updateUserProfile,
+} from "#/lib/preferences.functions";
 
 const NO_TEMPLATES_FOLDER = "__bundled__";
 
@@ -43,6 +51,34 @@ function PreferencesPage() {
 	const [isSavingCalendar, setIsSavingCalendar] = useState(false);
 	const [isSyncing, setIsSyncing] = useState(false);
 	const [syncResults, setSyncResults] = useState<FeedSyncResult[] | null>(null);
+
+	const [kanbanFile, setKanbanFile] = useState(data.preferences.kanbanFile || "");
+	const [isSavingKanban, setIsSavingKanban] = useState(false);
+	const [kanbanPickerOpen, setKanbanPickerOpen] = useState(false);
+	const [kanbanSearch, setKanbanSearch] = useState("");
+	const [kanbanResults, setKanbanResults] = useState<{ path: string; title: string }[]>([]);
+	const kanbanDebounce = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+	const searchKanbanFiles = useCallback((query: string) => {
+		if (kanbanDebounce.current) clearTimeout(kanbanDebounce.current);
+		if (!query.trim()) {
+			setKanbanResults([]);
+			return;
+		}
+		kanbanDebounce.current = setTimeout(() => {
+			searchVaultFiles({ data: { query } })
+				.then(setKanbanResults)
+				.catch(() => setKanbanResults([]));
+		}, 250);
+	}, []);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: debounced search
+	useEffect(() => {
+		searchKanbanFiles(kanbanSearch);
+		return () => {
+			if (kanbanDebounce.current) clearTimeout(kanbanDebounce.current);
+		};
+	}, [kanbanSearch]);
 
 	const handleSaveProfile = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -204,6 +240,79 @@ function PreferencesPage() {
 					</div>
 				</div>
 			</form>
+
+			{data.obsidianFolders.length > 0 && (
+				<form
+					onSubmit={async (e) => {
+						e.preventDefault();
+						setIsSavingKanban(true);
+						try {
+							await updateUserPreferences({ data: { kanbanFile: kanbanFile || undefined } });
+							toast.success("Board file saved");
+						} catch (err) {
+							toast.error(err instanceof Error ? err.message : "Failed to save board setting");
+						} finally {
+							setIsSavingKanban(false);
+						}
+					}}
+					className="surface-card mt-6 max-w-2xl p-6"
+				>
+					<h2 className="mb-4 text-lg font-semibold">Board</h2>
+					<div className="grid gap-4">
+						<div className="grid gap-1.5">
+							<Label>Kanban file</Label>
+							<div className="flex gap-2">
+								<Popover open={kanbanPickerOpen} onOpenChange={setKanbanPickerOpen}>
+									<PopoverTrigger asChild>
+										<Button variant="outline" className="w-full justify-between font-normal">
+											{kanbanFile || "Select a kanban file..."}
+											<ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-[400px] p-0" align="start">
+										<Command shouldFilter={false}>
+											<CommandInput
+												placeholder="Search vault files..."
+												value={kanbanSearch}
+												onValueChange={setKanbanSearch}
+											/>
+											<CommandList>
+												<CommandEmpty>No files found.</CommandEmpty>
+												<CommandGroup>
+													{kanbanResults.map((f) => (
+														<CommandItem
+															key={f.path}
+															value={f.path}
+															onSelect={() => {
+																setKanbanFile(f.path);
+																setKanbanPickerOpen(false);
+																setKanbanSearch("");
+															}}
+														>
+															<Check className={`mr-2 size-4 ${kanbanFile === f.path ? "opacity-100" : "opacity-0"}`} />
+															<span className="truncate">{f.title}</span>
+															<span className="ml-auto text-xs text-muted-foreground truncate">{f.path}</span>
+														</CommandItem>
+													))}
+												</CommandGroup>
+											</CommandList>
+										</Command>
+									</PopoverContent>
+								</Popover>
+								{kanbanFile && (
+									<Button type="button" variant="ghost" size="icon" onClick={() => setKanbanFile("")}>
+										<X className="size-4" />
+									</Button>
+								)}
+							</div>
+							<p className="text-xs text-muted-foreground">Choose an Obsidian Kanban plugin file to power the Board page.</p>
+						</div>
+						<Button type="submit" disabled={isSavingKanban}>
+							{isSavingKanban ? "Saving..." : "Save board setting"}
+						</Button>
+					</div>
+				</form>
+			)}
 
 			<form
 				onSubmit={async (e) => {

@@ -3,6 +3,7 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { prisma } from "#/db";
 import { auth } from "#/lib/auth";
 import { ensureSession } from "#/lib/auth.functions";
+import { searchVault } from "#/lib/obsidian/vault-index";
 import { listObsidianFolders } from "#/lib/obsidian.functions";
 import { parsePreferences, serializePreferences, type UserPreferences } from "#/lib/preferences";
 
@@ -78,4 +79,17 @@ export const updateUserPreferences = createServerFn({ method: "POST" })
 		});
 
 		return { success: true };
+	});
+
+type SearchVaultFilesInput = { query: string };
+
+export const searchVaultFiles = createServerFn({ method: "GET" })
+	.inputValidator((data: SearchVaultFilesInput) => data)
+	.handler(async ({ data }) => {
+		await ensureSession();
+		const results = await searchVault(data.query, 20);
+		return results.map((r) => ({
+			path: r.item.relativePath,
+			title: r.item.title,
+		}));
 	});
