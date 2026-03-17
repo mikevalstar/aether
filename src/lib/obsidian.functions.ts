@@ -159,7 +159,26 @@ async function readObsidianDocument(obsidianRoot: string, relativePath: string):
 		rawContent: rawDocument,
 		routePath,
 		relativePath,
+		frontmatter: normalizeFrontmatter(data),
 	};
+}
+
+function normalizeFrontmatter(data: Record<string, unknown>): Record<string, string | number | boolean | string[] | null> {
+	const result: Record<string, string | number | boolean | string[] | null> = {};
+	for (const [key, value] of Object.entries(data)) {
+		if (value === null || value === undefined) {
+			result[key] = null;
+		} else if (value instanceof Date) {
+			result[key] = value.toISOString().slice(0, 10);
+		} else if (Array.isArray(value)) {
+			result[key] = value.map((v) => String(v));
+		} else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+			result[key] = value;
+		} else {
+			result[key] = JSON.stringify(value);
+		}
+	}
+	return result;
 }
 
 function toFrontmatterText(value: unknown) {
@@ -192,7 +211,7 @@ function sortTreeNodes(nodes: ObsidianTreeNode[]) {
 function humanizeFileName(relativePath: string) {
 	return path
 		.basename(relativePath, ".md")
-		.replace(/[-_]+/g, " ")
+		.replace(/_+/g, " ")
 		.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 

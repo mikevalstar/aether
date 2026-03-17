@@ -127,6 +127,8 @@ function DocumentContent(props: { document: ObsidianDocument; aiConfigPath: stri
 				</div>
 			)}
 
+			<FrontmatterDisplay frontmatter={document.frontmatter} />
+
 			<div className="px-6 py-6 sm:px-8 sm:py-8">
 				<div className="max-w-none text-[var(--ink)]">
 					<Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
@@ -165,6 +167,30 @@ function DocumentHeader(props: { document: ObsidianDocument; onEdit: () => void 
 					</Button>
 				</div>
 			</div>
+		</div>
+	);
+}
+
+function formatFrontmatterValue(value: string | number | boolean | string[] | null): string {
+	if (value === null) return "";
+	if (Array.isArray(value)) return value.join(", ");
+	return String(value);
+}
+
+function FrontmatterDisplay({ frontmatter }: { frontmatter: Record<string, string | number | boolean | string[] | null> }) {
+	const entries = Object.entries(frontmatter).filter(([key]) => key !== "title");
+	if (entries.length === 0) return null;
+
+	return (
+		<div className="border-b border-[var(--line)] bg-[var(--surface-alt)] px-6 py-3 sm:px-8">
+			<dl className="flex flex-wrap gap-x-6 gap-y-1 text-[12px]">
+				{entries.map(([key, value]) => (
+					<div key={key} className="flex items-baseline gap-1.5">
+						<dt className="font-semibold uppercase tracking-wide text-[var(--ink-soft)]/60">{key}</dt>
+						<dd className="text-[var(--ink-soft)]">{formatFrontmatterValue(value)}</dd>
+					</div>
+				))}
+			</dl>
 		</div>
 	);
 }

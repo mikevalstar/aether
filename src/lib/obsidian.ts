@@ -21,6 +21,7 @@ export type ObsidianDocument = {
 	rawContent: string;
 	routePath: string;
 	relativePath: string;
+	frontmatter: Record<string, string | number | boolean | string[] | null>;
 };
 
 export type ObsidianViewerData = {
