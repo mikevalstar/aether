@@ -1,10 +1,11 @@
 import { Bot, CheckCircle, Clock, Copy, FileText, PenLine, RotateCcw, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
+import { RunMessages } from "#/components/shared/RunMessages";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
-import type { ActivityDetail } from "#/lib/activity.functions";
+import type { ActivityChatThread, ActivityDetail } from "#/lib/activity.functions";
 import { formatDateTime } from "#/lib/date";
 import { ContentView } from "./ContentView";
 import { DiffView } from "./DiffView";
@@ -117,6 +118,16 @@ export function ActivityDetailDialog({
 								)}
 							</Tabs>
 						)}
+
+						{/* Chat history for cron/workflow/system_task */}
+						{detail.chatThread && (
+							<div className="flex min-h-0 flex-1 flex-col px-6 pt-4 pb-6">
+								<ChatThreadMeta thread={detail.chatThread} />
+								<div className="mt-3 min-h-0 flex-1 overflow-y-auto rounded-md border bg-muted/30 p-4">
+									<RunMessages messagesJson={detail.chatThread.messagesJson} />
+								</div>
+							</div>
+						)}
 					</>
 				) : null}
 			</DialogContent>
@@ -208,6 +219,24 @@ function FileStatus({ detail }: { detail: ActivityDetail }) {
 			<PenLine className="size-3" />
 			Modified since
 		</Badge>
+	);
+}
+
+function formatCost(usd: number): string {
+	if (usd < 0.01) return `$${usd.toFixed(6)}`;
+	return `$${usd.toFixed(4)}`;
+}
+
+function ChatThreadMeta({ thread }: { thread: ActivityChatThread }) {
+	const totalTokens = thread.totalInputTokens + thread.totalOutputTokens;
+	return (
+		<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+			<Badge variant="outline" className="text-xs">
+				{thread.model}
+			</Badge>
+			{totalTokens > 0 && <span className="tabular-nums">{totalTokens.toLocaleString()} tokens</span>}
+			{thread.totalEstimatedCostUsd > 0 && <span className="tabular-nums">{formatCost(thread.totalEstimatedCostUsd)}</span>}
+		</div>
 	);
 }
 

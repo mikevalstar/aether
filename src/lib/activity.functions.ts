@@ -71,6 +71,17 @@ export const getActivityList = createServerFn({ method: "GET" })
 		};
 	});
 
+export type ActivityChatThread = {
+	id: string;
+	title: string;
+	model: string;
+	messagesJson: string;
+	totalInputTokens: number;
+	totalOutputTokens: number;
+	totalEstimatedCostUsd: number;
+	createdAt: string;
+};
+
 export type ActivityDetail = {
 	id: string;
 	type: string;
@@ -87,6 +98,7 @@ export type ActivityDetail = {
 	} | null;
 	currentFileContent: string | null;
 	fileExists: boolean;
+	chatThread: ActivityChatThread | null;
 };
 
 export const getActivityDetail = createServerFn({ method: "GET" })
@@ -117,11 +129,44 @@ export const getActivityDetail = createServerFn({ method: "GET" })
 			}
 		}
 
+		// Fetch chat thread for cron_task/workflow/system_task activities
+		let chatThread: ActivityChatThread | null = null;
+		if (item.type === "cron_task" || item.type === "workflow" || item.type === "system_task") {
+			try {
+				const metadata = item.metadata ? JSON.parse(item.metadata) : null;
+				const chatThreadId = metadata?.chatThreadId;
+				if (chatThreadId) {
+					const thread = await prisma.chatThread.findUnique({
+						where: { id: chatThreadId },
+						select: {
+							id: true,
+							title: true,
+							model: true,
+							messagesJson: true,
+							totalInputTokens: true,
+							totalOutputTokens: true,
+							totalEstimatedCostUsd: true,
+							createdAt: true,
+						},
+					});
+					if (thread) {
+						chatThread = {
+							...thread,
+							createdAt: thread.createdAt.toISOString(),
+						};
+					}
+				}
+			} catch {
+				// metadata parse failed or thread not found — that's fine
+			}
+		}
+
 		return {
 			...item,
 			createdAt: item.createdAt.toISOString(),
 			currentFileContent,
 			fileExists,
+			chatThread,
 		};
 	});
 

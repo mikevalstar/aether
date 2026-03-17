@@ -59,6 +59,7 @@ const baseDetail: ActivityDetail = {
 ## Notes
 Some observations from standup.`,
 	fileExists: true,
+	chatThread: null,
 };
 
 export const CurrentVersion: Story = {
