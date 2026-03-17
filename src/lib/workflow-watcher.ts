@@ -3,8 +3,8 @@ import path from "node:path";
 import chokidar from "chokidar";
 import matter from "gray-matter";
 import { prisma } from "#/db";
-import { logger } from "#/lib/logger";
 import { workflowFrontmatterSchema, workflowValidator } from "#/lib/ai-config-validators/workflow";
+import { logger } from "#/lib/logger";
 import type { WorkflowConfig } from "#/lib/workflow-executor";
 
 // ── State ────────────────────────────────────────────────────────────

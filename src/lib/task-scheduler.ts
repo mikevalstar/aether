@@ -4,8 +4,8 @@ import chokidar from "chokidar";
 import { Cron } from "croner";
 import matter from "gray-matter";
 import { prisma } from "#/db";
-import { logger } from "#/lib/logger";
 import { taskFrontmatterSchema, taskValidator } from "#/lib/ai-config-validators/task";
+import { logger } from "#/lib/logger";
 import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
 import { executeTask, type TaskConfig } from "#/lib/task-executor";
 
