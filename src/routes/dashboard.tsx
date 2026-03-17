@@ -84,117 +84,29 @@ function DashboardPage() {
 					<p className="text-sm text-muted-foreground">{user.email}</p>
 				</section>
 
-				{/* Calendar */}
+				{/* Calendar + Quick actions */}
 				{calendarEvents.length > 0 && (
 					<section className="mb-12">
 						<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Calendar</h2>
-						<CalendarWidget events={calendarEvents} />
+						<CalendarWidget events={calendarEvents}>
+							<div className="mt-8">
+								<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quick actions</h2>
+								<div className="grid gap-3 sm:grid-cols-2">
+									<QuickActionCards />
+								</div>
+							</div>
+						</CalendarWidget>
 					</section>
 				)}
 
-				{/* Quick actions */}
-				<section className="mb-12">
-					<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quick actions</h2>
-					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-						<Link
-							to="/chat"
-							className="group relative rounded-xl border border-[var(--teal)]/20 bg-[var(--teal-subtle)] p-6 no-underline transition-shadow hover:shadow-lg"
-						>
-							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)]">
-								<Sparkles className="size-5" strokeWidth={1.75} />
-							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">AI Chat</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-								Ask questions, explore ideas, and chat with Claude.
-							</p>
-							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--teal)]">
-								Open chat
-								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-							</span>
-						</Link>
-
-						<Link
-							to="/usage"
-							className="group relative rounded-xl border border-[var(--coral)]/20 bg-[var(--coral)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
-						>
-							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--coral)]/8 text-[var(--coral)]">
-								<ChartLine className="size-5" strokeWidth={1.75} />
-							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Usage</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-								Token usage, costs, and model trends over time.
-							</p>
-							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--coral)]">
-								View stats
-								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-							</span>
-						</Link>
-
-						<a
-							href="/o/"
-							className="group relative rounded-xl border border-[var(--chart-4)]/20 bg-[var(--chart-4)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
-						>
-							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
-								<BookOpen className="size-5" strokeWidth={1.75} />
-							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Linked Notes</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">Browse and search your Obsidian vault.</p>
-							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-4)]">
-								Open vault
-								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-							</span>
-						</a>
-
-						<a
-							href="/tasks/"
-							className="group relative rounded-xl border border-[var(--chart-3)]/20 bg-[var(--chart-3)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
-						>
-							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-3)]/8 text-[var(--chart-3)]">
-								<RefreshCw className="size-5" strokeWidth={1.75} />
-							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Recurring Tasks</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-								Track scheduled AI tasks, review run history, and tune your automations.
-							</p>
-							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-3)]">
-								Open tasks
-								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-							</span>
-						</a>
-
-						<a
-							href="/workflows/"
-							className="group relative rounded-xl border border-[var(--chart-4)]/20 bg-[var(--chart-4)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
-						>
-							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
-								<Workflow className="size-5" strokeWidth={1.75} />
-							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Workflows</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-								Launch form-based AI workflows from your Obsidian config and review past runs.
-							</p>
-							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-4)]">
-								Open workflows
-								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-							</span>
-						</a>
-
-						<Link
-							to="/requirements"
-							className="group relative rounded-xl border border-[var(--chart-3)]/20 bg-[var(--chart-3)]/8 p-6 no-underline transition-shadow hover:shadow-lg"
-						>
-							<div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-[var(--chart-3)]/8 text-[var(--chart-3)]">
-								<FileText className="size-5" strokeWidth={1.75} />
-							</div>
-							<p className="mb-1 text-base font-bold tracking-tight text-foreground">Requirements</p>
-							<p className="mb-3 text-sm leading-relaxed text-muted-foreground">Feature specs and linked planning docs.</p>
-							<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-3)]">
-								Browse docs
-								<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-							</span>
-						</Link>
-					</div>
-				</section>
+				{calendarEvents.length === 0 && (
+					<section className="mb-12">
+						<h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quick actions</h2>
+						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+							<QuickActionCards />
+						</div>
+					</section>
+				)}
 
 				{/* Settings & admin */}
 				<section className="mb-12 flex flex-wrap items-center gap-3">
@@ -256,6 +168,110 @@ function getGreeting(): string {
 	if (hour < 12) return "Good morning";
 	if (hour < 17) return "Good afternoon";
 	return "Good evening";
+}
+
+function QuickActionCards() {
+	return (
+		<>
+			<Link
+				to="/chat"
+				className="group relative rounded-xl border border-[var(--teal)]/20 bg-[var(--teal-subtle)] p-5 no-underline transition-shadow hover:shadow-lg"
+			>
+				<div className="mb-2 inline-flex size-9 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)]">
+					<Sparkles className="size-4" strokeWidth={1.75} />
+				</div>
+				<p className="mb-1 text-sm font-bold tracking-tight text-foreground">AI Chat</p>
+				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">
+					Ask questions, explore ideas, and chat with Claude.
+				</p>
+				<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--teal)]">
+					Open chat
+					<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+				</span>
+			</Link>
+
+			<Link
+				to="/usage"
+				className="group relative rounded-xl border border-[var(--coral)]/20 bg-[var(--coral)]/8 p-5 no-underline transition-shadow hover:shadow-lg"
+			>
+				<div className="mb-2 inline-flex size-9 items-center justify-center rounded-lg bg-[var(--coral)]/8 text-[var(--coral)]">
+					<ChartLine className="size-4" strokeWidth={1.75} />
+				</div>
+				<p className="mb-1 text-sm font-bold tracking-tight text-foreground">Usage</p>
+				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">
+					Token usage, costs, and model trends over time.
+				</p>
+				<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--coral)]">
+					View stats
+					<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+				</span>
+			</Link>
+
+			<a
+				href="/o/"
+				className="group relative rounded-xl border border-[var(--chart-4)]/20 bg-[var(--chart-4)]/8 p-5 no-underline transition-shadow hover:shadow-lg"
+			>
+				<div className="mb-2 inline-flex size-9 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
+					<BookOpen className="size-4" strokeWidth={1.75} />
+				</div>
+				<p className="mb-1 text-sm font-bold tracking-tight text-foreground">Linked Notes</p>
+				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">Browse and search your Obsidian vault.</p>
+				<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-4)]">
+					Open vault
+					<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+				</span>
+			</a>
+
+			<a
+				href="/tasks/"
+				className="group relative rounded-xl border border-[var(--chart-3)]/20 bg-[var(--chart-3)]/8 p-5 no-underline transition-shadow hover:shadow-lg"
+			>
+				<div className="mb-2 inline-flex size-9 items-center justify-center rounded-lg bg-[var(--chart-3)]/8 text-[var(--chart-3)]">
+					<RefreshCw className="size-4" strokeWidth={1.75} />
+				</div>
+				<p className="mb-1 text-sm font-bold tracking-tight text-foreground">Recurring Tasks</p>
+				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">
+					Track scheduled AI tasks, review run history, and tune your automations.
+				</p>
+				<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-3)]">
+					Open tasks
+					<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+				</span>
+			</a>
+
+			<a
+				href="/workflows/"
+				className="group relative rounded-xl border border-[var(--chart-4)]/20 bg-[var(--chart-4)]/8 p-5 no-underline transition-shadow hover:shadow-lg"
+			>
+				<div className="mb-2 inline-flex size-9 items-center justify-center rounded-lg bg-[var(--chart-4)]/8 text-[var(--chart-4)]">
+					<Workflow className="size-4" strokeWidth={1.75} />
+				</div>
+				<p className="mb-1 text-sm font-bold tracking-tight text-foreground">Workflows</p>
+				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">
+					Launch form-based AI workflows from your Obsidian config and review past runs.
+				</p>
+				<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-4)]">
+					Open workflows
+					<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+				</span>
+			</a>
+
+			<Link
+				to="/requirements"
+				className="group relative rounded-xl border border-[var(--chart-3)]/20 bg-[var(--chart-3)]/8 p-5 no-underline transition-shadow hover:shadow-lg"
+			>
+				<div className="mb-2 inline-flex size-9 items-center justify-center rounded-lg bg-[var(--chart-3)]/8 text-[var(--chart-3)]">
+					<FileText className="size-4" strokeWidth={1.75} />
+				</div>
+				<p className="mb-1 text-sm font-bold tracking-tight text-foreground">Requirements</p>
+				<p className="mb-2 text-xs leading-relaxed text-muted-foreground">Feature specs and linked planning docs.</p>
+				<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--chart-3)]">
+					Browse docs
+					<ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+				</span>
+			</Link>
+		</>
+	);
 }
 
 const UPCOMING = [
