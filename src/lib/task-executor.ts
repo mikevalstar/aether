@@ -15,6 +15,7 @@ import {
 import { CHAT_MODELS } from "#/lib/chat-models";
 import { formatIsoDate } from "#/lib/date";
 import { logger } from "#/lib/logger";
+import { type NotificationLevel, notify } from "#/lib/notify";
 
 export type TaskConfig = {
 	title: string;
@@ -24,6 +25,7 @@ export type TaskConfig = {
 	enabled: boolean;
 	endDate?: string;
 	maxTokens?: number;
+	notification: NotificationLevel;
 	body: string;
 };
 
@@ -174,6 +176,15 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
 			},
 			"Task completed successfully",
 		);
+
+		if (config.notification !== "silent") {
+			await notify({
+				userId: adminUser.id,
+				title: `Task completed: ${config.title}`,
+				link: `/tasks`,
+				pushToPhone: config.notification === "push",
+			});
+		}
 	} catch (err) {
 		const durationMs = Date.now() - startTime;
 		const errorMessage = err instanceof Error ? err.message : "Unknown error";
@@ -221,6 +232,16 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
 				},
 			}),
 		]);
+
+		if (config.notification !== "silent") {
+			await notify({
+				userId: adminUser.id,
+				title: `Task failed: ${config.title}`,
+				body: errorMessage,
+				link: `/tasks`,
+				pushToPhone: true,
+			});
+		}
 	}
 }
 

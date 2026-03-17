@@ -4,6 +4,7 @@ import type { AiConfigValidator } from "./types";
 
 const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
 const validEfforts = ["low", "medium", "high"] as const;
+const validNotificationLevels = ["silent", "notify", "push"] as const;
 const validFieldTypes = ["text", "textarea", "url", "select"] as const;
 
 const fieldSchema = z.object({
@@ -22,6 +23,7 @@ const frontmatterSchema = z.object({
 	model: z.enum(validModelIds).optional(),
 	effort: z.enum(validEfforts).optional(),
 	maxTokens: z.number().int().positive().optional(),
+	notification: z.enum(validNotificationLevels).optional(),
 	fields: z.array(fieldSchema).min(1, "at least one field is required"),
 });
 
@@ -40,6 +42,7 @@ export const workflowValidator: AiConfigValidator = {
 		`- \`model\` — one of: ${validModelIds.join(", ")}`,
 		`- \`effort\` — one of: ${validEfforts.join(", ")}`,
 		"- `maxTokens` — positive integer output token limit",
+		`- \`notification\` — one of: ${validNotificationLevels.join(", ")} (default: notify)`,
 		"",
 		"**Field types:** text, textarea, url, select",
 		"",

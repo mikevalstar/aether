@@ -4,6 +4,7 @@ import chokidar from "chokidar";
 import matter from "gray-matter";
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
+import { isNotificationLevel } from "#/lib/notify";
 import type { WorkflowConfig, WorkflowField } from "#/lib/workflow-executor";
 
 // ── State ────────────────────────────────────────────────────────────
@@ -210,6 +211,7 @@ export async function parseWorkflowFile(filePath: string): Promise<WorkflowConfi
 			model: typeof fm.model === "string" ? fm.model : undefined,
 			effort: typeof fm.effort === "string" ? fm.effort : undefined,
 			maxTokens: typeof fm.maxTokens === "number" && fm.maxTokens > 0 ? fm.maxTokens : undefined,
+			notification: isNotificationLevel(fm.notification) ? fm.notification : "notify",
 			fields,
 			body: parsed.content,
 		};

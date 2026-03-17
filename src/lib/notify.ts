@@ -3,6 +3,12 @@ import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
 import { sendPushover } from "#/lib/pushover";
 
+export type NotificationLevel = "silent" | "notify" | "push";
+
+export function isNotificationLevel(value: unknown): value is NotificationLevel {
+	return value === "silent" || value === "notify" || value === "push";
+}
+
 type NotifyParams = {
 	userId: string;
 	title: string;

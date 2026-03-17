@@ -5,6 +5,7 @@ import { Cron } from "croner";
 import matter from "gray-matter";
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
+import { isNotificationLevel } from "#/lib/notify";
 import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
 import { executeTask, type TaskConfig } from "#/lib/task-executor";
 
@@ -280,6 +281,7 @@ async function parseTaskFile(filePath: string): Promise<TaskConfig | null> {
 			enabled: fm.enabled !== false,
 			endDate: typeof fm.endDate === "string" ? fm.endDate : undefined,
 			maxTokens: typeof fm.maxTokens === "number" && fm.maxTokens > 0 ? fm.maxTokens : undefined,
+			notification: isNotificationLevel(fm.notification) ? fm.notification : "notify",
 			body: parsed.content,
 		};
 	} catch (err) {

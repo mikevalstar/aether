@@ -5,6 +5,7 @@ import type { AiConfigValidator } from "./types";
 
 const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
 const validEfforts = ["low", "medium", "high"] as const;
+const validNotificationLevels = ["silent", "notify", "push"] as const;
 
 const frontmatterSchema = z.object({
 	title: z.string().min(1, "title is required"),
@@ -14,6 +15,7 @@ const frontmatterSchema = z.object({
 	enabled: z.boolean().optional(),
 	endDate: z.string().optional(),
 	maxTokens: z.number().int().positive().optional(),
+	notification: z.enum(validNotificationLevels).optional(),
 });
 
 function isValidCron(expr: string): boolean {
@@ -41,6 +43,7 @@ export const taskValidator: AiConfigValidator = {
 		"- `enabled` — boolean (default true)",
 		"- `endDate` — ISO 8601 date after which the task stops",
 		"- `maxTokens` — positive integer output token limit",
+		`- \`notification\` — one of: ${validNotificationLevels.join(", ")} (default: notify)`,
 		"",
 		"**Body:** The prompt sent to the AI. Must be non-empty.",
 	].join("\n"),

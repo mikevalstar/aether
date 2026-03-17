@@ -15,6 +15,7 @@ import {
 import { CHAT_MODELS } from "#/lib/chat-models";
 import { formatIsoDate } from "#/lib/date";
 import { logger } from "#/lib/logger";
+import { type NotificationLevel, notify } from "#/lib/notify";
 
 export type WorkflowField = {
 	name: string;
@@ -32,6 +33,7 @@ export type WorkflowConfig = {
 	model?: string;
 	effort?: string;
 	maxTokens?: number;
+	notification: NotificationLevel;
 	fields: WorkflowField[];
 	body: string;
 };
@@ -189,6 +191,15 @@ export async function executeWorkflow(
 			"Workflow completed successfully",
 		);
 
+		if (config.notification !== "silent") {
+			await notify({
+				userId,
+				title: `Workflow completed: ${config.title}`,
+				link: `/workflows`,
+				pushToPhone: config.notification === "push",
+			});
+		}
+
 		return { threadId, success: true };
 	} catch (err) {
 		const durationMs = Date.now() - startTime;
@@ -238,6 +249,16 @@ export async function executeWorkflow(
 				},
 			}),
 		]);
+
+		if (config.notification !== "silent") {
+			await notify({
+				userId,
+				title: `Workflow failed: ${config.title}`,
+				body: errorMessage,
+				link: `/workflows`,
+				pushToPhone: true,
+			});
+		}
 
 		return { threadId, success: false };
 	}
