@@ -1,5 +1,5 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createRootRoute, type ErrorComponentProps, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
+import { Outlet, createRootRoute, type ErrorComponentProps, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import CommandPalette from "../components/CommandPalette";
 import Footer from "../components/Footer";
@@ -8,11 +8,17 @@ import ThemeProvider from "../components/ThemeProvider";
 import { Toaster } from "../components/ui/sonner";
 import { TooltipProvider } from "../components/ui/tooltip";
 import { ErrorBoundary, ErrorDisplay } from "../lib/error-display";
+import { getSession } from "../lib/auth.functions";
 
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
 	errorComponent: RootErrorComponent,
+	beforeLoad: async () => {
+		const session = await getSession();
+		return { session };
+	},
+	component: RootComponent,
 	head: () => ({
 		meta: [
 			{
@@ -57,6 +63,24 @@ function RootErrorComponent({ error }: ErrorComponentProps) {
 	);
 }
 
+function RootComponent() {
+	const { session } = Route.useRouteContext();
+
+	return (
+		<>
+			<Header serverSession={session} />
+			<ErrorBoundary>
+				<div id="main-content">
+					<Outlet />
+				</div>
+			</ErrorBoundary>
+			<Footer />
+			<CommandPalette />
+			<Toaster />
+		</>
+	);
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
@@ -72,13 +96,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				</a>
 				<TooltipProvider>
 					<ThemeProvider>
-						<Header />
-						<ErrorBoundary>
-							<div id="main-content">{children}</div>
-						</ErrorBoundary>
-						<Footer />
-						<CommandPalette />
-						<Toaster />
+						{children}
 					</ThemeProvider>
 				</TooltipProvider>
 				<TanStackDevtools

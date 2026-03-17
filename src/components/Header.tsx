@@ -71,8 +71,12 @@ const systemLinks: NavLink[] = [
 
 const publicLinks: NavLink[] = [{ to: "/", label: "Home", icon: LayoutDashboard, auth: false }];
 
-export default function Header() {
-	const { data: session } = authClient.useSession();
+interface HeaderProps {
+	serverSession?: { user: { name: string | null; email: string; image?: string | null; role?: string | null } } | null;
+}
+
+export default function Header({ serverSession }: HeaderProps) {
+	const { data: clientSession } = authClient.useSession();
 	const navigate = useNavigate();
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const routerState = useRouterState();
@@ -83,6 +87,8 @@ export default function Header() {
 		setMobileOpen(false);
 	}, [routerState.location.pathname]);
 
+	// Prefer client session (reactive) once available, fall back to server session for SSR
+	const session = clientSession ?? serverSession;
 	const isAuthed = !!session?.user;
 	const routerPath = routerState.location.pathname;
 
