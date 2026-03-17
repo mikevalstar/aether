@@ -16,7 +16,7 @@ import {
 	subWeeks,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { type KeyboardEvent, type ReactNode, useCallback, useRef, useState } from "react";
+import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "#/components/ui/tooltip";
 import type { CalendarEvent } from "#/lib/calendar/types";
@@ -30,10 +30,19 @@ type Props = {
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+// Stable "today" captured once at module load — avoids server/client hydration mismatch.
+const TODAY_INIT = new Date();
+
 export function CalendarWidget({ events, children }: Props) {
-	const [currentMonth, setCurrentMonth] = useState(new Date());
-	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+	const [currentMonth, setCurrentMonth] = useState(TODAY_INIT);
+	const [selectedDate, setSelectedDate] = useState<Date>(TODAY_INIT);
+	const [today, setToday] = useState(TODAY_INIT);
 	const gridRef = useRef<HTMLDivElement>(null);
+
+	// Sync "today" on the client after hydration (in case the date rolled over).
+	useEffect(() => {
+		setToday(new Date());
+	}, []);
 
 	const monthStart = startOfMonth(currentMonth);
 	const monthEnd = endOfMonth(currentMonth);
@@ -124,14 +133,16 @@ export function CalendarWidget({ events, children }: Props) {
 						</Button>
 						<div className="flex items-center gap-2">
 							<h3 className="text-base font-semibold">{format(currentMonth, "MMMM yyyy")}</h3>
-							{!isSameMonth(currentMonth, new Date()) && (
+							{!isSameMonth(currentMonth, today) && (
 								<Button
 									variant="outline"
 									size="sm"
 									className="h-6 px-2 text-xs"
 									onClick={() => {
-										setCurrentMonth(new Date());
-										setSelectedDate(new Date());
+										const now = new Date();
+										setCurrentMonth(now);
+										setSelectedDate(now);
+										setToday(now);
 									}}
 								>
 									Today

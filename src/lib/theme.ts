@@ -2,9 +2,7 @@ import { atomWithStorage } from "jotai/utils";
 
 export type ThemeMode = "light" | "dark" | "auto";
 
-export const themeModeAtom = atomWithStorage<ThemeMode>("theme", "auto", undefined, {
-	getOnInit: true,
-});
+export const themeModeAtom = atomWithStorage<ThemeMode>("theme", "auto");
 
 export function getResolvedTheme(mode: ThemeMode): "light" | "dark" {
 	if (mode === "auto") {

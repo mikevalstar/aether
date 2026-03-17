@@ -32,14 +32,15 @@ export const Route = createFileRoute("/dashboard")({
 	},
 	loader: async () => {
 		const calendarEvents = await getAllCalendarEvents().catch(() => []);
-		return { calendarEvents };
+		const greeting = getGreeting();
+		return { calendarEvents, greeting };
 	},
 	component: DashboardPage,
 });
 
 function DashboardPage() {
 	const navigate = useNavigate();
-	const { calendarEvents } = Route.useLoaderData();
+	const { calendarEvents, greeting } = Route.useLoaderData();
 	const { data: session, isPending } = authClient.useSession();
 
 	useEffect(() => {
@@ -58,7 +59,6 @@ function DashboardPage() {
 
 	const user = session.user;
 	const firstName = user.name ? user.name.split(" ")[0] : null;
-	const greeting = getGreeting();
 
 	return (
 		<main className="relative overflow-hidden">

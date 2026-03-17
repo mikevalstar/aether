@@ -1,5 +1,6 @@
-import { format, isPast, isToday } from "date-fns";
+import { format, isToday } from "date-fns";
 import { Clock, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { CalendarEvent } from "#/lib/calendar/types";
 import { cn } from "#/lib/utils";
 
@@ -61,7 +62,11 @@ export function DayDetailPanel({ date, events }: Props) {
 function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCalendarName: boolean }) {
 	const startTime = format(new Date(event.start), "h:mm a");
 	const endTime = format(new Date(event.end), "h:mm a");
-	const eventPast = isPast(new Date(event.end));
+	// Defer isPast to client to avoid hydration mismatch (server vs client clock)
+	const [eventPast, setEventPast] = useState(false);
+	useEffect(() => {
+		setEventPast(new Date(event.end) < new Date());
+	}, [event.end]);
 
 	return (
 		<div
