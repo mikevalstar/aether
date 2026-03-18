@@ -7,6 +7,7 @@ import {
 	BarChart,
 	CartesianGrid,
 	Cell,
+	Legend,
 	Pie,
 	PieChart,
 	Tooltip as RechartsTooltip,
@@ -214,7 +215,7 @@ function UsagePage() {
 						<section className="mb-6 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
 							<ChartCard
 								title="Estimated cost over time"
-								subtitle="Daily spend within the selected range."
+								subtitle="Daily spend within the selected range, stacked by model."
 								icon={CircleDollarSign}
 								accentColor="var(--coral)"
 							>
@@ -222,25 +223,32 @@ function UsagePage() {
 									<ResponsiveContainer width="100%" height="100%">
 										<AreaChart data={data.dailyUsage}>
 											<defs>
-												<linearGradient id="usageCostFill" x1="0" y1="0" x2="0" y2="1">
-													<stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.32} />
-													<stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0.02} />
-												</linearGradient>
+												{data.dailyUsageModels.map((model, index) => (
+													<linearGradient key={model} id={`costFill-${index}`} x1="0" y1="0" x2="0" y2="1">
+														<stop offset="5%" stopColor={CHART_COLORS[index % CHART_COLORS.length]} stopOpacity={0.32} />
+														<stop offset="95%" stopColor={CHART_COLORS[index % CHART_COLORS.length]} stopOpacity={0.02} />
+													</linearGradient>
+												))}
 											</defs>
 											<CartesianGrid stroke="var(--line)" vertical={false} />
 											<XAxis dataKey="label" tickLine={false} axisLine={false} />
 											<YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatAxisCurrency(value)} />
 											<RechartsTooltip
-												formatter={(value) => formatUsageCurrency(toChartNumber(value))}
+												formatter={(value, name) => [formatUsageCurrency(toChartNumber(value as number | string)), name]}
 												labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
 											/>
-											<Area
-												type="monotone"
-												dataKey="estimatedCostUsd"
-												stroke="var(--chart-2)"
-												fill="url(#usageCostFill)"
-												strokeWidth={2.5}
-											/>
+											<Legend />
+											{data.dailyUsageModels.map((model, index) => (
+												<Area
+													key={model}
+													type="monotone"
+													dataKey={model}
+													stackId="cost"
+													stroke={CHART_COLORS[index % CHART_COLORS.length]}
+													fill={`url(#costFill-${index})`}
+													strokeWidth={2}
+												/>
+											))}
 										</AreaChart>
 									</ResponsiveContainer>
 								</div>

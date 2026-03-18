@@ -12,6 +12,8 @@ type DailyUsagePoint = {
 	outputTokens: number;
 	totalTokens: number;
 	events: number;
+	/** Per-model cost breakdown keyed by model label (e.g. "Haiku 4.5": 0.02) */
+	[modelLabel: string]: string | number;
 };
 
 type ModelBreakdownPoint = {
@@ -27,6 +29,8 @@ type ModelBreakdownPoint = {
 
 export type ChatUsageStatsResult = {
 	search: { from?: string; to?: string; model: string };
+	/** Unique model labels present in daily usage, ordered by total cost descending */
+	dailyUsageModels: string[];
 	totals: {
 		inputTokens: number;
 		outputTokens: number;
@@ -133,6 +137,10 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 			existingDay.outputTokens += event.outputTokens;
 			existingDay.totalTokens += event.totalTokens;
 			existingDay.events += 1;
+
+			const modelLabel = getChatModelLabel(event.model);
+			existingDay[modelLabel] = ((existingDay[modelLabel] as number) || 0) + event.estimatedCostUsd;
+
 			dailyUsageMap.set(date, existingDay);
 
 			const existingModel = modelBreakdownMap.get(event.model) ?? {
@@ -154,6 +162,23 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 			modelBreakdownMap.set(event.model, existingModel);
 		}
 
+		// Collect all model labels and backfill missing days with 0
+		const allModelLabels = new Set<string>();
+		for (const day of dailyUsageMap.values()) {
+			for (const key of Object.keys(day)) {
+				if (!["date", "label", "estimatedCostUsd", "inputTokens", "outputTokens", "totalTokens", "events"].includes(key)) {
+					allModelLabels.add(key);
+				}
+			}
+		}
+		for (const day of dailyUsageMap.values()) {
+			for (const label of allModelLabels) {
+				if (!(label in day)) {
+					day[label] = 0;
+				}
+			}
+		}
+
 		const dailyUsage = [...dailyUsageMap.values()];
 		const modelBreakdown = [...modelBreakdownMap.values()]
 			.map((item) => ({
@@ -161,6 +186,8 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 				shareOfCost: totals.estimatedCostUsd > 0 ? item.estimatedCostUsd / totals.estimatedCostUsd : 0,
 			}))
 			.sort((left, right) => right.estimatedCostUsd - left.estimatedCostUsd);
+
+		const dailyUsageModels = modelBreakdown.map((item) => item.label);
 
 		const recentEvents = [...events]
 			.reverse()
@@ -181,6 +208,7 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 
 		return {
 			search,
+			dailyUsageModels,
 			totals: {
 				...totals,
 				averageCostPerEvent: totals.events > 0 ? totals.estimatedCostUsd / totals.events : 0,
