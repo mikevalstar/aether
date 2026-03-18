@@ -113,64 +113,80 @@ export const obsidianAiNotesList = tool({
 			),
 	}),
 	execute: async ({ subfolder, search, filter }) => {
-		const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
-		const aiMemoryRel = process.env.OBSIDIAN_AI_MEMORY ?? "";
-
-		if (!obsidianRoot || !aiMemoryRel) {
-			return { error: "AI memory folder is not configured." };
-		}
-
-		const targetRel = subfolder ? path.posix.join(aiMemoryRel, subfolder.replace(/\\/g, "/")) : aiMemoryRel;
-
-		// Validate no path traversal
-		if (targetRel.includes("..") || targetRel.startsWith("/")) {
-			return { error: "Invalid subfolder path." };
-		}
-
-		const absoluteTarget = path.join(obsidianRoot, targetRel);
-		const resolvedTarget = path.resolve(absoluteTarget);
-		const resolvedRoot = path.resolve(obsidianRoot);
-
-		if (!resolvedTarget.startsWith(resolvedRoot)) {
-			return { error: "Path traversal detected." };
-		}
-
-		let notes = await listNotesRecursively(obsidianRoot, absoluteTarget, targetRel);
-
-		// Apply search filter
-		if (search) {
-			const lower = search.toLowerCase();
-			notes = notes.filter(
-				(note) =>
-					note.title.toLowerCase().includes(lower) ||
-					note.relativePath.toLowerCase().includes(lower) ||
-					note.tags.some((tag) => tag.toLowerCase().includes(lower)),
-			);
-		}
-
-		// Sort by mtime descending (most recently modified first)
-		notes.sort((a, b) => b.mtime - a.mtime);
-
-		// Apply JMESPath filter if provided
-		if (filter) {
-			try {
-				const filtered = jmespath.search(notes, filter);
-				return {
-					folder: targetRel,
-					notes: filtered,
-					totalFound: Array.isArray(filtered) ? filtered.length : 1,
-				};
-			} catch (err) {
-				return {
-					error: `Invalid JMESPath expression: ${err instanceof Error ? err.message : String(err)}`,
-				};
-			}
-		}
-
-		return {
-			folder: targetRel,
-			notes,
-			totalFound: notes.length,
-		};
+		return searchAiMemoryNotes({ subfolder, search, filter });
 	},
 });
+
+/**
+ * Core search logic for AI memory notes. Shared between obsidian_ai_notes_list
+ * and the ai_memory tool.
+ */
+export async function searchAiMemoryNotes({
+	subfolder,
+	search,
+	filter,
+}: {
+	subfolder?: string;
+	search?: string;
+	filter?: string;
+}) {
+	const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
+	const aiMemoryRel = process.env.OBSIDIAN_AI_MEMORY ?? "";
+
+	if (!obsidianRoot || !aiMemoryRel) {
+		return { error: "AI memory folder is not configured." };
+	}
+
+	const targetRel = subfolder ? path.posix.join(aiMemoryRel, subfolder.replace(/\\/g, "/")) : aiMemoryRel;
+
+	// Validate no path traversal
+	if (targetRel.includes("..") || targetRel.startsWith("/")) {
+		return { error: "Invalid subfolder path." };
+	}
+
+	const absoluteTarget = path.join(obsidianRoot, targetRel);
+	const resolvedTarget = path.resolve(absoluteTarget);
+	const resolvedRoot = path.resolve(obsidianRoot);
+
+	if (!resolvedTarget.startsWith(resolvedRoot)) {
+		return { error: "Path traversal detected." };
+	}
+
+	let notes = await listNotesRecursively(obsidianRoot, absoluteTarget, targetRel);
+
+	// Apply search filter
+	if (search) {
+		const lower = search.toLowerCase();
+		notes = notes.filter(
+			(note) =>
+				note.title.toLowerCase().includes(lower) ||
+				note.relativePath.toLowerCase().includes(lower) ||
+				note.tags.some((tag) => tag.toLowerCase().includes(lower)),
+		);
+	}
+
+	// Sort by mtime descending (most recently modified first)
+	notes.sort((a, b) => b.mtime - a.mtime);
+
+	// Apply JMESPath filter if provided
+	if (filter) {
+		try {
+			const filtered = jmespath.search(notes, filter);
+			return {
+				folder: targetRel,
+				notes: filtered,
+				totalFound: Array.isArray(filtered) ? filtered.length : 1,
+			};
+		} catch (err) {
+			return {
+				error: `Invalid JMESPath expression: ${err instanceof Error ? err.message : String(err)}`,
+			};
+		}
+	}
+
+	return {
+		folder: targetRel,
+		notes,
+		totalFound: notes.length,
+	};
+}

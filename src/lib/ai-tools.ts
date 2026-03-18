@@ -2,6 +2,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import type { ToolSet } from "ai";
 import type { ChatModel } from "#/lib/chat-models";
 import { getWebToolVersion } from "#/lib/chat-models";
+import { aiMemory } from "#/lib/tools/ai-memory";
 import { createBoardAddTask, createBoardListColumns, createBoardListTasks, createBoardUpdateTask } from "#/lib/tools/board-tools";
 import { calendarEvents } from "#/lib/tools/calendar-events";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
@@ -30,6 +31,7 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
 		obsidian_write: createObsidianWrite(obsidianCtx),
 		obsidian_edit: createObsidianEdit(obsidianCtx),
 		obsidian_ai_notes_list: obsidianAiNotesList,
+		ai_memory: aiMemory,
 	};
 
 	const webToolVersion = getWebToolVersion(model);
