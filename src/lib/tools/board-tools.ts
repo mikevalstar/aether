@@ -44,6 +44,32 @@ export function createBoardListTasks(userId: string) {
 	});
 }
 
+export function createBoardListColumns(userId: string) {
+	return tool({
+		description:
+			"List all column names on the user's kanban board. Use this to discover available columns before adding or moving tasks.",
+		inputSchema: z.object({}),
+		execute: async () => {
+			const relativePath = await resolveKanbanPath(userId);
+			if (!relativePath) {
+				return { error: "No kanban board configured. The user needs to set one in Settings > Preferences." };
+			}
+
+			try {
+				const { board } = await readKanbanBoard(userId);
+				return {
+					columns: board.columns.map((c) => ({
+						name: c.name,
+						taskCount: c.tasks.length,
+					})),
+				};
+			} catch (err) {
+				return { error: err instanceof Error ? err.message : "Failed to read board" };
+			}
+		},
+	});
+}
+
 export function createBoardAddTask(userId: string) {
 	return tool({
 		description:

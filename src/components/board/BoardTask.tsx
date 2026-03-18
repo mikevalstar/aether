@@ -17,6 +17,7 @@ export function BoardTask({ task, columnName, index, onRemove }: BoardTaskProps)
 		type: "item",
 		accept: "item",
 		group: columnName,
+		transition: { duration: 200, easing: "cubic-bezier(0.25, 1, 0.5, 1)" },
 	});
 
 	return (

@@ -122,6 +122,8 @@ export function serializeKanbanBoard(board: KanbanBoard): string {
 	}
 
 	if (board.rawArchive) {
+		parts.push("***");
+		parts.push("");
 		parts.push(board.rawArchive);
 		parts.push("");
 	}
