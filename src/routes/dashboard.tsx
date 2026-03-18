@@ -128,22 +128,6 @@ function DashboardPage() {
           ) : null}
         </section>
 
-        {/* Upcoming features */}
-        <section className="mb-10">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Still to build</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {UPCOMING.map(({ icon: Icon, title, desc, color, bg, border }) => (
-              <div key={title} className={`rounded-xl border ${border} ${bg} p-6 opacity-75`}>
-                <div className={`mb-3 inline-flex size-9 items-center justify-center rounded-lg ${bg} ${color}`}>
-                  <Icon className="size-4" strokeWidth={1.75} />
-                </div>
-                <h3 className="mb-1 text-sm font-semibold text-foreground">{title}</h3>
-                <p className="m-0 text-sm text-muted-foreground">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Sign out */}
         <section>
           <Button
@@ -271,14 +255,3 @@ function QuickActionCards() {
     </>
   );
 }
-
-const UPCOMING = [
-  {
-    icon: CalendarCheck,
-    title: "Daily Planner",
-    desc: "Manage your tasks, goals, and schedule for the day.",
-    color: "text-[var(--chart-5)]",
-    bg: "bg-[var(--chart-5)]/8",
-    border: "border-[var(--chart-5)]/15",
-  },
-];
