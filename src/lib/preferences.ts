@@ -5,6 +5,7 @@ export type UserPreferences = {
   pushoverUserKey?: string;
   calendarFeeds?: CalendarFeed[];
   kanbanFile?: string;
+  timezone?: string;
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {

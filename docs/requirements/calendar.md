@@ -103,7 +103,8 @@ canonical_file: docs/requirements/calendar.md
 
 - Registered in `ai-tools.ts` via the existing `createAiTools()` pattern.
 - Input schema: `{ startDate: string, endDate: string }` (ISO date strings).
-- Returns: array of events in the range, sorted by start time, with title, start, end, duration, location, calendar name.
+- Returns: object with `timezone` (user's configured timezone) and `events` array sorted by start time, with title, start, end (formatted in user's local timezone), duration, location, calendar name.
+- Event times are converted from UTC to the user's timezone (set in Preferences > Profile > Timezone) before being returned to the AI.
 - Reads from the same file cache as the dashboard.
 - Useful for prompts like "what's on my calendar today?" or "summarize my meetings this week".
 

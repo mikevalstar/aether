@@ -86,7 +86,8 @@ export async function executeWorkflow(
     workflowBody = workflowBody.replace(new RegExp(`\\{\\{${field.name}\\}\\}`, "g"), value);
   }
 
-  const tools = createAiTools(model, userId, threadId);
+  const userTimezone = user.preferences ? (JSON.parse(user.preferences) as { timezone?: string }).timezone : undefined;
+  const tools = createAiTools(model, userId, threadId, userTimezone);
   const toolNames = Object.keys(tools);
 
   try {

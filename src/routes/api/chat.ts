@@ -110,7 +110,14 @@ export const Route = createFileRoute("/api/chat")({
         const model = body.model && isChatModel(body.model) ? body.model : DEFAULT_CHAT_MODEL;
         const effort = body.effort && isChatEffort(body.effort) ? body.effort : DEFAULT_CHAT_EFFORT;
         const modelDef = CHAT_MODELS.find((m) => m.id === model);
-        const tools = createAiTools(model, session.user.id, thread.id);
+        const userRecord = await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { preferences: true },
+        });
+        const userTimezone = userRecord?.preferences
+          ? (JSON.parse(userRecord.preferences) as { timezone?: string }).timezone
+          : undefined;
+        const tools = createAiTools(model, session.user.id, thread.id, userTimezone);
         let currentTotals: ChatUsageTotals = {
           inputTokens: thread.totalInputTokens ?? 0,
           outputTokens: thread.totalOutputTokens ?? 0,

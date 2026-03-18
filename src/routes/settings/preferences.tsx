@@ -38,6 +38,7 @@ function PreferencesPage() {
   const router = useRouter();
 
   const [name, setName] = useState(data.name);
+  const [timezone, setTimezone] = useState(data.preferences.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   const [templatesFolder, setTemplatesFolder] = useState(data.preferences.obsidianTemplatesFolder || NO_TEMPLATES_FOLDER);
@@ -86,6 +87,7 @@ function PreferencesPage() {
 
     try {
       await updateUserProfile({ data: { name } });
+      await updateUserPreferences({ data: { timezone } });
       toast.success("Profile updated");
       router.invalidate();
     } catch (err) {
@@ -169,6 +171,23 @@ function PreferencesPage() {
             <Label htmlFor="pref-email">Email</Label>
             <Input id="pref-email" type="email" value={data.email} disabled className="opacity-60" />
             <p className="text-xs text-muted-foreground">Email cannot be changed.</p>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="pref-timezone">Timezone</Label>
+            <Select value={timezone} onValueChange={setTimezone}>
+              <SelectTrigger id="pref-timezone" className="w-full">
+                <SelectValue placeholder="Select timezone" />
+              </SelectTrigger>
+              <SelectContent>
+                {Intl.supportedValuesOf("timeZone").map((tz) => (
+                  <SelectItem key={tz} value={tz}>
+                    {tz.replace(/_/g, " ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">Used for calendar events and time-related AI responses.</p>
           </div>
 
           <Button type="submit" disabled={isSavingProfile}>

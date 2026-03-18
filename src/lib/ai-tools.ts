@@ -9,7 +9,7 @@ import {
   createBoardListTasks,
   createBoardUpdateTask,
 } from "#/lib/tools/board-tools";
-import { calendarEvents } from "#/lib/tools/calendar-events";
+import { createCalendarEvents } from "#/lib/tools/calendar-events";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
@@ -26,7 +26,7 @@ const anthropic = createAnthropic();
  * Create the full set of AI tools for a given model/user/thread context.
  * Shared between the chat API endpoint and the task executor.
  */
-export function createAiTools(model: ChatModel, userId: string, threadId: string): ToolSet {
+export function createAiTools(model: ChatModel, userId: string, threadId: string, timezone?: string): ToolSet {
   const obsidianCtx = createObsidianToolContext(userId, threadId);
   const obsidianTools: ToolSet = {
     obsidian_folders: obsidianFolders,
@@ -74,7 +74,7 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
     ...obsidianTools,
     ...boardTools,
     send_notification: createSendNotification(userId),
-    calendar_events: calendarEvents,
+    calendar_events: createCalendarEvents(timezone),
   };
 }
 

@@ -73,7 +73,10 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
     .replace(/\{\{userName\}\}/g, adminUser.name)
     .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
 
-  const tools = createAiTools(model, adminUser.id, threadId);
+  const adminTimezone = adminUser.preferences
+    ? (JSON.parse(adminUser.preferences) as { timezone?: string }).timezone
+    : undefined;
+  const tools = createAiTools(model, adminUser.id, threadId, adminTimezone);
   const toolNames = Object.keys(tools);
 
   try {

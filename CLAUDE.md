@@ -15,6 +15,7 @@ Documentation is very important in this project. Make sure requirements are upda
 ## Commands
 
 - we use `pnpm` over `npm`, including `pnpx`
+- **Do NOT run `pnpm dev`** — the dev server is always running locally during development. Running it again will hang the process.
 
 ```bash
 pnpm dev          # Start dev server on port 3000
