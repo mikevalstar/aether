@@ -1,5 +1,5 @@
-import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CollisionPriority } from "@dnd-kit/abstract";
+import { useDroppable } from "@dnd-kit/react";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
@@ -17,9 +17,11 @@ export function BoardColumn({ column, onAddTask, onRemoveTask }: BoardColumnProp
 	const [newTask, setNewTask] = useState("");
 	const [isAdding, setIsAdding] = useState(false);
 
-	const { setNodeRef } = useDroppable({
+	const { ref } = useDroppable({
 		id: `column-${column.name}`,
-		data: { column: column.name },
+		type: "column",
+		accept: "item",
+		collisionPriority: CollisionPriority.Low,
 	});
 
 	const handleAdd = () => {
@@ -37,12 +39,10 @@ export function BoardColumn({ column, onAddTask, onRemoveTask }: BoardColumnProp
 				<span className="text-xs text-muted-foreground">{column.tasks.length}</span>
 			</div>
 
-			<div ref={setNodeRef} className="flex flex-1 flex-col gap-1.5 overflow-y-auto p-2" style={{ minHeight: 60 }}>
-				<SortableContext items={column.tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-					{column.tasks.map((task, i) => (
-						<BoardTask key={task.id} task={task} columnName={column.name} index={i} onRemove={onRemoveTask} />
-					))}
-				</SortableContext>
+			<div ref={ref} className="flex flex-1 flex-col gap-1.5 overflow-y-auto scrollbar-none p-2" style={{ minHeight: 60 }}>
+				{column.tasks.map((task, i) => (
+					<BoardTask key={task.id} task={task} columnName={column.name} index={i} onRemove={onRemoveTask} />
+				))}
 			</div>
 
 			<div className="border-t border-border p-2">

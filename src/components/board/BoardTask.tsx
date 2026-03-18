@@ -1,5 +1,4 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useSortable } from "@dnd-kit/react/sortable";
 import { GripVertical, Trash2 } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import type { KanbanTask } from "#/lib/board/kanban-parser";
@@ -12,32 +11,25 @@ interface BoardTaskProps {
 }
 
 export function BoardTask({ task, columnName, index, onRemove }: BoardTaskProps) {
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+	const { ref, isDragging } = useSortable({
 		id: task.id,
-		data: { column: columnName, index },
+		index,
+		type: "item",
+		accept: "item",
+		group: columnName,
 	});
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-	};
 
 	return (
 		<div
-			ref={setNodeRef}
-			style={style}
+			ref={ref}
+			data-dragging={isDragging || undefined}
 			className={`group flex items-start gap-1.5 rounded-md border border-border bg-background px-2 py-1.5 text-sm ${
 				isDragging ? "opacity-50 shadow-lg" : ""
 			}`}
-			{...attributes}
 		>
-			<button
-				type="button"
-				className="mt-0.5 shrink-0 cursor-grab text-muted-foreground/50 hover:text-muted-foreground active:cursor-grabbing"
-				{...listeners}
-			>
+			<span className="mt-0.5 shrink-0 cursor-grab text-muted-foreground/50 hover:text-muted-foreground active:cursor-grabbing">
 				<GripVertical className="size-3.5" />
-			</button>
+			</span>
 			<span className="flex-1 break-words">{task.text}</span>
 			<Button
 				variant="ghost"
