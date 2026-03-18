@@ -4,24 +4,24 @@ import { NewFileDialog } from "./NewFileDialog";
 const noop = () => {};
 
 const meta = {
-	title: "Features/Obsidian/New File Dialog",
-	tags: ["autodocs"],
-	component: NewFileDialog,
+  title: "Features/Obsidian/New File Dialog",
+  tags: ["autodocs"],
+  component: NewFileDialog,
 } satisfies Meta<typeof NewFileDialog>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Open: Story = {
-	args: {
-		open: true,
-		onOpenChange: noop,
-	},
+  args: {
+    open: true,
+    onOpenChange: noop,
+  },
 };
 
 export const Closed: Story = {
-	args: {
-		open: false,
-		onOpenChange: noop,
-	},
+  args: {
+    open: false,
+    onOpenChange: noop,
+  },
 };

@@ -9,22 +9,22 @@ import { workflowPromptValidator } from "./workflow-prompt";
 export type { AiConfigValidationResult, AiConfigValidator } from "./types";
 
 const validators: AiConfigValidator[] = [
-	systemPromptValidator,
-	titlePromptValidator,
-	taskPromptValidator,
-	taskValidator,
-	workflowPromptValidator,
-	workflowValidator,
+  systemPromptValidator,
+  titlePromptValidator,
+  taskPromptValidator,
+  taskValidator,
+  workflowPromptValidator,
+  workflowValidator,
 ];
 
 const validatorsByFilename = new Map<string, AiConfigValidator>(
-	validators.filter((v) => !v.filename.endsWith("/")).map((v) => [v.filename, v]),
+  validators.filter((v) => !v.filename.endsWith("/")).map((v) => [v.filename, v]),
 );
 
 /** Validators that match by directory prefix (e.g. "tasks/") */
 const directoryValidators: Array<{
-	prefix: string;
-	validator: AiConfigValidator;
+  prefix: string;
+  validator: AiConfigValidator;
 }> = validators.filter((v) => v.filename.endsWith("/")).map((v) => ({ prefix: v.filename, validator: v }));
 
 /**
@@ -33,19 +33,19 @@ const directoryValidators: Array<{
  * Returns undefined for files that don't have a dedicated validator.
  */
 export function getValidatorForFile(filename: string): AiConfigValidator | undefined {
-	const exact = validatorsByFilename.get(filename);
-	if (exact) return exact;
+  const exact = validatorsByFilename.get(filename);
+  if (exact) return exact;
 
-	for (const { prefix, validator } of directoryValidators) {
-		if (filename.startsWith(prefix)) return validator;
-	}
+  for (const { prefix, validator } of directoryValidators) {
+    if (filename.startsWith(prefix)) return validator;
+  }
 
-	return undefined;
+  return undefined;
 }
 
 /**
  * Get all registered validators.
  */
 export function getAllValidators(): AiConfigValidator[] {
-	return validators;
+  return validators;
 }

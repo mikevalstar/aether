@@ -44,73 +44,73 @@ import { getIndexedNote, type IndexedNote, resolveNotePath, searchVault } from "
  * }
  */
 export const obsidianSearch = tool({
-	description:
-		"Search the user's Obsidian vault for notes matching a query. Uses fuzzy matching across titles, tags, aliases, headings, and content. Returns ranked results with relevance scores.",
-	inputSchema: z.object({
-		query: z.string().describe("Search term to match against note titles, tags, aliases, headings, and content"),
-		limit: z.number().optional().default(20).describe("Maximum number of results to return (default 20)"),
-	}),
-	execute: async ({ query, limit }) => {
-		const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
-		if (!obsidianRoot) {
-			return { error: "Obsidian vault is not configured." };
-		}
+  description:
+    "Search the user's Obsidian vault for notes matching a query. Uses fuzzy matching across titles, tags, aliases, headings, and content. Returns ranked results with relevance scores.",
+  inputSchema: z.object({
+    query: z.string().describe("Search term to match against note titles, tags, aliases, headings, and content"),
+    limit: z.number().optional().default(20).describe("Maximum number of results to return (default 20)"),
+  }),
+  execute: async ({ query, limit }) => {
+    const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
+    if (!obsidianRoot) {
+      return { error: "Obsidian vault is not configured." };
+    }
 
-		// Check if the query exactly matches a file path (with or without .md/folder)
-		const exactPath = await resolveNotePath(query);
-		if (exactPath) {
-			const note = await getIndexedNote(exactPath);
-			if (note) {
-				return {
-					query,
-					matches: [formatNote(note, 100)],
-					totalFound: 1,
-				};
-			}
-		}
+    // Check if the query exactly matches a file path (with or without .md/folder)
+    const exactPath = await resolveNotePath(query);
+    if (exactPath) {
+      const note = await getIndexedNote(exactPath);
+      if (note) {
+        return {
+          query,
+          matches: [formatNote(note, 100)],
+          totalFound: 1,
+        };
+      }
+    }
 
-		const results = await searchVault(query, limit);
+    const results = await searchVault(query, limit);
 
-		// Check if any result is an exact match on path or filename
-		const queryLower = query.toLowerCase().replace(/\.md$/i, "");
-		const exactResult = results.find((r) => {
-			const relLower = r.item.relativePath.toLowerCase().replace(/\.md$/i, "");
-			const baseLower = path.basename(r.item.relativePath, ".md").toLowerCase();
-			return relLower === queryLower || baseLower === queryLower;
-		});
+    // Check if any result is an exact match on path or filename
+    const queryLower = query.toLowerCase().replace(/\.md$/i, "");
+    const exactResult = results.find((r) => {
+      const relLower = r.item.relativePath.toLowerCase().replace(/\.md$/i, "");
+      const baseLower = path.basename(r.item.relativePath, ".md").toLowerCase();
+      return relLower === queryLower || baseLower === queryLower;
+    });
 
-		if (exactResult) {
-			return {
-				query,
-				matches: [formatNote(exactResult.item, 100)],
-				totalFound: 1,
-			};
-		}
+    if (exactResult) {
+      return {
+        query,
+        matches: [formatNote(exactResult.item, 100)],
+        totalFound: 1,
+      };
+    }
 
-		if (results.length === 0) {
-			return {
-				query,
-				matches: [],
-				message: "No notes found matching the query.",
-			};
-		}
+    if (results.length === 0) {
+      return {
+        query,
+        matches: [],
+        message: "No notes found matching the query.",
+      };
+    }
 
-		return {
-			query,
-			matches: results.map((r) => formatNote(r.item, Math.round((1 - r.score) * 100))),
-			totalFound: results.length,
-		};
-	},
+    return {
+      query,
+      matches: results.map((r) => formatNote(r.item, Math.round((1 - r.score) * 100))),
+      totalFound: results.length,
+    };
+  },
 });
 
 function formatNote(note: IndexedNote, score: number) {
-	return {
-		relativePath: note.relativePath,
-		title: note.title,
-		tags: note.tags,
-		aliases: note.aliases,
-		headings: note.headings,
-		folder: note.folder,
-		score,
-	};
+  return {
+    relativePath: note.relativePath,
+    title: note.title,
+    tags: note.tags,
+    aliases: note.aliases,
+    headings: note.headings,
+    folder: note.folder,
+    score,
+  };
 }

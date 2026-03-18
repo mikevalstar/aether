@@ -5,40 +5,40 @@ import { toObsidianRoutePath } from "#/lib/obsidian";
 import { searchVault } from "#/lib/obsidian/vault-index";
 
 export type CommandPaletteWorkflow = {
-	filename: string;
-	title: string;
+  filename: string;
+  title: string;
 };
 
 export const getCommandPaletteWorkflows = createServerFn({ method: "GET" }).handler(async () => {
-	await ensureSession();
+  await ensureSession();
 
-	const rows = await prisma.workflow.findMany({
-		where: { fileExists: true },
-		orderBy: { title: "asc" },
-		select: { filename: true, title: true },
-	});
+  const rows = await prisma.workflow.findMany({
+    where: { fileExists: true },
+    orderBy: { title: "asc" },
+    select: { filename: true, title: true },
+  });
 
-	return rows as CommandPaletteWorkflow[];
+  return rows as CommandPaletteWorkflow[];
 });
 
 export type CommandPaletteObsidianResult = {
-	title: string;
-	folder: string;
-	routePath: string;
+  title: string;
+  folder: string;
+  routePath: string;
 };
 
 export const searchCommandPaletteObsidian = createServerFn({ method: "GET" })
-	.inputValidator((data: { query: string }) => data)
-	.handler(async ({ data }): Promise<CommandPaletteObsidianResult[]> => {
-		await ensureSession();
+  .inputValidator((data: { query: string }) => data)
+  .handler(async ({ data }): Promise<CommandPaletteObsidianResult[]> => {
+    await ensureSession();
 
-		if (!data.query.trim()) return [];
+    if (!data.query.trim()) return [];
 
-		const results = await searchVault(data.query, 10);
+    const results = await searchVault(data.query, 10);
 
-		return results.map((r) => ({
-			title: r.item.title,
-			folder: r.item.folder,
-			routePath: toObsidianRoutePath(r.item.relativePath),
-		}));
-	});
+    return results.map((r) => ({
+      title: r.item.title,
+      folder: r.item.folder,
+      routePath: toObsidianRoutePath(r.item.relativePath),
+    }));
+  });

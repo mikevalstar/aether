@@ -11,72 +11,72 @@ import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
 
 function getObsidianRoot() {
-	return process.env.OBSIDIAN_DIR ?? "";
+  return process.env.OBSIDIAN_DIR ?? "";
 }
 
 export async function resolveKanbanPath(userId: string): Promise<string | null> {
-	const user = await prisma.user.findUnique({
-		where: { id: userId },
-		select: { preferences: true },
-	});
-	const prefs = parsePreferences(user?.preferences);
-	return prefs.kanbanFile || null;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { preferences: true },
+  });
+  const prefs = parsePreferences(user?.preferences);
+  return prefs.kanbanFile || null;
 }
 
 export function getAbsolutePath(relativePath: string): string {
-	const obsidianRoot = getObsidianRoot();
-	if (!obsidianRoot) throw new Error("Obsidian vault not configured");
+  const obsidianRoot = getObsidianRoot();
+  if (!obsidianRoot) throw new Error("Obsidian vault not configured");
 
-	const normalized = relativePath.replace(/\\/g, "/").trim();
-	if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
-		throw new Error("Invalid file path");
-	}
+  const normalized = relativePath.replace(/\\/g, "/").trim();
+  if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
+    throw new Error("Invalid file path");
+  }
 
-	const absolutePath = path.join(obsidianRoot, normalized);
-	const resolvedPath = path.resolve(absolutePath);
-	const resolvedRoot = path.resolve(obsidianRoot);
-	if (!resolvedPath.startsWith(resolvedRoot)) {
-		throw new Error("Path traversal detected");
-	}
+  const absolutePath = path.join(obsidianRoot, normalized);
+  const resolvedPath = path.resolve(absolutePath);
+  const resolvedRoot = path.resolve(obsidianRoot);
+  if (!resolvedPath.startsWith(resolvedRoot)) {
+    throw new Error("Path traversal detected");
+  }
 
-	return absolutePath;
+  return absolutePath;
 }
 
 export async function readKanbanBoard(
-	userId: string,
+  userId: string,
 ): Promise<{ board: KanbanBoard; absolutePath: string; relativePath: string; rawContent: string }> {
-	const relativePath = await resolveKanbanPath(userId);
-	if (!relativePath) throw new Error("No kanban file configured. Set one in Settings > Preferences.");
+  const relativePath = await resolveKanbanPath(userId);
+  if (!relativePath) throw new Error("No kanban file configured. Set one in Settings > Preferences.");
 
-	const absolutePath = getAbsolutePath(relativePath);
-	const rawContent = await fs.readFile(absolutePath, "utf8");
-	const board = parseKanbanFile(rawContent);
+  const absolutePath = getAbsolutePath(relativePath);
+  const rawContent = await fs.readFile(absolutePath, "utf8");
+  const board = parseKanbanFile(rawContent);
 
-	return { board, absolutePath, relativePath, rawContent };
+  return { board, absolutePath, relativePath, rawContent };
 }
 
 export async function writeKanbanBoard(
-	userId: string,
-	absolutePath: string,
-	relativePath: string,
-	originalContent: string,
-	board: KanbanBoard,
-	summary: string,
-	changeSource: "manual" | "ai" = "manual",
+  userId: string,
+  absolutePath: string,
+  relativePath: string,
+  originalContent: string,
+  board: KanbanBoard,
+  summary: string,
+  changeSource: "manual" | "ai" = "manual",
 ) {
-	const newContent = serializeKanbanBoard(board);
-	await fs.writeFile(absolutePath, newContent, "utf8");
+  const newContent = serializeKanbanBoard(board);
+  await fs.writeFile(absolutePath, newContent, "utf8");
 
-	try {
-		await logFileChange({
-			userId,
-			filePath: relativePath,
-			originalContent,
-			newContent,
-			changeSource,
-			summary,
-		});
-	} catch (err) {
-		logger.error({ err }, "Activity log failed for board change");
-	}
+  try {
+    await logFileChange({
+      userId,
+      filePath: relativePath,
+      originalContent,
+      newContent,
+      changeSource,
+      summary,
+    });
+  } catch (err) {
+    logger.error({ err }, "Activity log failed for board change");
+  }
 }

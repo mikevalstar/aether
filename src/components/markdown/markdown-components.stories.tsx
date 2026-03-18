@@ -5,29 +5,29 @@ import { createMarkdownComponents, type MarkdownVariant } from "./markdown-compo
 
 // Wrapper component for Storybook
 function MarkdownRenderer({ content, variant }: { content: string; variant: MarkdownVariant }) {
-	const components = createMarkdownComponents(variant);
-	return (
-		<div className="max-w-3xl text-[var(--ink)]">
-			<Markdown remarkPlugins={[remarkGfm]} components={components}>
-				{content}
-			</Markdown>
-		</div>
-	);
+  const components = createMarkdownComponents(variant);
+  return (
+    <div className="max-w-3xl text-[var(--ink)]">
+      <Markdown remarkPlugins={[remarkGfm]} components={components}>
+        {content}
+      </Markdown>
+    </div>
+  );
 }
 
 const meta = {
-	title: "Components/Markdown/Prose",
-	tags: ["autodocs"],
-	component: MarkdownRenderer,
-	argTypes: {
-		variant: {
-			control: "select",
-			options: ["compact", "prose"],
-		},
-	},
-	args: {
-		variant: "prose",
-	},
+  title: "Components/Markdown/Prose",
+  tags: ["autodocs"],
+  component: MarkdownRenderer,
+  argTypes: {
+    variant: {
+      control: "select",
+      options: ["compact", "prose"],
+    },
+  },
+  args: {
+    variant: "prose",
+  },
 } satisfies Meta<typeof MarkdownRenderer>;
 
 export default meta;
@@ -113,33 +113,33 @@ just some plain text in a code block
 `;
 
 export const Prose: Story = {
-	args: {
-		content: kitchenSink,
-		variant: "prose",
-	},
+  args: {
+    content: kitchenSink,
+    variant: "prose",
+  },
 };
 
 export const Compact: Story = {
-	args: {
-		content: kitchenSink,
-		variant: "compact",
-	},
+  args: {
+    content: kitchenSink,
+    variant: "compact",
+  },
 };
 
 export const Headings: Story = {
-	args: {
-		content: `# Heading 1
+  args: {
+    content: `# Heading 1
 ## Heading 2
 ### Heading 3
 #### Heading 4
 ##### Heading 5
 ###### Heading 6`,
-	},
+  },
 };
 
 export const CodeBlocks: Story = {
-	args: {
-		content: `## Code Examples
+  args: {
+    content: `## Code Examples
 
 \`\`\`typescript
 const greeting = "Hello, world!";
@@ -158,12 +158,12 @@ No language specified
 \`\`\`
 
 And some \`inline code\` in a paragraph.`,
-	},
+  },
 };
 
 export const Tables: Story = {
-	args: {
-		content: `## Data Table
+  args: {
+    content: `## Data Table
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -172,12 +172,12 @@ export const Tables: Story = {
 | GET | /api/users/:id | Get user by ID |
 | PUT | /api/users/:id | Update user |
 | DELETE | /api/users/:id | Delete user |`,
-	},
+  },
 };
 
 export const BlockquoteAndHr: Story = {
-	args: {
-		content: `## Quote
+  args: {
+    content: `## Quote
 
 > The best way to predict the future is to invent it.
 > — Alan Kay
@@ -185,12 +185,12 @@ export const BlockquoteAndHr: Story = {
 ---
 
 Some text after the horizontal rule.`,
-	},
+  },
 };
 
 export const LongContent: Story = {
-	args: {
-		content: `# Project Requirements
+  args: {
+    content: `# Project Requirements
 
 ## Overview
 
@@ -249,5 +249,5 @@ export const chatRouter = {
 ---
 
 *Last updated: March 2026*`,
-	},
+  },
 };

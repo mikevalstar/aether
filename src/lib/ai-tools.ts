@@ -3,7 +3,12 @@ import type { ToolSet } from "ai";
 import type { ChatModel } from "#/lib/chat-models";
 import { getWebToolVersion } from "#/lib/chat-models";
 import { aiMemory } from "#/lib/tools/ai-memory";
-import { createBoardAddTask, createBoardListColumns, createBoardListTasks, createBoardUpdateTask } from "#/lib/tools/board-tools";
+import {
+  createBoardAddTask,
+  createBoardListColumns,
+  createBoardListTasks,
+  createBoardUpdateTask,
+} from "#/lib/tools/board-tools";
 import { calendarEvents } from "#/lib/tools/calendar-events";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
@@ -22,55 +27,55 @@ const anthropic = createAnthropic();
  * Shared between the chat API endpoint and the task executor.
  */
 export function createAiTools(model: ChatModel, userId: string, threadId: string): ToolSet {
-	const obsidianCtx = createObsidianToolContext(userId, threadId);
-	const obsidianTools: ToolSet = {
-		obsidian_folders: obsidianFolders,
-		obsidian_list: obsidianList,
-		obsidian_search: obsidianSearch,
-		obsidian_read: createObsidianRead(obsidianCtx),
-		obsidian_write: createObsidianWrite(obsidianCtx),
-		obsidian_edit: createObsidianEdit(obsidianCtx),
-		obsidian_ai_notes_list: obsidianAiNotesList,
-		ai_memory: aiMemory,
-	};
+  const obsidianCtx = createObsidianToolContext(userId, threadId);
+  const obsidianTools: ToolSet = {
+    obsidian_folders: obsidianFolders,
+    obsidian_list: obsidianList,
+    obsidian_search: obsidianSearch,
+    obsidian_read: createObsidianRead(obsidianCtx),
+    obsidian_write: createObsidianWrite(obsidianCtx),
+    obsidian_edit: createObsidianEdit(obsidianCtx),
+    obsidian_ai_notes_list: obsidianAiNotesList,
+    ai_memory: aiMemory,
+  };
 
-	const webToolVersion = getWebToolVersion(model);
-	const webTools: ToolSet =
-		webToolVersion === "latest"
-			? {
-					web_fetch: anthropic.tools.webFetch_20260209({
-						citations: { enabled: true },
-						maxUses: 5,
-					}),
-					web_search: anthropic.tools.webSearch_20260209({
-						maxUses: 5,
-					}),
-				}
-			: {
-					web_fetch: anthropic.tools.webFetch_20250910({
-						citations: { enabled: true },
-						maxUses: 5,
-					}),
-					web_search: anthropic.tools.webSearch_20250305({
-						maxUses: 5,
-					}),
-				};
+  const webToolVersion = getWebToolVersion(model);
+  const webTools: ToolSet =
+    webToolVersion === "latest"
+      ? {
+          web_fetch: anthropic.tools.webFetch_20260209({
+            citations: { enabled: true },
+            maxUses: 5,
+          }),
+          web_search: anthropic.tools.webSearch_20260209({
+            maxUses: 5,
+          }),
+        }
+      : {
+          web_fetch: anthropic.tools.webFetch_20250910({
+            citations: { enabled: true },
+            maxUses: 5,
+          }),
+          web_search: anthropic.tools.webSearch_20250305({
+            maxUses: 5,
+          }),
+        };
 
-	const boardTools: ToolSet = {
-		board_list_columns: createBoardListColumns(userId),
-		board_list_tasks: createBoardListTasks(userId),
-		board_add_task: createBoardAddTask(userId),
-		board_update_task: createBoardUpdateTask(userId),
-	};
+  const boardTools: ToolSet = {
+    board_list_columns: createBoardListColumns(userId),
+    board_list_tasks: createBoardListTasks(userId),
+    board_add_task: createBoardAddTask(userId),
+    board_update_task: createBoardUpdateTask(userId),
+  };
 
-	return {
-		...webTools,
-		fetch_url_markdown: fetchUrlMarkdown,
-		...obsidianTools,
-		...boardTools,
-		send_notification: createSendNotification(userId),
-		calendar_events: calendarEvents,
-	};
+  return {
+    ...webTools,
+    fetch_url_markdown: fetchUrlMarkdown,
+    ...obsidianTools,
+    ...boardTools,
+    send_notification: createSendNotification(userId),
+    calendar_events: calendarEvents,
+  };
 }
 
 export { anthropic };

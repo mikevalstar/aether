@@ -28,66 +28,66 @@ Try editing this content to see the word and character counts update in real tim
 `;
 
 const meta = {
-	title: "Design System/Forms/Markdown Editor",
-	tags: ["autodocs"],
-	component: MarkdownEditor,
-	argTypes: {
-		showStatusBar: { control: "boolean" },
-	},
-	parameters: {
-		layout: "fullscreen",
-	},
+  title: "Design System/Forms/Markdown Editor",
+  tags: ["autodocs"],
+  component: MarkdownEditor,
+  argTypes: {
+    showStatusBar: { control: "boolean" },
+  },
+  parameters: {
+    layout: "fullscreen",
+  },
 } satisfies Meta<typeof MarkdownEditor>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 function ControlledEditor(props: { initialValue?: string; showStatusBar?: boolean }) {
-	const [value, setValue] = useState(props.initialValue ?? sampleMarkdown);
-	return (
-		<div className="h-[600px]">
-			<MarkdownEditor value={value} onChange={setValue} showStatusBar={props.showStatusBar} className="h-full" />
-		</div>
-	);
+  const [value, setValue] = useState(props.initialValue ?? sampleMarkdown);
+  return (
+    <div className="h-[600px]">
+      <MarkdownEditor value={value} onChange={setValue} showStatusBar={props.showStatusBar} className="h-full" />
+    </div>
+  );
 }
 
 export const Default: Story = {
-	render: (args) => <ControlledEditor showStatusBar={args.showStatusBar} />,
-	args: {
-		showStatusBar: true,
-		value: sampleMarkdown,
-		onChange: () => {},
-	},
+  render: (args) => <ControlledEditor showStatusBar={args.showStatusBar} />,
+  args: {
+    showStatusBar: true,
+    value: sampleMarkdown,
+    onChange: () => {},
+  },
 };
 
 export const WithoutStatusBar: Story = {
-	render: () => <ControlledEditor showStatusBar={false} />,
-	args: {
-		showStatusBar: false,
-		value: sampleMarkdown,
-		onChange: () => {},
-	},
+  render: () => <ControlledEditor showStatusBar={false} />,
+  args: {
+    showStatusBar: false,
+    value: sampleMarkdown,
+    onChange: () => {},
+  },
 };
 
 export const EmptyState: Story = {
-	render: (args) => <ControlledEditor initialValue="" showStatusBar={args.showStatusBar} />,
-	args: {
-		showStatusBar: true,
-		value: "",
-		onChange: () => {},
-	},
+  render: (args) => <ControlledEditor initialValue="" showStatusBar={args.showStatusBar} />,
+  args: {
+    showStatusBar: true,
+    value: "",
+    onChange: () => {},
+  },
 };
 
 export const LongContent: Story = {
-	render: (args) => (
-		<ControlledEditor
-			initialValue={`${sampleMarkdown}\n${sampleMarkdown}\n${sampleMarkdown}`}
-			showStatusBar={args.showStatusBar}
-		/>
-	),
-	args: {
-		showStatusBar: true,
-		value: sampleMarkdown,
-		onChange: () => {},
-	},
+  render: (args) => (
+    <ControlledEditor
+      initialValue={`${sampleMarkdown}\n${sampleMarkdown}\n${sampleMarkdown}`}
+      showStatusBar={args.showStatusBar}
+    />
+  ),
+  args: {
+    showStatusBar: true,
+    value: sampleMarkdown,
+    onChange: () => {},
+  },
 };

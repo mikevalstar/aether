@@ -5,152 +5,152 @@ import { type ChatModel, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-mode
 import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/task-scheduler";
 
 export type TaskListItem = {
-	id: string;
-	filename: string;
-	title: string;
-	cron: string;
-	model: string;
-	effort: string;
-	enabled: boolean;
-	endDate: string | null;
-	maxTokens: number | null;
-	timezone: string | null;
-	lastRunAt: string | null;
-	lastRunStatus: string | null;
-	lastThreadId: string | null;
-	fileExists: boolean;
-	nextRun: string | null;
-	isBusy: boolean;
-	createdAt: string;
-	updatedAt: string;
+  id: string;
+  filename: string;
+  title: string;
+  cron: string;
+  model: string;
+  effort: string;
+  enabled: boolean;
+  endDate: string | null;
+  maxTokens: number | null;
+  timezone: string | null;
+  lastRunAt: string | null;
+  lastRunStatus: string | null;
+  lastThreadId: string | null;
+  fileExists: boolean;
+  nextRun: string | null;
+  isBusy: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type TaskRunItem = {
-	id: string;
-	title: string;
-	model: ChatModel;
-	effort: string;
-	totalInputTokens: number;
-	totalOutputTokens: number;
-	totalEstimatedCostUsd: number;
-	createdAt: string;
-	updatedAt: string;
-	messagesJson: string;
-	systemPromptJson: string | null;
-	availableToolsJson: string | null;
+  id: string;
+  title: string;
+  model: ChatModel;
+  effort: string;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalEstimatedCostUsd: number;
+  createdAt: string;
+  updatedAt: string;
+  messagesJson: string;
+  systemPromptJson: string | null;
+  availableToolsJson: string | null;
 };
 
 export const getTasksPageData = createServerFn({ method: "GET" }).handler(async () => {
-	await ensureSession();
+  await ensureSession();
 
-	const taskRows = await prisma.task.findMany({
-		orderBy: { title: "asc" },
-	});
+  const taskRows = await prisma.task.findMany({
+    orderBy: { title: "asc" },
+  });
 
-	const scheduledTasks = getScheduledTasks();
-	const scheduledByFilename = new Map(scheduledTasks.map((t) => [t.filename, t]));
+  const scheduledTasks = getScheduledTasks();
+  const scheduledByFilename = new Map(scheduledTasks.map((t) => [t.filename, t]));
 
-	const cronDisabled = process.env.DISABLE_CRON === "true";
+  const cronDisabled = process.env.DISABLE_CRON === "true";
 
-	const items: TaskListItem[] = taskRows.map((row) => {
-		const scheduled = scheduledByFilename.get(row.filename);
-		return {
-			id: row.id,
-			filename: row.filename,
-			title: row.title,
-			cron: row.cron,
-			model: row.model,
-			effort: row.effort,
-			enabled: row.enabled,
-			endDate: row.endDate?.toISOString() ?? null,
-			maxTokens: row.maxTokens,
-			timezone: row.timezone ?? null,
-			lastRunAt: row.lastRunAt?.toISOString() ?? null,
-			lastRunStatus: row.lastRunStatus,
-			lastThreadId: row.lastThreadId,
-			fileExists: row.fileExists,
-			nextRun: scheduled?.nextRun?.toISOString() ?? null,
-			isBusy: scheduled?.isBusy ?? false,
-			createdAt: row.createdAt.toISOString(),
-			updatedAt: row.updatedAt.toISOString(),
-		};
-	});
+  const items: TaskListItem[] = taskRows.map((row) => {
+    const scheduled = scheduledByFilename.get(row.filename);
+    return {
+      id: row.id,
+      filename: row.filename,
+      title: row.title,
+      cron: row.cron,
+      model: row.model,
+      effort: row.effort,
+      enabled: row.enabled,
+      endDate: row.endDate?.toISOString() ?? null,
+      maxTokens: row.maxTokens,
+      timezone: row.timezone ?? null,
+      lastRunAt: row.lastRunAt?.toISOString() ?? null,
+      lastRunStatus: row.lastRunStatus,
+      lastThreadId: row.lastThreadId,
+      fileExists: row.fileExists,
+      nextRun: scheduled?.nextRun?.toISOString() ?? null,
+      isBusy: scheduled?.isBusy ?? false,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    };
+  });
 
-	return { items, cronDisabled };
+  return { items, cronDisabled };
 });
 
 export const getTaskRunHistory = createServerFn({ method: "GET" })
-	.inputValidator((data: { filename: string }) => data)
-	.handler(async ({ data }) => {
-		await ensureSession();
+  .inputValidator((data: { filename: string }) => data)
+  .handler(async ({ data }) => {
+    await ensureSession();
 
-		const task = await prisma.task.findUnique({
-			where: { filename: data.filename },
-		});
+    const task = await prisma.task.findUnique({
+      where: { filename: data.filename },
+    });
 
-		if (!task) throw new Error("Task not found");
+    if (!task) throw new Error("Task not found");
 
-		const threads = await prisma.chatThread.findMany({
-			where: {
-				type: "task",
-				sourceTaskFile: data.filename,
-			},
-			orderBy: { createdAt: "desc" },
-		});
+    const threads = await prisma.chatThread.findMany({
+      where: {
+        type: "task",
+        sourceTaskFile: data.filename,
+      },
+      orderBy: { createdAt: "desc" },
+    });
 
-		const runs: TaskRunItem[] = threads.map((t) => ({
-			id: t.id,
-			title: t.title,
-			model: isChatModel(t.model) ? t.model : DEFAULT_CHAT_MODEL,
-			effort: t.effort,
-			totalInputTokens: t.totalInputTokens,
-			totalOutputTokens: t.totalOutputTokens,
-			totalEstimatedCostUsd: t.totalEstimatedCostUsd,
-			createdAt: t.createdAt.toISOString(),
-			updatedAt: t.updatedAt.toISOString(),
-			messagesJson: t.messagesJson,
-			systemPromptJson: t.systemPromptJson,
-			availableToolsJson: t.availableToolsJson,
-		}));
+    const runs: TaskRunItem[] = threads.map((t) => ({
+      id: t.id,
+      title: t.title,
+      model: isChatModel(t.model) ? t.model : DEFAULT_CHAT_MODEL,
+      effort: t.effort,
+      totalInputTokens: t.totalInputTokens,
+      totalOutputTokens: t.totalOutputTokens,
+      totalEstimatedCostUsd: t.totalEstimatedCostUsd,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+      messagesJson: t.messagesJson,
+      systemPromptJson: t.systemPromptJson,
+      availableToolsJson: t.availableToolsJson,
+    }));
 
-		return {
-			task: {
-				filename: task.filename,
-				title: task.title,
-				cron: task.cron,
-				model: task.model,
-				effort: task.effort,
-				enabled: task.enabled,
-				timezone: task.timezone ?? null,
-				fileExists: task.fileExists,
-			},
-			runs,
-		};
-	});
+    return {
+      task: {
+        filename: task.filename,
+        title: task.title,
+        cron: task.cron,
+        model: task.model,
+        effort: task.effort,
+        enabled: task.enabled,
+        timezone: task.timezone ?? null,
+        fileExists: task.fileExists,
+      },
+      runs,
+    };
+  });
 
 export const triggerTaskRun = createServerFn({ method: "POST" })
-	.inputValidator((data: { filename: string }) => data)
-	.handler(async ({ data }) => {
-		await ensureSession();
-		await schedulerTriggerTask(data.filename);
-		return { success: true };
-	});
+  .inputValidator((data: { filename: string }) => data)
+  .handler(async ({ data }) => {
+    await ensureSession();
+    await schedulerTriggerTask(data.filename);
+    return { success: true };
+  });
 
 export const deleteTaskRun = createServerFn({ method: "POST" })
-	.inputValidator((data: { threadId: string }) => data)
-	.handler(async ({ data }) => {
-		const session = await ensureSession();
+  .inputValidator((data: { threadId: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
 
-		const thread = await prisma.chatThread.findFirst({
-			where: {
-				id: data.threadId,
-				type: "task",
-				userId: session.user.id,
-			},
-		});
+    const thread = await prisma.chatThread.findFirst({
+      where: {
+        id: data.threadId,
+        type: "task",
+        userId: session.user.id,
+      },
+    });
 
-		if (!thread) throw new Error("Not found");
+    if (!thread) throw new Error("Not found");
 
-		await prisma.chatThread.delete({ where: { id: data.threadId } });
-		return { success: true };
-	});
+    await prisma.chatThread.delete({ where: { id: data.threadId } });
+    return { success: true };
+  });

@@ -7,12 +7,12 @@ export type { AiConfigReadResult } from "#/lib/ai-config.shared";
 export { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
 
 function getAiConfigDir(): string {
-	const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
-	const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
+  const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
+  const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
 
-	if (!obsidianDir || !aiConfigRel) return "";
+  if (!obsidianDir || !aiConfigRel) return "";
 
-	return path.join(obsidianDir, aiConfigRel);
+  return path.join(obsidianDir, aiConfigRel);
 }
 
 /**
@@ -20,19 +20,19 @@ function getAiConfigDir(): string {
  * Server-only — uses filesystem access.
  */
 export async function readAiConfig(filename: string): Promise<AiConfigReadResult | null> {
-	const configDir = getAiConfigDir();
-	if (!configDir) return null;
+  const configDir = getAiConfigDir();
+  if (!configDir) return null;
 
-	const filePath = path.join(configDir, filename);
+  const filePath = path.join(configDir, filename);
 
-	let rawContent: string;
-	try {
-		rawContent = await fs.readFile(filePath, "utf8");
-	} catch {
-		return null;
-	}
+  let rawContent: string;
+  try {
+    rawContent = await fs.readFile(filePath, "utf8");
+  } catch {
+    return null;
+  }
 
-	return parseAndValidateAiConfig(filename, rawContent);
+  return parseAndValidateAiConfig(filename, rawContent);
 }
 
 /**
@@ -40,16 +40,16 @@ export async function readAiConfig(filename: string): Promise<AiConfigReadResult
  * Returns null if the file is missing or invalid — caller should fall back to hardcoded.
  */
 export async function readSystemPrompt(userName: string): Promise<string | null> {
-	const result = await readAiConfig("system-prompt.md");
+  const result = await readAiConfig("system-prompt.md");
 
-	if (!result || !result.validation.isValid) return null;
+  if (!result || !result.validation.isValid) return null;
 
-	const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
+  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
 
-	return result.body
-		.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-		.replace(/\{\{userName\}\}/g, userName)
-		.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
+  return result.body
+    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
+    .replace(/\{\{userName\}\}/g, userName)
+    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
 }
 
 /**
@@ -57,17 +57,17 @@ export async function readSystemPrompt(userName: string): Promise<string | null>
  * Returns null if the file is missing or invalid — caller should fall back to hardcoded.
  */
 export async function readTitlePromptConfig(): Promise<{
-	model: string;
-	prompt: string;
+  model: string;
+  prompt: string;
 } | null> {
-	const result = await readAiConfig("title-prompt.md");
+  const result = await readAiConfig("title-prompt.md");
 
-	if (!result || !result.validation.isValid) return null;
+  if (!result || !result.validation.isValid) return null;
 
-	const model = result.frontmatter.model;
-	if (typeof model !== "string") return null;
+  const model = result.frontmatter.model;
+  if (typeof model !== "string") return null;
 
-	return { model, prompt: result.body };
+  return { model, prompt: result.body };
 }
 
 const DEFAULT_WORKFLOW_SYSTEM_PROMPT = `You are an autonomous AI assistant running a user-triggered background workflow for {{userName}}. Today's date is {{date}}.
@@ -89,27 +89,27 @@ Be thorough but concise. Focus on producing useful output. If you write files, u
  * Falls back to a hardcoded default if the file is missing or invalid.
  */
 export async function readTaskPromptConfig(userName: string): Promise<{ model?: string; effort?: string; prompt: string }> {
-	const result = await readAiConfig("task-prompt.md");
+  const result = await readAiConfig("task-prompt.md");
 
-	const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
+  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
 
-	if (!result || !result.validation.isValid) {
-		return {
-			prompt: DEFAULT_TASK_SYSTEM_PROMPT.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-				.replace(/\{\{userName\}\}/g, userName)
-				.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath),
-		};
-	}
+  if (!result || !result.validation.isValid) {
+    return {
+      prompt: DEFAULT_TASK_SYSTEM_PROMPT.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
+        .replace(/\{\{userName\}\}/g, userName)
+        .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath),
+    };
+  }
 
-	const model = typeof result.frontmatter.model === "string" ? result.frontmatter.model : undefined;
-	const effort = typeof result.frontmatter.effort === "string" ? result.frontmatter.effort : undefined;
+  const model = typeof result.frontmatter.model === "string" ? result.frontmatter.model : undefined;
+  const effort = typeof result.frontmatter.effort === "string" ? result.frontmatter.effort : undefined;
 
-	const prompt = result.body
-		.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-		.replace(/\{\{userName\}\}/g, userName)
-		.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
+  const prompt = result.body
+    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
+    .replace(/\{\{userName\}\}/g, userName)
+    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
 
-	return { model, effort, prompt };
+  return { model, effort, prompt };
 }
 
 /**
@@ -117,27 +117,27 @@ export async function readTaskPromptConfig(userName: string): Promise<{ model?: 
  * Falls back to a hardcoded default if the file is missing or invalid.
  */
 export async function readWorkflowPromptConfig(
-	userName: string,
+  userName: string,
 ): Promise<{ model?: string; effort?: string; prompt: string }> {
-	const result = await readAiConfig("workflow-prompt.md");
+  const result = await readAiConfig("workflow-prompt.md");
 
-	const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
+  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
 
-	if (!result || !result.validation.isValid) {
-		return {
-			prompt: DEFAULT_WORKFLOW_SYSTEM_PROMPT.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-				.replace(/\{\{userName\}\}/g, userName)
-				.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath),
-		};
-	}
+  if (!result || !result.validation.isValid) {
+    return {
+      prompt: DEFAULT_WORKFLOW_SYSTEM_PROMPT.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
+        .replace(/\{\{userName\}\}/g, userName)
+        .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath),
+    };
+  }
 
-	const model = typeof result.frontmatter.model === "string" ? result.frontmatter.model : undefined;
-	const effort = typeof result.frontmatter.effort === "string" ? result.frontmatter.effort : undefined;
+  const model = typeof result.frontmatter.model === "string" ? result.frontmatter.model : undefined;
+  const effort = typeof result.frontmatter.effort === "string" ? result.frontmatter.effort : undefined;
 
-	const prompt = result.body
-		.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-		.replace(/\{\{userName\}\}/g, userName)
-		.replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
+  const prompt = result.body
+    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
+    .replace(/\{\{userName\}\}/g, userName)
+    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
 
-	return { model, effort, prompt };
+  return { model, effort, prompt };
 }

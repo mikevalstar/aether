@@ -7,10 +7,10 @@ import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/ma
 import { Button } from "#/components/ui/button";
 import { getAiConfigValidatorInfo } from "#/lib/ai-config.functions";
 import {
-	getAiConfigFilename,
-	type ObsidianDocument,
-	type ObsidianViewerData,
-	resolveObsidianLinkTarget,
+  getAiConfigFilename,
+  type ObsidianDocument,
+  type ObsidianViewerData,
+  resolveObsidianLinkTarget,
 } from "#/lib/obsidian";
 import { cn } from "#/lib/utils";
 import { ObsidianEditor } from "./ObsidianEditor";
@@ -19,212 +19,212 @@ import { ObsidianNavLink, ObsidianTreeNav } from "./ObsidianTreeNav";
 import { ObsidianWelcome } from "./ObsidianWelcome";
 
 type ObsidianViewerProps = {
-	data: ObsidianViewerData;
-	initialEdit?: boolean;
+  data: ObsidianViewerData;
+  initialEdit?: boolean;
 };
 
 export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
-	const [editing, setEditing] = useState(initialEdit === true);
-	const router = useRouter();
+  const [editing, setEditing] = useState(initialEdit === true);
+  const router = useRouter();
 
-	if (!data.configured) {
-		return (
-			<main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
-				<div className="surface-card mx-auto max-w-lg px-8 py-12 text-center">
-					<h2 className="text-xl font-semibold text-[var(--ink)]">Obsidian not configured</h2>
-					<p className="mt-2 text-sm text-[var(--ink-soft)]">
-						Set the <code className="text-[12px]">OBSIDIAN_DIR</code> environment variable to your vault path to enable the
-						Obsidian browser.
-					</p>
-				</div>
-			</main>
-		);
-	}
+  if (!data.configured) {
+    return (
+      <main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
+        <div className="surface-card mx-auto max-w-lg px-8 py-12 text-center">
+          <h2 className="text-xl font-semibold text-[var(--ink)]">Obsidian not configured</h2>
+          <p className="mt-2 text-sm text-[var(--ink-soft)]">
+            Set the <code className="text-[12px]">OBSIDIAN_DIR</code> environment variable to your vault path to enable the
+            Obsidian browser.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
-	const document = data.document;
-	const isIndex = data.requestedPath === "";
+  const document = data.document;
+  const isIndex = data.requestedPath === "";
 
-	return (
-		<main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
-			<div className="grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
-				<aside>
-					<ObsidianTreeNav
-						nodes={data.tree}
-						aiConfigPath={data.aiConfigPath}
-						aiMemoryPath={data.aiMemoryPath}
-						currentRoutePath={document?.routePath ?? data.requestedPath}
-					/>
-				</aside>
+  return (
+    <main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
+      <div className="grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
+        <aside>
+          <ObsidianTreeNav
+            nodes={data.tree}
+            aiConfigPath={data.aiConfigPath}
+            aiMemoryPath={data.aiMemoryPath}
+            currentRoutePath={document?.routePath ?? data.requestedPath}
+          />
+        </aside>
 
-				<section className="surface-card min-w-0 overflow-hidden">
-					{document ? (
-						editing ? (
-							<ObsidianEditor
-								document={document}
-								aiConfigPath={data.aiConfigPath}
-								onCancel={() => setEditing(false)}
-								onSaved={() => {
-									setEditing(false);
-									router.invalidate();
-								}}
-							/>
-						) : (
-							<DocumentContent document={document} aiConfigPath={data.aiConfigPath} onEdit={() => setEditing(true)} />
-						)
-					) : isIndex ? (
-						<ObsidianWelcome tree={data.tree} />
-					) : (
-						<ObsidianMissingDocument requestedPath={data.requestedPath} />
-					)}
-				</section>
-			</div>
-		</main>
-	);
+        <section className="surface-card min-w-0 overflow-hidden">
+          {document ? (
+            editing ? (
+              <ObsidianEditor
+                document={document}
+                aiConfigPath={data.aiConfigPath}
+                onCancel={() => setEditing(false)}
+                onSaved={() => {
+                  setEditing(false);
+                  router.invalidate();
+                }}
+              />
+            ) : (
+              <DocumentContent document={document} aiConfigPath={data.aiConfigPath} onEdit={() => setEditing(true)} />
+            )
+          ) : isIndex ? (
+            <ObsidianWelcome tree={data.tree} />
+          ) : (
+            <ObsidianMissingDocument requestedPath={data.requestedPath} />
+          )}
+        </section>
+      </div>
+    </main>
+  );
 }
 
 function DocumentContent(props: { document: ObsidianDocument; aiConfigPath: string | null; onEdit: () => void }) {
-	const { document, aiConfigPath, onEdit } = props;
+  const { document, aiConfigPath, onEdit } = props;
 
-	const aiConfigFilename = getAiConfigFilename(document.relativePath, aiConfigPath);
+  const aiConfigFilename = getAiConfigFilename(document.relativePath, aiConfigPath);
 
-	const [isUnrecognizedConfig, setIsUnrecognizedConfig] = useState(false);
+  const [isUnrecognizedConfig, setIsUnrecognizedConfig] = useState(false);
 
-	useEffect(() => {
-		if (!aiConfigFilename) return;
+  useEffect(() => {
+    if (!aiConfigFilename) return;
 
-		getAiConfigValidatorInfo({ data: { filename: aiConfigFilename } }).then((info) => {
-			if (!info) setIsUnrecognizedConfig(true);
-		});
-	}, [aiConfigFilename]);
+    getAiConfigValidatorInfo({ data: { filename: aiConfigFilename } }).then((info) => {
+      if (!info) setIsUnrecognizedConfig(true);
+    });
+  }, [aiConfigFilename]);
 
-	const markdownComponents = createMarkdownComponents("prose", {
-		a: ({ href, children, className, ...rest }) => (
-			<MarkdownAnchor
-				href={href}
-				currentRelativePath={document.relativePath}
-				className={cn(
-					"font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
-					className,
-				)}
-				{...rest}
-			>
-				{children}
-			</MarkdownAnchor>
-		),
-		pre: (preProps) => <CodeBlockPre variant="prose" {...preProps} />,
-	});
+  const markdownComponents = createMarkdownComponents("prose", {
+    a: ({ href, children, className, ...rest }) => (
+      <MarkdownAnchor
+        href={href}
+        currentRelativePath={document.relativePath}
+        className={cn(
+          "font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
+          className,
+        )}
+        {...rest}
+      >
+        {children}
+      </MarkdownAnchor>
+    ),
+    pre: (preProps) => <CodeBlockPre variant="prose" {...preProps} />,
+  });
 
-	return (
-		<div>
-			<DocumentHeader document={document} onEdit={onEdit} />
+  return (
+    <div>
+      <DocumentHeader document={document} onEdit={onEdit} />
 
-			{isUnrecognizedConfig && aiConfigFilename && (
-				<div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-6 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
-					<AlertCircle className="size-4 shrink-0" />
-					<span>
-						<strong>{aiConfigFilename}</strong> is not a recognized config file and will not be used by Aether.
-					</span>
-				</div>
-			)}
+      {isUnrecognizedConfig && aiConfigFilename && (
+        <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-6 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
+          <AlertCircle className="size-4 shrink-0" />
+          <span>
+            <strong>{aiConfigFilename}</strong> is not a recognized config file and will not be used by Aether.
+          </span>
+        </div>
+      )}
 
-			<FrontmatterDisplay frontmatter={document.frontmatter} />
+      <FrontmatterDisplay frontmatter={document.frontmatter} />
 
-			<div className="px-6 py-6 sm:px-8 sm:py-8">
-				<div className="max-w-none text-[var(--ink)]">
-					<Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-						{document.body}
-					</Markdown>
-				</div>
-			</div>
-		</div>
-	);
+      <div className="px-6 py-6 sm:px-8 sm:py-8">
+        <div className="max-w-none text-[var(--ink)]">
+          <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            {document.body}
+          </Markdown>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function DocumentHeader(props: { document: ObsidianDocument; onEdit: () => void }) {
-	const { document, onEdit } = props;
+  const { document, onEdit } = props;
 
-	return (
-		<div className="relative overflow-hidden border-b border-[var(--line)]">
-			<div
-				className="absolute inset-x-0 top-0 h-1"
-				style={{
-					background: "linear-gradient(90deg, var(--teal), var(--coral))",
-				}}
-			/>
+  return (
+    <div className="relative overflow-hidden border-b border-[var(--line)]">
+      <div
+        className="absolute inset-x-0 top-0 h-1"
+        style={{
+          background: "linear-gradient(90deg, var(--teal), var(--coral))",
+        }}
+      />
 
-			<div className="px-6 pb-5 pt-6 sm:px-8">
-				<div className="flex items-start justify-between">
-					<div>
-						<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Obsidian</p>
-						<h2 className="display-title mt-2 text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
-							{document.title}
-						</h2>
-						<p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">{document.relativePath}</p>
-					</div>
-					<Button variant="outline" size="sm" onClick={onEdit} className="mt-4 shrink-0">
-						<Pencil className="mr-1.5 size-3.5" />
-						Edit
-					</Button>
-				</div>
-			</div>
-		</div>
-	);
+      <div className="px-6 pb-5 pt-6 sm:px-8">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Obsidian</p>
+            <h2 className="display-title mt-2 text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
+              {document.title}
+            </h2>
+            <p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">{document.relativePath}</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={onEdit} className="mt-4 shrink-0">
+            <Pencil className="mr-1.5 size-3.5" />
+            Edit
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function formatFrontmatterValue(value: string | number | boolean | string[] | null): string {
-	if (value === null) return "";
-	if (Array.isArray(value)) return value.join(", ");
-	return String(value);
+  if (value === null) return "";
+  if (Array.isArray(value)) return value.join(", ");
+  return String(value);
 }
 
 function FrontmatterDisplay({ frontmatter }: { frontmatter: Record<string, string | number | boolean | string[] | null> }) {
-	const entries = Object.entries(frontmatter).filter(([key]) => key !== "title");
-	if (entries.length === 0) return null;
+  const entries = Object.entries(frontmatter).filter(([key]) => key !== "title");
+  if (entries.length === 0) return null;
 
-	return (
-		<div className="border-b border-[var(--line)] bg-[var(--surface-alt)] px-6 py-3 sm:px-8">
-			<dl className="flex flex-wrap gap-x-6 gap-y-1 text-[12px]">
-				{entries.map(([key, value]) => (
-					<div key={key} className="flex items-baseline gap-1.5">
-						<dt className="font-semibold uppercase tracking-wide text-[var(--ink-soft)]/60">{key}</dt>
-						<dd className="text-[var(--ink-soft)]">{formatFrontmatterValue(value)}</dd>
-					</div>
-				))}
-			</dl>
-		</div>
-	);
+  return (
+    <div className="border-b border-[var(--line)] bg-[var(--surface-alt)] px-6 py-3 sm:px-8">
+      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[12px]">
+        {entries.map(([key, value]) => (
+          <div key={key} className="flex items-baseline gap-1.5">
+            <dt className="font-semibold uppercase tracking-wide text-[var(--ink-soft)]/60">{key}</dt>
+            <dd className="text-[var(--ink-soft)]">{formatFrontmatterValue(value)}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
 }
 
 function MarkdownAnchor({
-	href,
-	currentRelativePath,
-	children,
-	className,
-	...rest
+  href,
+  currentRelativePath,
+  children,
+  className,
+  ...rest
 }: ComponentPropsWithoutRef<"a"> & {
-	currentRelativePath: string;
+  currentRelativePath: string;
 }) {
-	const target = resolveObsidianLinkTarget(currentRelativePath, href);
+  const target = resolveObsidianLinkTarget(currentRelativePath, href);
 
-	if (target) {
-		return (
-			<ObsidianNavLink routePath={target.routePath} hash={target.hash} className={className} {...rest}>
-				{children}
-			</ObsidianNavLink>
-		);
-	}
+  if (target) {
+    return (
+      <ObsidianNavLink routePath={target.routePath} hash={target.hash} className={className} {...rest}>
+        {children}
+      </ObsidianNavLink>
+    );
+  }
 
-	const isExternal = href ? /^(https?:|mailto:|tel:)/.test(href) : false;
+  const isExternal = href ? /^(https?:|mailto:|tel:)/.test(href) : false;
 
-	return (
-		<a
-			href={href}
-			className={className}
-			target={isExternal ? "_blank" : undefined}
-			rel={isExternal ? "noreferrer" : undefined}
-			{...rest}
-		>
-			{children}
-		</a>
-	);
+  return (
+    <a
+      href={href}
+      className={className}
+      target={isExternal ? "_blank" : undefined}
+      rel={isExternal ? "noreferrer" : undefined}
+      {...rest}
+    >
+      {children}
+    </a>
+  );
 }

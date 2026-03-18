@@ -4,23 +4,23 @@ import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
 import { ensureSession } from "#/lib/auth.functions";
 import {
-	normalizeRequirementRoutePath,
-	type RequirementDocument,
-	type RequirementsViewerData,
-	type RequirementTreeNode,
-	toRequirementRoutePath,
+  normalizeRequirementRoutePath,
+  type RequirementDocument,
+  type RequirementsViewerData,
+  type RequirementTreeNode,
+  toRequirementRoutePath,
 } from "#/lib/requirements";
 
 type RequirementsViewerInput = {
-	path?: string;
+  path?: string;
 };
 
 type RequirementFrontmatter = {
-	title?: unknown;
-	status?: unknown;
-	owner?: unknown;
-	last_updated?: unknown;
-	canonical_file?: unknown;
+  title?: unknown;
+  status?: unknown;
+  owner?: unknown;
+  last_updated?: unknown;
+  canonical_file?: unknown;
 };
 
 type DiscoveredRequirementDocument = RequirementDocument;
@@ -28,140 +28,140 @@ type DiscoveredRequirementDocument = RequirementDocument;
 const REQUIREMENTS_ROOT = path.join(process.cwd(), "docs", "requirements");
 
 export const getRequirementsViewerData = createServerFn({ method: "GET" })
-	.inputValidator((data: RequirementsViewerInput) => data)
-	.handler(async ({ data }): Promise<RequirementsViewerData> => {
-		await ensureSession();
+  .inputValidator((data: RequirementsViewerInput) => data)
+  .handler(async ({ data }): Promise<RequirementsViewerData> => {
+    await ensureSession();
 
-		const discovered = await discoverRequirementTree();
-		const requestedPath = normalizeRequirementRoutePath(data.path);
+    const discovered = await discoverRequirementTree();
+    const requestedPath = normalizeRequirementRoutePath(data.path);
 
-		if (requestedPath === null) {
-			return {
-				tree: discovered.tree,
-				document: null,
-				requestedPath: data.path ?? "",
-			};
-		}
+    if (requestedPath === null) {
+      return {
+        tree: discovered.tree,
+        document: null,
+        requestedPath: data.path ?? "",
+      };
+    }
 
-		return {
-			tree: discovered.tree,
-			document: discovered.documents.find((document) => document.routePath === requestedPath) ?? null,
-			requestedPath,
-		};
-	});
+    return {
+      tree: discovered.tree,
+      document: discovered.documents.find((document) => document.routePath === requestedPath) ?? null,
+      requestedPath,
+    };
+  });
 
 async function discoverRequirementTree() {
-	const documents: DiscoveredRequirementDocument[] = [];
-	const tree = await buildTree("", documents);
+  const documents: DiscoveredRequirementDocument[] = [];
+  const tree = await buildTree("", documents);
 
-	return { tree, documents };
+  return { tree, documents };
 }
 
 async function buildTree(
-	relativeDirectory: string,
-	documents: DiscoveredRequirementDocument[],
+  relativeDirectory: string,
+  documents: DiscoveredRequirementDocument[],
 ): Promise<RequirementTreeNode[]> {
-	const absoluteDirectory = path.join(REQUIREMENTS_ROOT, relativeDirectory);
-	const entries = await fs.readdir(absoluteDirectory, { withFileTypes: true });
-	const nodes: RequirementTreeNode[] = [];
+  const absoluteDirectory = path.join(REQUIREMENTS_ROOT, relativeDirectory);
+  const entries = await fs.readdir(absoluteDirectory, { withFileTypes: true });
+  const nodes: RequirementTreeNode[] = [];
 
-	for (const entry of entries) {
-		if (entry.name.startsWith(".")) {
-			continue;
-		}
+  for (const entry of entries) {
+    if (entry.name.startsWith(".")) {
+      continue;
+    }
 
-		const relativePath = relativeDirectory ? path.posix.join(relativeDirectory, entry.name) : entry.name;
+    const relativePath = relativeDirectory ? path.posix.join(relativeDirectory, entry.name) : entry.name;
 
-		if (entry.isDirectory()) {
-			const children = await buildTree(relativePath, documents);
+    if (entry.isDirectory()) {
+      const children = await buildTree(relativePath, documents);
 
-			if (children.length > 0) {
-				nodes.push({
-					type: "folder",
-					name: entry.name,
-					path: relativePath,
-					children,
-				});
-			}
+      if (children.length > 0) {
+        nodes.push({
+          type: "folder",
+          name: entry.name,
+          path: relativePath,
+          children,
+        });
+      }
 
-			continue;
-		}
+      continue;
+    }
 
-		if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".md")) {
-			continue;
-		}
+    if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".md")) {
+      continue;
+    }
 
-		const document = await readRequirementDocument(relativePath);
-		documents.push(document);
-		nodes.push({
-			type: "file",
-			name: entry.name,
-			title: document.title,
-			routePath: document.routePath,
-			relativePath: document.relativePath,
-			status: document.status,
-			lastUpdated: document.lastUpdated,
-		});
-	}
+    const document = await readRequirementDocument(relativePath);
+    documents.push(document);
+    nodes.push({
+      type: "file",
+      name: entry.name,
+      title: document.title,
+      routePath: document.routePath,
+      relativePath: document.relativePath,
+      status: document.status,
+      lastUpdated: document.lastUpdated,
+    });
+  }
 
-	return sortTreeNodes(nodes);
+  return sortTreeNodes(nodes);
 }
 
 async function readRequirementDocument(relativePath: string): Promise<DiscoveredRequirementDocument> {
-	const absolutePath = path.join(REQUIREMENTS_ROOT, relativePath);
-	const rawDocument = await fs.readFile(absolutePath, "utf8");
-	const parsed = matter(rawDocument);
-	const data = parsed.data as RequirementFrontmatter;
-	const routePath = toRequirementRoutePath(relativePath);
+  const absolutePath = path.join(REQUIREMENTS_ROOT, relativePath);
+  const rawDocument = await fs.readFile(absolutePath, "utf8");
+  const parsed = matter(rawDocument);
+  const data = parsed.data as RequirementFrontmatter;
+  const routePath = toRequirementRoutePath(relativePath);
 
-	return {
-		title: toFrontmatterText(data.title) || humanizeFileName(relativePath),
-		body: parsed.content.trim(),
-		routePath,
-		relativePath,
-		status: toFrontmatterText(data.status),
-		owner: toFrontmatterText(data.owner),
-		lastUpdated: toFrontmatterText(data.last_updated),
-		canonicalFile: toFrontmatterText(data.canonical_file),
-	};
+  return {
+    title: toFrontmatterText(data.title) || humanizeFileName(relativePath),
+    body: parsed.content.trim(),
+    routePath,
+    relativePath,
+    status: toFrontmatterText(data.status),
+    owner: toFrontmatterText(data.owner),
+    lastUpdated: toFrontmatterText(data.last_updated),
+    canonicalFile: toFrontmatterText(data.canonical_file),
+  };
 }
 
 function toFrontmatterText(value: unknown) {
-	if (typeof value === "string") {
-		const trimmed = value.trim();
-		return trimmed || undefined;
-	}
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed || undefined;
+  }
 
-	if (value instanceof Date) {
-		return value.toISOString().slice(0, 10);
-	}
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
 
-	if (typeof value === "number" || typeof value === "boolean") {
-		return String(value);
-	}
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
 
-	return undefined;
+  return undefined;
 }
 
 function sortTreeNodes(nodes: RequirementTreeNode[]) {
-	return [...nodes].sort((left, right) => {
-		if (left.type !== right.type) {
-			return left.type === "folder" ? -1 : 1;
-		}
+  return [...nodes].sort((left, right) => {
+    if (left.type !== right.type) {
+      return left.type === "folder" ? -1 : 1;
+    }
 
-		if (left.type === "file" && right.type === "file") {
-			if (left.routePath === "") return -1;
-			if (right.routePath === "") return 1;
-			return left.title.localeCompare(right.title);
-		}
+    if (left.type === "file" && right.type === "file") {
+      if (left.routePath === "") return -1;
+      if (right.routePath === "") return 1;
+      return left.title.localeCompare(right.title);
+    }
 
-		return left.name.localeCompare(right.name);
-	});
+    return left.name.localeCompare(right.name);
+  });
 }
 
 function humanizeFileName(relativePath: string) {
-	return path
-		.basename(relativePath, ".md")
-		.replace(/[-_]+/g, " ")
-		.replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return path
+    .basename(relativePath, ".md")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

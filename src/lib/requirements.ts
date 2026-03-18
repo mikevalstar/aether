@@ -1,175 +1,175 @@
 export type RequirementTreeNode =
-	| {
-			type: "folder";
-			name: string;
-			path: string;
-			children: RequirementTreeNode[];
-	  }
-	| {
-			type: "file";
-			name: string;
-			title: string;
-			routePath: string;
-			relativePath: string;
-			status?: string;
-			lastUpdated?: string;
-	  };
+  | {
+      type: "folder";
+      name: string;
+      path: string;
+      children: RequirementTreeNode[];
+    }
+  | {
+      type: "file";
+      name: string;
+      title: string;
+      routePath: string;
+      relativePath: string;
+      status?: string;
+      lastUpdated?: string;
+    };
 
 export type RequirementDocument = {
-	title: string;
-	body: string;
-	routePath: string;
-	relativePath: string;
-	status?: string;
-	owner?: string;
-	lastUpdated?: string;
-	canonicalFile?: string;
+  title: string;
+  body: string;
+  routePath: string;
+  relativePath: string;
+  status?: string;
+  owner?: string;
+  lastUpdated?: string;
+  canonicalFile?: string;
 };
 
 export type RequirementsViewerData = {
-	tree: RequirementTreeNode[];
-	document: RequirementDocument | null;
-	requestedPath: string;
+  tree: RequirementTreeNode[];
+  document: RequirementDocument | null;
+  requestedPath: string;
 };
 
 const REQUIREMENTS_ROUTE_PREFIX = "requirements";
 const REQUIREMENTS_DOCS_PREFIX = "docs/requirements";
 
 export function getRequirementHref(routePath: string) {
-	return routePath ? `/requirements/${routePath}` : "/requirements";
+  return routePath ? `/requirements/${routePath}` : "/requirements";
 }
 
 export function toRequirementRoutePath(relativePath: string) {
-	const normalized = normalizeRelativePath(relativePath);
+  const normalized = normalizeRelativePath(relativePath);
 
-	if (normalized === null) {
-		return "";
-	}
+  if (normalized === null) {
+    return "";
+  }
 
-	return stripIndexSuffix(stripMarkdownSuffix(normalized));
+  return stripIndexSuffix(stripMarkdownSuffix(normalized));
 }
 
 export function normalizeRequirementRoutePath(input?: string | null) {
-	if (!input) {
-		return "";
-	}
+  if (!input) {
+    return "";
+  }
 
-	const decoded = safeDecodeURIComponent(stripHashAndQuery(input).trim());
-	const withoutPrefix = decoded
-		.replace(/^\/+/, "")
-		.replace(new RegExp(`^${REQUIREMENTS_ROUTE_PREFIX}(?:/|$)`), "")
-		.replace(new RegExp(`^${REQUIREMENTS_DOCS_PREFIX}(?:/|$)`), "");
+  const decoded = safeDecodeURIComponent(stripHashAndQuery(input).trim());
+  const withoutPrefix = decoded
+    .replace(/^\/+/, "")
+    .replace(new RegExp(`^${REQUIREMENTS_ROUTE_PREFIX}(?:/|$)`), "")
+    .replace(new RegExp(`^${REQUIREMENTS_DOCS_PREFIX}(?:/|$)`), "");
 
-	const normalized = normalizeRelativePath(withoutPrefix);
+  const normalized = normalizeRelativePath(withoutPrefix);
 
-	if (normalized === null) {
-		return null;
-	}
+  if (normalized === null) {
+    return null;
+  }
 
-	return stripIndexSuffix(stripMarkdownSuffix(normalized));
+  return stripIndexSuffix(stripMarkdownSuffix(normalized));
 }
 
 export function resolveRequirementLinkTarget(currentRelativePath: string, href?: string) {
-	if (!href) {
-		return null;
-	}
+  if (!href) {
+    return null;
+  }
 
-	const trimmedHref = href.trim();
+  const trimmedHref = href.trim();
 
-	if (!trimmedHref || trimmedHref.startsWith("#") || hasProtocol(trimmedHref)) {
-		return null;
-	}
+  if (!trimmedHref || trimmedHref.startsWith("#") || hasProtocol(trimmedHref)) {
+    return null;
+  }
 
-	const hash = extractHash(trimmedHref);
-	const linkPath = stripHashAndQuery(trimmedHref);
-	const candidate = linkPath.startsWith("/")
-		? linkPath
-		: joinRelativePath(getRelativeDirectory(currentRelativePath), linkPath);
-	const routePath = normalizeRequirementRoutePath(candidate);
+  const hash = extractHash(trimmedHref);
+  const linkPath = stripHashAndQuery(trimmedHref);
+  const candidate = linkPath.startsWith("/")
+    ? linkPath
+    : joinRelativePath(getRelativeDirectory(currentRelativePath), linkPath);
+  const routePath = normalizeRequirementRoutePath(candidate);
 
-	if (routePath === null) {
-		return null;
-	}
+  if (routePath === null) {
+    return null;
+  }
 
-	return {
-		routePath,
-		hash: hash ? `#${hash}` : undefined,
-	};
+  return {
+    routePath,
+    hash: hash ? `#${hash}` : undefined,
+  };
 }
 
 function stripHashAndQuery(value: string) {
-	return value.split("#", 1)[0]?.split("?", 1)[0] ?? value;
+  return value.split("#", 1)[0]?.split("?", 1)[0] ?? value;
 }
 
 function extractHash(value: string) {
-	const hashIndex = value.indexOf("#");
-	return hashIndex >= 0 ? value.slice(hashIndex + 1) : "";
+  const hashIndex = value.indexOf("#");
+  return hashIndex >= 0 ? value.slice(hashIndex + 1) : "";
 }
 
 function safeDecodeURIComponent(value: string) {
-	try {
-		return decodeURIComponent(value);
-	} catch {
-		return value;
-	}
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 function hasProtocol(value: string) {
-	return /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value) || value.startsWith("//");
+  return /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value) || value.startsWith("//");
 }
 
 function joinRelativePath(base: string, value: string) {
-	if (!base) {
-		return value;
-	}
+  if (!base) {
+    return value;
+  }
 
-	return `${base}/${value}`;
+  return `${base}/${value}`;
 }
 
 function getRelativeDirectory(value: string) {
-	const normalized = value.replace(/\\/g, "/");
-	const segments = normalized.split("/").filter(Boolean);
-	segments.pop();
-	return segments.join("/");
+  const normalized = value.replace(/\\/g, "/");
+  const segments = normalized.split("/").filter(Boolean);
+  segments.pop();
+  return segments.join("/");
 }
 
 function stripMarkdownSuffix(value: string) {
-	return value.replace(/\.md$/i, "");
+  return value.replace(/\.md$/i, "");
 }
 
 function stripIndexSuffix(value: string) {
-	if (value === "index") {
-		return "";
-	}
+  if (value === "index") {
+    return "";
+  }
 
-	return value.replace(/\/index$/i, "");
+  return value.replace(/\/index$/i, "");
 }
 
 function normalizeRelativePath(value: string) {
-	const normalized = value.replace(/\\/g, "/").trim();
+  const normalized = value.replace(/\\/g, "/").trim();
 
-	if (!normalized) {
-		return "";
-	}
+  if (!normalized) {
+    return "";
+  }
 
-	const segments: string[] = [];
+  const segments: string[] = [];
 
-	for (const segment of normalized.split("/")) {
-		if (!segment || segment === ".") {
-			continue;
-		}
+  for (const segment of normalized.split("/")) {
+    if (!segment || segment === ".") {
+      continue;
+    }
 
-		if (segment === "..") {
-			if (segments.length === 0) {
-				return null;
-			}
+    if (segment === "..") {
+      if (segments.length === 0) {
+        return null;
+      }
 
-			segments.pop();
-			continue;
-		}
+      segments.pop();
+      continue;
+    }
 
-		segments.push(segment);
-	}
+    segments.push(segment);
+  }
 
-	return segments.join("/");
+  return segments.join("/");
 }

@@ -4,5 +4,5 @@ import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
 export function formatRelativeTime(isoString: string) {
-	return dayjs(isoString).fromNow();
+  return dayjs(isoString).fromNow();
 }

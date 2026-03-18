@@ -4,54 +4,54 @@ import { useState } from "react";
 import { DateRangePicker } from "./date-range-picker";
 
 const meta = {
-	title: "Design System/Forms/DateRangePicker",
-	tags: ["autodocs"],
-	component: DateRangePicker,
-	args: {
-		onChange: fn(),
-	},
+  title: "Design System/Forms/DateRangePicker",
+  tags: ["autodocs"],
+  component: DateRangePicker,
+  args: {
+    onChange: fn(),
+  },
 } satisfies Meta<typeof DateRangePicker>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-	args: {},
+  args: {},
 };
 
 export const WithDateRange: Story = {
-	args: {
-		from: "2026-02-15",
-		to: "2026-03-10",
-	},
+  args: {
+    from: "2026-02-15",
+    to: "2026-03-10",
+  },
 };
 
 export const NoPresets: Story = {
-	args: {
-		from: "2026-03-01",
-		to: "2026-03-14",
-		showPresets: false,
-	},
+  args: {
+    from: "2026-03-01",
+    to: "2026-03-14",
+    showPresets: false,
+  },
 };
 
 export const CustomDefault: Story = {
-	args: {
-		defaultPreset: "7d",
-	},
+  args: {
+    defaultPreset: "7d",
+  },
 };
 
 export const Interactive: Story = {
-	render: function InteractiveStory() {
-		const [state, setState] = useState<{
-			from?: string;
-			to?: string;
-		}>({});
+  render: function InteractiveStory() {
+    const [state, setState] = useState<{
+      from?: string;
+      to?: string;
+    }>({});
 
-		return (
-			<div className="w-[320px]">
-				<DateRangePicker from={state.from} to={state.to} onChange={(next) => setState(next)} />
-				<p className="mt-3 text-xs text-muted-foreground">State: {JSON.stringify(state)}</p>
-			</div>
-		);
-	},
+    return (
+      <div className="w-[320px]">
+        <DateRangePicker from={state.from} to={state.to} onChange={(next) => setState(next)} />
+        <p className="mt-3 text-xs text-muted-foreground">State: {JSON.stringify(state)}</p>
+      </div>
+    );
+  },
 };

@@ -1,166 +1,166 @@
 export type ObsidianTreeNode =
-	| {
-			type: "folder";
-			name: string;
-			path: string;
-			isAiConfig: boolean;
-			isAiMemory: boolean;
-			children: ObsidianTreeNode[];
-	  }
-	| {
-			type: "file";
-			name: string;
-			title: string;
-			routePath: string;
-			relativePath: string;
-	  };
+  | {
+      type: "folder";
+      name: string;
+      path: string;
+      isAiConfig: boolean;
+      isAiMemory: boolean;
+      children: ObsidianTreeNode[];
+    }
+  | {
+      type: "file";
+      name: string;
+      title: string;
+      routePath: string;
+      relativePath: string;
+    };
 
 export type ObsidianDocument = {
-	title: string;
-	body: string;
-	rawContent: string;
-	routePath: string;
-	relativePath: string;
-	frontmatter: Record<string, string | number | boolean | string[] | null>;
+  title: string;
+  body: string;
+  rawContent: string;
+  routePath: string;
+  relativePath: string;
+  frontmatter: Record<string, string | number | boolean | string[] | null>;
 };
 
 export type ObsidianViewerData = {
-	tree: ObsidianTreeNode[];
-	aiConfigPath: string | null;
-	aiMemoryPath: string | null;
-	document: ObsidianDocument | null;
-	requestedPath: string;
-	configured: boolean;
+  tree: ObsidianTreeNode[];
+  aiConfigPath: string | null;
+  aiMemoryPath: string | null;
+  document: ObsidianDocument | null;
+  requestedPath: string;
+  configured: boolean;
 };
 
 const OBSIDIAN_ROUTE_PREFIX = "o";
 
 export function getObsidianHref(routePath: string) {
-	return routePath ? `/o/${routePath}` : "/o";
+  return routePath ? `/o/${routePath}` : "/o";
 }
 
 export function toObsidianRoutePath(relativePath: string) {
-	const normalized = normalizeRelativePath(relativePath);
+  const normalized = normalizeRelativePath(relativePath);
 
-	if (normalized === null) {
-		return "";
-	}
+  if (normalized === null) {
+    return "";
+  }
 
-	return stripMarkdownSuffix(normalized);
+  return stripMarkdownSuffix(normalized);
 }
 
 export function normalizeObsidianRoutePath(input?: string | null) {
-	if (!input) {
-		return "";
-	}
+  if (!input) {
+    return "";
+  }
 
-	const decoded = safeDecodeURIComponent(stripHashAndQuery(input).trim());
-	const withoutPrefix = decoded.replace(/^\/+/, "").replace(new RegExp(`^${OBSIDIAN_ROUTE_PREFIX}(?:/|$)`), "");
+  const decoded = safeDecodeURIComponent(stripHashAndQuery(input).trim());
+  const withoutPrefix = decoded.replace(/^\/+/, "").replace(new RegExp(`^${OBSIDIAN_ROUTE_PREFIX}(?:/|$)`), "");
 
-	const normalized = normalizeRelativePath(withoutPrefix);
+  const normalized = normalizeRelativePath(withoutPrefix);
 
-	if (normalized === null) {
-		return null;
-	}
+  if (normalized === null) {
+    return null;
+  }
 
-	return stripMarkdownSuffix(normalized);
+  return stripMarkdownSuffix(normalized);
 }
 
 export function resolveObsidianLinkTarget(currentRelativePath: string, href?: string) {
-	if (!href) {
-		return null;
-	}
+  if (!href) {
+    return null;
+  }
 
-	const trimmedHref = href.trim();
+  const trimmedHref = href.trim();
 
-	if (!trimmedHref || trimmedHref.startsWith("#") || hasProtocol(trimmedHref)) {
-		return null;
-	}
+  if (!trimmedHref || trimmedHref.startsWith("#") || hasProtocol(trimmedHref)) {
+    return null;
+  }
 
-	const hash = extractHash(trimmedHref);
-	const linkPath = stripHashAndQuery(trimmedHref);
-	const candidate = linkPath.startsWith("/")
-		? linkPath
-		: joinRelativePath(getRelativeDirectory(currentRelativePath), linkPath);
-	const routePath = normalizeObsidianRoutePath(candidate);
+  const hash = extractHash(trimmedHref);
+  const linkPath = stripHashAndQuery(trimmedHref);
+  const candidate = linkPath.startsWith("/")
+    ? linkPath
+    : joinRelativePath(getRelativeDirectory(currentRelativePath), linkPath);
+  const routePath = normalizeObsidianRoutePath(candidate);
 
-	if (routePath === null) {
-		return null;
-	}
+  if (routePath === null) {
+    return null;
+  }
 
-	return {
-		routePath,
-		hash: hash ? `#${hash}` : undefined,
-	};
+  return {
+    routePath,
+    hash: hash ? `#${hash}` : undefined,
+  };
 }
 
 function stripHashAndQuery(value: string) {
-	return value.split("#", 1)[0]?.split("?", 1)[0] ?? value;
+  return value.split("#", 1)[0]?.split("?", 1)[0] ?? value;
 }
 
 function extractHash(value: string) {
-	const hashIndex = value.indexOf("#");
-	return hashIndex >= 0 ? value.slice(hashIndex + 1) : "";
+  const hashIndex = value.indexOf("#");
+  return hashIndex >= 0 ? value.slice(hashIndex + 1) : "";
 }
 
 function safeDecodeURIComponent(value: string) {
-	try {
-		return decodeURIComponent(value);
-	} catch {
-		return value;
-	}
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 function hasProtocol(value: string) {
-	return /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value) || value.startsWith("//");
+  return /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value) || value.startsWith("//");
 }
 
 function joinRelativePath(base: string, value: string) {
-	if (!base) {
-		return value;
-	}
+  if (!base) {
+    return value;
+  }
 
-	return `${base}/${value}`;
+  return `${base}/${value}`;
 }
 
 function getRelativeDirectory(value: string) {
-	const normalized = value.replace(/\\/g, "/");
-	const segments = normalized.split("/").filter(Boolean);
-	segments.pop();
-	return segments.join("/");
+  const normalized = value.replace(/\\/g, "/");
+  const segments = normalized.split("/").filter(Boolean);
+  segments.pop();
+  return segments.join("/");
 }
 
 function stripMarkdownSuffix(value: string) {
-	return value.replace(/\.md$/i, "");
+  return value.replace(/\.md$/i, "");
 }
 
 function normalizeRelativePath(value: string) {
-	const normalized = value.replace(/\\/g, "/").trim();
+  const normalized = value.replace(/\\/g, "/").trim();
 
-	if (!normalized) {
-		return "";
-	}
+  if (!normalized) {
+    return "";
+  }
 
-	const segments: string[] = [];
+  const segments: string[] = [];
 
-	for (const segment of normalized.split("/")) {
-		if (!segment || segment === ".") {
-			continue;
-		}
+  for (const segment of normalized.split("/")) {
+    if (!segment || segment === ".") {
+      continue;
+    }
 
-		if (segment === "..") {
-			if (segments.length === 0) {
-				return null;
-			}
+    if (segment === "..") {
+      if (segments.length === 0) {
+        return null;
+      }
 
-			segments.pop();
-			continue;
-		}
+      segments.pop();
+      continue;
+    }
 
-		segments.push(segment);
-	}
+    segments.push(segment);
+  }
 
-	return segments.join("/");
+  return segments.join("/");
 }
 
 /**
@@ -169,18 +169,18 @@ function normalizeRelativePath(value: string) {
  * Otherwise return null.
  */
 export function getAiConfigFilename(relativePath: string, aiConfigPath: string | null): string | null {
-	if (!aiConfigPath) return null;
+  if (!aiConfigPath) return null;
 
-	const normalized = relativePath.replace(/\\/g, "/");
-	const prefix = `${aiConfigPath.replace(/\\/g, "/").replace(/\/+$/, "")}/`;
+  const normalized = relativePath.replace(/\\/g, "/");
+  const prefix = `${aiConfigPath.replace(/\\/g, "/").replace(/\/+$/, "")}/`;
 
-	if (!normalized.startsWith(prefix)) return null;
+  if (!normalized.startsWith(prefix)) return null;
 
-	const filename = normalized.slice(prefix.length);
+  const filename = normalized.slice(prefix.length);
 
-	// Allow top-level files and one level of subdirectory (e.g. "tasks/daily-summary.md")
-	const segments = filename.split("/");
-	if (segments.length > 2) return null;
+  // Allow top-level files and one level of subdirectory (e.g. "tasks/daily-summary.md")
+  const segments = filename.split("/");
+  if (segments.length > 2) return null;
 
-	return filename;
+  return filename;
 }

@@ -16,224 +16,224 @@ let initPromise: Promise<void> | null = null;
 // ── Public API ───────────────────────────────────────────────────────
 
 export function initWorkflowWatcher(): Promise<void> {
-	if (initPromise) return initPromise;
-	initPromise = doInit();
-	return initPromise;
+  if (initPromise) return initPromise;
+  initPromise = doInit();
+  return initPromise;
 }
 
 export function getWorkflowConfigs(): Map<string, WorkflowConfig> {
-	return workflows;
+  return workflows;
 }
 
 export function getWorkflowConfig(filename: string): WorkflowConfig | undefined {
-	return workflows.get(filename);
+  return workflows.get(filename);
 }
 
 export async function closeWorkflowWatcher(): Promise<void> {
-	workflows.clear();
+  workflows.clear();
 
-	if (watcher) {
-		await watcher.close();
-		watcher = null;
-	}
+  if (watcher) {
+    await watcher.close();
+    watcher = null;
+  }
 
-	initPromise = null;
+  initPromise = null;
 }
 
 // ── Init ─────────────────────────────────────────────────────────────
 
 async function doInit(): Promise<void> {
-	const workflowsDir = getWorkflowsDir();
-	if (!workflowsDir) {
-		logger.info("No AI config dir configured, skipping workflow watcher");
-		return;
-	}
+  const workflowsDir = getWorkflowsDir();
+  if (!workflowsDir) {
+    logger.info("No AI config dir configured, skipping workflow watcher");
+    return;
+  }
 
-	// Ensure directory exists
-	try {
-		await fs.mkdir(workflowsDir, { recursive: true });
-	} catch {
-		// ignore
-	}
+  // Ensure directory exists
+  try {
+    await fs.mkdir(workflowsDir, { recursive: true });
+  } catch {
+    // ignore
+  }
 
-	// Read all workflow files
-	let files: string[];
-	try {
-		files = await fs.readdir(workflowsDir);
-	} catch {
-		logger.warn({ dir: workflowsDir }, "Cannot read workflows directory");
-		return;
-	}
+  // Read all workflow files
+  let files: string[];
+  try {
+    files = await fs.readdir(workflowsDir);
+  } catch {
+    logger.warn({ dir: workflowsDir }, "Cannot read workflows directory");
+    return;
+  }
 
-	// Find admin user
-	const adminUser = await prisma.user.findFirst({
-		where: { role: "admin" },
-		orderBy: { createdAt: "asc" },
-	});
+  // Find admin user
+  const adminUser = await prisma.user.findFirst({
+    where: { role: "admin" },
+    orderBy: { createdAt: "asc" },
+  });
 
-	if (!adminUser) {
-		logger.warn("No admin user found, skipping workflow watcher init");
-		return;
-	}
+  if (!adminUser) {
+    logger.warn("No admin user found, skipping workflow watcher init");
+    return;
+  }
 
-	// Get existing workflow rows
-	const existingWorkflows = await prisma.workflow.findMany({
-		where: { userId: adminUser.id },
-	});
-	const foundFiles = new Set<string>();
+  // Get existing workflow rows
+  const existingWorkflows = await prisma.workflow.findMany({
+    where: { userId: adminUser.id },
+  });
+  const foundFiles = new Set<string>();
 
-	for (const file of files) {
-		if (!file.endsWith(".md")) continue;
-		const filePath = path.join(workflowsDir, file);
+  for (const file of files) {
+    if (!file.endsWith(".md")) continue;
+    const filePath = path.join(workflowsDir, file);
 
-		const stat = await fs.stat(filePath).catch(() => null);
-		if (!stat?.isFile()) continue;
+    const stat = await fs.stat(filePath).catch(() => null);
+    if (!stat?.isFile()) continue;
 
-		const config = await parseWorkflowFile(filePath);
-		if (!config) continue;
+    const config = await parseWorkflowFile(filePath);
+    if (!config) continue;
 
-		foundFiles.add(file);
-		workflows.set(file, config);
+    foundFiles.add(file);
+    workflows.set(file, config);
 
-		await upsertWorkflowRow(file, config, adminUser.id);
-	}
+    await upsertWorkflowRow(file, config, adminUser.id);
+  }
 
-	// Mark deleted files
-	for (const existing of existingWorkflows) {
-		if (!foundFiles.has(existing.filename) && existing.fileExists) {
-			await prisma.workflow.update({
-				where: { id: existing.id },
-				data: { fileExists: false },
-			});
-		}
-	}
+  // Mark deleted files
+  for (const existing of existingWorkflows) {
+    if (!foundFiles.has(existing.filename) && existing.fileExists) {
+      await prisma.workflow.update({
+        where: { id: existing.id },
+        data: { fileExists: false },
+      });
+    }
+  }
 
-	// Start file watcher
-	watcher = chokidar.watch(workflowsDir, {
-		ignored: (filePath, stats) => {
-			if (stats?.isFile() && !filePath.endsWith(".md")) return true;
-			return false;
-		},
-		persistent: true,
-		ignoreInitial: true,
-	});
+  // Start file watcher
+  watcher = chokidar.watch(workflowsDir, {
+    ignored: (filePath, stats) => {
+      if (stats?.isFile() && !filePath.endsWith(".md")) return true;
+      return false;
+    },
+    persistent: true,
+    ignoreInitial: true,
+  });
 
-	watcher
-		.on("add", (filePath: string) => void handleFileAddOrChange(filePath))
-		.on("change", (filePath: string) => void handleFileAddOrChange(filePath))
-		.on("unlink", (filePath: string) => void handleFileDelete(filePath))
-		.on("error", (err: unknown) => {
-			logger.error({ err }, "Workflow watcher error");
-		});
+  watcher
+    .on("add", (filePath: string) => void handleFileAddOrChange(filePath))
+    .on("change", (filePath: string) => void handleFileAddOrChange(filePath))
+    .on("unlink", (filePath: string) => void handleFileDelete(filePath))
+    .on("error", (err: unknown) => {
+      logger.error({ err }, "Workflow watcher error");
+    });
 
-	const count = workflows.size;
-	logger.info({ count, dir: workflowsDir }, `Workflow watcher initialized with ${count} workflow(s)`);
+  const count = workflows.size;
+  logger.info({ count, dir: workflowsDir }, `Workflow watcher initialized with ${count} workflow(s)`);
 }
 
 // ── File Handlers ────────────────────────────────────────────────────
 
 async function handleFileAddOrChange(filePath: string): Promise<void> {
-	const filename = path.basename(filePath);
-	if (!filename.endsWith(".md")) return;
+  const filename = path.basename(filePath);
+  if (!filename.endsWith(".md")) return;
 
-	const config = await parseWorkflowFile(filePath);
-	if (!config) return;
+  const config = await parseWorkflowFile(filePath);
+  if (!config) return;
 
-	const adminUser = await prisma.user.findFirst({
-		where: { role: "admin" },
-		orderBy: { createdAt: "asc" },
-	});
-	if (!adminUser) return;
+  const adminUser = await prisma.user.findFirst({
+    where: { role: "admin" },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!adminUser) return;
 
-	workflows.set(filename, config);
-	await upsertWorkflowRow(filename, config, adminUser.id);
+  workflows.set(filename, config);
+  await upsertWorkflowRow(filename, config, adminUser.id);
 
-	logger.info({ workflow: filename }, "Workflow updated");
+  logger.info({ workflow: filename }, "Workflow updated");
 }
 
 async function handleFileDelete(filePath: string): Promise<void> {
-	const filename = path.basename(filePath);
+  const filename = path.basename(filePath);
 
-	workflows.delete(filename);
+  workflows.delete(filename);
 
-	try {
-		await prisma.workflow.update({
-			where: { filename },
-			data: { fileExists: false },
-		});
-	} catch {
-		// row may not exist
-	}
+  try {
+    await prisma.workflow.update({
+      where: { filename },
+      data: { fileExists: false },
+    });
+  } catch {
+    // row may not exist
+  }
 
-	logger.info({ workflow: filename }, "Workflow file deleted");
+  logger.info({ workflow: filename }, "Workflow file deleted");
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function getWorkflowsDir(): string {
-	const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
-	const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
-	if (!obsidianDir || !aiConfigRel) return "";
-	return path.join(obsidianDir, aiConfigRel, "workflows");
+  const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
+  const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
+  if (!obsidianDir || !aiConfigRel) return "";
+  return path.join(obsidianDir, aiConfigRel, "workflows");
 }
 
 export async function parseWorkflowFile(filePath: string): Promise<WorkflowConfig | null> {
-	try {
-		const content = await fs.readFile(filePath, "utf8");
-		const parsed = matter(content);
-		const fm = parsed.data as Record<string, unknown>;
+  try {
+    const content = await fs.readFile(filePath, "utf8");
+    const parsed = matter(content);
+    const fm = parsed.data as Record<string, unknown>;
 
-		const validation = workflowValidator.validate(fm, parsed.content);
-		if (!validation.isValid) {
-			logger.warn({ file: filePath, errors: validation.errors }, "Workflow validation failed");
-			return null;
-		}
+    const validation = workflowValidator.validate(fm, parsed.content);
+    if (!validation.isValid) {
+      logger.warn({ file: filePath, errors: validation.errors }, "Workflow validation failed");
+      return null;
+    }
 
-		const data = workflowFrontmatterSchema.parse(fm);
+    const data = workflowFrontmatterSchema.parse(fm);
 
-		return {
-			title: data.title,
-			description: data.description,
-			model: data.model,
-			effort: data.effort,
-			maxTokens: data.maxTokens,
-			notification: data.notification ?? "notify",
-			fields: data.fields.map((field) => ({
-				...field,
-				options: field.options?.map(String),
-			})),
-			body: parsed.content,
-		};
-	} catch (err) {
-		logger.error({ file: filePath, err }, "Failed to parse workflow file");
-		return null;
-	}
+    return {
+      title: data.title,
+      description: data.description,
+      model: data.model,
+      effort: data.effort,
+      maxTokens: data.maxTokens,
+      notification: data.notification ?? "notify",
+      fields: data.fields.map((field) => ({
+        ...field,
+        options: field.options?.map(String),
+      })),
+      body: parsed.content,
+    };
+  } catch (err) {
+    logger.error({ file: filePath, err }, "Failed to parse workflow file");
+    return null;
+  }
 }
 
 async function upsertWorkflowRow(filename: string, config: WorkflowConfig, userId: string): Promise<void> {
-	await prisma.workflow.upsert({
-		where: { filename },
-		create: {
-			filename,
-			title: config.title,
-			description: config.description ?? null,
-			model: config.model ?? "claude-haiku-4-5",
-			effort: config.effort ?? "low",
-			maxTokens: config.maxTokens ?? null,
-			fieldsJson: JSON.stringify(config.fields),
-			fileExists: true,
-			userId,
-		},
-		update: {
-			title: config.title,
-			description: config.description ?? null,
-			model: config.model ?? "claude-haiku-4-5",
-			effort: config.effort ?? "low",
-			maxTokens: config.maxTokens ?? null,
-			fieldsJson: JSON.stringify(config.fields),
-			fileExists: true,
-		},
-	});
+  await prisma.workflow.upsert({
+    where: { filename },
+    create: {
+      filename,
+      title: config.title,
+      description: config.description ?? null,
+      model: config.model ?? "claude-haiku-4-5",
+      effort: config.effort ?? "low",
+      maxTokens: config.maxTokens ?? null,
+      fieldsJson: JSON.stringify(config.fields),
+      fileExists: true,
+      userId,
+    },
+    update: {
+      title: config.title,
+      description: config.description ?? null,
+      model: config.model ?? "claude-haiku-4-5",
+      effort: config.effort ?? "low",
+      maxTokens: config.maxTokens ?? null,
+      fieldsJson: JSON.stringify(config.fields),
+      fileExists: true,
+    },
+  });
 }
 
 // ── Eager initialization ─────────────────────────────────────────────
@@ -241,13 +241,13 @@ void initWorkflowWatcher();
 
 // ── Cleanup ──────────────────────────────────────────────────────────
 function handleShutdown() {
-	void closeWorkflowWatcher();
+  void closeWorkflowWatcher();
 }
 process.on("SIGTERM", handleShutdown);
 process.on("SIGINT", handleShutdown);
 
 if (import.meta.hot) {
-	import.meta.hot.dispose(() => {
-		void closeWorkflowWatcher();
-	});
+  import.meta.hot.dispose(() => {
+    void closeWorkflowWatcher();
+  });
 }

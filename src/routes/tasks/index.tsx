@@ -9,50 +9,50 @@ import { getSession } from "#/lib/auth.functions";
 import { getTasksPageData } from "#/lib/task.functions";
 
 export const Route = createFileRoute("/tasks/")({
-	beforeLoad: async () => {
-		const session = await getSession();
-		if (!session) {
-			throw redirect({ to: "/login" });
-		}
-	},
-	loader: async () => {
-		return await getTasksPageData();
-	},
-	component: TasksPage,
+  beforeLoad: async () => {
+    const session = await getSession();
+    if (!session) {
+      throw redirect({ to: "/login" });
+    }
+  },
+  loader: async () => {
+    return await getTasksPageData();
+  },
+  component: TasksPage,
 });
 
 function TasksPage() {
-	const data = Route.useLoaderData();
+  const data = Route.useLoaderData();
 
-	return (
-		<main className="relative overflow-hidden">
-			<GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
+  return (
+    <main className="relative overflow-hidden">
+      <GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
 
-			<div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-				<section className="mb-8">
-					<SectionLabel icon={CalendarClock} color="text-[var(--teal)]">
-						Tasks
-					</SectionLabel>
-					<h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
-						Periodic <span className="text-[var(--teal)]">tasks</span>
-					</h1>
-					<p className="max-w-2xl text-sm text-muted-foreground">
-						Scheduled AI tasks that run automatically on a cron schedule.
-					</p>
-				</section>
+      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
+        <section className="mb-8">
+          <SectionLabel icon={CalendarClock} color="text-[var(--teal)]">
+            Tasks
+          </SectionLabel>
+          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            Periodic <span className="text-[var(--teal)]">tasks</span>
+          </h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Scheduled AI tasks that run automatically on a cron schedule.
+          </p>
+        </section>
 
-				{data.cronDisabled && (
-					<Alert variant="destructive" className="mb-6">
-						<AlertTriangle className="size-4" />
-						<AlertDescription>
-							The task scheduler is globally disabled (<code className="text-xs">DISABLE_CRON=true</code>). Tasks will not
-							run automatically. You can still trigger them manually.
-						</AlertDescription>
-					</Alert>
-				)}
+        {data.cronDisabled && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTriangle className="size-4" />
+            <AlertDescription>
+              The task scheduler is globally disabled (<code className="text-xs">DISABLE_CRON=true</code>). Tasks will not
+              run automatically. You can still trigger them manually.
+            </AlertDescription>
+          </Alert>
+        )}
 
-				{data.items.length === 0 ? <TaskEmptyState /> : <TaskTable items={data.items} />}
-			</div>
-		</main>
-	);
+        {data.items.length === 0 ? <TaskEmptyState /> : <TaskTable items={data.items} />}
+      </div>
+    </main>
+  );
 }
