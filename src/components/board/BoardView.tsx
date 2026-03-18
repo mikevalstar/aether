@@ -1,6 +1,6 @@
 import { move } from "@dnd-kit/helpers";
 import { DragDropProvider } from "@dnd-kit/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { KanbanColumn, KanbanTask } from "#/lib/board/kanban-parser";
 import { BoardColumn } from "./BoardColumn";
 
@@ -44,22 +44,23 @@ export function BoardView({ columns: serverColumns, onAddTask, onRemoveTask, onM
   const [columns, setColumns] = useState(serverColumns);
   const [isDragging, setIsDragging] = useState(false);
   const dragOrigin = useRef<{ column: string; index: number } | null>(null);
+  const columnsRef = useRef(columns);
+  columnsRef.current = columns;
 
   // Sync from server when not dragging
-  if (serverColumns !== columns && !isDragging) {
-    setColumns(serverColumns);
-  }
+  useEffect(() => {
+    if (!isDragging) {
+      setColumns(serverColumns);
+    }
+  }, [serverColumns, isDragging]);
 
-  const findTaskColumn = useCallback(
-    (taskId: string) => {
-      for (const col of columns) {
-        const idx = col.tasks.findIndex((t) => t.id === taskId);
-        if (idx !== -1) return { column: col.name, index: idx };
-      }
-      return null;
-    },
-    [columns],
-  );
+  const findTaskColumn = useCallback((taskId: string) => {
+    for (const col of columnsRef.current) {
+      const idx = col.tasks.findIndex((t) => t.id === taskId);
+      if (idx !== -1) return { column: col.name, index: idx };
+    }
+    return null;
+  }, []);
 
   return (
     <DragDropProvider

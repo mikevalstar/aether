@@ -11,11 +11,10 @@ interface BoardTaskProps {
 }
 
 export function BoardTask({ task, columnName, index, onRemove }: BoardTaskProps) {
-  const { ref, isDragging } = useSortable({
+  const { ref, handleRef, isDragging } = useSortable({
     id: task.id,
     index,
     type: "item",
-    accept: "item",
     group: columnName,
     transition: { duration: 200, easing: "cubic-bezier(0.25, 1, 0.5, 1)" },
   });
@@ -28,7 +27,10 @@ export function BoardTask({ task, columnName, index, onRemove }: BoardTaskProps)
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
     >
-      <span className="mt-0.5 shrink-0 cursor-grab text-muted-foreground/50 hover:text-muted-foreground active:cursor-grabbing">
+      <span
+        ref={handleRef}
+        className="mt-0.5 shrink-0 cursor-grab text-muted-foreground/50 hover:text-muted-foreground active:cursor-grabbing"
+      >
         <GripVertical className="size-3.5" />
       </span>
       <span className="flex-1 break-words">{task.text}</span>
