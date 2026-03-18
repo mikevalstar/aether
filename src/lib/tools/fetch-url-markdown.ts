@@ -59,7 +59,7 @@ export const fetchUrlMarkdown = tool({
       let markdown = turndown.turndown(article.content);
 
       if (markdown.length > MAX_CONTENT_LENGTH) {
-        markdown = markdown.slice(0, MAX_CONTENT_LENGTH) + "\n\n[Content truncated due to length]";
+        markdown = `${markdown.slice(0, MAX_CONTENT_LENGTH)}\n\n[Content truncated due to length]`;
       }
 
       return {

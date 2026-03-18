@@ -170,6 +170,7 @@ export function CalendarWidget({ events, children }: Props) {
 
           {/* Day cells */}
           <TooltipProvider>
+            {/* biome-ignore lint/a11y/useSemanticElements: CSS grid calendar can't use <table> */}
             <div ref={gridRef} className="grid grid-cols-7" role="grid" aria-label="Calendar" onKeyDown={handleKeyDown}>
               {days.map((day) => {
                 const dayEvents = eventsForDay(day);
@@ -179,6 +180,7 @@ export function CalendarWidget({ events, children }: Props) {
                 const hasEvents = dayEvents.length > 0;
 
                 const cell = (
+                  // biome-ignore lint/a11y/useSemanticElements: CSS grid calendar can't use <td>
                   <button
                     key={day.toISOString()}
                     type="button"
