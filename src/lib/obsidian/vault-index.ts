@@ -4,6 +4,7 @@ import chokidar from "chokidar";
 import Fuse from "fuse.js";
 import matter from "gray-matter";
 import { logger } from "#/lib/logger";
+import { startupTimer } from "#/lib/startup-timer";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -63,8 +64,10 @@ const REBUILD_DEBOUNCE_MS = 300;
 export function initVaultIndex(): Promise<void> {
   if (initPromise) return initPromise;
 
+  const done = startupTimer("vault index");
   const root = getObsidianRoot();
   if (!root) {
+    done.skip("no obsidian dir configured");
     initPromise = Promise.resolve();
     return initPromise;
   }
@@ -99,6 +102,7 @@ export function initVaultIndex(): Promise<void> {
       .on("ready", () => {
         isReady = true;
         rebuildFuseIndex();
+        done({ noteCount: notes.size });
         resolve();
       })
       .on("error", (err: unknown) => {

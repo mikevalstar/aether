@@ -6,6 +6,7 @@ import matter from "gray-matter";
 import { prisma } from "#/db";
 import { taskFrontmatterSchema, taskValidator } from "#/lib/ai-config-validators/task";
 import { logger } from "#/lib/logger";
+import { startupTimer } from "#/lib/startup-timer";
 import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
 import { executeTask, type TaskConfig } from "#/lib/task-executor";
 
@@ -92,9 +93,10 @@ export async function closeScheduler(): Promise<void> {
 // ── Init ─────────────────────────────────────────────────────────────
 
 async function doInit(): Promise<void> {
+  const done = startupTimer("task scheduler");
   const tasksDir = getTasksDir();
   if (!tasksDir) {
-    logger.info("No AI config dir configured, skipping task scheduler");
+    done.skip("no AI config dir configured");
     return;
   }
 
@@ -115,7 +117,7 @@ async function doInit(): Promise<void> {
   try {
     files = await fs.readdir(tasksDir);
   } catch {
-    logger.warn({ dir: tasksDir }, "Cannot read tasks directory");
+    done.skip("cannot read tasks directory", { dir: tasksDir });
     return;
   }
 
@@ -126,7 +128,7 @@ async function doInit(): Promise<void> {
   });
 
   if (!adminUser) {
-    logger.warn("No admin user found, skipping task scheduler init");
+    done.skip("no admin user found");
     return;
   }
 
@@ -196,7 +198,7 @@ async function doInit(): Promise<void> {
   startSystemTasks();
 
   const taskCount = tasks.size;
-  logger.info({ taskCount, dir: tasksDir }, `Task scheduler initialized with ${taskCount} task(s)`);
+  done({ taskCount, dir: tasksDir });
 }
 
 // ── File Handlers ────────────────────────────────────────────────────

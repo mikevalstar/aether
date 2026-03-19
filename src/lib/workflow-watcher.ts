@@ -5,6 +5,7 @@ import matter from "gray-matter";
 import { prisma } from "#/db";
 import { workflowFrontmatterSchema, workflowValidator } from "#/lib/ai-config-validators/workflow";
 import { logger } from "#/lib/logger";
+import { startupTimer } from "#/lib/startup-timer";
 import type { WorkflowConfig } from "#/lib/workflow-executor";
 
 // ── State ────────────────────────────────────────────────────────────
@@ -43,9 +44,10 @@ export async function closeWorkflowWatcher(): Promise<void> {
 // ── Init ─────────────────────────────────────────────────────────────
 
 async function doInit(): Promise<void> {
+  const done = startupTimer("workflow watcher");
   const workflowsDir = getWorkflowsDir();
   if (!workflowsDir) {
-    logger.info("No AI config dir configured, skipping workflow watcher");
+    done.skip("no AI config dir configured");
     return;
   }
 
@@ -61,7 +63,7 @@ async function doInit(): Promise<void> {
   try {
     files = await fs.readdir(workflowsDir);
   } catch {
-    logger.warn({ dir: workflowsDir }, "Cannot read workflows directory");
+    done.skip("cannot read workflows directory", { dir: workflowsDir });
     return;
   }
 
@@ -72,7 +74,7 @@ async function doInit(): Promise<void> {
   });
 
   if (!adminUser) {
-    logger.warn("No admin user found, skipping workflow watcher init");
+    done.skip("no admin user found");
     return;
   }
 
@@ -127,7 +129,7 @@ async function doInit(): Promise<void> {
     });
 
   const count = workflows.size;
-  logger.info({ count, dir: workflowsDir }, `Workflow watcher initialized with ${count} workflow(s)`);
+  done({ count, dir: workflowsDir });
 }
 
 // ── File Handlers ────────────────────────────────────────────────────
