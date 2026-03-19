@@ -17,6 +17,24 @@ Documentation is very important in this project. Make sure requirements are upda
 - we use `pnpm` over `npm`, including `pnpx`
 - **Do NOT run `pnpm dev`** — the dev server is always running locally during development. Running it again will hang the process.
 
+### Dev Server Status & Logs
+
+**Check if dev server is running:**
+```bash
+lsof -i :3000 -sTCP:LISTEN  # look for a LISTEN entry on port 3000
+```
+
+**Read recent app logs** (server-side pino logs — JSON, daily-rotated):
+```bash
+tail -50 logs/aether.$(date +%Y-%m-%d).1.log          # last 50 lines of today's log
+tail -50 logs/aether.$(date +%Y-%m-%d).1.log | jq .msg # just the messages
+```
+
+**Read recent Vite logs** (HMR, compile, warnings — plain text):
+```bash
+tail -50 logs/vite.log
+```
+
 ```bash
 pnpm dev          # Start dev server on port 3000
 pnpm build        # Production build
