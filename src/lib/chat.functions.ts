@@ -17,6 +17,7 @@ type ChatThreadInput = {
 
 type CreateThreadInput = {
   model?: string;
+  effort?: string;
 };
 
 type UpdateThreadModelInput = {
@@ -91,12 +92,14 @@ export const createChatThread = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const model = data.model && isChatModel(data.model) ? data.model : DEFAULT_CHAT_MODEL;
+    const effort = data.effort && isChatEffort(data.effort) ? data.effort : DEFAULT_CHAT_EFFORT;
 
     const thread = await prisma.chatThread.create({
       data: {
         id: `thread_${crypto.randomUUID()}`,
         userId: session.user.id,
         model,
+        effort,
       },
     });
 

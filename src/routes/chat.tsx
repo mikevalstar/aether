@@ -72,8 +72,8 @@ function ChatPage() {
   const selectedThread = data.selectedThread;
 
   const handleCreateThread = useCallback(
-    async (model: string, firstMessage?: string) => {
-      const createdThread = await createChatThread({ data: { model } });
+    async (model: string, firstMessage?: string, effort?: string) => {
+      const createdThread = await createChatThread({ data: { model, effort } });
 
       if (typeof window !== "undefined") {
         const key = `${PENDING_MESSAGE_KEY}:${createdThread.id}`;
@@ -326,14 +326,18 @@ function ChatPage() {
             ) : (
               <ChatEmptyState
                 model={emptyStateModel}
+                effort={emptyStateEffort}
                 modelLabel={currentModelDef?.label ?? "Claude"}
                 disabled={isBusy}
                 onModelChange={(value) => {
                   setDraftModel(value as (typeof CHAT_MODELS)[number]["id"]);
                 }}
+                onEffortChange={(value) => {
+                  setDraftEffort(value as ChatEffort);
+                }}
                 onSend={(message) => {
                   startTransition(() => {
-                    void handleCreateThread(emptyStateModel, message);
+                    void handleCreateThread(emptyStateModel, message, emptyStateEffort);
                   });
                 }}
               />
@@ -370,11 +374,9 @@ function ChatPage() {
               type="button"
               size="sm"
               onClick={() => {
-                startTransition(() => {
-                  void handleCreateThread(DEFAULT_CHAT_MODEL);
-                });
+                void navigate({ search: {} });
               }}
-              disabled={isBusy}
+              disabled={isBusy || !selectedThread}
               className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
             >
               <MessageSquarePlusIcon className="size-4" />
@@ -398,11 +400,9 @@ function ChatPage() {
                   size="sm"
                   onClick={() => {
                     setMobileDrawerOpen(false);
-                    startTransition(() => {
-                      void handleCreateThread(DEFAULT_CHAT_MODEL);
-                    });
+                    void navigate({ search: {} });
                   }}
-                  disabled={isBusy}
+                  disabled={isBusy || !selectedThread}
                   className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
                 >
                   <MessageSquarePlusIcon className="size-4" />

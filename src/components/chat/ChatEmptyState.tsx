@@ -4,24 +4,35 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
-import { CHAT_MODELS, type ChatModel } from "#/lib/chat";
+import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatEffort, type ChatModel } from "#/lib/chat";
+
+const EFFORT_LABELS: Record<ChatEffort, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+};
 
 export interface ChatEmptyStateProps {
   model: ChatModel;
+  effort?: ChatEffort;
   modelLabel?: string;
   disabled?: boolean;
   onModelChange?: (model: string) => void;
+  onEffortChange?: (effort: string) => void;
   onSend?: (message: string) => void;
 }
 
 export function ChatEmptyState({
   model,
+  effort = "low",
   modelLabel = "Claude",
   disabled = false,
   onModelChange,
+  onEffortChange,
   onSend,
 }: ChatEmptyStateProps) {
   const [message, setMessage] = useState("");
+  const currentModelSupportsEffort = CHAT_MODELS.find((m) => m.id === model)?.supportsEffort ?? false;
 
   function handleSend() {
     const trimmed = message.trim();
@@ -45,7 +56,7 @@ export function ChatEmptyState({
           </p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center gap-2">
           <Select value={model} onValueChange={(value) => onModelChange?.(value)} disabled={disabled}>
             <SelectTrigger className="w-auto min-w-48 border-[var(--teal)]/30 bg-[var(--teal-subtle)] font-semibold text-[var(--teal)]">
               <SelectValue placeholder="Choose model" />
@@ -63,6 +74,21 @@ export function ChatEmptyState({
               ))}
             </SelectContent>
           </Select>
+
+          {currentModelSupportsEffort && (
+            <Select value={effort} onValueChange={(value) => onEffortChange?.(value)} disabled={disabled}>
+              <SelectTrigger className="w-auto min-w-24 border-[var(--coral)]/30 bg-[var(--coral)]/8 font-semibold text-[var(--coral)] hover:bg-[var(--coral)]/12">
+                <SelectValue placeholder="Effort" />
+              </SelectTrigger>
+              <SelectContent>
+                {CHAT_EFFORT_LEVELS.map((level) => (
+                  <SelectItem key={level} value={level}>
+                    {EFFORT_LABELS[level]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="relative">
