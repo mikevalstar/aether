@@ -76,6 +76,16 @@ pnpm storybook        # Start Storybook dev server on port 6006
 pnpm build-storybook  # Build static Storybook site
 ```
 
+## Available CLI Tools
+
+The following tools are available on this machine:
+- **gh** — GitHub CLI for PRs, issues, repos
+- **rg** — ripgrep for fast content searching
+- **jq** — JSON processor for parsing logs and data
+- **fzf** — fuzzy finder for interactive selection
+- **fd** — fast alternative to `find`
+- **pandoc** — document conversion
+
 ## Decisions
 
 Architecture decisions are documented in `docs/decisions/`. When making significant architectural choices, add a new decision record there.
