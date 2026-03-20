@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { CalendarWidget } from "#/components/calendar/CalendarWidget";
+import { NextEventCard } from "#/components/calendar/NextEventCard";
 import { Button } from "#/components/ui/button";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
@@ -89,6 +90,7 @@ function DashboardPage() {
           <section className="mb-12">
             <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Calendar</h2>
             <CalendarWidget events={calendarEvents}>
+              <NextEventCard events={calendarEvents} />
               <div className="mt-8">
                 <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quick actions</h2>
                 <div className="grid gap-3 sm:grid-cols-2">

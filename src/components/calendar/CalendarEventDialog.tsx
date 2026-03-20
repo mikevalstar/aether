@@ -3,15 +3,8 @@ import { Calendar, Clock, ExternalLink, Globe, Link2, MapPin, Users, Video } fro
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#/components/ui/dialog";
+import { collectMeetLinks } from "#/lib/calendar/meet-links";
 import type { CalendarEvent } from "#/lib/calendar/types";
-
-const TEAMS_MEET_REGEX = /(?:Join[:\s]+)?https:\/\/teams\.microsoft\.com\/meet\/[^\s<>"]+/gi;
-
-function extractTeamsLink(description: string | undefined): string | undefined {
-  if (!description) return undefined;
-  const match = description.match(TEAMS_MEET_REGEX);
-  return match?.[0];
-}
 
 type Props = {
   event: CalendarEvent | null;
@@ -21,11 +14,7 @@ type Props = {
 
 export function CalendarEventDialog({ event, open, onClose }: Props) {
   const isCancelled = event?.status === "CANCELLED";
-  const teamsLink = extractTeamsLink(event?.description);
-  const meetLinks = [
-    event?.meetLink ? { url: event.meetLink, type: "google" as const } : null,
-    teamsLink ? { url: teamsLink, type: "teams" as const } : null,
-  ].filter((l): l is { url: string; type: "google" | "teams" } => l !== null);
+  const meetLinks = collectMeetLinks(event?.meetLink, event?.description);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -155,7 +144,9 @@ export function CalendarEventDialog({ event, open, onClose }: Props) {
                                 : "var(--muted-foreground)",
                         }}
                       />
-                      <span className="max-w-[120px] truncate">{attendee.name || attendee.email.split("@")[0]}</span>
+                      <span className="max-w-[120px] truncate">
+                        {attendee.name?.replace(/\\,/g, ",") || attendee.email.split("@")[0]}
+                      </span>
                     </span>
                   ))}
                   {event.attendees.length > 8 && (
