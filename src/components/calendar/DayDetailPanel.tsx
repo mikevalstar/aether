@@ -3,6 +3,7 @@ import { Clock, MapPin, Users, Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CalendarEvent } from "#/lib/calendar/types";
 import { cn } from "#/lib/utils";
+import { CalendarEventDialog } from "./CalendarEventDialog";
 
 type Props = {
   date: Date;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function DayDetailPanel({ date, events }: Props) {
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const allDayEvents = events.filter((e) => e.allDay);
   const timedEvents = events.filter((e) => !e.allDay);
   const uniqueCalendars = new Set(events.map((e) => e.calendarName));
@@ -50,16 +52,31 @@ export function DayDetailPanel({ date, events }: Props) {
         <div className="min-h-0 overflow-y-auto px-4 pb-4">
           <div className="grid gap-1.5">
             {timedEvents.map((event) => (
-              <EventCard key={event.uid} event={event} showCalendarName={showCalendarName} />
+              <EventCard
+                key={event.uid}
+                event={event}
+                showCalendarName={showCalendarName}
+                onClick={() => setSelectedEvent(event)}
+              />
             ))}
           </div>
         </div>
       )}
+
+      <CalendarEventDialog event={selectedEvent} open={!!selectedEvent} onClose={() => setSelectedEvent(null)} />
     </div>
   );
 }
 
-function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCalendarName: boolean }) {
+function EventCard({
+  event,
+  showCalendarName,
+  onClick,
+}: {
+  event: CalendarEvent;
+  showCalendarName: boolean;
+  onClick: () => void;
+}) {
   const startTime = format(new Date(event.start), "h:mm a");
   const endTime = format(new Date(event.end), "h:mm a");
   const isCancelled = event.status === "CANCELLED";
@@ -76,13 +93,15 @@ function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCale
   const attendeeCount = attendeeNames?.length || 0;
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
-        "min-w-0 rounded-md border-l-2 bg-accent/50 p-2 text-xs transition-opacity",
+        "min-w-0 w-full cursor-pointer rounded-md border-l-2 bg-accent/50 p-2 text-left text-xs transition-opacity hover:bg-accent/70",
         eventPast && "opacity-45",
         isCancelled && "opacity-40 line-through decoration-muted-foreground/50",
       )}
       style={{ borderLeftColor: event.color }}
+      onClick={onClick}
     >
       <div className="flex items-start justify-between gap-1">
         <p className="truncate font-medium leading-tight" title={event.title}>
@@ -127,6 +146,6 @@ function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCale
       )}
 
       {showCalendarName && <p className="mt-1 text-muted-foreground/70">{event.calendarName}</p>}
-    </div>
+    </button>
   );
 }
