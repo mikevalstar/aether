@@ -174,6 +174,10 @@ export default function Header({ serverSession }: HeaderProps) {
                   <Settings className="mr-2 size-4" />
                   Settings
                 </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => void navigate({ to: "/settings/password" })}>
+                  <Settings className="mr-2 size-4" />
+                  Password
+                </DropdownMenuItem>
                 {session.user.role === "admin" && (
                   <DropdownMenuItem onSelect={() => void navigate({ to: "/users" })}>
                     <Users className="mr-2 size-4" />
