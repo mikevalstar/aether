@@ -31,7 +31,6 @@ const baseState: MentionState = {
   isOpen: true,
   results: mockResults,
   selectedIndex: 0,
-  position: null,
 };
 
 export const Default: Story = {
@@ -61,14 +60,14 @@ export const SingleResult: Story = {
 
 export const Closed: Story = {
   args: {
-    state: { isOpen: false, results: [], selectedIndex: 0, position: null },
+    state: { isOpen: false, results: [], selectedIndex: 0 },
     onSelect: () => {},
   },
 };
 
 export const EmptyResults: Story = {
   args: {
-    state: { isOpen: true, results: [], selectedIndex: 0, position: null },
+    state: { isOpen: true, results: [], selectedIndex: 0 },
     onSelect: () => {},
   },
 };

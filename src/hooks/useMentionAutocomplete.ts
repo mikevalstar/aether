@@ -5,7 +5,6 @@ export type MentionState = {
   isOpen: boolean;
   results: ObsidianMentionResult[];
   selectedIndex: number;
-  position: { top: number; left: number } | null;
 };
 
 type UseMentionAutocompleteOptions = {
@@ -25,7 +24,6 @@ export function useMentionAutocomplete({ textareaRef, onValueChange }: UseMentio
     isOpen: false,
     results: [],
     selectedIndex: 0,
-    position: null,
   });
 
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -33,7 +31,7 @@ export function useMentionAutocomplete({ textareaRef, onValueChange }: UseMentio
   const mentionStartRef = useRef<number>(-1);
 
   const close = useCallback(() => {
-    setState((s) => ({ ...s, isOpen: false, results: [], selectedIndex: 0, position: null }));
+    setState((s) => ({ ...s, isOpen: false, results: [], selectedIndex: 0 }));
     mentionStartRef.current = -1;
   }, []);
 
@@ -62,17 +60,6 @@ export function useMentionAutocomplete({ textareaRef, onValueChange }: UseMentio
     return null;
   }, []);
 
-  /**
-   * Compute popover position based on the textarea and caret.
-   * We position the popover above the textarea's bottom-left as a simple approach,
-   * since getting exact caret pixel coordinates in a textarea is complex.
-   */
-  const computePosition = useCallback((textarea: HTMLTextAreaElement) => {
-    const rect = textarea.getBoundingClientRect();
-    // Position above the textarea
-    return { top: rect.top, left: rect.left };
-  }, []);
-
   /** Called on every input/change in the textarea */
   const handleInput = useCallback(() => {
     const textarea = textareaRef.current;
@@ -96,7 +83,6 @@ export function useMentionAutocomplete({ textareaRef, onValueChange }: UseMentio
             isOpen: true,
             results,
             selectedIndex: 0,
-            position: computePosition(textarea),
           }));
         })
         .catch(() => {
@@ -110,7 +96,6 @@ export function useMentionAutocomplete({ textareaRef, onValueChange }: UseMentio
         ...s,
         isOpen: true,
         selectedIndex: 0,
-        position: computePosition(textarea),
       }));
       fetchResults();
       return;
@@ -119,7 +104,7 @@ export function useMentionAutocomplete({ textareaRef, onValueChange }: UseMentio
     // Debounced search for non-empty queries
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(fetchResults, 200);
-  }, [textareaRef, extractMentionQuery, computePosition, close]);
+  }, [textareaRef, extractMentionQuery, close]);
 
   /** Select a mention result and insert it into the textarea */
   const selectMention = useCallback(
