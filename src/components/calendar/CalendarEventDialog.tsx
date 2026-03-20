@@ -5,6 +5,14 @@ import { Button } from "#/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#/components/ui/dialog";
 import type { CalendarEvent } from "#/lib/calendar/types";
 
+const TEAMS_MEET_REGEX = /(?:Join[:\s]+)?https:\/\/teams\.microsoft\.com\/meet\/[^\s<>"]+/gi;
+
+function extractTeamsLink(description: string | undefined): string | undefined {
+  if (!description) return undefined;
+  const match = description.match(TEAMS_MEET_REGEX);
+  return match?.[0];
+}
+
 type Props = {
   event: CalendarEvent | null;
   open: boolean;
@@ -13,6 +21,11 @@ type Props = {
 
 export function CalendarEventDialog({ event, open, onClose }: Props) {
   const isCancelled = event?.status === "CANCELLED";
+  const teamsLink = extractTeamsLink(event?.description);
+  const meetLinks = [
+    event?.meetLink ? { url: event.meetLink, type: "google" as const } : null,
+    teamsLink ? { url: teamsLink, type: "teams" as const } : null,
+  ].filter((l): l is { url: string; type: "google" | "teams" } => l !== null);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -66,17 +79,23 @@ export function CalendarEventDialog({ event, open, onClose }: Props) {
             </div>
           )}
 
-          {event?.meetLink && (
+          {meetLinks.length > 0 && (
             <div className="flex items-start gap-3">
               <Video className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <a
-                href={event.meetLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-[var(--teal)] hover:underline"
-              >
-                Join meeting
-              </a>
+              <div className="flex flex-col gap-1">
+                {meetLinks.map((link) => (
+                  <a
+                    key={link.url}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-sm text-[var(--teal)] hover:underline"
+                  >
+                    Join {link.type === "teams" ? "Teams" : "Google Meet"} meeting
+                    <ExternalLink className="size-3" />
+                  </a>
+                ))}
+              </div>
             </div>
           )}
 
@@ -149,12 +168,28 @@ export function CalendarEventDialog({ event, open, onClose }: Props) {
             </div>
           )}
 
-          {event?.meetLink && (
+          {meetLinks.length === 1 && (
             <div className="pt-2">
               <Button asChild className="w-full gap-2">
-                <a href={event.meetLink} target="_blank" rel="noopener noreferrer">
+                <a href={meetLinks[0].url} target="_blank" rel="noopener noreferrer">
                   <Video className="size-4" />
                   Join Meeting
+                </a>
+              </Button>
+            </div>
+          )}
+          {meetLinks.length === 2 && (
+            <div className="flex gap-2 pt-2">
+              <Button asChild className="flex-1 gap-2">
+                <a href={meetLinks[0].url} target="_blank" rel="noopener noreferrer">
+                  <Video className="size-4" />
+                  Join Google
+                </a>
+              </Button>
+              <Button asChild className="flex-1 gap-2">
+                <a href={meetLinks[1].url} target="_blank" rel="noopener noreferrer">
+                  <Video className="size-4" />
+                  Join Teams
                 </a>
               </Button>
             </div>
