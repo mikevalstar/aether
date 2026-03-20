@@ -51,15 +51,15 @@ export function WorkflowCard({ item }: { item: WorkflowListItem }) {
 
   return (
     <Link to="/workflows/$" params={{ _splat: item.filename }} className="no-underline">
-      <Card className={`transition-colors hover:bg-muted/50 ${dimmed ? "opacity-50" : ""}`}>
+      <Card className={`flex h-full flex-col transition-colors hover:bg-muted/50 ${dimmed ? "opacity-50" : ""}`}>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-2">
             <CardTitle className="text-base">{item.title}</CardTitle>
             <StatusBadge status={item.lastRunStatus} />
           </div>
-          {item.description && <CardDescription className="text-xs">{item.description}</CardDescription>}
+          {item.description && <CardDescription className="line-clamp-3 text-xs">{item.description}</CardDescription>}
         </CardHeader>
-        <CardContent>
+        <CardContent className="mt-auto">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <FormInput className="size-3" />
