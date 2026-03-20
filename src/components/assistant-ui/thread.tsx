@@ -22,7 +22,7 @@ import {
   RefreshCwIcon,
   SquareIcon,
 } from "lucide-react";
-import type { FC } from "react";
+import { type FC, useCallback, useRef } from "react";
 import { ComposerAddAttachment, ComposerAttachments, UserMessageAttachments } from "#/components/assistant-ui/attachment";
 import { MarkdownText } from "#/components/assistant-ui/markdown-text";
 import {
@@ -33,7 +33,9 @@ import {
   ToolInspectorProvider,
 } from "#/components/assistant-ui/tool-inspector";
 import { TooltipIconButton } from "#/components/assistant-ui/tooltip-icon-button";
+import { MentionPopover } from "#/components/mentions/MentionPopover";
 import { Button } from "#/components/ui/button";
+import { useMentionAutocomplete } from "#/hooks/useMentionAutocomplete";
 import { cn } from "#/lib/utils";
 
 export const Thread: FC = () => {
@@ -139,20 +141,35 @@ const ThreadSuggestionItem: FC = () => {
 };
 
 const Composer: FC = () => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { mentionState, handleMentionInput, handleMentionKeyDown, selectMention } = useMentionAutocomplete({ textareaRef });
+
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      handleMentionKeyDown(e);
+    },
+    [handleMentionKeyDown],
+  );
+
   return (
     <ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col">
       <ComposerPrimitive.AttachmentDropzone asChild>
         <div
           data-slot="composer-shell"
-          className="flex w-full flex-col gap-2 rounded-(--composer-radius) border bg-background p-(--composer-padding) transition-shadow focus-within:border-ring/75 focus-within:ring-2 focus-within:ring-ring/20 data-[dragging=true]:border-ring data-[dragging=true]:border-dashed data-[dragging=true]:bg-accent/50"
+          className="relative flex w-full flex-col gap-2 rounded-(--composer-radius) border bg-background p-(--composer-padding) transition-shadow focus-within:border-ring/75 focus-within:ring-2 focus-within:ring-ring/20 data-[dragging=true]:border-ring data-[dragging=true]:border-dashed data-[dragging=true]:bg-accent/50"
         >
           <ComposerAttachments />
+          <MentionPopover state={mentionState} onSelect={selectMention} />
           <ComposerPrimitive.Input
+            ref={textareaRef}
             placeholder="Send a message..."
             className="aui-composer-input max-h-32 min-h-10 w-full resize-none bg-transparent px-1.75 py-1 text-sm outline-none placeholder:text-muted-foreground/80"
             rows={1}
             autoFocus
             aria-label="Message input"
+            onKeyDown={onKeyDown}
+            onInput={handleMentionInput}
+            onClick={handleMentionInput}
           />
           <ComposerAction />
         </div>
