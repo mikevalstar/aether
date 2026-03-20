@@ -18,6 +18,7 @@ const originalWarn = viteLogger.warn.bind(viteLogger);
 const originalError = viteLogger.error.bind(viteLogger);
 
 function writeLog(level: string, msg: string) {
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: intentionally strips ANSI escape codes from logs
   const line = `${new Date().toISOString()} [${level}] ${msg.replace(/\x1b\[[0-9;]*m/g, "").trim()}\n`;
   try {
     appendFileSync(logFile, line);
