@@ -1,3 +1,4 @@
+import { skillValidator } from "./skill";
 import { systemPromptValidator } from "./system-prompt";
 import { taskValidator } from "./task";
 import { taskPromptValidator } from "./task-prompt";
@@ -15,6 +16,7 @@ const validators: AiConfigValidator[] = [
   taskValidator,
   workflowPromptValidator,
   workflowValidator,
+  skillValidator,
 ];
 
 const validatorsByFilename = new Map<string, AiConfigValidator>(

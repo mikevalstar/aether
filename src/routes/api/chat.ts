@@ -34,6 +34,8 @@ import {
 } from "#/lib/chat";
 import { CHAT_MODELS } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
+import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
+import { createLoadSkill } from "#/lib/tools/load-skill";
 
 type TitleGenerationResult = {
   title: string;
@@ -214,7 +216,7 @@ export const Route = createFileRoute("/api/chat")({
         });
 
         const userName = session.user.name || "User";
-        const configuredPrompt = await readSystemPrompt(userName);
+        const [configuredPrompt, skills] = await Promise.all([readSystemPrompt(userName), readAllSkills()]);
 
         if (!configuredPrompt) {
           return new Response("System prompt is not configured", {
@@ -222,7 +224,10 @@ export const Route = createFileRoute("/api/chat")({
           });
         }
 
-        const systemPrompt = configuredPrompt;
+        const systemPrompt = configuredPrompt + buildSkillsPromptSection(skills);
+        if (skills.length > 0) {
+          tools.load_skill = createLoadSkill(skills);
+        }
         const toolNames = Object.keys(tools);
 
         const isAnthropic = modelDef?.provider === "anthropic";
