@@ -60,8 +60,7 @@ function normalizeEvent(vevent: ical.VEvent, feed: CalendarFeed, start: Date, en
 
   // Extract URL / meet link
   const url = paramStr(vevent.url) || undefined;
-  const meetLink =
-    (vevent as Record<string, unknown>)["X-GOOGLE-MEET"] as string | undefined;
+  const meetLink = (vevent as Record<string, unknown>)["X-GOOGLE-MEET"] as string | undefined;
 
   // Extract status
   const status = paramStr(vevent.status) || undefined;

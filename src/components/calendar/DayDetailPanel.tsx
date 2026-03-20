@@ -121,9 +121,7 @@ function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCale
         <p className="mt-0.5 flex min-w-0 items-center gap-1 text-muted-foreground">
           <Users className="size-3 shrink-0" />
           <span className="truncate" title={attendeeNames.join(", ")}>
-            {attendeeCount <= 3
-              ? attendeeNames.join(", ")
-              : `${attendeeNames.slice(0, 2).join(", ")} +${attendeeCount - 2}`}
+            {attendeeCount <= 3 ? attendeeNames.join(", ") : `${attendeeNames.slice(0, 2).join(", ")} +${attendeeCount - 2}`}
           </span>
         </p>
       )}
