@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import chokidar from "chokidar";
-import { Cron } from "croner";
+import { Cron, scheduledJobs } from "croner";
 import matter from "gray-matter";
 import { prisma } from "#/db";
 import { taskFrontmatterSchema, taskValidator } from "#/lib/ai-config-validators/task";
@@ -291,6 +291,13 @@ async function parseTaskFile(filePath: string): Promise<TaskConfig | null> {
 }
 
 function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | null): Cron | null {
+  // Remove any existing croner job with the same name to avoid "name already taken" errors.
+  // This handles cases where stop() didn't fully unregister the name (e.g. paused jobs).
+  const existingByName = scheduledJobs.find((j) => j.name === config.title);
+  if (existingByName) {
+    existingByName.stop();
+  }
+
   if (!config.enabled) {
     // Create a paused job so nextRun is still available
     try {

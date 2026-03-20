@@ -13,6 +13,7 @@ import {
   type ObsidianViewerData,
   toObsidianRoutePath,
 } from "#/lib/obsidian";
+import { getAllIndexedNotes, searchVault } from "#/lib/obsidian/vault-index";
 import { parsePreferences } from "#/lib/preferences";
 
 type ObsidianViewerInput = {
@@ -456,6 +457,43 @@ async function collectFolders(root: string, relative: string, out: string[]) {
     await collectFolders(root, rel, out);
   }
 }
+
+// ── Mention search (for @-mention in chat) ─────────────────────────
+
+export type ObsidianMentionResult = {
+  title: string;
+  relativePath: string;
+  folder: string;
+};
+
+export const searchObsidianMentions = createServerFn({ method: "GET" })
+  .inputValidator((data: { query: string }) => data)
+  .handler(async ({ data }): Promise<ObsidianMentionResult[]> => {
+    await ensureSession();
+
+    const query = data.query.trim();
+
+    // Empty query: return most recently modified notes
+    if (!query) {
+      const allNotes = await getAllIndexedNotes();
+      return allNotes
+        .sort((a, b) => b.mtime - a.mtime)
+        .slice(0, 10)
+        .map((n) => ({
+          title: n.title,
+          relativePath: n.relativePath,
+          folder: n.folder,
+        }));
+    }
+
+    const results = await searchVault(query, 10);
+
+    return results.map((r) => ({
+      title: r.item.title,
+      relativePath: r.item.relativePath,
+      folder: r.item.folder,
+    }));
+  });
 
 function normalizePosix(value: string) {
   return value.replace(/\\/g, "/").replace(/\/+$/, "");

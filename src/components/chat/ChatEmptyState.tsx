@@ -1,9 +1,11 @@
 import { SendIcon, SparklesIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { MentionPopover } from "#/components/mentions/MentionPopover";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
+import { useMentionAutocomplete } from "#/hooks/useMentionAutocomplete";
 import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatEffort, type ChatModel } from "#/lib/chat";
 
 const EFFORT_LABELS: Record<ChatEffort, string> = {
@@ -32,6 +34,11 @@ export function ChatEmptyState({
   onSend,
 }: ChatEmptyStateProps) {
   const [message, setMessage] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { mentionState, handleMentionInput, handleMentionKeyDown, selectMention } = useMentionAutocomplete({
+    textareaRef,
+    onValueChange: setMessage,
+  });
   const currentModelSupportsEffort = CHAT_MODELS.find((m) => m.id === model)?.supportsEffort ?? false;
 
   function handleSend() {
@@ -92,15 +99,26 @@ export function ChatEmptyState({
         </div>
 
         <div className="relative">
+          <MentionPopover state={mentionState} onSelect={selectMention} />
           <Textarea
+            ref={textareaRef}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             onKeyDown={(event) => {
+              // Let mention popover handle keys first
+              if (mentionState.isOpen && mentionState.results.length > 0) {
+                if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(event.key)) {
+                  handleMentionKeyDown(event as React.KeyboardEvent<HTMLTextAreaElement>);
+                  return;
+                }
+              }
               if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
                 handleSend();
               }
             }}
+            onInput={handleMentionInput}
+            onClick={handleMentionInput}
             placeholder="Ask something..."
             className="min-h-32 rounded-xl border-2 border-[var(--line)] bg-[var(--bg)] px-4 py-4 pr-14 text-base transition-colors focus:border-[var(--teal)]"
           />
