@@ -33,8 +33,7 @@ export function getModel(modelId: ChatModel) {
   return anthropic(modelId);
 }
 
-function getAnthropicWebTools(): ToolSet {
-  const webToolVersion = "latest";
+function getAnthropicWebTools(webToolVersion: "latest" | "legacy"): ToolSet {
   return webToolVersion === "latest"
     ? {
         web_fetch: anthropic.tools.webFetch_20260209({
@@ -71,7 +70,7 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
 
   const webToolVersion = getWebToolVersion(model);
   const useExa = webToolVersion === "none";
-  const webTools: ToolSet = useExa ? exaTools : getAnthropicWebTools();
+  const webTools: ToolSet = useExa ? exaTools : getAnthropicWebTools(webToolVersion as "latest" | "legacy");
 
   const boardTools: ToolSet = {
     board_list_columns: createBoardListColumns(userId),

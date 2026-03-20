@@ -52,7 +52,9 @@ export function startSystemTasks(): void {
           unref: true,
         },
         () => {
-          void def.handler();
+          def.handler().catch((err) => {
+            logger.error({ systemTask: def.name, err }, "Unhandled system task error");
+          });
         },
       );
       systemJobs.push(job);

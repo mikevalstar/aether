@@ -16,6 +16,8 @@ export async function syncCalendarFeeds(): Promise<void> {
   });
 
   let totalSynced = 0;
+  let totalFeeds = 0;
+  let skippedNotDue = 0;
 
   for (const user of users) {
     const prefs = parsePreferences(user.preferences);
@@ -23,10 +25,14 @@ export async function syncCalendarFeeds(): Promise<void> {
     if (!feeds || feeds.length === 0) continue;
 
     for (const feed of feeds) {
+      totalFeeds++;
       try {
-        if (!isSyncDue(feed)) continue;
+        if (!isSyncDue(feed)) {
+          skippedNotDue++;
+          continue;
+        }
 
-        logger.info({ feedId: feed.id, feedName: feed.name }, "Syncing calendar feed");
+        logger.info({ feedId: feed.id, feedName: feed.name, feedUrl: feed.url }, "Syncing calendar feed");
         const events = await fetchAndParseIcal(feed);
 
         writeFeedCache({
@@ -39,10 +45,12 @@ export async function syncCalendarFeeds(): Promise<void> {
         totalSynced++;
         logger.info({ feedId: feed.id, eventCount: events.length }, "Calendar feed synced");
       } catch (err) {
-        logger.warn({ feedId: feed.id, feedName: feed.name, err }, "Failed to sync calendar feed, keeping stale cache");
+        logger.error({ feedId: feed.id, feedName: feed.name, feedUrl: feed.url, err }, "Failed to sync calendar feed");
       }
     }
   }
+
+  logger.debug({ totalFeeds, totalSynced, skippedNotDue }, "Calendar sync cycle complete");
 
   if (totalSynced > 0) {
     const adminUser = await prisma.user.findFirst({
