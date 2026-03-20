@@ -38,7 +38,6 @@
     "@dnd-kit/abstract": "^0.3.2",
     "@dnd-kit/helpers": "^0.3.2",
     "@dnd-kit/react": "^0.3.2",
-    "@exalabs/ai-sdk": "^2.0.0",
     "@libsql/client": "^0.17.0",
     "@mozilla/readability": "^0.6.0",
     "@openrouter/ai-sdk-provider": "^2.3.3",

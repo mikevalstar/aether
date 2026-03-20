@@ -1,5 +1,5 @@
 import { format, isToday } from "date-fns";
-import { Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, Users, Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CalendarEvent } from "#/lib/calendar/types";
 import { cn } from "#/lib/utils";
@@ -62,20 +62,46 @@ export function DayDetailPanel({ date, events }: Props) {
 function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCalendarName: boolean }) {
   const startTime = format(new Date(event.start), "h:mm a");
   const endTime = format(new Date(event.end), "h:mm a");
+  const isCancelled = event.status === "CANCELLED";
   // Defer isPast to client to avoid hydration mismatch (server vs client clock)
   const [eventPast, setEventPast] = useState(false);
   useEffect(() => {
     setEventPast(new Date(event.end) < new Date());
   }, [event.end]);
 
+  // Attendee summary: filter out the organizer, show up to 3 names
+  const attendeeNames = event.attendees
+    ?.filter((a) => a.email !== event.organizer?.email)
+    .map((a) => a.name || a.email.split("@")[0]);
+  const attendeeCount = attendeeNames?.length || 0;
+
   return (
     <div
-      className={cn("min-w-0 rounded-md border-l-2 bg-accent/50 p-2 text-xs transition-opacity", eventPast && "opacity-45")}
+      className={cn(
+        "min-w-0 rounded-md border-l-2 bg-accent/50 p-2 text-xs transition-opacity",
+        eventPast && "opacity-45",
+        isCancelled && "opacity-40 line-through decoration-muted-foreground/50",
+      )}
       style={{ borderLeftColor: event.color }}
     >
-      <p className="truncate font-medium leading-tight" title={event.title}>
-        {event.title}
-      </p>
+      <div className="flex items-start justify-between gap-1">
+        <p className="truncate font-medium leading-tight" title={event.title}>
+          {isCancelled && <span className="mr-1 text-destructive no-underline">[Cancelled]</span>}
+          {event.title}
+        </p>
+        {event.meetLink && (
+          <a
+            href={event.meetLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded p-0.5 text-[var(--teal)] hover:bg-[var(--teal-subtle)] transition-colors"
+            title="Join meeting"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Video className="size-3.5" />
+          </a>
+        )}
+      </div>
 
       <p className="mt-1 flex items-center gap-1 text-muted-foreground">
         <Clock className="size-3 shrink-0" />
@@ -87,6 +113,15 @@ function EventCard({ event, showCalendarName }: { event: CalendarEvent; showCale
           <MapPin className="size-3 shrink-0" />
           <span className="truncate" title={event.location}>
             {event.location}
+          </span>
+        </p>
+      )}
+
+      {attendeeCount > 0 && attendeeNames && (
+        <p className="mt-0.5 flex min-w-0 items-center gap-1 text-muted-foreground">
+          <Users className="size-3 shrink-0" />
+          <span className="truncate" title={attendeeNames.join(", ")}>
+            {attendeeCount <= 3 ? attendeeNames.join(", ") : `${attendeeNames.slice(0, 2).join(", ")} +${attendeeCount - 2}`}
           </span>
         </p>
       )}

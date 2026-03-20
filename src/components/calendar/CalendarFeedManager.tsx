@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#
 import type { CalendarFeed } from "#/lib/calendar/types";
 
 const SYNC_INTERVALS = [
+  { label: "1 min", value: 1 },
   { label: "5 min", value: 5 },
   { label: "15 min", value: 15 },
   { label: "30 min", value: 30 },

@@ -6,6 +6,19 @@ export type CalendarFeed = {
   syncInterval: number; // minutes
 };
 
+export type CalendarAttendee = {
+  name?: string;
+  email: string;
+  status?: string; // ACCEPTED, DECLINED, TENTATIVE, NEEDS-ACTION
+  role?: string; // REQ-PARTICIPANT, OPT-PARTICIPANT, CHAIR
+  type?: string; // INDIVIDUAL, ROOM, etc.
+};
+
+export type CalendarOrganizer = {
+  name?: string;
+  email: string;
+};
+
 export type CalendarEvent = {
   uid: string;
   title: string;
@@ -18,6 +31,11 @@ export type CalendarEvent = {
   calendarFeedId: string;
   calendarName: string;
   color: string;
+  status?: string; // CONFIRMED, TENTATIVE, CANCELLED
+  url?: string;
+  meetLink?: string;
+  organizer?: CalendarOrganizer;
+  attendees?: CalendarAttendee[];
 };
 
 export type CachedFeedData = {

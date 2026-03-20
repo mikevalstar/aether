@@ -32,9 +32,6 @@ importers:
       '@dnd-kit/react':
         specifier: ^0.3.2
         version: 0.3.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@exalabs/ai-sdk':
-        specifier: ^2.0.0
-        version: 2.0.0(ai@6.0.116(zod@4.3.6))
       '@libsql/client':
         specifier: ^0.17.0
         version: 0.17.0
@@ -880,11 +877,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@exalabs/ai-sdk@2.0.0':
-    resolution: {integrity: sha512-883EwfpesP37OBp23AQgFMsFYqDAWMeo0i2Kh+Oaz4q9gTj++XCh+K6pJgGC3yMgf6oz116+6MXkerziIut1kg==}
-    peerDependencies:
-      ai: ^6.0.0
 
   '@exodus/bytes@1.15.0':
     resolution: {integrity: sha512-UY0nlA+feH81UGSHv92sLEPLCeZFjXOuHhrIo0HQydScuQc8s0A7kL/UdgwgDq8g8ilksmuoF35YVTNphV2aBQ==}
@@ -6019,11 +6011,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.4':
     optional: true
-
-  '@exalabs/ai-sdk@2.0.0(ai@6.0.116(zod@4.3.6))':
-    dependencies:
-      ai: 6.0.116(zod@4.3.6)
-      zod: 3.25.76
 
   '@exodus/bytes@1.15.0(@noble/hashes@2.0.1)':
     optionalDependencies:

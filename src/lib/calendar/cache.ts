@@ -71,8 +71,8 @@ export function queryEvents(startDate: string, endDate: string): CalendarEvent[]
           allEvents.push(event);
         }
       }
-    } catch {
-      // Skip corrupted cache files
+    } catch (err) {
+      logger.warn({ file, err }, "Skipping corrupted calendar cache file");
     }
   }
 
@@ -92,8 +92,8 @@ export function getAllCachedEvents(): CalendarEvent[] {
       const raw = fs.readFileSync(path.join(CACHE_DIR, file), "utf-8");
       const data = JSON.parse(raw) as CachedFeedData;
       allEvents.push(...data.events);
-    } catch {
-      // Skip corrupted cache files
+    } catch (err) {
+      logger.warn({ file, err }, "Skipping corrupted calendar cache file");
     }
   }
 

@@ -38,6 +38,10 @@ export function createCalendarEvents(userTimezone?: string) {
           duration: Math.round((new Date(e.end).getTime() - new Date(e.start).getTime()) / (1000 * 60)),
           location: e.location || null,
           calendar: e.calendarName,
+          status: e.status || null,
+          meetLink: e.meetLink || null,
+          organizer: e.organizer || null,
+          attendees: e.attendees || null,
         })),
       };
     },
