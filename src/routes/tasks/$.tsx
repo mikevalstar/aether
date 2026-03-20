@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ArrowLeft, CalendarClock } from "lucide-react";
+import { ArrowLeft, CalendarClock, ExternalLink } from "lucide-react";
 import { TaskRunHistory } from "#/components/tasks/TaskRunHistory";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
@@ -41,7 +41,18 @@ function TaskRunHistoryPage() {
           <SectionLabel icon={CalendarClock} color="text-[var(--teal)]">
             Task History
           </SectionLabel>
-          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">{data.task.title}</h1>
+          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl flex items-center gap-3">
+            {data.task.title}
+            <a
+              href={`/o/${data.task.filename}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-[var(--teal)] transition-colors"
+              title="Open in Obsidian"
+            >
+              <ExternalLink className="size-5" />
+            </a>
+          </h1>
         </section>
 
         <TaskRunHistory task={data.task} runs={data.runs} />
