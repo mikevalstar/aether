@@ -14,6 +14,7 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: false,
     webToolVersion: "legacy" as const,
+    provider: "anthropic" as const,
     pricing: {
       inputCostPerMillionTokensUsd: 1,
       outputCostPerMillionTokensUsd: 5,
@@ -26,6 +27,7 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: true,
     webToolVersion: "latest" as const,
+    provider: "anthropic" as const,
     pricing: {
       inputCostPerMillionTokensUsd: 3,
       outputCostPerMillionTokensUsd: 15,
@@ -38,9 +40,36 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: true,
     webToolVersion: "latest" as const,
+    provider: "anthropic" as const,
     pricing: {
       inputCostPerMillionTokensUsd: 5,
       outputCostPerMillionTokensUsd: 25,
+    },
+  },
+  {
+    id: "minimax/minimax-m2.7",
+    label: "MiniMax M2.7",
+    description: "Agentic, autonomous",
+    supportsWebTools: true,
+    supportsEffort: false,
+    webToolVersion: "none" as const,
+    provider: "openrouter" as const,
+    pricing: {
+      inputCostPerMillionTokensUsd: 0.3,
+      outputCostPerMillionTokensUsd: 1.2,
+    },
+  },
+  {
+    id: "z-ai/glm-5",
+    label: "GLM-5",
+    description: "Complex systems engineering",
+    supportsWebTools: true,
+    supportsEffort: false,
+    webToolVersion: "none" as const,
+    provider: "openrouter" as const,
+    pricing: {
+      inputCostPerMillionTokensUsd: 0.72,
+      outputCostPerMillionTokensUsd: 2.3,
     },
   },
 ] as const;
@@ -54,7 +83,12 @@ export function isChatModel(value: string): value is ChatModel {
 }
 
 export type WebToolVersion = (typeof CHAT_MODELS)[number]["webToolVersion"];
+export type ModelProvider = "anthropic" | "openrouter";
 
 export function getWebToolVersion(model: ChatModel): WebToolVersion {
   return CHAT_MODELS.find((m) => m.id === model)?.webToolVersion ?? "legacy";
+}
+
+export function getModelProvider(model: ChatModel): ModelProvider {
+  return CHAT_MODELS.find((m) => m.id === model)?.provider ?? "anthropic";
 }

@@ -10,7 +10,7 @@ import {
 } from "ai";
 import { prisma } from "#/db";
 import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config";
-import { anthropic, createAiTools } from "#/lib/ai-tools";
+import { createAiTools, getModel } from "#/lib/ai-tools";
 import { auth } from "#/lib/auth";
 import {
   type AppChatMessage,
@@ -50,7 +50,7 @@ async function generateChatTitle(userMessage: string): Promise<TitleGenerationRe
       "Generate a short, descriptive title for a chat conversation based on the user's first message. The title must be no more than 10 words. Output only the title text, nothing else. No quotes, no punctuation at the end.";
 
     const { text, usage } = await generateText({
-      model: anthropic(titleModel),
+      model: getModel(titleModel),
       system: titleSystemPrompt,
       prompt: userMessage,
     });
@@ -225,18 +225,21 @@ export const Route = createFileRoute("/api/chat")({
         const systemPrompt = configuredPrompt;
         const toolNames = Object.keys(tools);
 
+        const isAnthropic = modelDef?.provider === "anthropic";
         const result = streamText({
-          model: anthropic(model),
+          model: getModel(model),
           system: systemPrompt,
           messages: await convertToModelMessages(incomingMessages),
           tools,
           stopWhen: stepCountIs(10),
-          providerOptions: {
-            anthropic: {
-              cacheControl: { type: "ephemeral" as const },
-              ...(modelDef?.supportsEffort && { effort }),
+          ...(isAnthropic && {
+            providerOptions: {
+              anthropic: {
+                cacheControl: { type: "ephemeral" as const },
+                ...(modelDef?.supportsEffort && { effort }),
+              },
             },
-          },
+          }),
         });
 
         return result.toUIMessageStreamResponse({

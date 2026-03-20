@@ -1,7 +1,8 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { ToolSet } from "ai";
 import type { ChatModel } from "#/lib/chat-models";
-import { getWebToolVersion } from "#/lib/chat-models";
+import { getModelProvider, getWebToolVersion } from "#/lib/chat-models";
 import { aiMemory } from "#/lib/tools/ai-memory";
 import {
   createBoardAddTask,
@@ -10,6 +11,7 @@ import {
   createBoardUpdateTask,
 } from "#/lib/tools/board-tools";
 import { createCalendarEvents } from "#/lib/tools/calendar-events";
+import { exaTools } from "#/lib/tools/exa-tools";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
@@ -21,11 +23,39 @@ import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 import { createSendNotification } from "#/lib/tools/send-notification";
 
 const anthropic = createAnthropic();
+const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
-/**
- * Create the full set of AI tools for a given model/user/thread context.
- * Shared between the chat API endpoint and the task executor.
- */
+export function getModel(modelId: ChatModel) {
+  const provider = getModelProvider(modelId);
+  if (provider === "openrouter") {
+    return openrouter.chat(modelId);
+  }
+  return anthropic(modelId);
+}
+
+function getAnthropicWebTools(): ToolSet {
+  const webToolVersion = "latest";
+  return webToolVersion === "latest"
+    ? {
+        web_fetch: anthropic.tools.webFetch_20260209({
+          citations: { enabled: true },
+          maxUses: 5,
+        }),
+        web_search: anthropic.tools.webSearch_20260209({
+          maxUses: 5,
+        }),
+      }
+    : {
+        web_fetch: anthropic.tools.webFetch_20250910({
+          citations: { enabled: true },
+          maxUses: 5,
+        }),
+        web_search: anthropic.tools.webSearch_20250305({
+          maxUses: 5,
+        }),
+      };
+}
+
 export function createAiTools(model: ChatModel, userId: string, threadId: string, timezone?: string): ToolSet {
   const obsidianCtx = createObsidianToolContext(userId, threadId);
   const obsidianTools: ToolSet = {
@@ -40,26 +70,8 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
   };
 
   const webToolVersion = getWebToolVersion(model);
-  const webTools: ToolSet =
-    webToolVersion === "latest"
-      ? {
-          web_fetch: anthropic.tools.webFetch_20260209({
-            citations: { enabled: true },
-            maxUses: 5,
-          }),
-          web_search: anthropic.tools.webSearch_20260209({
-            maxUses: 5,
-          }),
-        }
-      : {
-          web_fetch: anthropic.tools.webFetch_20250910({
-            citations: { enabled: true },
-            maxUses: 5,
-          }),
-          web_search: anthropic.tools.webSearch_20250305({
-            maxUses: 5,
-          }),
-        };
+  const useExa = webToolVersion === "none";
+  const webTools: ToolSet = useExa ? exaTools : getAnthropicWebTools();
 
   const boardTools: ToolSet = {
     board_list_columns: createBoardListColumns(userId),
@@ -78,4 +90,4 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
   };
 }
 
-export { anthropic };
+export { anthropic, openrouter };
