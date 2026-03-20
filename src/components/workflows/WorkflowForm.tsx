@@ -1,13 +1,13 @@
 import { useRouter } from "@tanstack/react-router";
 import { Loader2, Play } from "lucide-react";
 import { useState } from "react";
+import { MentionTextarea } from "#/components/mentions/MentionTextarea";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
-import { Textarea } from "#/components/ui/textarea";
 import { runWorkflow } from "#/lib/workflow.functions";
 import type { WorkflowField } from "#/lib/workflow-executor";
 
@@ -76,7 +76,7 @@ export function WorkflowForm({
 
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 rounded-lg border p-4">
-      <div className="flex items-center gap-2 mb-2">
+      <div className="mb-2 flex items-center gap-2">
         <h3 className="text-sm font-medium">Run Workflow</h3>
         <Badge variant="outline" className="text-xs">
           {model}
@@ -91,10 +91,10 @@ export function WorkflowForm({
             {field.required && <span className="text-red-500 ml-0.5">*</span>}
           </Label>
           {field.type === "textarea" ? (
-            <Textarea
+            <MentionTextarea
               id={`field-${field.name}`}
               value={formValues[field.name] ?? ""}
-              onChange={(e) => setValue(field.name, e.target.value)}
+              onValueChange={(v) => setValue(field.name, v)}
               placeholder={field.placeholder}
               required={field.required}
               rows={3}

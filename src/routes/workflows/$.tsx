@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ArrowLeft, Workflow } from "lucide-react";
+import { ArrowLeft, ExternalLink, Workflow } from "lucide-react";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { WorkflowForm } from "#/components/workflows/WorkflowForm";
@@ -42,7 +42,19 @@ function WorkflowDetailPage() {
           <SectionLabel icon={Workflow} color="text-[var(--teal)]">
             Workflow
           </SectionLabel>
-          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">{data.workflow.title}</h1>
+          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            {data.workflow.title}
+            {data.workflow.obsidianRoutePath && (
+              <Link
+                to="/o/$"
+                params={{ _splat: data.workflow.obsidianRoutePath }}
+                className="ml-2 inline-flex align-middle text-muted-foreground hover:text-[var(--teal)] transition-colors"
+                title="View in Obsidian"
+              >
+                <ExternalLink className="size-5" />
+              </Link>
+            )}
+          </h1>
         </section>
 
         <div className="space-y-8">

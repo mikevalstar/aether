@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-models";
+import { toObsidianRoutePath } from "#/lib/obsidian";
 import type { WorkflowField } from "#/lib/workflow-executor";
 import { executeWorkflow } from "#/lib/workflow-executor";
 import { getWorkflowConfig } from "#/lib/workflow-watcher";
@@ -117,6 +118,10 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
       availableToolsJson: t.availableToolsJson,
     }));
 
+    const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
+    const obsidianRelPath = aiConfigRel ? `${aiConfigRel}/workflows/${workflow.filename}` : "";
+    const obsidianRoutePath = obsidianRelPath ? toObsidianRoutePath(obsidianRelPath) : null;
+
     return {
       workflow: {
         filename: workflow.filename,
@@ -127,6 +132,7 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
         maxTokens: workflow.maxTokens,
         fields,
         fileExists: workflow.fileExists,
+        obsidianRoutePath,
       },
       runs,
     };
