@@ -51,24 +51,6 @@ export async function syncCalendarFeeds(): Promise<void> {
   }
 
   logger.debug({ totalFeeds, totalSynced, skippedNotDue }, "Calendar sync cycle complete");
-
-  if (totalSynced > 0) {
-    const adminUser = await prisma.user.findFirst({
-      where: { role: "admin" },
-      orderBy: { createdAt: "asc" },
-    });
-
-    if (adminUser) {
-      await prisma.activityLog.create({
-        data: {
-          type: "system_task",
-          summary: `Synced ${totalSynced} calendar feed(s)`,
-          metadata: JSON.stringify({ taskName: "calendar-sync", synced: totalSynced }),
-          userId: adminUser.id,
-        },
-      });
-    }
-  }
 }
 
 function isSyncDue(feed: CalendarFeed): boolean {
