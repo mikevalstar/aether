@@ -51,7 +51,7 @@
     "@tanstack/react-router-devtools": "latest",
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
-    "@tanstack/router-plugin": "^1.166.14",
+    "@tanstack/router-plugin": "^1.167.0",
     "@types/jmespath": "^0.15.2",
     "@uiw/react-md-editor": "^4.0.11",
     "ai": "^6.0.116",
@@ -101,7 +101,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.7",
+    "@biomejs/biome": "2.4.8",
     "@storybook/addon-docs": "^10.3.1",
     "@storybook/react-vite": "^10.3.1",
     "@tailwindcss/typography": "^0.5.19",
@@ -117,7 +117,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
-    "jsdom": "^29.0.0",
+    "jsdom": "^29.0.1",
     "storybook": "^10.3.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
