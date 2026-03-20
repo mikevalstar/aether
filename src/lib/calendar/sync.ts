@@ -51,7 +51,6 @@ export async function syncCalendarFeeds(): Promise<void> {
   }
 
   logger.debug({ totalFeeds, totalSynced, skippedNotDue }, "Calendar sync cycle complete");
-
 }
 
 function isSyncDue(feed: CalendarFeed): boolean {
