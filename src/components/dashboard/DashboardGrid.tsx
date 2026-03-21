@@ -131,9 +131,10 @@ export function DashboardGrid({
     return merged;
   });
 
-  // Auto-height: observe content sizes and update layout heights
-  useEffect(() => {
-    const observer = new ResizeObserver((entries) => {
+  // Auto-height: persistent ResizeObserver that measures content and updates layout heights
+  const observerRef = useRef<ResizeObserver | null>(null);
+  if (!observerRef.current) {
+    observerRef.current = new ResizeObserver((entries) => {
       if (isDragging.current) return;
 
       let changed = false;
@@ -172,17 +173,19 @@ export function DashboardGrid({
         });
       }
     });
+  }
 
-    // Observe all content containers
-    for (const [, el] of Object.entries(contentRefs.current)) {
-      if (el) observer.observe(el);
-    }
-
-    return () => observer.disconnect();
-  }, [activeWidgetIds]);
+  // Cleanup observer on unmount
+  useEffect(() => {
+    const obs = observerRef.current;
+    return () => obs?.disconnect();
+  }, []);
 
   const setContentRef = useCallback((id: string, el: HTMLDivElement | null) => {
+    const prev = contentRefs.current[id];
+    if (prev && observerRef.current) observerRef.current.unobserve(prev);
     contentRefs.current[id] = el;
+    if (el && observerRef.current) observerRef.current.observe(el);
   }, []);
 
   // Debounced save
