@@ -1,6 +1,6 @@
 ---
 title: Requirements Index
-last_updated: 2026-03-17
+last_updated: 2026-03-21
 canonical_file: docs/requirements/index.md
 ---
 
@@ -27,6 +27,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Command Palette](command-palette.md) | done | `Cmd+K` command palette for quick navigation to pages, workflows, obsidian docs, and common actions. Lazy-loaded data. | [command-palette](command-palette.md) | 2026-03-17 |
 | [Calendar](calendar.md) | done | iCal feed sync with file cache, interactive month/day calendar widget on dashboard, and AI tool for date-range queries. | [calendar](calendar.md) | 2026-03-17 |
 | [Board (Kanban)](board.md) | todo | Interactive kanban board backed by an Obsidian Kanban Markdown file, with AI tools for task management. | [board](board.md) | 2026-03-17 |
+| [Plugin System](plugins.md) | todo | Standardized plugin interface for AI tools, settings, activity, dashboard widgets, and command palette. Built-in modules now, external later. | [plugins](plugins.md) | 2026-03-21 |
 
 
 # Ideas
