@@ -9,6 +9,9 @@ export type UserPreferences = {
   dashboardBoardColumn?: string;
   timezone?: string;
   defaultChatModel?: ChatModel;
+  enabledPlugins?: string[];
+  // biome-ignore lint: plugin options are flexible JSON
+  pluginOptions?: Record<string, Record<string, any>>;
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {

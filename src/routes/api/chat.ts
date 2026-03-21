@@ -34,8 +34,10 @@ import {
 } from "#/lib/chat";
 import { CHAT_MODELS } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
+import { parsePreferences } from "#/lib/preferences";
 import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
 import { createLoadSkill } from "#/lib/tools/load-skill";
+import { getPluginSystemPrompts } from "#/plugins/index.server";
 
 type TitleGenerationResult = {
   title: string;
@@ -116,10 +118,9 @@ export const Route = createFileRoute("/api/chat")({
           where: { id: session.user.id },
           select: { preferences: true },
         });
-        const userTimezone = userRecord?.preferences
-          ? (JSON.parse(userRecord.preferences) as { timezone?: string }).timezone
-          : undefined;
-        const tools = createAiTools(model, session.user.id, thread.id, userTimezone);
+        const userPrefs = parsePreferences(userRecord?.preferences);
+        const userTimezone = userPrefs.timezone;
+        const tools = createAiTools(model, session.user.id, thread.id, userTimezone, userPrefs);
         let currentTotals: ChatUsageTotals = {
           inputTokens: thread.totalInputTokens ?? 0,
           outputTokens: thread.totalOutputTokens ?? 0,
@@ -224,7 +225,9 @@ export const Route = createFileRoute("/api/chat")({
           });
         }
 
-        const systemPrompt = configuredPrompt + buildSkillsPromptSection(skills);
+        const pluginPrompts = getPluginSystemPrompts(userPrefs);
+        const pluginPromptSection = pluginPrompts.length > 0 ? `\n\n## Plugins\n\n${pluginPrompts.join("\n\n")}` : "";
+        const systemPrompt = configuredPrompt + buildSkillsPromptSection(skills) + pluginPromptSection;
         if (skills.length > 0) {
           tools.load_skill = createLoadSkill(skills);
         }

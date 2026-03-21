@@ -40,6 +40,8 @@ import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as SettingsPluginsIndexRouteImport } from './routes/settings/plugins/index'
+import { Route as SettingsPluginsPluginIdRouteImport } from './routes/settings/plugins/$pluginId'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -199,6 +201,16 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsPluginsIndexRoute = SettingsPluginsIndexRouteImport.update({
+  id: '/plugins/',
+  path: '/plugins/',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsPluginsPluginIdRoute = SettingsPluginsPluginIdRouteImport.update({
+  id: '/plugins/$pluginId',
+  path: '/plugins/$pluginId',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
 const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
   id: '/demo/form/simple',
   path: '/demo/form/simple',
@@ -250,6 +262,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
+  '/settings/plugins/': typeof SettingsPluginsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -285,6 +299,8 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
+  '/settings/plugins': typeof SettingsPluginsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -322,6 +338,8 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
+  '/settings/plugins/': typeof SettingsPluginsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -360,6 +378,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/settings/plugins/$pluginId'
+    | '/settings/plugins/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -395,6 +415,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/settings/plugins/$pluginId'
+    | '/settings/plugins'
   id:
     | '__root__'
     | '/'
@@ -431,6 +453,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/settings/plugins/$pluginId'
+    | '/settings/plugins/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -681,6 +705,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/plugins/': {
+      id: '/settings/plugins/'
+      path: '/plugins'
+      fullPath: '/settings/plugins/'
+      preLoaderRoute: typeof SettingsPluginsIndexRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/plugins/$pluginId': {
+      id: '/settings/plugins/$pluginId'
+      path: '/plugins/$pluginId'
+      fullPath: '/settings/plugins/$pluginId'
+      preLoaderRoute: typeof SettingsPluginsPluginIdRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
     '/demo/form/simple': {
       id: '/demo/form/simple'
       path: '/demo/form/simple'
@@ -714,6 +752,8 @@ interface SettingsRouteRouteChildren {
   SettingsPasswordRoute: typeof SettingsPasswordRoute
   SettingsProfileRoute: typeof SettingsProfileRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
+  SettingsPluginsPluginIdRoute: typeof SettingsPluginsPluginIdRoute
+  SettingsPluginsIndexRoute: typeof SettingsPluginsIndexRoute
 }
 
 const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
@@ -725,6 +765,8 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsPasswordRoute: SettingsPasswordRoute,
   SettingsProfileRoute: SettingsProfileRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  SettingsPluginsPluginIdRoute: SettingsPluginsPluginIdRoute,
+  SettingsPluginsIndexRoute: SettingsPluginsIndexRoute,
 }
 
 const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
