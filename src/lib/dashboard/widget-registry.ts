@@ -52,10 +52,14 @@ const BUILTIN_DEFAULTS: Record<string, DefaultWidgetLayout> = {
 /** Map plugin size to default column span */
 function pluginColSpan(size: "quarter" | "half" | "three-quarter" | "full"): number {
   switch (size) {
-    case "quarter": return 1;
-    case "half": return 2;
-    case "three-quarter": return 3;
-    case "full": return 4;
+    case "quarter":
+      return 1;
+    case "half":
+      return 2;
+    case "three-quarter":
+      return 3;
+    case "full":
+      return 4;
   }
 }
 

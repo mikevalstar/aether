@@ -8,8 +8,8 @@ import { authClient } from "#/lib/auth-client";
 import { getBoardData } from "#/lib/board/board.functions";
 import type { KanbanColumn } from "#/lib/board/kanban-parser";
 import { getAllCalendarEvents } from "#/lib/calendar/calendar.functions";
-import { getDashboardData } from "#/lib/dashboard.functions";
 import { loadDashboardLayout } from "#/lib/dashboard/layout-persistence";
+import { getDashboardData } from "#/lib/dashboard.functions";
 import { getCurrentHour } from "#/lib/date";
 import { getDashboardBoardColumn } from "#/lib/preferences.functions";
 import { loadDashboardPluginWidgets, type PluginWidgetInfo } from "#/plugins/dashboard.functions";
@@ -107,4 +107,3 @@ function getGreeting(): string {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
-

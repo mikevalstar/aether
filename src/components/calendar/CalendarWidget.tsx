@@ -134,12 +134,7 @@ export function CalendarWidget({ events, children, selectedDate: controlledDate,
     <div className="rounded-xl border border-border bg-card p-4">
       {/* Month navigation */}
       <div className="mb-3 flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-        >
+        <Button variant="ghost" size="icon" className="size-8" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
           <ChevronLeft className="size-4" />
         </Button>
         <div className="flex items-center gap-2">
@@ -160,12 +155,7 @@ export function CalendarWidget({ events, children, selectedDate: controlledDate,
             </Button>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-        >
+        <Button variant="ghost" size="icon" className="size-8" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
           <ChevronRight className="size-4" />
         </Button>
       </div>

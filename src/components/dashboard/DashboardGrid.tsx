@@ -1,35 +1,29 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isSameDay } from "date-fns";
+import { RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ResponsiveGridLayout,
-  useContainerWidth,
-  verticalCompactor,
   type Layout,
   type LayoutItem,
+  ResponsiveGridLayout,
   type ResponsiveLayouts,
+  useContainerWidth,
+  verticalCompactor,
 } from "react-grid-layout";
-import { RotateCcw } from "lucide-react";
+import { DashboardBoardColumn } from "#/components/board/DashboardBoardColumn";
 import { CalendarWidget } from "#/components/calendar/CalendarWidget";
 import { DayDetailPanel } from "#/components/calendar/DayDetailPanel";
 import { NextEventCard } from "#/components/calendar/NextEventCard";
-import { DashboardBoardColumn } from "#/components/board/DashboardBoardColumn";
-import { UsageStat } from "#/components/dashboard/UsageStat";
-import { RecentChats } from "#/components/dashboard/RecentChats";
 import { ActivityDigest } from "#/components/dashboard/ActivityDigest";
+import { RecentChats } from "#/components/dashboard/RecentChats";
+import { UsageStat } from "#/components/dashboard/UsageStat";
 import { Button } from "#/components/ui/button";
-import { saveDashboardLayout } from "#/lib/dashboard/layout-persistence";
-import {
-  BREAKPOINTS,
-  COLS,
-  MARGIN,
-  ROW_HEIGHT,
-  getDefaultLayouts,
-} from "#/lib/dashboard/widget-registry";
-import type { CalendarEvent } from "#/lib/calendar/types";
 import type { KanbanColumn } from "#/lib/board/kanban-parser";
+import type { CalendarEvent } from "#/lib/calendar/types";
+import { saveDashboardLayout } from "#/lib/dashboard/layout-persistence";
+import { BREAKPOINTS, COLS, getDefaultLayouts, MARGIN, ROW_HEIGHT } from "#/lib/dashboard/widget-registry";
 import type { DashboardData } from "#/lib/dashboard.functions";
-import type { PluginWidgetInfo } from "#/plugins/dashboard.functions";
 import { plugins } from "#/plugins";
+import type { PluginWidgetInfo } from "#/plugins/dashboard.functions";
 import { createPluginClientContextFromOptions } from "#/plugins/plugin-client-context";
 
 import "react-grid-layout/css/styles.css";
@@ -104,10 +98,7 @@ export function DashboardGrid({
     return { activeWidgetIds: ids, pluginSizes: sizes };
   }, [hasCalendar, boardColumn, pluginWidgets]);
 
-  const defaultLayouts = useMemo(
-    () => getDefaultLayouts(activeWidgetIds, pluginSizes),
-    [activeWidgetIds, pluginSizes],
-  );
+  const defaultLayouts = useMemo(() => getDefaultLayouts(activeWidgetIds, pluginSizes), [activeWidgetIds, pluginSizes]);
 
   const [layouts, setLayouts] = useState<ResponsiveLayouts>(() => {
     if (!savedLayouts) return defaultLayouts;
@@ -190,16 +181,13 @@ export function DashboardGrid({
 
   // Debounced save
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const handleLayoutChange = useCallback(
-    (_currentLayout: Layout, allLayouts: ResponsiveLayouts) => {
-      setLayouts(allLayouts);
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(() => {
-        saveDashboardLayout({ data: { layouts: serializeLayouts(allLayouts) } }).catch(console.error);
-      }, 800);
-    },
-    [],
-  );
+  const handleLayoutChange = useCallback((_currentLayout: Layout, allLayouts: ResponsiveLayouts) => {
+    setLayouts(allLayouts);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveDashboardLayout({ data: { layouts: serializeLayouts(allLayouts) } }).catch(console.error);
+    }, 800);
+  }, []);
 
   const handleReset = useCallback(() => {
     measuredHeights.current = {};
@@ -219,13 +207,7 @@ export function DashboardGrid({
   const renderWidget = (id: string) => {
     switch (id) {
       case "calendar":
-        return (
-          <CalendarWidget
-            events={calendarEvents}
-            selectedDate={selectedDate}
-            onSelectedDateChange={setSelectedDate}
-          />
-        );
+        return <CalendarWidget events={calendarEvents} selectedDate={selectedDate} onSelectedDateChange={setSelectedDate} />;
       case "day-detail": {
         const dayEvents = calendarEvents.filter((e) => {
           const eventStart = new Date(e.start);
@@ -276,12 +258,7 @@ export function DashboardGrid({
   return (
     <div ref={containerRef}>
       <div className="mb-2 flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 gap-1.5 text-xs text-muted-foreground"
-          onClick={handleReset}
-        >
+        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs text-muted-foreground" onClick={handleReset}>
           <RotateCcw className="size-3" />
           Reset layout
         </Button>
@@ -306,11 +283,7 @@ export function DashboardGrid({
           {activeWidgetIds.map((id) => (
             <div key={id} className="dashboard-grid-item">
               <div className="dashboard-drag-handle" />
-              <div
-                ref={(el) => setContentRef(id, el)}
-                data-widget-id={id}
-                className="dashboard-grid-item-content"
-              >
+              <div ref={(el) => setContentRef(id, el)} data-widget-id={id} className="dashboard-grid-item-content">
                 {renderWidget(id)}
               </div>
             </div>
