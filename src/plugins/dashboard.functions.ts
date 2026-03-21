@@ -10,7 +10,7 @@ export type PluginWidgetInfo = {
   widgets: Array<{
     id: string;
     label: string;
-    size: "half" | "full";
+    size: "quarter" | "half" | "three-quarter" | "full";
   }>;
   // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
   data: Record<string, any>;

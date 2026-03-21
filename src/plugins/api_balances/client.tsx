@@ -85,7 +85,7 @@ function BalancesWidget({
 const balancesWidget: PluginWidget = {
   id: "balances",
   label: "API Balances",
-  size: "half",
+  size: "quarter",
   component: BalancesWidget,
 };
 

@@ -94,7 +94,7 @@ export type PluginCommand = {
 export type PluginWidget = {
   id: string;
   label: string;
-  size: "half" | "full";
+  size: "quarter" | "half" | "three-quarter" | "full";
   component: ComponentType<{
     ctx: PluginClientContext;
     data: Record<string, unknown>;
