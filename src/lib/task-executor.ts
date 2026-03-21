@@ -1,7 +1,7 @@
 import { generateText, stepCountIs } from "ai";
 import { prisma } from "#/db";
 import { readTaskPromptConfig } from "#/lib/ai-config";
-import { anthropic, createAiTools } from "#/lib/ai-tools";
+import { createAiTools, getModel } from "#/lib/ai-tools";
 import {
   type ChatModel,
   DEFAULT_CHAT_EFFORT,
@@ -81,7 +81,7 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
 
   try {
     const result = await generateText({
-      model: anthropic(model),
+      model: getModel(model),
       system: systemPrompt,
       prompt: taskBody,
       tools,
