@@ -76,10 +76,10 @@ function BoardSection() {
       <div className="grid gap-4">
         <div className="grid gap-1.5">
           <Label>Kanban file</Label>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-between font-normal">
+                <Button variant="outline" className="min-w-0 flex-1 justify-between font-normal">
                   {kanbanFile || "Select a kanban file..."}
                   <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                 </Button>
