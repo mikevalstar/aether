@@ -1,4 +1,5 @@
 import type { CalendarFeed } from "#/lib/calendar/types";
+import type { ChatModel } from "#/lib/chat-models";
 
 export type UserPreferences = {
   obsidianTemplatesFolder?: string;
@@ -6,6 +7,7 @@ export type UserPreferences = {
   calendarFeeds?: CalendarFeed[];
   kanbanFile?: string;
   timezone?: string;
+  defaultChatModel?: ChatModel;
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {

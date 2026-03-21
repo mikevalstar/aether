@@ -12,6 +12,7 @@ import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import { type FeedSyncResult, syncCalendarFeedsNow } from "#/lib/calendar/calendar.functions";
 import type { CalendarFeed } from "#/lib/calendar/types";
+import { CHAT_MODELS, type ChatModel, DEFAULT_CHAT_MODEL } from "#/lib/chat-models";
 import { testPushoverNotification } from "#/lib/notifications.functions";
 import {
   getPreferencesPageData,
@@ -52,6 +53,11 @@ function PreferencesPage() {
   const [isSavingCalendar, setIsSavingCalendar] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResults, setSyncResults] = useState<FeedSyncResult[] | null>(null);
+
+  const [defaultChatModel, setDefaultChatModel] = useState<ChatModel>(
+    data.preferences.defaultChatModel || DEFAULT_CHAT_MODEL,
+  );
+  const [isSavingChat, setIsSavingChat] = useState(false);
 
   const [kanbanFile, setKanbanFile] = useState(data.preferences.kanbanFile || "");
   const [isSavingKanban, setIsSavingKanban] = useState(false);
@@ -192,6 +198,45 @@ function PreferencesPage() {
 
           <Button type="submit" disabled={isSavingProfile}>
             {isSavingProfile ? "Saving..." : "Save profile"}
+          </Button>
+        </div>
+      </form>
+
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setIsSavingChat(true);
+          try {
+            await updateUserPreferences({ data: { defaultChatModel } });
+            toast.success("Chat settings saved");
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Failed to save chat settings");
+          } finally {
+            setIsSavingChat(false);
+          }
+        }}
+        className="surface-card mb-6 max-w-2xl p-6"
+      >
+        <h2 className="mb-4 text-lg font-semibold">Chat</h2>
+        <div className="grid gap-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="pref-default-model">Default model</Label>
+            <Select value={defaultChatModel} onValueChange={(v) => setDefaultChatModel(v as ChatModel)}>
+              <SelectTrigger id="pref-default-model" className="w-full">
+                <SelectValue placeholder="Select a model" />
+              </SelectTrigger>
+              <SelectContent>
+                {CHAT_MODELS.map((model) => (
+                  <SelectItem key={model.id} value={model.id}>
+                    {model.label} — {model.description}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">The model used by default when starting a new chat thread.</p>
+          </div>
+          <Button type="submit" disabled={isSavingChat}>
+            {isSavingChat ? "Saving..." : "Save chat settings"}
           </Button>
         </div>
       </form>

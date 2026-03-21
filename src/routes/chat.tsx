@@ -57,7 +57,7 @@ function ChatPage() {
   const [pendingDeleteThread, setPendingDeleteThread] = useState<ChatThreadSummary | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const [isMutating, startTransition] = useTransition();
-  const [draftModel, setDraftModel] = useState(DEFAULT_CHAT_MODEL);
+  const [draftModel, setDraftModel] = useState(data.defaultChatModel);
   const [draftEffort, setDraftEffort] = useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const {

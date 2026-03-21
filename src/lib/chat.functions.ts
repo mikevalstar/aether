@@ -10,6 +10,7 @@ import {
   isChatModel,
   parseStoredMessages,
 } from "#/lib/chat";
+import { parsePreferences } from "#/lib/preferences";
 
 type ChatThreadInput = {
   threadId?: string;
@@ -67,12 +68,19 @@ export const getChatPageData = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
-    const threadRecords = await prisma.chatThread.findMany({
-      where: { userId: session.user.id, type: "chat" },
-      orderBy: { updatedAt: "desc" },
-      take: 500,
-    });
+    const [threadRecords, user] = await Promise.all([
+      prisma.chatThread.findMany({
+        where: { userId: session.user.id, type: "chat" },
+        orderBy: { updatedAt: "desc" },
+        take: 500,
+      }),
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { preferences: true },
+      }),
+    ]);
 
+    const preferences = parsePreferences(user?.preferences);
     const threads = threadRecords.map(mapThreadSummary);
     const selectedThreadRecord = data.threadId
       ? (threadRecords.find((thread) => thread.id === data.threadId) ?? null)
@@ -84,6 +92,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
       selectedThread: selectedThreadRecord ? mapThreadSummary(selectedThreadRecord) : null,
       messagesJson: selectedThreadRecord?.messagesJson ?? "[]",
       usageHistoryJson: selectedThreadRecord?.usageHistoryJson ?? "[]",
+      defaultChatModel: preferences.defaultChatModel ?? DEFAULT_CHAT_MODEL,
     };
   });
 
