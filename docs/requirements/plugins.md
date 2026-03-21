@@ -286,6 +286,7 @@ type UserPreferences = {
 | Settings nav update | todo | Add "Plugins" section to settings sidebar | Inline |
 | Plugin health check | todo | Status indicator on plugins settings page for plugins with external connections | Inline |
 | IMAP plugin (first plugin) | todo | Proton Mail IMAP integration as first plugin | `docs/requirements/plugin-imap.md` |
+| API Balances plugin | todo | Balance/credit dashboard widget for OpenRouter, OpenAI, Kilo Code | `docs/requirements/plugin-api-balances.md` |
 
 ## Detail
 
