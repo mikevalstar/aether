@@ -12,6 +12,7 @@ export type UserPreferences = {
   enabledPlugins?: string[];
   // biome-ignore lint: plugin options are flexible JSON
   pluginOptions?: Record<string, Record<string, any>>;
+  dashboardLayouts?: Record<string, Array<{ i: string; x: number; y: number; w: number; h: number }>>;
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {

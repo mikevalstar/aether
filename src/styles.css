@@ -382,3 +382,48 @@ a {
 .w-md-editor-aree {
   border-color: var(--line) !important;
 }
+
+/* ─── Dashboard Grid (react-grid-layout) ─── */
+
+.dashboard-grid-item-content {
+  /* Content flows naturally — ResizeObserver measures this to set grid height */
+}
+
+.dashboard-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  cursor: grab;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  background: linear-gradient(to bottom, oklch(0.55 0.15 180 / 0.08), transparent);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.dashboard-grid-item:hover .dashboard-drag-handle {
+  opacity: 1;
+}
+
+.dashboard-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Placeholder shown during drag */
+.react-grid-placeholder {
+  background: var(--teal-subtle) !important;
+  border: 2px dashed var(--teal) !important;
+  border-radius: var(--radius-lg) !important;
+  opacity: 0.6 !important;
+}
+
+/* Override default react-grid-layout transition for smoother feel */
+.react-grid-item.cssTransforms {
+  transition-duration: 150ms !important;
+}
+
+.react-grid-item > .react-resizable-handle {
+  display: none;
+}

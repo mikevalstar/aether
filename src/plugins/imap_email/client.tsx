@@ -89,7 +89,7 @@ function InboxWidget({
 const inboxWidget: PluginWidget = {
   id: "inbox",
   label: "Inbox",
-  size: "half",
+  size: "quarter",
   component: InboxWidget,
 };
 
