@@ -5,7 +5,10 @@ import { Button } from "#/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#/components/ui/command";
 import { Label } from "#/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
+import { getBoardData } from "#/lib/board/board.functions";
+import type { KanbanColumn } from "#/lib/board/kanban-parser";
 import { searchVaultFiles, updateUserPreferences } from "#/lib/preferences.functions";
 
 const settingsRoute = getRouteApi("/settings");
@@ -18,11 +21,30 @@ function BoardSection() {
   const data = settingsRoute.useLoaderData();
 
   const [kanbanFile, setKanbanFile] = useState(data.preferences.kanbanFile || "");
+  const [dashboardColumn, setDashboardColumn] = useState(data.preferences.dashboardBoardColumn || "");
+  const [columns, setColumns] = useState<KanbanColumn[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<{ path: string; title: string }[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Load board columns when a kanban file is set
+  useEffect(() => {
+    if (!kanbanFile) {
+      setColumns([]);
+      return;
+    }
+    getBoardData()
+      .then((result) => {
+        if (result.configured) {
+          setColumns(result.columns);
+        } else {
+          setColumns([]);
+        }
+      })
+      .catch(() => setColumns([]));
+  }, [kanbanFile]);
 
   const searchFiles = useCallback((query: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -62,7 +84,12 @@ function BoardSection() {
         e.preventDefault();
         setIsSaving(true);
         try {
-          await updateUserPreferences({ data: { kanbanFile: kanbanFile || undefined } });
+          await updateUserPreferences({
+            data: {
+              kanbanFile: kanbanFile || undefined,
+              dashboardBoardColumn: dashboardColumn || undefined,
+            },
+          });
           toast.success("Board file saved");
         } catch (err) {
           toast.error(err instanceof Error ? err.message : "Failed to save board setting");
@@ -118,6 +145,33 @@ function BoardSection() {
           </div>
           <p className="text-xs text-muted-foreground">Choose an Obsidian Kanban plugin file to power the Board page.</p>
         </div>
+
+        {kanbanFile && columns.length > 0 && (
+          <div className="grid gap-1.5">
+            <Label>Dashboard column</Label>
+            <div className="flex items-center gap-2">
+              <Select value={dashboardColumn} onValueChange={setDashboardColumn}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select a column to show on dashboard..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {columns.map((col) => (
+                    <SelectItem key={col.name} value={col.name}>
+                      {col.name} ({col.tasks.length} tasks)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {dashboardColumn && (
+                <Button type="button" variant="ghost" size="icon" onClick={() => setDashboardColumn("")}>
+                  <X className="size-4" />
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Show this column as a read-only widget on the dashboard.</p>
+          </div>
+        )}
+
         <Button type="submit" disabled={isSaving}>
           {isSaving ? "Saving..." : "Save board setting"}
         </Button>

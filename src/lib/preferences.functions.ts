@@ -81,6 +81,16 @@ export const updateUserPreferences = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const getDashboardBoardColumn = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await ensureSession();
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { preferences: true },
+  });
+  const prefs = parsePreferences(user?.preferences);
+  return prefs.dashboardBoardColumn ?? null;
+});
+
 type SearchVaultFilesInput = { query: string };
 
 export const searchVaultFiles = createServerFn({ method: "GET" })

@@ -6,6 +6,7 @@ export type UserPreferences = {
   pushoverUserKey?: string;
   calendarFeeds?: CalendarFeed[];
   kanbanFile?: string;
+  dashboardBoardColumn?: string;
   timezone?: string;
   defaultChatModel?: ChatModel;
 };

@@ -13,6 +13,7 @@ import {
   Workflow,
 } from "lucide-react";
 import { useEffect } from "react";
+import { DashboardBoardColumn } from "#/components/board/DashboardBoardColumn";
 import { CalendarWidget } from "#/components/calendar/CalendarWidget";
 import { NextEventCard } from "#/components/calendar/NextEventCard";
 import { Button } from "#/components/ui/button";
@@ -21,8 +22,11 @@ import { SectionLabel } from "#/components/ui/section-label";
 import { Spinner } from "#/components/ui/spinner";
 import { getSession } from "#/lib/auth.functions";
 import { authClient } from "#/lib/auth-client";
+import { getBoardData } from "#/lib/board/board.functions";
+import type { KanbanColumn } from "#/lib/board/kanban-parser";
 import { getAllCalendarEvents } from "#/lib/calendar/calendar.functions";
 import { getCurrentHour } from "#/lib/date";
+import { getDashboardBoardColumn } from "#/lib/preferences.functions";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
@@ -32,16 +36,19 @@ export const Route = createFileRoute("/dashboard")({
     }
   },
   loader: async () => {
-    const calendarEvents = await getAllCalendarEvents().catch(() => []);
+    const [calendarEvents, boardColumn] = await Promise.all([
+      getAllCalendarEvents().catch(() => []),
+      loadDashboardBoardColumn(),
+    ]);
     const greeting = getGreeting();
-    return { calendarEvents, greeting };
+    return { calendarEvents, greeting, boardColumn };
   },
   component: DashboardPage,
 });
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const { calendarEvents, greeting } = Route.useLoaderData();
+  const { calendarEvents, greeting, boardColumn } = Route.useLoaderData();
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
@@ -90,7 +97,16 @@ function DashboardPage() {
           <section className="mb-12">
             <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Calendar</h2>
             <CalendarWidget events={calendarEvents}>
-              <NextEventCard events={calendarEvents} />
+              <div className={`mt-4 grid gap-4 ${boardColumn ? "sm:grid-cols-2" : ""}`}>
+                <div className="flex flex-col [&>div]:flex-1">
+                  <NextEventCard events={calendarEvents} />
+                </div>
+                {boardColumn && (
+                  <div className="flex flex-col">
+                    <DashboardBoardColumn column={boardColumn} />
+                  </div>
+                )}
+              </div>
               <div className="mt-8">
                 <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quick actions</h2>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -98,6 +114,13 @@ function DashboardPage() {
                 </div>
               </div>
             </CalendarWidget>
+          </section>
+        )}
+
+        {calendarEvents.length === 0 && boardColumn && (
+          <section className="mb-12">
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Board</h2>
+            <DashboardBoardColumn column={boardColumn} />
           </section>
         )}
 
@@ -147,6 +170,20 @@ function DashboardPage() {
       </div>
     </main>
   );
+}
+
+async function loadDashboardBoardColumn(): Promise<KanbanColumn | null> {
+  try {
+    const columnName = await getDashboardBoardColumn();
+    if (!columnName) return null;
+
+    const board = await getBoardData();
+    if (!board.configured) return null;
+
+    return board.columns.find((c) => c.name === columnName) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function getGreeting(): string {

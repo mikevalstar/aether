@@ -27,7 +27,7 @@ export function NextEventCard({ events }: Props) {
 
   if (!nextEvent) {
     return (
-      <div className="mt-4 rounded-xl border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="size-3.5" />
           <p className="text-xs">No upcoming events</p>
@@ -61,7 +61,7 @@ export function NextEventCard({ events }: Props) {
 
   return (
     <>
-      <div className="mt-4 rounded-xl border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={`size-2 rounded-full ${statusDotClass}`} />
