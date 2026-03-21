@@ -7,13 +7,28 @@ import { Input } from "#/components/ui/input";
 import type { KanbanColumn } from "#/lib/board/kanban-parser";
 import { BoardTask } from "./BoardTask";
 
+/**
+ * Subtle column accent colors — muted oklch tones that complement the teal/coral palette.
+ * Each entry is [light-border, dark-border, light-bg, dark-bg].
+ * Background tints use high lightness + very low chroma for a subtle wash.
+ */
+const COLUMN_COLORS: [string, string, string, string][] = [
+  ["oklch(0.60 0.13 180)", "oklch(0.55 0.10 180)", "oklch(0.96 0.02 180)", "oklch(0.22 0.02 180)"], // teal
+  ["oklch(0.65 0.13 25)", "oklch(0.60 0.10 25)", "oklch(0.96 0.02 25)", "oklch(0.22 0.02 25)"], // coral
+  ["oklch(0.65 0.12 85)", "oklch(0.60 0.10 85)", "oklch(0.96 0.02 85)", "oklch(0.22 0.02 85)"], // amber
+  ["oklch(0.58 0.12 290)", "oklch(0.55 0.10 290)", "oklch(0.96 0.02 290)", "oklch(0.22 0.02 290)"], // violet
+  ["oklch(0.60 0.11 230)", "oklch(0.55 0.09 230)", "oklch(0.96 0.02 230)", "oklch(0.22 0.02 230)"], // sky
+  ["oklch(0.60 0.12 350)", "oklch(0.55 0.10 350)", "oklch(0.96 0.02 350)", "oklch(0.22 0.02 350)"], // rose
+];
+
 interface BoardColumnProps {
   column: KanbanColumn;
+  colorIndex: number;
   onAddTask: (column: string, text: string) => void;
   onRemoveTask: (column: string, index: number) => void;
 }
 
-export function BoardColumn({ column, onAddTask, onRemoveTask }: BoardColumnProps) {
+export function BoardColumn({ column, colorIndex, onAddTask, onRemoveTask }: BoardColumnProps) {
   const [newTask, setNewTask] = useState("");
   const [isAdding, setIsAdding] = useState(false);
 
@@ -32,8 +47,17 @@ export function BoardColumn({ column, onAddTask, onRemoveTask }: BoardColumnProp
     setIsAdding(false);
   };
 
+  const [lightBorder, darkBorder, lightBg, darkBg] = COLUMN_COLORS[colorIndex % COLUMN_COLORS.length];
+
   return (
-    <div className="flex w-72 shrink-0 flex-col rounded-lg border border-border bg-muted/30">
+    <div
+      className="flex w-72 shrink-0 flex-col rounded-lg border border-border"
+      style={{
+        borderTopWidth: 3,
+        borderTopColor: `light-dark(${lightBorder}, ${darkBorder})`,
+        backgroundColor: `light-dark(${lightBg}, ${darkBg})`,
+      }}
+    >
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <h3 className="text-sm font-semibold">{column.name}</h3>
         <span className="text-xs text-muted-foreground">{column.tasks.length}</span>

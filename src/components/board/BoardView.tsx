@@ -98,8 +98,8 @@ export function BoardView({ columns: serverColumns, onAddTask, onRemoveTask, onM
       }}
     >
       <div className="flex gap-4 overflow-x-auto pb-4">
-        {columns.map((col) => (
-          <BoardColumn key={col.name} column={col} onAddTask={onAddTask} onRemoveTask={onRemoveTask} />
+        {columns.map((col, i) => (
+          <BoardColumn key={col.name} column={col} colorIndex={i} onAddTask={onAddTask} onRemoveTask={onRemoveTask} />
         ))}
       </div>
     </DragDropProvider>
