@@ -16,6 +16,9 @@ import { getAllCalendarEvents } from "#/lib/calendar/calendar.functions";
 import { getDashboardData } from "#/lib/dashboard.functions";
 import { getCurrentHour } from "#/lib/date";
 import { getDashboardBoardColumn } from "#/lib/preferences.functions";
+import { plugins } from "#/plugins";
+import { loadDashboardPluginWidgets, type PluginWidgetInfo } from "#/plugins/dashboard.functions";
+import { createPluginClientContextFromOptions } from "#/plugins/plugin-client-context";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
@@ -25,20 +28,21 @@ export const Route = createFileRoute("/dashboard")({
     }
   },
   loader: async () => {
-    const [calendarEvents, boardColumn, dashboardData] = await Promise.all([
+    const [calendarEvents, boardColumn, dashboardData, pluginWidgets] = await Promise.all([
       getAllCalendarEvents().catch(() => []),
       loadDashboardBoardColumn(),
       getDashboardData(),
+      loadDashboardPluginWidgets().catch(() => [] as PluginWidgetInfo[]),
     ]);
     const greeting = getGreeting();
-    return { calendarEvents, greeting, boardColumn, dashboardData };
+    return { calendarEvents, greeting, boardColumn, dashboardData, pluginWidgets };
   },
   component: DashboardPage,
 });
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const { calendarEvents, greeting, boardColumn, dashboardData } = Route.useLoaderData();
+  const { calendarEvents, greeting, boardColumn, dashboardData, pluginWidgets } = Route.useLoaderData();
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
@@ -99,6 +103,9 @@ function DashboardPage() {
               <DashboardBoardColumn column={boardColumn} />
             </section>
           )}
+
+          {/* Plugin widgets */}
+          <PluginWidgets pluginWidgets={pluginWidgets} />
         </div>
 
         {/* Right column — sidebar widgets */}
@@ -136,4 +143,23 @@ function getGreeting(): string {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
+}
+
+function PluginWidgets({ pluginWidgets }: { pluginWidgets: PluginWidgetInfo[] }) {
+  if (pluginWidgets.length === 0) return null;
+
+  return (
+    <>
+      {pluginWidgets.map((pw) => {
+        const plugin = plugins.find((p) => p.meta.id === pw.pluginId);
+        if (!plugin?.client?.widgets) return null;
+
+        return plugin.client.widgets.map((widget) => {
+          const ctx = createPluginClientContextFromOptions(pw.pluginId, pw.options);
+          const WidgetComponent = widget.component;
+          return <WidgetComponent key={`${pw.pluginId}-${widget.id}`} ctx={ctx} data={pw.data} />;
+        });
+      })}
+    </>
+  );
 }

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
-import { Bell, BookOpen, Calendar, Columns3, KeyRound, MessageSquare, User } from "lucide-react";
+import { Bell, BookOpen, Calendar, Columns3, KeyRound, MessageSquare, Puzzle, User } from "lucide-react";
 import { getSession } from "#/lib/auth.functions";
 import { getPreferencesPageData } from "#/lib/preferences.functions";
 
@@ -15,6 +15,8 @@ const OBSIDIAN_NAV_ITEMS = [
   { to: "/settings/obsidian", label: "Obsidian", icon: BookOpen },
   { to: "/settings/board", label: "Board", icon: Columns3 },
 ] as const;
+
+const PLUGIN_NAV_ITEMS = [{ to: "/settings/plugins", label: "Plugins", icon: Puzzle }] as const;
 
 export const Route = createFileRoute("/settings")({
   beforeLoad: async () => {
@@ -62,6 +64,16 @@ function SettingsLayout() {
                 {item.label}
               </Link>
             ))}
+          {PLUGIN_NAV_ITEMS.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-teal-subtle hover:text-foreground [&.active]:bg-teal-subtle [&.active]:text-foreground"
+              activeProps={{ className: "active" }}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
       </div>
 
@@ -98,6 +110,19 @@ function SettingsLayout() {
                 ))}
               </>
             )}
+            <li className="my-2 border-t border-border" />
+            {PLUGIN_NAV_ITEMS.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  className="flex items-center gap-2 rounded-md border-l-2 border-transparent px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-teal-subtle hover:text-foreground [&.active]:border-teal [&.active]:bg-teal-subtle [&.active]:text-foreground"
+                  activeProps={{ className: "active" }}
+                >
+                  <item.icon className="size-4" />
+                  {item.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
 

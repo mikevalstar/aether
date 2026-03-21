@@ -13,6 +13,7 @@ import {
   LogOut,
   MessageSquare,
   Plus,
+  Puzzle,
   ScrollText,
   Settings,
   Sun,
@@ -28,6 +29,8 @@ import {
   searchCommandPaletteObsidian,
 } from "#/lib/command-palette.functions";
 import { themeModeAtom } from "#/lib/theme";
+import { plugins } from "#/plugins";
+import type { PluginCommand } from "#/plugins/types";
 
 const PAGES = [
   { label: "Dashboard", route: "/dashboard", icon: LayoutDashboard },
@@ -41,6 +44,7 @@ const PAGES = [
   { label: "Logs", route: "/logs", icon: ScrollText },
   { label: "Requirements", route: "/requirements", icon: FileText },
   { label: "Settings", route: "/settings/profile", icon: Settings },
+  { label: "Plugins", route: "/settings/plugins", icon: Puzzle },
   { label: "Users", route: "/users", icon: Users },
 ] as const;
 
@@ -204,6 +208,38 @@ export default function CommandPalette() {
             )}
           </CommandGroup>
         )}
+
+        {/* Plugins */}
+        {(() => {
+          const pluginCommands: Array<{ pluginName: string; command: PluginCommand }> = [];
+          for (const plugin of plugins) {
+            for (const cmd of plugin.client?.commands ?? []) {
+              pluginCommands.push({ pluginName: plugin.meta.name, command: cmd });
+            }
+          }
+          if (pluginCommands.length === 0) return null;
+          return (
+            <CommandGroup heading="Plugins">
+              {pluginCommands.map((pc) => {
+                const CmdIcon = pc.command.icon;
+                return (
+                  <CommandItem
+                    key={`plugin-${pc.command.label}`}
+                    value={`plugin-${pc.command.label}`}
+                    onSelect={() => {
+                      if (pc.command.route) {
+                        select(pc.command.route);
+                      }
+                    }}
+                  >
+                    {CmdIcon && <CmdIcon className="mr-2 size-4" />}
+                    {pc.command.label}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          );
+        })()}
 
         {/* Actions */}
         <CommandGroup heading="Actions">

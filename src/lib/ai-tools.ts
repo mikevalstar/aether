@@ -3,6 +3,7 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { ToolSet } from "ai";
 import type { ChatModel } from "#/lib/chat-models";
 import { getModelProvider, getWebToolVersion } from "#/lib/chat-models";
+import type { UserPreferences } from "#/lib/preferences";
 import { aiMemory } from "#/lib/tools/ai-memory";
 import {
   createBoardAddTask,
@@ -21,6 +22,7 @@ import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 import { createSendNotification } from "#/lib/tools/send-notification";
+import { getPluginTools } from "#/plugins/index.server";
 
 const anthropic = createAnthropic();
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
@@ -55,7 +57,13 @@ function getAnthropicWebTools(webToolVersion: "latest" | "legacy"): ToolSet {
       };
 }
 
-export function createAiTools(model: ChatModel, userId: string, threadId: string, timezone?: string): ToolSet {
+export function createAiTools(
+  model: ChatModel,
+  userId: string,
+  threadId: string,
+  timezone?: string,
+  prefs?: UserPreferences,
+): ToolSet {
   const obsidianCtx = createObsidianToolContext(userId, threadId);
   const obsidianTools: ToolSet = {
     obsidian_folders: obsidianFolders,
@@ -79,6 +87,8 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
     board_update_task: createBoardUpdateTask(userId),
   };
 
+  const pluginTools = prefs ? getPluginTools(userId, threadId, timezone, prefs) : {};
+
   return {
     ...webTools,
     fetch_url_markdown: fetchUrlMarkdown,
@@ -86,6 +96,7 @@ export function createAiTools(model: ChatModel, userId: string, threadId: string
     ...boardTools,
     send_notification: createSendNotification(userId),
     calendar_events: createCalendarEvents(timezone),
+    ...pluginTools,
   };
 }
 

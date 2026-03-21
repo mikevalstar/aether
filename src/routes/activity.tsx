@@ -24,6 +24,7 @@ import {
   revertFileChange,
 } from "#/lib/activity.functions";
 import { getSession } from "#/lib/auth.functions";
+import { plugins } from "#/plugins";
 
 const activitySearchSchema = z.object({
   page: z.coerce.number().optional(),
@@ -49,7 +50,7 @@ export const Route = createFileRoute("/activity")({
   component: ActivityPage,
 });
 
-const TYPE_FILTERS = [
+const BASE_TYPE_FILTERS = [
   { value: "all", label: "All" },
   { value: "file_change", label: "File Changes" },
   { value: "cron_task", label: "Cron Tasks" },
@@ -57,6 +58,16 @@ const TYPE_FILTERS = [
   { value: "system_task", label: "System Tasks" },
   { value: "ai_notification", label: "Notifications" },
 ];
+
+function getTypeFilters() {
+  const pluginFilters = plugins.flatMap((p) =>
+    (p.activityTypes ?? []).map((at) => ({
+      value: `plugin:${p.meta.id}:${at.type}`,
+      label: at.label,
+    })),
+  );
+  return [...BASE_TYPE_FILTERS, ...pluginFilters];
+}
 
 function ActivityPage() {
   const navigate = useNavigate({ from: Route.fullPath });
@@ -133,7 +144,7 @@ function ActivityPage() {
         </section>
 
         <section className="mb-4 flex gap-2">
-          {TYPE_FILTERS.map((filter) => (
+          {getTypeFilters().map((filter) => (
             <Button
               key={filter.value}
               variant={activeType === filter.value ? "default" : "outline"}
