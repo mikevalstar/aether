@@ -1,24 +1,17 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { toast } from "#/components/ui/sonner";
-import { getSession } from "#/lib/auth.functions";
 import { changeOwnPassword, getPasswordSettingsData } from "#/lib/user-management.functions";
 
 export const Route = createFileRoute("/settings/password")({
-  beforeLoad: async () => {
-    const session = await getSession();
-    if (!session) {
-      throw redirect({ to: "/login" });
-    }
-  },
   loader: async () => await getPasswordSettingsData(),
-  component: PasswordSettingsPage,
+  component: PasswordSection,
 });
 
-function PasswordSettingsPage() {
+function PasswordSection() {
   const settings = Route.useLoaderData();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -60,21 +53,15 @@ function PasswordSettingsPage() {
   };
 
   return (
-    <main className="page-wrap px-4 pb-12 pt-10">
-      <section className="mb-8 max-w-2xl">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">Account Settings</p>
-        <h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl">Change password</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Use this page to replace the temporary password your admin shared with you or rotate your current one.
-        </p>
-        {settings.mustChangePassword ? (
-          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            This account is still using a temporary password. Change it now to finish setup.
-          </div>
-        ) : null}
-      </section>
+    <div>
+      {settings.mustChangePassword ? (
+        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+          This account is still using a temporary password. Change it now to finish setup.
+        </div>
+      ) : null}
 
-      <form onSubmit={handleSubmit} className="surface-card max-w-2xl p-6">
+      <form onSubmit={handleSubmit} className="surface-card p-6">
+        <h2 className="mb-4 text-lg font-semibold">Change Password</h2>
         <div className="grid gap-4">
           <div className="grid gap-1.5">
             <Label htmlFor="current-password">Current password</Label>
@@ -128,6 +115,6 @@ function PasswordSettingsPage() {
           </Button>
         </div>
       </form>
-    </main>
+    </div>
   );
 }

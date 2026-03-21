@@ -40,7 +40,7 @@ const PAGES = [
   { label: "Usage", route: "/usage", icon: BarChart3 },
   { label: "Logs", route: "/logs", icon: ScrollText },
   { label: "Requirements", route: "/requirements", icon: FileText },
-  { label: "Settings", route: "/settings/preferences", icon: Settings },
+  { label: "Settings", route: "/settings/profile", icon: Settings },
   { label: "Users", route: "/users", icon: Users },
 ] as const;
 

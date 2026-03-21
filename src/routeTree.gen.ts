@@ -18,15 +18,22 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
 import { Route as TasksIndexRouteImport } from './routes/tasks/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
 import { Route as OIndexRouteImport } from './routes/o/index'
 import { Route as WorkflowsSplatRouteImport } from './routes/workflows/$'
 import { Route as TasksSplatRouteImport } from './routes/tasks/$'
-import { Route as SettingsPreferencesRouteImport } from './routes/settings/preferences'
+import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
 import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
+import { Route as SettingsObsidianRouteImport } from './routes/settings/obsidian'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings/notifications'
+import { Route as SettingsChatRouteImport } from './routes/settings/chat'
+import { Route as SettingsCalendarRouteImport } from './routes/settings/calendar'
+import { Route as SettingsBoardRouteImport } from './routes/settings/board'
 import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
 import { Route as OSplatRouteImport } from './routes/o/$'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
@@ -82,6 +89,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRouteRoute = SettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -96,6 +108,11 @@ const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsRouteRoute,
 } as any)
 const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
   id: '/requirements/',
@@ -117,15 +134,40 @@ const TasksSplatRoute = TasksSplatRouteImport.update({
   path: '/tasks/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsPreferencesRoute = SettingsPreferencesRouteImport.update({
-  id: '/settings/preferences',
-  path: '/settings/preferences',
-  getParentRoute: () => rootRouteImport,
+const SettingsProfileRoute = SettingsProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => SettingsRouteRoute,
 } as any)
 const SettingsPasswordRoute = SettingsPasswordRouteImport.update({
-  id: '/settings/password',
-  path: '/settings/password',
-  getParentRoute: () => rootRouteImport,
+  id: '/password',
+  path: '/password',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsObsidianRoute = SettingsObsidianRouteImport.update({
+  id: '/obsidian',
+  path: '/obsidian',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsChatRoute = SettingsChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsCalendarRoute = SettingsCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsBoardRoute = SettingsBoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => SettingsRouteRoute,
 } as any)
 const RequirementsSplatRoute = RequirementsSplatRouteImport.update({
   id: '/requirements/$',
@@ -175,6 +217,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
   '/board': typeof BoardRoute
@@ -190,12 +233,18 @@ export interface FileRoutesByFullPath {
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
+  '/settings/board': typeof SettingsBoardRoute
+  '/settings/calendar': typeof SettingsCalendarRoute
+  '/settings/chat': typeof SettingsChatRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/obsidian': typeof SettingsObsidianRoute
   '/settings/password': typeof SettingsPasswordRoute
-  '/settings/preferences': typeof SettingsPreferencesRoute
+  '/settings/profile': typeof SettingsProfileRoute
   '/tasks/$': typeof TasksSplatRoute
   '/workflows/$': typeof WorkflowsSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -219,12 +268,18 @@ export interface FileRoutesByTo {
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
+  '/settings/board': typeof SettingsBoardRoute
+  '/settings/calendar': typeof SettingsCalendarRoute
+  '/settings/chat': typeof SettingsChatRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/obsidian': typeof SettingsObsidianRoute
   '/settings/password': typeof SettingsPasswordRoute
-  '/settings/preferences': typeof SettingsPreferencesRoute
+  '/settings/profile': typeof SettingsProfileRoute
   '/tasks/$': typeof TasksSplatRoute
   '/workflows/$': typeof WorkflowsSplatRoute
   '/o': typeof OIndexRoute
   '/requirements': typeof RequirementsIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/tasks': typeof TasksIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -234,6 +289,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
   '/board': typeof BoardRoute
@@ -249,12 +305,18 @@ export interface FileRoutesById {
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
   '/requirements/$': typeof RequirementsSplatRoute
+  '/settings/board': typeof SettingsBoardRoute
+  '/settings/calendar': typeof SettingsCalendarRoute
+  '/settings/chat': typeof SettingsChatRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/obsidian': typeof SettingsObsidianRoute
   '/settings/password': typeof SettingsPasswordRoute
-  '/settings/preferences': typeof SettingsPreferencesRoute
+  '/settings/profile': typeof SettingsProfileRoute
   '/tasks/$': typeof TasksSplatRoute
   '/workflows/$': typeof WorkflowsSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -265,6 +327,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/settings'
     | '/about'
     | '/activity'
     | '/board'
@@ -280,12 +343,18 @@ export interface FileRouteTypes {
     | '/demo/prisma'
     | '/o/$'
     | '/requirements/$'
+    | '/settings/board'
+    | '/settings/calendar'
+    | '/settings/chat'
+    | '/settings/notifications'
+    | '/settings/obsidian'
     | '/settings/password'
-    | '/settings/preferences'
+    | '/settings/profile'
     | '/tasks/$'
     | '/workflows/$'
     | '/o/'
     | '/requirements/'
+    | '/settings/'
     | '/tasks/'
     | '/workflows/'
     | '/api/auth/$'
@@ -309,12 +378,18 @@ export interface FileRouteTypes {
     | '/demo/prisma'
     | '/o/$'
     | '/requirements/$'
+    | '/settings/board'
+    | '/settings/calendar'
+    | '/settings/chat'
+    | '/settings/notifications'
+    | '/settings/obsidian'
     | '/settings/password'
-    | '/settings/preferences'
+    | '/settings/profile'
     | '/tasks/$'
     | '/workflows/$'
     | '/o'
     | '/requirements'
+    | '/settings'
     | '/tasks'
     | '/workflows'
     | '/api/auth/$'
@@ -323,6 +398,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/settings'
     | '/about'
     | '/activity'
     | '/board'
@@ -338,12 +414,18 @@ export interface FileRouteTypes {
     | '/demo/prisma'
     | '/o/$'
     | '/requirements/$'
+    | '/settings/board'
+    | '/settings/calendar'
+    | '/settings/chat'
+    | '/settings/notifications'
+    | '/settings/obsidian'
     | '/settings/password'
-    | '/settings/preferences'
+    | '/settings/profile'
     | '/tasks/$'
     | '/workflows/$'
     | '/o/'
     | '/requirements/'
+    | '/settings/'
     | '/tasks/'
     | '/workflows/'
     | '/api/auth/$'
@@ -353,6 +435,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ActivityRoute: typeof ActivityRoute
   BoardRoute: typeof BoardRoute
@@ -368,8 +451,6 @@ export interface RootRouteChildren {
   DemoPrismaRoute: typeof DemoPrismaRoute
   OSplatRoute: typeof OSplatRoute
   RequirementsSplatRoute: typeof RequirementsSplatRoute
-  SettingsPasswordRoute: typeof SettingsPasswordRoute
-  SettingsPreferencesRoute: typeof SettingsPreferencesRoute
   TasksSplatRoute: typeof TasksSplatRoute
   WorkflowsSplatRoute: typeof WorkflowsSplatRoute
   OIndexRoute: typeof OIndexRoute
@@ -446,6 +527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -466,6 +554,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tasks/'
       preLoaderRoute: typeof TasksIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
     '/requirements/': {
       id: '/requirements/'
@@ -495,19 +590,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TasksSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/preferences': {
-      id: '/settings/preferences'
-      path: '/settings/preferences'
-      fullPath: '/settings/preferences'
-      preLoaderRoute: typeof SettingsPreferencesRouteImport
-      parentRoute: typeof rootRouteImport
+    '/settings/profile': {
+      id: '/settings/profile'
+      path: '/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof SettingsProfileRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
     '/settings/password': {
       id: '/settings/password'
-      path: '/settings/password'
+      path: '/password'
       fullPath: '/settings/password'
       preLoaderRoute: typeof SettingsPasswordRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/obsidian': {
+      id: '/settings/obsidian'
+      path: '/obsidian'
+      fullPath: '/settings/obsidian'
+      preLoaderRoute: typeof SettingsObsidianRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/notifications': {
+      id: '/settings/notifications'
+      path: '/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chat': {
+      id: '/settings/chat'
+      path: '/chat'
+      fullPath: '/settings/chat'
+      preLoaderRoute: typeof SettingsChatRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/calendar': {
+      id: '/settings/calendar'
+      path: '/calendar'
+      fullPath: '/settings/calendar'
+      preLoaderRoute: typeof SettingsCalendarRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/board': {
+      id: '/settings/board'
+      path: '/board'
+      fullPath: '/settings/board'
+      preLoaderRoute: typeof SettingsBoardRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
     '/requirements/$': {
       id: '/requirements/$'
@@ -575,8 +705,35 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SettingsRouteRouteChildren {
+  SettingsBoardRoute: typeof SettingsBoardRoute
+  SettingsCalendarRoute: typeof SettingsCalendarRoute
+  SettingsChatRoute: typeof SettingsChatRoute
+  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
+  SettingsObsidianRoute: typeof SettingsObsidianRoute
+  SettingsPasswordRoute: typeof SettingsPasswordRoute
+  SettingsProfileRoute: typeof SettingsProfileRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
+}
+
+const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
+  SettingsBoardRoute: SettingsBoardRoute,
+  SettingsCalendarRoute: SettingsCalendarRoute,
+  SettingsChatRoute: SettingsChatRoute,
+  SettingsNotificationsRoute: SettingsNotificationsRoute,
+  SettingsObsidianRoute: SettingsObsidianRoute,
+  SettingsPasswordRoute: SettingsPasswordRoute,
+  SettingsProfileRoute: SettingsProfileRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
+}
+
+const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
+  SettingsRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SettingsRouteRoute: SettingsRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ActivityRoute: ActivityRoute,
   BoardRoute: BoardRoute,
@@ -592,8 +749,6 @@ const rootRouteChildren: RootRouteChildren = {
   DemoPrismaRoute: DemoPrismaRoute,
   OSplatRoute: OSplatRoute,
   RequirementsSplatRoute: RequirementsSplatRoute,
-  SettingsPasswordRoute: SettingsPasswordRoute,
-  SettingsPreferencesRoute: SettingsPreferencesRoute,
   TasksSplatRoute: TasksSplatRoute,
   WorkflowsSplatRoute: WorkflowsSplatRoute,
   OIndexRoute: OIndexRoute,

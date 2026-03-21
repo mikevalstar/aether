@@ -170,13 +170,9 @@ export default function Header({ serverSession }: HeaderProps) {
                   <p className="text-xs text-muted-foreground">{session.user.email}</p>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => void navigate({ to: "/settings/preferences" })}>
+                <DropdownMenuItem onSelect={() => void navigate({ to: "/settings/profile" })}>
                   <Settings className="mr-2 size-4" />
                   Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => void navigate({ to: "/settings/password" })}>
-                  <Settings className="mr-2 size-4" />
-                  Password
                 </DropdownMenuItem>
                 {session.user.role === "admin" && (
                   <DropdownMenuItem onSelect={() => void navigate({ to: "/users" })}>
@@ -251,7 +247,7 @@ export default function Header({ serverSession }: HeaderProps) {
                 ))}
                 <div className="my-2 border-t border-border" />
                 <Link
-                  to="/settings/preferences"
+                  to="/settings/profile"
                   className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
                   activeProps={{
                     className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",

@@ -79,7 +79,7 @@ function BoardPage() {
             Select an Obsidian Kanban file in your preferences to get started.
           </p>
           <Link
-            to="/settings/preferences"
+            to="/settings/board"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
           >
             <Settings className="size-3.5" />
