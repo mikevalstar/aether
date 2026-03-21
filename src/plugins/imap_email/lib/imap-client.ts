@@ -86,7 +86,15 @@ export async function listInbox(options: ImapOptions, limit = 20): Promise<Email
       // Sort newest first by date, then return only the requested limit
       messages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       const result = messages.slice(0, limit);
-      logger.info({ fetched: messages.length, returned: result.length, newestDate: result[0]?.date, oldestDate: result[result.length - 1]?.date }, "IMAP: listInbox complete");
+      logger.info(
+        {
+          fetched: messages.length,
+          returned: result.length,
+          newestDate: result[0]?.date,
+          oldestDate: result[result.length - 1]?.date,
+        },
+        "IMAP: listInbox complete",
+      );
       return result;
     } finally {
       lock.release();
@@ -309,7 +317,7 @@ export async function archiveEmail(options: ImapOptions, uid: number, sourceFold
       mailboxes.find((mb) => /^all mail$/i.test(mb.name));
 
     if (!archiveBox) {
-      throw new Error("No Archive folder found. Available folders: " + mailboxes.map((m) => m.path).join(", "));
+      throw new Error(`No Archive folder found. Available folders: ${mailboxes.map((m) => m.path).join(", ")}`);
     }
 
     const lock = await client.getMailboxLock(sourceFolder);

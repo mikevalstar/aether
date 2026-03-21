@@ -2,7 +2,16 @@ import { tool } from "ai";
 import { z } from "zod";
 import { logger } from "#/lib/logger";
 import type { AetherPluginServer } from "../types";
-import { archiveEmail, getUnreadCount, type ImapOptions, listFolders, listInbox, moveEmail, readEmail, searchEmails } from "./lib/imap-client";
+import {
+  archiveEmail,
+  getUnreadCount,
+  type ImapOptions,
+  listFolders,
+  listInbox,
+  moveEmail,
+  readEmail,
+  searchEmails,
+} from "./lib/imap-client";
 
 export const imapServer: AetherPluginServer = {
   systemPrompt: `You have access to email tools via IMAP. Use these tools when the user asks about their email:
@@ -103,7 +112,8 @@ Always use list_inbox or search_emails first to get UIDs before reading, moving,
       }),
 
       list_folders: tool({
-        description: "List all mailbox folders with their message counts. Use this to discover available folders before moving emails.",
+        description:
+          "List all mailbox folders with their message counts. Use this to discover available folders before moving emails.",
         inputSchema: z.object({}),
         execute: async () => {
           logger.info({ userId: ctx.userId }, "IMAP tool: list_folders invoked");
@@ -120,7 +130,8 @@ Always use list_inbox or search_emails first to get UIDs before reading, moving,
       }),
 
       move_email: tool({
-        description: "Move an email to a different folder. Use list_folders first to see available folders, and list_inbox or search_emails to get the email UID.",
+        description:
+          "Move an email to a different folder. Use list_folders first to see available folders, and list_inbox or search_emails to get the email UID.",
         inputSchema: z.object({
           uid: z.number().describe("The UID of the email to move"),
           destinationFolder: z.string().describe("The destination folder path (e.g., 'Trash', 'Spam', 'Folders/Work')"),
@@ -146,7 +157,8 @@ Always use list_inbox or search_emails first to get UIDs before reading, moving,
       }),
 
       archive_email: tool({
-        description: "Archive an email — automatically detects the Archive folder. Use list_inbox or search_emails first to get the email UID.",
+        description:
+          "Archive an email — automatically detects the Archive folder. Use list_inbox or search_emails first to get the email UID.",
         inputSchema: z.object({
           uid: z.number().describe("The UID of the email to archive"),
           sourceFolder: z.string().optional().describe("The source folder (default: INBOX)"),

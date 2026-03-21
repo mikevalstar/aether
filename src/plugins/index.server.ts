@@ -55,7 +55,8 @@ export async function getPluginWidgetData(
       .map(async (p) => {
         try {
           const ctx = createPluginContext(p.meta.id, userId);
-          results[p.meta.id] = await p.server!.loadWidgetData!(ctx);
+          const data = await p.server?.loadWidgetData?.(ctx);
+          if (data) results[p.meta.id] = data;
         } catch {
           results[p.meta.id] = { error: true };
         }
