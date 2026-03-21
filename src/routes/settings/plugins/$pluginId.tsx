@@ -17,6 +17,7 @@ export const Route = createFileRoute("/settings/plugins/$pluginId")({
 });
 
 type PluginSettingsData = {
+  // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
   options: Record<string, any>;
   optionFields: import("#/plugins/types").PluginOptionField[];
   pluginName: string;

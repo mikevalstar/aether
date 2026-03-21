@@ -12,7 +12,9 @@ export type PluginWidgetInfo = {
     label: string;
     size: "half" | "full";
   }>;
+  // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
   data: Record<string, any>;
+  // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
   options: Record<string, any>;
 };
 

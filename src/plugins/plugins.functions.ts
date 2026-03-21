@@ -53,6 +53,7 @@ export const togglePlugin = createServerFn({ method: "POST" })
   });
 
 export const savePluginOptions = createServerFn({ method: "POST" })
+  // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
   .inputValidator((data: { pluginId: string; options: Record<string, any> }) => data)
   .handler(async ({ data }) => {
     const session = await ensureSession();
@@ -101,6 +102,7 @@ export const checkPluginHealthFn = createServerFn({ method: "GET" })
   });
 
 export const testPluginConnection = createServerFn({ method: "POST" })
+  // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
   .inputValidator((data: { pluginId: string; options: Record<string, any> }) => data)
   .handler(async ({ data }) => {
     await ensureSession();
