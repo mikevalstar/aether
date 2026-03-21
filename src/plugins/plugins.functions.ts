@@ -118,5 +118,10 @@ export const testPluginConnection = createServerFn({ method: "POST" })
       });
     }
 
+    if (data.pluginId === "api_balances") {
+      const { testApiBalancesConnection } = await import("#/plugins/api_balances/lib/test-connection");
+      return await testApiBalancesConnection(data.options);
+    }
+
     return { success: false, message: "No test available for this plugin" };
   });

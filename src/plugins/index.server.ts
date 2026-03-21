@@ -1,11 +1,12 @@
 import type { ToolSet } from "ai";
 import type { UserPreferences } from "#/lib/preferences";
+import { apiBalancesPluginFull } from "./api_balances/index.server";
 import { imapPluginFull } from "./imap_email/index.server";
 import { createPluginContext } from "./plugin-context";
 import type { AetherPlugin } from "./types";
 
 /** All registered plugins with full server capabilities. */
-const serverPlugins: AetherPlugin[] = [imapPluginFull];
+const serverPlugins: AetherPlugin[] = [imapPluginFull, apiBalancesPluginFull];
 
 function getServerPlugin(id: string): AetherPlugin | undefined {
   return serverPlugins.find((p) => p.meta.id === id);
