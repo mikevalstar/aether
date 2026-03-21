@@ -20,7 +20,7 @@ export function UsageStat({ usage }: Props) {
   return (
     <Link
       to="/usage"
-      className="flex items-center gap-4 rounded-lg border border-border bg-card px-4 py-3 no-underline transition-colors hover:border-[var(--teal)]/30"
+      className="flex items-center gap-4 rounded-lg border border-border bg-card px-4 py-4 no-underline transition-colors hover:border-[var(--teal)]/30"
     >
       <div className="flex size-8 items-center justify-center rounded-md bg-[var(--teal-subtle)] text-[var(--teal)]">
         <Zap className="size-4" />

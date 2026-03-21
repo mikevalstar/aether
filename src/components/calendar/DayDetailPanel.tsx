@@ -21,7 +21,7 @@ export function DayDetailPanel({ date, events }: Props) {
   const uniqueAllDay = allDayEvents.filter((event, i, arr) => arr.findIndex((e) => e.title === event.title) === i);
 
   return (
-    <div className="flex max-h-[calc(100vh-16rem)] min-h-0 flex-col rounded-xl border border-border bg-card">
+    <div className="flex min-h-[18rem] flex-col rounded-xl border border-border bg-card">
       <div className="shrink-0 px-4 pt-4 pb-2">
         <h3 className="text-sm font-semibold">
           {format(date, "EEEE, MMM d")}

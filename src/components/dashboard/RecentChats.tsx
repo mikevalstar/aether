@@ -10,7 +10,7 @@ type Props = {
 export function RecentChats({ threads }: Props) {
   if (threads.length === 0) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3 pb-2">
         <Header />
         <Link
           to="/chat"
@@ -24,7 +24,7 @@ export function RecentChats({ threads }: Props) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 pb-2">
       <Header />
       {threads.map((thread) => (
         <Link

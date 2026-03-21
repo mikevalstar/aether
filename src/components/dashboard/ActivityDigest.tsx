@@ -21,7 +21,7 @@ export function ActivityDigest({ items }: Props) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 pb-2">
       <div className="flex items-center justify-between px-3">
         <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Recent Activity</h3>
         <Link to="/activity" className="text-xs text-[var(--teal)] no-underline hover:underline">

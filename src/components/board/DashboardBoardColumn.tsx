@@ -8,7 +8,7 @@ interface DashboardBoardColumnProps {
 
 export function DashboardBoardColumn({ column }: DashboardBoardColumnProps) {
   return (
-    <div className="flex flex-1 flex-col rounded-xl border border-[var(--teal)]/20 bg-[var(--teal-subtle)] p-5">
+    <div className="flex flex-1 flex-col rounded-xl border border-[var(--teal)]/20 bg-[var(--teal-subtle)] p-4">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="inline-flex size-7 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)]">
