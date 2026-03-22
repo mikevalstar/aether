@@ -74,6 +74,7 @@ export const Route = createRootRoute({
 function RootErrorComponent({ error }: ErrorComponentProps) {
   let router: ReturnType<typeof useRouter> | null = null;
   try {
+    // biome-ignore lint/correctness/useHookAtTopLevel: intentional — router context may be unavailable during HMR error recovery
     router = useRouter();
   } catch {
     // Router context may be unavailable during HMR reloads
