@@ -1,12 +1,14 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { updateUserPreferences } from "#/lib/preferences.functions";
 
 const NO_TEMPLATES_FOLDER = "__bundled__";
+const DEFAULT_CHAT_EXPORT_FOLDER = "Aether/Chats/{YYYY}/{MM}";
 const settingsRoute = getRouteApi("/settings");
 
 export const Route = createFileRoute("/settings/obsidian")({
@@ -17,6 +19,9 @@ function ObsidianSection() {
   const data = settingsRoute.useLoaderData();
 
   const [templatesFolder, setTemplatesFolder] = useState(data.preferences.obsidianTemplatesFolder || NO_TEMPLATES_FOLDER);
+  const [chatExportFolder, setChatExportFolder] = useState(
+    data.preferences.obsidianChatExportFolder || DEFAULT_CHAT_EXPORT_FOLDER,
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   if (data.obsidianFolders.length === 0) {
@@ -39,6 +44,7 @@ function ObsidianSection() {
           await updateUserPreferences({
             data: {
               obsidianTemplatesFolder: templatesFolder === NO_TEMPLATES_FOLDER ? undefined : templatesFolder,
+              obsidianChatExportFolder: chatExportFolder.trim() || undefined,
             },
           });
           toast.success("Preferences saved");
@@ -71,6 +77,20 @@ function ObsidianSection() {
           </Select>
           <p className="text-xs text-muted-foreground">
             Choose a folder in your Obsidian vault to use as the template source when creating new files.
+          </p>
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label>Chat export folder</Label>
+          <Input
+            value={chatExportFolder}
+            onChange={(e) => setChatExportFolder(e.target.value)}
+            placeholder={DEFAULT_CHAT_EXPORT_FOLDER}
+          />
+          <p className="text-xs text-muted-foreground">
+            Folder path for chat exports. Use placeholders: <code className="rounded bg-muted px-1">{"{YYYY}"}</code> (year),{" "}
+            <code className="rounded bg-muted px-1">{"{MM}"}</code> (month),{" "}
+            <code className="rounded bg-muted px-1">{"{DD}"}</code> (day).
           </p>
         </div>
 

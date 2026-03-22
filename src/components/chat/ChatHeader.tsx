@@ -1,4 +1,4 @@
-import { MenuIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { FileDownIcon, MenuIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -21,6 +21,7 @@ export interface ChatHeaderProps {
   onEffortChange?: (effort: string) => void;
   onTitleChange?: (title: string) => void;
   onDelete?: () => void;
+  onExport?: () => void;
 }
 
 const EFFORT_LABELS: Record<ChatEffort, string> = {
@@ -45,6 +46,7 @@ export function ChatHeader({
   onEffortChange,
   onTitleChange,
   onDelete,
+  onExport,
 }: ChatHeaderProps) {
   const currentModelSupportsEffort = CHAT_MODELS.find((m) => m.id === model)?.supportsEffort ?? false;
   const [isEditing, setIsEditing] = useState(false);
@@ -167,6 +169,20 @@ export function ChatHeader({
                 ))}
               </SelectContent>
             </Select>
+          )}
+
+          {onExport && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              disabled={disabled}
+              className="text-[var(--ink-soft)] hover:text-[var(--teal)]"
+              onClick={onExport}
+              title="Export to Obsidian"
+            >
+              <FileDownIcon className="size-4" />
+            </Button>
           )}
 
           <Button

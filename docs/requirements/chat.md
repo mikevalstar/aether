@@ -31,6 +31,7 @@ canonical_file: docs/requirements/chat.md
 | Usage tracking | done | The system records per-response token and cost data and shows cumulative totals for the selected thread. |
 | Context compaction | planned | Long conversations should be compacted to reduce token usage and stay within context limits. |
 | Attachments | in-progress | The composer and transcript support attachments in the UI, but product rules for storage and model handling are not yet explicitly defined. |
+| Export to Obsidian | planned | Users can export any chat thread as a Markdown file to a configurable Obsidian vault folder with YAML frontmatter metadata. |
 
 ## Sub-features
 
@@ -47,6 +48,7 @@ canonical_file: docs/requirements/chat.md
 | Editable titles | in-progress | Users can click the thread title in the header to edit it inline. | Inline |
 | Context compaction | planned | Automatically compact long conversations at 50k input tokens using Anthropic's server-side compaction. | Inline |
 | Attachment UI | in-progress | Users can add, preview, and remove attachments in the composer and view them on sent user messages. | Inline |
+| Export to Obsidian | planned | Users can export any chat thread as a Markdown file into their Obsidian vault with frontmatter metadata. | Inline |
 
 ## Detail
 
@@ -127,6 +129,18 @@ canonical_file: docs/requirements/chat.md
 - Dependencies: `src/components/assistant-ui/attachment.tsx`, `src/components/assistant-ui/thread.tsx`.
 - Follow-up: Define explicit product requirements for allowed file types, size limits, persistence lifecycle, and assistant behavior when attachments are included.
 
+### Export to Obsidian
+
+- Requirement: Users must be able to export any chat thread as a Markdown file into their Obsidian vault, with conversation metadata as YAML frontmatter.
+- Export destination: The target folder is set in user preferences (`obsidianChatExportFolder`). The folder path supports placeholders for date-based organization: `{YYYY}` (4-digit year), `{MM}` (2-digit month), `{DD}` (2-digit day). Default: `Aether/Chats/{YYYY}/{MM}`.
+- File naming: The filename is derived from the thread title (sanitized for filesystem safety), e.g. `My Chat Topic.md`.
+- Frontmatter metadata: The exported file includes YAML frontmatter with all available metadata: thread title, creation date, last updated date, model used, total input/output tokens, estimated cost, number of messages, and any other relevant thread fields.
+- Export format: Messages are rendered as Markdown with role headers (e.g. `## User`, `## Assistant`). Tool calls may be omitted or summarized for readability.
+- Overwrite behavior: If a file with the same name already exists at the target path, it is overwritten without prompting.
+- UI: An export button is available on any active chat thread (e.g. in the chat header or thread actions menu).
+- Dependencies: `src/lib/preferences.ts` (new preference field), `src/lib/chat.functions.ts` (export server function), `src/components/chat/ChatHeader.tsx` or equivalent (export button), Obsidian vault access (`OBSIDIAN_DIR`).
+- Follow-up: Decide whether tool-call content should be included in exports. Consider whether to add a "last exported" indicator on threads.
+
 ### Context compaction
 
 - Requirement: When a conversation's input tokens exceed 50,000, the system must automatically compact older messages to reduce token usage and stay within context limits, while preserving the full conversation in the UI.
@@ -150,4 +164,5 @@ canonical_file: docs/requirements/chat.md
 
 - 2026-03-14: Added AI-generated titles and editable titles sub-features.
 - 2026-03-15: Added context compaction sub-feature (planned) with implementation notes.
+- 2026-03-22: Added Export to Obsidian sub-feature (planned) — export chat threads as Markdown with frontmatter to a configurable vault folder.
 - 2026-03-14: Created the initial chat requirements doc from the current implementation and added it to the requirements index.

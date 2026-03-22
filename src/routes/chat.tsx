@@ -16,6 +16,7 @@ import { CHAT_MODELS, type ChatEffort, type ChatThreadSummary, DEFAULT_CHAT_EFFO
 import {
   createChatThread,
   deleteChatThread,
+  exportChatThreadToObsidian,
   getChatPageData,
   updateChatThreadEffort,
   updateChatThreadModel,
@@ -307,6 +308,23 @@ function ChatPage() {
                 });
               });
             }}
+            onExport={
+              selectedThread
+                ? () => {
+                    startTransition(() => {
+                      void exportChatThreadToObsidian({
+                        data: { threadId: selectedThread.id },
+                      })
+                        .then((result) => {
+                          toast.success(`Exported to ${result.relativePath}`);
+                        })
+                        .catch((err) => {
+                          toast.error(err instanceof Error ? err.message : "Export failed");
+                        });
+                    });
+                  }
+                : undefined
+            }
             onDelete={selectedThread ? () => handleRequestDelete(selectedThread) : undefined}
           />
 

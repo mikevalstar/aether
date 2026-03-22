@@ -26,6 +26,7 @@ canonical_file: docs/requirements/user-preferences.md
 | --- | --- | --- |
 | Profile editing | done | Users can update their display name via Better Auth. |
 | Obsidian templates folder | done | Users can select a vault folder as the template source for new file creation. |
+| Obsidian chat export folder | planned | Users can configure a folder path (with date placeholders) where chat exports are saved. |
 | Preferences storage | done | User preferences stored as JSON in the `preferences` column on the User model. |
 
 ## Sub-features
@@ -34,6 +35,7 @@ canonical_file: docs/requirements/user-preferences.md
 | --- | --- | --- | --- |
 | Profile section | done | Name field (editable) and email (display-only) in a card form. | Inline |
 | Obsidian templates folder picker | done | Select dropdown of vault folders, with "Bundled templates (default)" option. | Inline |
+| Obsidian chat export folder | planned | Text input for chat export folder path with date placeholders (`{YYYY}`, `{MM}`, `{DD}`). Default: `Aether/Chats/{YYYY}/{MM}`. | Inline |
 | Template resolution | done | `listObsidianTemplates` and `createObsidianFile` check user preference before falling back to bundled templates. | Inline |
 | Header navigation update | done | Settings link in user dropdown points to `/settings/preferences` instead of `/settings/password`. | Inline |
 
@@ -52,6 +54,15 @@ canonical_file: docs/requirements/user-preferences.md
 - `createObsidianFile()` resolves template content from the selected vault folder with path traversal protection.
 - Falls back to bundled templates if the vault folder is empty or unreadable.
 - Setting "Bundled templates (default)" clears the preference.
+
+### Obsidian chat export folder
+
+- A text input where users configure the folder path within the Obsidian vault where chat exports are saved.
+- Supports date placeholders: `{YYYY}` (4-digit year), `{MM}` (zero-padded month), `{DD}` (zero-padded day). These are resolved at export time based on the current date.
+- Default value: `Aether/Chats/{YYYY}/{MM}` — organizes exports by year and month.
+- The folder is created automatically if it doesn't exist at export time.
+- Stored as `obsidianChatExportFolder` in the `UserPreferences` type.
+- Only shown when the Obsidian vault is configured (`OBSIDIAN_DIR`).
 
 ### Preferences storage
 
@@ -78,4 +89,5 @@ canonical_file: docs/requirements/user-preferences.md
 
 ## Change Log
 
+- 2026-03-22: Added Obsidian chat export folder preference (planned) — configurable path with date placeholders for chat-to-Obsidian exports.
 - 2026-03-15: Created user preferences feature with profile editing and Obsidian templates folder selection.

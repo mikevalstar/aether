@@ -1,15 +1,22 @@
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
+import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 import {
+  type AppChatMessage,
+  CHAT_MODELS,
   type ChatThreadSummary,
   DEFAULT_CHAT_EFFORT,
   DEFAULT_CHAT_MODEL,
   getChatPreviewFromMessages,
+  getMessageText,
   isChatEffort,
   isChatModel,
   parseStoredMessages,
 } from "#/lib/chat";
+import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
 
 type ChatThreadInput = {
@@ -202,4 +209,144 @@ export const deleteChatThread = createServerFn({ method: "POST" })
     await prisma.chatThread.delete({ where: { id: data.threadId } });
 
     return { success: true };
+  });
+
+const DEFAULT_CHAT_EXPORT_FOLDER = "Aether/Chats/{YYYY}/{MM}";
+
+function resolveExportFolder(template: string): string {
+  const now = new Date();
+  const yyyy = String(now.getFullYear());
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+
+  return template
+    .replace(/\{YYYY\}/g, yyyy)
+    .replace(/\{MM\}/g, mm)
+    .replace(/\{DD\}/g, dd);
+}
+
+function sanitizeFilename(name: string): string {
+  return (
+    name
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional — strip control chars from filenames
+      .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "")
+      .trim() || "Untitled"
+  );
+}
+
+function formatChatAsMarkdown(
+  thread: {
+    title: string;
+    model: string;
+    effort: string;
+    totalInputTokens: number;
+    totalOutputTokens: number;
+    totalEstimatedCostUsd: number;
+    createdAt: Date;
+    updatedAt: Date;
+  },
+  messages: AppChatMessage[],
+): string {
+  const modelDef = CHAT_MODELS.find((m) => m.id === thread.model);
+  const createdDate = thread.createdAt.toISOString().split("T")[0];
+  const updatedDate = thread.updatedAt.toISOString().split("T")[0];
+  const messageCount = messages.length;
+
+  const frontmatter = [
+    "---",
+    `title: "${thread.title.replace(/"/g, '\\"')}"`,
+    `aliases:`,
+    `  - "Chat: ${thread.title.replace(/"/g, '\\"')}"`,
+    `model: ${modelDef?.label ?? thread.model}`,
+    `effort: ${thread.effort}`,
+    `created: ${createdDate}`,
+    `updated: ${updatedDate}`,
+    `messages: ${messageCount}`,
+    `input_tokens: ${thread.totalInputTokens}`,
+    `output_tokens: ${thread.totalOutputTokens}`,
+    `estimated_cost_usd: ${thread.totalEstimatedCostUsd.toFixed(6)}`,
+    `source: Aether Chat`,
+    "---",
+  ].join("\n");
+
+  const body = messages
+    .filter((msg) => msg.role === "user" || msg.role === "assistant")
+    .map((msg) => {
+      const role = msg.role === "user" ? "User" : "Assistant";
+      const text = getMessageText(msg);
+      return `## ${role}\n\n${text}`;
+    })
+    .join("\n\n---\n\n");
+
+  return `${frontmatter}\n\n${body}\n`;
+}
+
+type ExportChatInput = {
+  threadId: string;
+};
+
+export const exportChatThreadToObsidian = createServerFn({ method: "POST" })
+  .inputValidator((data: ExportChatInput) => data)
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+
+    const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
+    if (!obsidianRoot) {
+      throw new Error("Obsidian vault not configured");
+    }
+
+    const [thread, user] = await Promise.all([
+      prisma.chatThread.findFirst({
+        where: { id: data.threadId, userId: session.user.id },
+      }),
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { preferences: true },
+      }),
+    ]);
+
+    if (!thread) {
+      throw new Error("Thread not found");
+    }
+
+    const prefs = parsePreferences(user?.preferences);
+    const folderTemplate = prefs.obsidianChatExportFolder || DEFAULT_CHAT_EXPORT_FOLDER;
+    const folder = resolveExportFolder(folderTemplate);
+    const filename = `${thread.id}.md`;
+    const relativePath = folder ? `${folder}/${filename}` : filename;
+
+    if (relativePath.includes("..")) {
+      throw new Error("Invalid file path");
+    }
+
+    const absolutePath = path.join(obsidianRoot, relativePath);
+    const resolvedPath = path.resolve(absolutePath);
+    const resolvedRoot = path.resolve(obsidianRoot);
+
+    if (!resolvedPath.startsWith(resolvedRoot)) {
+      throw new Error("Path traversal detected");
+    }
+
+    const messages = parseStoredMessages(thread.messagesJson);
+    const content = formatChatAsMarkdown(thread, messages);
+
+    await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+    await fs.writeFile(absolutePath, content, "utf8");
+
+    try {
+      await logFileChange({
+        userId: session.user.id,
+        filePath: relativePath,
+        originalContent: null,
+        newContent: content,
+        changeSource: "manual",
+        summary: `Exported chat "${thread.title}"`,
+      });
+    } catch (err) {
+      logger.error({ err }, "Activity log failed for chat export");
+    }
+
+    return { success: true, relativePath };
   });

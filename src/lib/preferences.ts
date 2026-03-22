@@ -13,6 +13,7 @@ export type UserPreferences = {
   // biome-ignore lint: plugin options are flexible JSON
   pluginOptions?: Record<string, Record<string, any>>;
   dashboardLayouts?: Record<string, Array<{ i: string; x: number; y: number; w: number; h: number }>>;
+  obsidianChatExportFolder?: string;
 };
 
 export function parsePreferences(raw: string | null | undefined): UserPreferences {
