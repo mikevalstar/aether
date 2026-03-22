@@ -86,6 +86,13 @@ The following tools are available on this machine:
 - **fd** — fast alternative to `find`
 - **pandoc** — document conversion
 
+## Test Account (Agent Browser)
+
+A test user exists for automated browser testing with the agent-browser skill:
+- **URL**: `http://localhost:3000/login`
+- **Email**: `test@test.com`
+- **Password**: `testtest`
+
 ## Decisions
 
 Architecture decisions are documented in `docs/decisions/`. When making significant architectural choices, add a new decision record there.

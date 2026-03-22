@@ -23,6 +23,9 @@ model User {
   role          String    @default("user")
   preferences   String    @default("{}")
   mustChangePassword Boolean @default(false)
+  banned        Boolean   @default(false)
+  banReason     String?
+  banExpires    DateTime?
   invitedById   String?
   createdAt     DateTime
   updatedAt     DateTime
