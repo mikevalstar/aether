@@ -22,7 +22,7 @@ import {
   RefreshCwIcon,
   SquareIcon,
 } from "lucide-react";
-import { type FC, useCallback, useRef } from "react";
+import { type FC, useCallback, useRef, useSyncExternalStore } from "react";
 import { ComposerAddAttachment, ComposerAttachments, UserMessageAttachments } from "#/components/assistant-ui/attachment";
 import { MarkdownText } from "#/components/assistant-ui/markdown-text";
 import {
@@ -140,7 +140,17 @@ const ThreadSuggestionItem: FC = () => {
   );
 };
 
+const MOBILE_QUERY = "(max-width: 1023px)";
+const subscribe = (cb: () => void) => {
+  const mql = window.matchMedia(MOBILE_QUERY);
+  mql.addEventListener("change", cb);
+  return () => mql.removeEventListener("change", cb);
+};
+const getSnapshot = () => window.matchMedia(MOBILE_QUERY).matches;
+const getServerSnapshot = () => false;
+
 const Composer: FC = () => {
+  const isMobile = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { mentionState, handleMentionInput, handleMentionKeyDown, selectMention } = useMentionAutocomplete({ textareaRef });
 
@@ -165,6 +175,7 @@ const Composer: FC = () => {
             placeholder="Send a message..."
             className="aui-composer-input max-h-32 min-h-10 w-full resize-none bg-transparent px-1.75 py-1 text-base lg:text-sm outline-none placeholder:text-muted-foreground/80"
             rows={1}
+            submitMode={isMobile ? "none" : "enter"}
             autoFocus
             aria-label="Message input"
             onKeyDown={onKeyDown}
