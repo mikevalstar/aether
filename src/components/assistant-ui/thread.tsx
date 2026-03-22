@@ -176,7 +176,9 @@ const Composer: FC = () => {
             className="aui-composer-input max-h-32 min-h-10 w-full resize-none bg-transparent px-1.75 py-1 text-base lg:text-sm outline-none placeholder:text-muted-foreground/80"
             rows={1}
             submitMode={isMobile ? "none" : "enter"}
-            autoFocus
+            unstable_focusOnScrollToBottom={!isMobile}
+            unstable_focusOnRunStart={!isMobile}
+            autoFocus={!isMobile}
             aria-label="Message input"
             onKeyDown={onKeyDown}
             onInput={handleMentionInput}
