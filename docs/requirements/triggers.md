@@ -2,7 +2,7 @@
 title: Triggers
 status: draft
 owner: Mike
-last_updated: 2026-03-21
+last_updated: 2026-03-22
 canonical_file: docs/requirements/triggers.md
 ---
 

@@ -2,7 +2,7 @@
 title: Usage
 status: in-progress
 owner: self
-last_updated: 2026-03-14
+last_updated: 2026-03-22
 canonical_file: docs/requirements/usage.md
 ---
 
@@ -11,12 +11,12 @@ canonical_file: docs/requirements/usage.md
 ## Purpose
 
 - Problem: Give authenticated users a quick way to review chat token consumption, estimated spend, and model usage patterns over time.
-- Outcome: Users can open `/usage`, filter their own tracked chat completions by date range and model, and understand cost and token trends without leaving Aether.
+- Outcome: Users can open `/usage`, filter their own tracked chat completions by date range, model, and task type, and understand cost and token trends without leaving Aether.
 - Notes: This document reflects the current implementation of the usage page and its backing chat usage aggregation.
 
 ## Current Reality
 
-- Current behavior: `/usage` is an authenticated analytics page for chat usage events, with preset and custom date filters, optional model filtering, summary cards, daily charts, model breakdown, recent event rows, and an empty state when no data exists.
+- Current behavior: `/usage` is an authenticated analytics page for chat usage events, with a unified date range picker (presets and custom calendar), optional model and task type filtering, summary cards, daily charts (cost stacked by model and token flow), model breakdown, recent event rows with thread links, and an empty state when no data exists.
 - Constraints: Data only exists for completed assistant responses that created `ChatUsageEvent` rows; stats are scoped to the signed-in user; the page reads directly from aggregated event history rather than recomputing from message transcripts.
 - Non-goals: Org-wide reporting, export/download, per-message transcript drill-down, budget alerts, non-chat product analytics, and manual event correction are not implemented.
 
@@ -25,10 +25,10 @@ canonical_file: docs/requirements/usage.md
 | Area | Status | Requirement |
 | --- | --- | --- |
 | Access control | done | Only authenticated users can load the usage page and only their own usage events are queried. |
-| Filtering | done | Users can filter usage by preset range, custom from/to dates, and model. |
+| Filtering | done | Users can filter usage by preset date range or custom calendar selection, model, and task type. |
 | Summary metrics | done | The page shows aggregated cost, token, and activity totals for the selected view. |
-| Trend visualization | done | The page visualizes daily cost, daily token flow, and model cost mix for the filtered events. |
-| Event inspection | done | The page lists recent tracked exchanges with model, thread, token, cost, and timestamp data. |
+| Trend visualization | done | The page visualizes daily cost stacked by model, daily token flow, and model cost mix for the filtered events. |
+| Event inspection | done | The page lists recent tracked exchanges with model, task type, thread link, token, cost, and timestamp data. |
 | Analytics depth | in-progress | Usage reporting is useful for high-level monitoring, but deeper drill-down, export, and budgeting workflows are not yet defined. |
 
 ## Sub-features
@@ -37,10 +37,14 @@ canonical_file: docs/requirements/usage.md
 | --- | --- | --- | --- |
 | Usage route gating | done | `/usage` redirects anonymous users to `/login` before stats load. | Inline |
 | Search normalization | done | Invalid or missing search params normalize to a safe default view. | Inline |
+| Date range picker | done | A unified date range picker provides preset ranges and a two-month calendar for custom date selection. | Inline |
+| Task type filter | done | Users can filter events by task type (e.g. chat, title generation). | Inline |
 | Summary cards | done | The page shows estimated cost, total tokens, token split, and average cost. | Inline |
-| Daily charts | done | Cost and token usage are grouped by day for the selected range. | Inline |
+| Daily cost chart | done | Cost is visualized as a stacked area chart broken down by model for the selected range. | Inline |
+| Daily token chart | done | Input and output tokens are shown as stacked bars by day. | Inline |
 | Model breakdown | done | A pie chart and legend show cost share by model in the current result set. | Inline |
-| Recent exchanges table | done | The latest 10 matching events are listed with thread and model context. | Inline |
+| Recent exchanges table | done | The latest 10 matching events are listed with thread links, task type badges, and model context. | Inline |
+| Thread linking | done | Recent exchange rows link directly to the related chat thread. | Inline |
 | Empty state | done | Users without matching events see a clear empty state and a CTA back to chat. | Inline |
 
 ## Detail
@@ -54,10 +58,17 @@ canonical_file: docs/requirements/usage.md
 
 ### Search params and filter behavior
 
-- Requirement: The page must support preset date ranges, custom `from` and `to` dates, and an optional model filter that all update the current route state.
-- Notes: Missing or invalid search params normalize to `preset: 30d` and `model: all`; when only a preset is active, the page derives default dates; if `from` is after `to`, the values are swapped into ascending order.
-- Dependencies: `src/routes/usage.tsx`, `src/lib/chat-usage.ts`.
+- Requirement: The page must support preset date ranges via a unified date range picker, custom calendar-based date selection, an optional model filter, and an optional task type filter that all update the current route state.
+- Notes: The `DateRangePicker` component provides built-in presets (Last week, Last 7 days, This month, Last month, Last 30 days, Last 90 days, All time) alongside a two-month calendar for custom selection. When no dates are provided, the picker defaults to the `30d` preset. If `from` is after `to`, the values are swapped into ascending order. Model defaults to `all` and task type defaults to `all`. Search params are `from`, `to`, `model`, and `taskType`.
+- Dependencies: `src/routes/usage.tsx`, `src/lib/chat-usage.ts`, `src/components/ui/date-range-picker.tsx`.
 - Follow-up: Decide whether the page should expose an explicit reset action instead of relying on preset and field changes.
+
+### Task type filter
+
+- Requirement: The page must allow filtering usage events by task type.
+- Notes: Task types are defined in `src/lib/chat-usage.ts` as `chat` and `title`. The `ChatUsageEvent` model stores a `taskType` field (default `"chat"`). Title generation events are recorded when the system auto-generates thread titles. The filter dropdown shows human-readable labels (e.g. "Chat", "Title generation").
+- Dependencies: `src/routes/usage.tsx`, `src/lib/chat-usage.ts`, `prisma/schema.prisma`.
+- Follow-up: Add new task types as additional AI features are introduced (e.g. summarization, compaction).
 
 ### Aggregated metrics
 
@@ -69,7 +80,7 @@ canonical_file: docs/requirements/usage.md
 ### Daily usage charts
 
 - Requirement: The page must visualize cost and token activity per day across the selected date window.
-- Notes: Daily buckets are created only for dates that have events; cost is shown as an area chart and input/output tokens are shown as stacked bars; tooltips use the full stored day label.
+- Notes: The cost chart is a stacked area chart broken down by model, with a legend identifying each model's color. Daily token flow is shown as stacked bars for input and output tokens. Daily buckets are created only for dates that have events; zero-event days within the range are not backfilled. Tooltips use the full stored day label.
 - Dependencies: `src/routes/usage.tsx`, `src/lib/chat-usage.functions.ts`.
 - Follow-up: Decide whether zero-event days should be backfilled so trends show continuous timelines.
 
@@ -83,9 +94,14 @@ canonical_file: docs/requirements/usage.md
 ### Recent exchange list
 
 - Requirement: The page must show a recent-events table for the latest matching tracked exchanges.
-- Notes: The table is limited to the 10 newest matching events; rows show the usage timestamp, model label, thread title, total tokens, and estimated cost; deleted or missing threads display as `Deleted thread` and events without a thread display `-`.
+- Notes: The table is limited to the 10 newest matching events; rows show the usage timestamp, model label, task type badge, thread title, total tokens, and estimated cost; deleted or missing threads display as `Deleted thread` and events without a thread display no thread line. Rows with a valid thread link directly to the related chat thread via `<Link to="/chat" search={{ threadId }}>`.
 - Dependencies: `src/lib/chat-usage.functions.ts`, `src/routes/usage.tsx`.
-- Follow-up: Decide whether rows should link back to the related chat thread or specific message context.
+
+### Thread linking in recent exchanges
+
+- Requirement: Recent exchange rows must link to the related chat thread when the thread still exists.
+- Notes: Each event row checks for a valid `threadId`; if present and the thread exists, the thread title is rendered as a `<Link>` to `/chat?threadId=...`; deleted threads show as plain text ("Deleted thread"); events without a thread show no thread line.
+- Dependencies: `src/routes/usage.tsx`, `src/lib/chat-usage.functions.ts`.
 
 ### Empty-state behavior
 
@@ -97,10 +113,10 @@ canonical_file: docs/requirements/usage.md
 ## Open Questions
 
 - Should the usage page remain chat-only, or do you want it to become the broader analytics home for future Aether features?
-- Should recent events link into the related thread, or is a high-level audit view enough?
 - Do you want export, budget thresholds, or longer-term reporting called out as planned sub-features now, or left out of scope?
 - Should the model picker list all supported models even when the current filter range has no events for some of them?
 
 ## Change Log
 
 - 2026-03-14: Created the initial usage requirements doc from the current `/usage` implementation and added it to the requirements index.
+- 2026-03-22: Updated to reflect task type filter, unified DateRangePicker with presets and calendar, stacked-by-model cost chart, thread linking in recent exchanges, and task type badges on event rows.

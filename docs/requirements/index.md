@@ -42,6 +42,21 @@ Future ideas and things to build, but we don't have enough detail to write requi
 - ~~Jobs / Recurring tasks / Triggered Tasks~~ — promoted to [Periodic Tasks](periodic-tasks.md)
 - ~~Workflows~~ — promoted to [Workflows](workflows.md)
 - ~~Integrations - Calendars~~ — promoted to [Calendar](calendar.md)
-- Integrations - Email?
+- ~~Exa AI~~ — integrated as an MCP server for web search / content fetching
+- Email sending — AI tool to send emails (SMTP). Draft-first workflow: AI composes a draft, user reviews/approves before send. Read-only IMAP monitoring can come later as a plugin.
+- Approval Gate — top-level feature where the AI (or plugins) can queue actions that require user approval before execution. The AI is aware of pending approvals and can reference them in conversation. Surfaces in notifications and a dedicated UI. Key security differentiator.
+- Instant Messaging — IM channel support so the AI can be reached via messaging apps (Telegram, Discord, Slack, etc.). Start with one, expand to many.
+- AI Memory — structured, persistent memory system backed by Obsidian markdown files. The AI builds knowledge about the user over time. Fully transparent and auditable — every memory is a readable/editable/deletable markdown file.
+- Smart Home Integration — Home Assistant / MQTT plugin for controlling and monitoring smart home devices via AI tools.
+- Web Access / Browsing — AI tool for fetching and parsing web pages, extracting structured data, monitoring changes. Scoped read-access (not full browser automation) to keep the attack surface small.
+- Daily Briefing — sample workflow/cron prompt that combines calendar, kanban tasks, recent Obsidian changes, and other data sources into a morning summary. Ships as a bundled example prompt, not a dedicated feature.
+- Webhook Receiver — authenticated inbound webhook endpoint that triggers AI workflows. Enables external integrations (GitHub push → summarize changes, Sentry alert → investigate) without building per-platform adapters.
+- Conversation Branching — extend existing branch navigation into explicit fork/branch workflows. Explore multiple approaches in parallel from a single conversation point. Leverage the web UI advantage over messaging-app-based assistants.
 - Important Files list - this might just be config
-- https://exa.ai/ to get around AI blocking - would replace url markdown thing
+
+# Larger Initiatives
+
+These are bigger architectural efforts that will need full requirements docs before starting:
+
+- **Multi-user support** — move Obsidian vault/folder settings from global config to per-user preferences so multiple users can have their own vault, AI config, and memory. Primary motivation: allow separate setups for different household members.
+- **System settings migration** — move configuration currently in `.env` (API keys, SMTP credentials, etc.) into in-app global system settings. Requires an encrypted secrets vault for storing passwords and API keys securely — not plaintext in the database.

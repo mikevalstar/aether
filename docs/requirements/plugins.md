@@ -2,7 +2,7 @@
 title: Plugin System
 status: done
 owner: Mike
-last_updated: 2026-03-21
+last_updated: 2026-03-22
 canonical_file: docs/requirements/plugins.md
 ---
 
@@ -33,6 +33,7 @@ canonical_file: docs/requirements/plugins.md
 | Dashboard widgets | done | Plugins can supply dashboard widget components |
 | Command palette | done | Plugins can register pages/actions in the command palette |
 | Plugin options storage | done | Plugin-specific options stored in user preferences JSON |
+| Test connection | done | Per-plugin settings page offers a "Test Connection" button for plugins with health checks |
 
 ## Plugin Interface
 
@@ -64,6 +65,8 @@ type PluginMeta = {
   icon: LucideIcon;
   /** Semver version string */
   version: string;
+  /** Whether this plugin has a server-side health check */
+  hasHealthCheck?: boolean;
 };
 
 type PluginActivityParams = {
@@ -86,7 +89,7 @@ type PluginOptionField = {
   type: "text" | "password" | "number" | "boolean" | "select";
   description?: string;
   required?: boolean;
-  default?: unknown;
+  default?: string | number | boolean;
   options?: { label: string; value: string }[]; // for select type
 };
 
@@ -160,8 +163,8 @@ type PluginCommand = {
 type PluginWidget = {
   id: string;
   label: string;
-  /** "half" = one column, "full" = spans both columns */
-  size: "half" | "full";
+  /** "quarter" = one-quarter width, "half" = half, "three-quarter" = three-quarters, "full" = full width */
+  size: "quarter" | "half" | "three-quarter" | "full";
   /** React component — receives client context + server-loaded data */
   component: ComponentType<{
     ctx: PluginClientContext;
@@ -206,16 +209,28 @@ type AetherPlugin = {
 
 ### Registration Pattern
 
-Each plugin exports its parts from separate files to maintain the server/client boundary:
+Each plugin has two entry points to maintain the server/client boundary: a client-safe `index.ts` (no server imports) and a full `index.server.ts` (includes server definition). The registry mirrors this split:
 
 ```typescript
-// src/plugins/imap_email/index.ts — re-exports the combined plugin
+// src/plugins/imap_email/index.ts — client-safe export (no server imports)
 import type { AetherPlugin } from "../types";
 import { imapClient } from "./client";
-import { imapMeta, imapOptionFields, imapActivityTypes } from "./meta";
-import { imapServer } from "./server";
+import { imapActivityTypes, imapMeta, imapOptionFields } from "./meta";
 
 export const imapPlugin: AetherPlugin = {
+  meta: imapMeta,
+  optionFields: imapOptionFields,
+  activityTypes: imapActivityTypes,
+  client: imapClient,
+};
+
+// src/plugins/imap_email/index.server.ts — full plugin with server capabilities
+import type { AetherPlugin } from "../types";
+import { imapClient } from "./client";
+import { imapActivityTypes, imapMeta, imapOptionFields } from "./meta";
+import { imapServer } from "./server";
+
+export const imapPluginFull: AetherPlugin = {
   meta: imapMeta,
   optionFields: imapOptionFields,
   activityTypes: imapActivityTypes,
@@ -233,27 +248,32 @@ export const imapServer: AetherPluginServer = {
 
 // src/plugins/imap_email/client.tsx — only client components
 export const imapClient: AetherPluginClient = {
-  SettingsComponent: ImapSettings,
-  widgets: [{ id: "inbox", label: "Inbox", size: "half", component: InboxWidget }],
-  commands: [{ label: "Check Email", icon: Mail, route: "/email" }],
+  widgets: [{ id: "inbox", label: "Inbox", size: "quarter", component: InboxWidget }],
+  commands: [{ label: "Email Settings", icon: Mail, route: "/settings/plugins/imap_email" }],
 };
 ```
 
 ```typescript
-// src/plugins/index.ts — plugin registry
+// src/plugins/index.ts — client-safe registry (no server imports)
 import { imapPlugin } from "./imap_email";
+import { apiBalancesPlugin } from "./api_balances";
 
 /** All available plugins. Add new plugins here. */
 export const plugins: AetherPlugin[] = [
   imapPlugin,
+  apiBalancesPlugin,
 ];
 
-// Lookup helpers
+// Lookup helpers (client-safe)
 export function getPlugin(id: string): AetherPlugin | undefined;
 export function getEnabledPlugins(userPrefs: UserPreferences): AetherPlugin[];
-export function getPluginTools(ctx: PluginContext, userPrefs: UserPreferences): ToolSet;
-export function getPluginSystemPrompts(userPrefs: UserPreferences): string[];
 export function getPluginActivityTypes(userPrefs: UserPreferences): PluginActivityType[];
+
+// src/plugins/index.server.ts — server-side registry with full plugin capabilities
+export function getPluginTools(userId: string, threadId: string, timezone: string | undefined, prefs: UserPreferences): ToolSet;
+export function getPluginSystemPrompts(prefs: UserPreferences): string[];
+export function getPluginWidgetData(userId: string, prefs: UserPreferences): Promise<Record<string, Record<string, unknown>>>;
+export function checkPluginHealth(pluginId: string, userId: string): Promise<PluginHealthStatus>;
 ```
 
 ### Options Storage
@@ -278,17 +298,20 @@ type UserPreferences = {
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
 | Plugin interface types | done | Shared, server, and client types in `src/plugins/types.ts` | Inline |
-| Plugin registry | done | Central `src/plugins/index.ts` with discovery helpers | Inline |
-| Server/client split | done | Plugin definition split into server + client parts to respect bundle boundary | Inline |
+| Plugin registry | done | Client-safe `src/plugins/index.ts` + server-side `src/plugins/index.server.ts` with discovery helpers | Inline |
+| Server/client split | done | Plugin definition split into `index.ts` (client-safe) + `index.server.ts` (full) per plugin, mirrored in registry | Inline |
 | Global plugins settings page | done | `/settings/plugins` — list all plugins, toggle enable/disable, health badges | Inline |
 | Per-plugin settings page | done | `/settings/plugins/$pluginId` — render option fields + custom component with full client context | Inline |
-| AI tools integration | done | `createAiTools()` calls registry to merge enabled plugin tools | Inline |
+| Test connection | done | Per-plugin settings page has a "Test Connection" button for plugins with `hasHealthCheck`; calls `testPluginConnection` server function | Inline |
+| AI tools integration | done | `createAiTools()` calls server registry to merge enabled plugin tools | Inline |
 | System prompt integration | done | Plugin system prompts injected into `/api/chat` so AI knows about plugin tools | Inline |
 | Activity integration | done | `logActivity` in PluginContext creates `ActivityLog` with plugin-prefixed type; declared activity types for filter chips | Inline |
 | Dashboard integration | done | Dashboard loader calls plugin `loadWidgetData()`, passes data + context to widget components | Inline |
-| Command palette integration | done | CommandPalette queries enabled plugins for commands | Inline |
+| Command palette integration | done | CommandPalette queries all registered plugins for commands | Inline |
 | Settings nav update | done | Add "Plugins" section to settings sidebar | Inline |
 | Plugin health check | done | Status indicator on plugins settings page for plugins with external connections | Inline |
+| Plugin client context factory | done | `plugin-client-context.ts` creates stub `PluginClientContext` for widget rendering | Inline |
+| Dashboard plugin loader | done | `dashboard.functions.ts` server function loads widget data + metadata for dashboard route | Inline |
 | IMAP plugin (first plugin) | done | Proton Mail IMAP integration as first plugin | `docs/requirements/plugin-imap.md` |
 | API Balances plugin | done | Balance/credit dashboard widget for OpenRouter, OpenAI, Kilo Code | `docs/requirements/plugin-api-balances.md` |
 
@@ -299,6 +322,7 @@ type UserPreferences = {
 - Route: `/settings/plugins`
 - Shows a card for each registered plugin with: icon, name, description, version, enable/disable toggle
 - Enabled plugins show a "Settings" link to `/settings/plugins/$pluginId`
+- Enabled plugins with `hasHealthCheck` show a "Check Health" button that fetches status on-demand
 - Added to settings sidebar nav as a new section (below current items, with divider)
 
 ### Per-Plugin Settings Page
@@ -307,10 +331,11 @@ type UserPreferences = {
 - Auto-generates form fields from `optionFields` schema (text inputs, toggles, selects, password fields)
 - Renders plugin's `SettingsComponent` below the auto-form if provided
 - Save button calls `updateUserPreferences` to persist under `pluginOptions[pluginId]`
+- Plugins with `hasHealthCheck` get a "Test Connection" button next to Save that calls `testPluginConnection` with the current (unsaved) form values and shows inline success/failure feedback
 
 ### AI Tools Integration
 
-- `createAiTools()` receives user preferences, calls `getPluginTools()` from registry
+- `createAiTools()` receives user preferences, calls `getPluginTools()` from the server registry
 - Each plugin's tools are prefixed with plugin id: `{pluginId}_{toolName}` to avoid collisions (e.g., `imap_email_list_inbox`)
 - Only enabled plugins contribute tools
 - Plugin IDs must use underscore_case to keep tool names consistent (no mixed dashes/underscores)
@@ -319,35 +344,44 @@ type UserPreferences = {
 
 - Each plugin can declare a `systemPrompt` string in its server definition
 - `getPluginSystemPrompts()` collects prompts from all enabled plugins
-- Prompts are appended to the system prompt in the `/api/chat` endpoint, after skills
+- Prompts are appended to the system prompt in the `/api/chat` endpoint under a `## Plugins` section, after skills
 - Example: `"You have access to email tools. Use imap_email_list_inbox to check the inbox, imap_email_read to read a specific message."`
 
 ### Activity Integration
 
 - `PluginContext.logActivity()` creates an `ActivityLog` record
-- Type is prefixed: `plugin:{pluginId}:{type}` (e.g., `plugin:imap_email:new_mail`)
+- Type is prefixed: `plugin:{pluginId}:{type}` (e.g., `plugin:imap_email:email_check`)
 - Plugins declare their activity types via `activityTypes` on the plugin definition
-- Activity page reads declared types from enabled plugins to build dynamic filter chips (alongside hard-coded built-in types)
+- Activity page reads declared types from all registered plugins to build dynamic filter chips (alongside hard-coded built-in types)
 
 ### Dashboard Widgets
 
-- Dashboard route loader calls `server.loadWidgetData(ctx)` for each enabled plugin that declares widgets
+- Dashboard route loader calls `loadDashboardPluginWidgets()` server function, which calls `server.loadWidgetData(ctx)` for each enabled plugin that declares widgets
 - Widget data is passed alongside `PluginClientContext` to the widget component as `{ ctx, data }`
+- `PluginClientContext` for widgets is created via `createPluginClientContextFromOptions()` with stub obsidian/activity methods — widgets should use server-loaded data instead
 - This avoids client-side fetch waterfalls — widget data arrives with the page
-- Widgets rendered in the existing two-column layout, after built-in widgets
+- Widgets rendered via `DashboardGrid` in a responsive layout, after built-in widgets
+- Widget sizes support four options: `"quarter"`, `"half"`, `"three-quarter"`, `"full"`
 
 ### Command Palette Integration
 
-- `CommandPalette` queries enabled plugins for commands
+- `CommandPalette` iterates over all registered plugins for commands (not filtered by enabled state)
 - Plugin commands appear in a "Plugins" group in the palette
 - Commands can be routes (navigate) or actions (execute callback)
 
 ### Plugin Health Check
 
-- Plugins that connect to external services can implement `checkHealth()`
-- Called on-demand when the `/settings/plugins` page loads (not polled)
+- Plugins that connect to external services can implement `checkHealth()` and set `meta.hasHealthCheck = true`
+- Called on-demand when the user clicks "Check Health" on the `/settings/plugins` page (not automatic on page load)
 - Status shown as a badge on the plugin card: green dot (ok), yellow (warning), red (error) + optional message
-- Example: IMAP plugin returns `{ status: "ok", message: "Connected — 3 unread" }` or `{ status: "error", message: "Auth failed" }`
+- Example: IMAP plugin returns `{ status: "ok", message: "Connected — 3 unread" }` or `{ status: "error", message: "Connection failed" }`
+
+### Test Connection
+
+- The per-plugin settings page shows a "Test Connection" button alongside the save button for plugins with `hasHealthCheck`
+- Tests use the current form values (not yet saved), so users can verify credentials before persisting
+- `testPluginConnection` server function dispatches to plugin-specific test implementations (hardcoded switch on plugin ID)
+- Results shown inline with success/failure icon and message
 
 ### ObsidianPluginContext
 
@@ -363,21 +397,33 @@ type ObsidianPluginContext = {
 };
 ```
 
-This reuses existing obsidian tool internals but provides a clean API. Paths are relative to the Obsidian vault root.
+This reuses existing obsidian tool internals but provides a clean API. Paths are relative to the Obsidian vault root. Path traversal is guarded — paths that resolve outside the vault root are rejected.
 
 ## File Structure
 
 ```
 src/plugins/
-  types.ts              # Shared, server, client types (AetherPlugin, etc.)
-  index.ts              # Registry + lookup helpers
-  plugin-context.ts     # PluginContext + PluginClientContext factories
+  types.ts                # Shared, server, client types (AetherPlugin, etc.)
+  index.ts                # Client-safe registry + lookup helpers
+  index.server.ts         # Server-side registry (tools, prompts, widget data, health)
+  plugin-context.ts       # PluginContext factory (server-side, with Obsidian + activity)
+  plugin-client-context.ts # PluginClientContext factory (stub for widget rendering)
+  plugins.functions.ts    # TanStack server functions for settings pages (CRUD, health, test)
+  dashboard.functions.ts  # TanStack server function for loading plugin widget data
   imap_email/
-    index.ts            # Combined AetherPlugin export (imports meta + server + client)
-    meta.ts             # PluginMeta, optionFields, activityTypes (shared)
-    server.ts           # AetherPluginServer (tools, systemPrompt, loader, health)
-    client.tsx          # AetherPluginClient (widgets, commands, SettingsComponent)
-    lib/                # IMAP client, parsing, etc.
+    index.ts              # Client-safe AetherPlugin export (no server imports)
+    index.server.ts       # Full AetherPlugin export (includes server definition)
+    meta.ts               # PluginMeta, optionFields, activityTypes (shared)
+    server.ts             # AetherPluginServer (tools, systemPrompt, loader, health)
+    client.tsx            # AetherPluginClient (widgets, commands)
+    lib/                  # IMAP client, parsing, etc.
+  api_balances/
+    index.ts              # Client-safe AetherPlugin export
+    index.server.ts       # Full AetherPlugin export (includes server definition)
+    meta.ts               # PluginMeta, optionFields, activityTypes
+    server.ts             # AetherPluginServer (tools, systemPrompt, loader, health)
+    client.tsx            # AetherPluginClient (widgets, commands)
+    lib/                  # Balance fetchers, cache, types, test connection
 ```
 
 ## Open Questions
@@ -398,3 +444,4 @@ None currently — all resolved.
 - 2026-03-21: Added server/client split, system prompt integration, widget data loaders, declared activity types, underscore IDs, full client context for settings, health check, plaintext secrets caveat
 - 2026-03-21: Marked all requirements and sub-features as done. Full plugin system implemented with registry, settings pages, AI tool integration, system prompt injection, activity logging, dashboard widgets, command palette, health checks. Two plugins shipped: IMAP Email and API Balances.
 - 2026-03-22: Added `aiConfigFolder` and `aiMemoryFolder` strings to PluginContext so plugins know which Obsidian folders to use for AI config and memory.
+- 2026-03-22: Updated docs to match actual implementation: added `hasHealthCheck` to PluginMeta, expanded widget sizes to quarter/half/three-quarter/full, fixed PluginOptionField.default type, documented dual index.ts/index.server.ts pattern per plugin and registry, added test connection feature, documented plugin-client-context.ts and dashboard.functions.ts, corrected command palette and activity filter behavior (all plugins, not just enabled), added api_balances file structure.

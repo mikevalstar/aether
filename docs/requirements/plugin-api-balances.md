@@ -2,7 +2,7 @@
 title: Plugin — API Balances
 status: done
 owner: Mike
-last_updated: 2026-03-21
+last_updated: 2026-03-22
 canonical_file: docs/requirements/plugin-api-balances.md
 ---
 
@@ -38,11 +38,13 @@ canonical_file: docs/requirements/plugin-api-balances.md
 | Plugin meta & options schema | done | Plugin ID, option fields for each service's credentials + enable toggles | Inline |
 | OpenRouter integration | done | `GET /api/v1/credits` — management API key, returns total_credits & total_usage | Inline |
 | OpenAI integration | done | `GET /v1/dashboard/billing/credit_grants` — API key, returns credit grant balance | Inline |
-| Kilo Code integration | done | `GET /kilo/profile` or undocumented balance endpoint — API key, returns balance if available | Inline |
+| Kilo Code integration | done | `GET /api/profile/balance` — API key, returns balance | Inline |
 | Balance cache layer | done | In-memory cache keyed by `{userId}:{service}`, 10-min TTL, lazy refresh | Inline |
-| Dashboard widget | done | Half-width widget showing per-service balance rows with status indicators | Inline |
+| Dashboard widget | done | Quarter-width widget showing per-service balance rows with status indicators | Inline |
 | AI tool | done | Single tool returning all enabled service balances as structured data | Inline |
 | Health check | done | Test each enabled service's connection/auth independently | Inline |
+| Test connection | done | Dedicated test function for per-service connection testing from settings UI | Inline |
+| Command palette entry | done | "API Balances Settings" command linking to plugin settings page | Inline |
 
 ## Detail
 
@@ -50,6 +52,8 @@ canonical_file: docs/requirements/plugin-api-balances.md
 
 - Plugin ID: `api_balances`
 - Icon: `Wallet` (lucide-react)
+- Version: `0.1.0`
+- Activity types: `balance_check` — logged when balances are checked via AI tool
 - Option fields per service follow a pattern: `{service}_enabled` (boolean), `{service}_api_key` (password), plus any service-specific fields
 - Services in scope:
 
@@ -63,57 +67,71 @@ canonical_file: docs/requirements/plugin-api-balances.md
 
 - Endpoint: `GET https://openrouter.ai/api/v1/credits`
 - Auth: `Authorization: Bearer <management_api_key>`
-- Response: `{ total_credits, total_usage }` → balance = `total_credits - total_usage`
+- Response: `{ data: { total_credits, total_usage } }` → balance = `total_credits - total_usage`
 - Best integration — straightforward and documented.
 
 ### OpenAI Integration
 
 - Primary endpoint: `GET https://api.openai.com/v1/dashboard/billing/credit_grants`
 - Auth: `Authorization: Bearer <api_key>`
-- Response includes grant amounts and usage — compute remaining from grants.
+- Response includes `total_available` field — used directly as the balance amount.
 - Note: This is a legacy dashboard API endpoint that may be deprecated. If it stops working, fall back to showing "unavailable" rather than erroring.
 
 ### Kilo Code Integration
 
-- Try: `GET https://api.kilo.ai/kilo/profile` with `Authorization: Bearer <api_key>`
-- Fallback: balance may be embedded in the profile response object.
+- Endpoint: `GET https://app.kilo.ai/api/profile/balance` with `Authorization: Bearer <api_key>`
+- Response: `{ balance: <number>, isDepleted: <bool> }`
 - This is undocumented — mark as experimental in the UI. If the endpoint returns usable balance data, display it; otherwise show "Balance unavailable" gracefully.
 
 ### Balance Cache Layer
 
 - In-memory `Map` keyed by `{userId}:{serviceId}`.
-- Each entry stores: `{ balance, fetchedAt, error? }`.
+- Each entry stores: `{ result: BalanceResult, fetchedAt: timestamp }`.
 - On request, return cached value if `fetchedAt` is within 10 minutes; otherwise fetch fresh.
 - Cache is per-process (resets on server restart) — no persistence needed.
 - Failed fetches cache the error for 10 minutes too (avoid hammering a down service).
+- `clearCache(userId)` function clears all entries for a user (used by health check to force fresh data).
 
 ### Dashboard Widget
 
-- Size: `"half"` (one column)
+- Size: `"quarter"` (one quarter width)
 - Header: "API Balances" with Wallet icon
 - Body: one row per enabled service showing:
-  - Service name/icon
+  - Service name
   - Balance amount (formatted as currency, e.g., "$12.34")
-  - Status indicator: green dot (fetched OK), yellow (cached/stale), red (error)
-  - "Last checked: 3m ago" relative timestamp
+  - Status indicator: green `CheckCircle2` (fetched OK), red `AlertCircle` (error)
+  - Relative timestamp via `date-fns` `formatDistanceToNow` (e.g., "3 minutes ago")
 - States:
-  - **No services configured**: "No services configured" with link to plugin settings
+  - **No services configured**: "No services configured" with directions to plugin settings
   - **Error**: Show service name + error message inline (don't hide the whole widget)
-  - **Loading**: Skeleton rows matching expected service count
+  - **No balances**: "No balances to display" fallback
 
 ### AI Tool
 
-- Tool name: `api_balances_get_balances`
-- Description: "Get current credit balances for configured AI services"
+- Tool name: `api_balances_get_balances` (plugin prefix `api_balances_` + tool name `get_balances`)
+- Description: "Get current credit balances for configured AI services. Returns balance amounts, currency, and last-checked timestamps."
 - No parameters (returns all enabled services)
-- Returns array of: `{ service, balance, currency, lastChecked, error? }`
-- System prompt: "You have access to the api_balances_get_balances tool. Use it when the user asks about their API credits, balance, or remaining funds on AI platforms."
+- Returns `{ balances: BalanceResult[] }` where each entry has: `service, serviceName, balance, currency, lastChecked, error?`
+- Logs a `balance_check` activity event with the list of services checked
+- System prompt: "You have access to the api_balances_get_balances tool. Use it when the user asks about their API credits, balance, or remaining funds on AI platforms like OpenRouter, OpenAI, or Kilo Code."
 
 ### Health Check
 
+- Clears the cache for the user first to ensure fresh data.
 - Iterates over enabled services, attempts a balance fetch for each.
-- Returns `ok` if all enabled services respond, `warning` if some fail, `error` if all fail.
+- Returns `ok` if all enabled services respond, `warning` if some fail or no services are enabled, `error` if all fail.
 - Message summarizes: e.g., "OpenRouter: $12.34 | OpenAI: error"
+
+### Test Connection
+
+- Separate `testApiBalancesConnection` function in `lib/test-connection.ts` used by plugin settings UI test buttons.
+- Tests all enabled services with configured API keys in parallel.
+- Returns `{ success, message }` — success is true only if all enabled services respond without error.
+- Called from `plugins.functions.ts` when the user clicks a test button in plugin settings.
+
+### Command Palette
+
+- Registers an "API Balances Settings" command in the command palette (`Cmd+K`) linking to `/settings/plugins/api_balances`.
 
 ## File Structure
 
@@ -129,6 +147,7 @@ src/plugins/api_balances/
     openrouter.ts     # OpenRouter API client
     openai.ts         # OpenAI billing API client
     kilo.ts           # Kilo Code API client (experimental)
+    test-connection.ts # Per-service connection testing for settings UI
     types.ts          # Shared types (BalanceResult, ServiceConfig, etc.)
 ```
 
@@ -154,3 +173,4 @@ Both could be added later if they ship official balance endpoints, or via a "man
 - 2026-03-21: Initial requirements drafted
 - 2026-03-21: Resolved Kilo Code endpoint (app.kilo.ai works with API key). Confirmed Anthropic and Exa have no balance endpoints.
 - 2026-03-21: Marked all requirements and sub-features as done. Plugin skeleton, all three service integrations (OpenRouter, OpenAI, Kilo), dashboard widget, AI tool, caching, and health checks all implemented.
+- 2026-03-22: Updated doc to match implementation — corrected widget size (quarter, not half), OpenRouter response shape (nested under `data`), Kilo endpoint (app.kilo.ai/api/profile/balance), OpenAI balance field (`total_available`), status indicators (CheckCircle2/AlertCircle icons, no yellow/stale state). Added missing file `test-connection.ts`, command palette entry, activity type details, and test connection sub-feature.

@@ -2,7 +2,7 @@
 title: Workflows
 status: done
 owner: Mike
-last_updated: 2026-03-16
+last_updated: 2026-03-22
 canonical_file: docs/requirements/workflows.md
 ---
 
@@ -24,7 +24,7 @@ canonical_file: docs/requirements/workflows.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Workflow file format | done | Markdown files in `workflows/` with `title`, `fields` array, `model`, `effort` in frontmatter; body is the prompt template with `{{fieldName}}` placeholders |
+| Workflow file format | done | Markdown files in `workflows/` with `title`, `fields` array, `model`, `effort`, `notification` in frontmatter; body is the prompt template with `{{fieldName}}` placeholders |
 | Workflow system prompt | done | `workflow-prompt.md` AI config file — shared system prompt for all workflow executions |
 | Zod validator | done | Validators for workflow files and workflow-prompt following existing `ai-config-validators` pattern |
 | Workflow execution | done | Execute workflow via shared AI harness with full tool access, agent loop, background (non-streaming) |
@@ -33,8 +33,10 @@ canonical_file: docs/requirements/workflows.md
 | Convert to chat | done | Button on a completed workflow run to convert it into a regular chat thread for follow-up conversation |
 | Usage tracking | done | Track token usage per workflow run via `ChatUsageEvent` with `taskType: "workflow"` |
 | Activity logging | done | Log workflow executions as `ActivityLog` entries with `type: "workflow"` |
+| Notifications | done | Notify user on workflow completion or failure via the notification system, controlled by `notification` frontmatter field |
 | UI — Workflow list | done | Page at `/workflows` showing available workflows and recent runs across all workflows |
 | UI — Workflow detail | done | Page at `/workflows/:filename` showing the form to run + past runs for that specific workflow |
+| Command palette | done | Workflows appear in `Cmd+K` command palette for quick navigation |
 | Seed/pull CLI | done | Extend `ai-config:seed` and `ai-config:pull` to include example workflow files and workflow-prompt |
 | File watching | done | Chokidar watcher on `workflows/` for dynamic add/remove/update (same pattern as tasks) |
 
@@ -65,6 +67,7 @@ canonical_file: docs/requirements/workflows.md
 | `model` | string | no | `claude-haiku-4-5` | Model ID override |
 | `effort` | string | no | `low` | Effort level override |
 | `maxTokens` | number | no | — | Per-run output token ceiling |
+| `notification` | string | no | `notify` | Notification level on completion: `silent`, `notify`, or `push` |
 | `fields` | array | yes | — | Form field definitions (see below) |
 
 **Field definition schema:**
@@ -91,6 +94,7 @@ Each entry in the `fields` array:
 - `model` (if present) is a known model ID
 - `effort` (if present) is valid for the chosen model
 - `maxTokens` (if present) is a positive integer
+- `notification` (if present) is one of `silent`, `notify`, `push`
 - `select` type fields have non-empty `options` array
 - Body is non-empty
 
@@ -115,8 +119,7 @@ fields:
     placeholder: "Any modifications or notes..."
 ---
 
-Fetch the recipe at the following URL and convert it to a recipe markdown file
-in the recipes folder, following the recipe template.
+Fetch the recipe at the following URL and convert it to a recipe markdown file in the recipes folder, following the recipe template.
 
 URL: {{url}}
 
@@ -155,9 +158,10 @@ Additional instructions from the user:
 5. Enter agent loop via shared harness (`generateText()` with `stopWhen: stepCountIs(10)`, full tool access)
 6. On completion: serialize messages into `messagesJson`, update usage fields
 7. Create `ChatUsageEvent` with `taskType: "workflow"`
-8. Create `ActivityLog` entry with `type: "workflow"` and metadata `{ workflowFile, chatThreadId, model, inputTokens, outputTokens, estimatedCostUsd, success, formValues }`
+8. Create `ActivityLog` entry with `type: "workflow"` and metadata `{ workflowFile, chatThreadId, model, inputTokens, outputTokens, estimatedCostUsd, durationMs, success, formValues }`
 9. Upsert `Workflow` row: set `lastRunAt`, `lastRunStatus`, `lastThreadId`
-10. On error: store error in thread, log with `success: false`
+10. Send notification based on `notification` level — `notify` shows in-app notification, `push` also sends push notification, `silent` skips notification
+11. On error: store error in thread, log with `success: false`, send failure notification (always pushes to phone on error)
 
 **Concurrency:** Multiple workflow runs can execute simultaneously (unlike tasks which use `protect: true`). Each run creates its own ChatThread.
 
@@ -183,7 +187,7 @@ model Workflow {
   model          String    @default("claude-haiku-4-5")
   effort         String    @default("low")
   maxTokens      Int?
-  fieldsJson     String                     // JSON serialized fields array
+  fieldsJson     String    @default("[]")   // JSON serialized fields array
   lastRunAt      DateTime?
   lastRunStatus  String?                    // "success" | "error" | "running"
   lastThreadId   String?
@@ -210,19 +214,20 @@ model Workflow {
 
 **List view:**
 - Data source: `Workflow` table, joined with recent ChatThread runs
-- Each workflow shown as a card or row: title, description, field count, last run time/status
+- Each workflow shown as a card: title, description, field count, model badge, last run time/status
 - Click to navigate to `/workflows/:filename`
-- Visual indicators: deleted files (`fileExists: false` — greyed out)
+- Visual indicators: deleted files (`fileExists: false` — dimmed with "File removed" badge)
 
-**Route: `/workflows/:filename`**
+**Route: `/workflows/$` (splat parameter for filename)**
 
 **Form + history view:**
-- Top section: workflow title, description, dynamically rendered form from field definitions
-- Form renders appropriate input components per field type (`text` → Input, `textarea` → Textarea, `url` → Input with URL validation, `select` → Select)
-- Submit button triggers background execution, shows toast/notification
-- Bottom section: past runs table — timestamp, status, model, token usage, cost
-- Expandable run detail: full rendered response (markdown with tool calls/results)
-- "Continue in Chat" button on completed runs
+- Back link to `/workflows` list
+- Top section: workflow title with link to view the source file in the Obsidian browser, dynamically rendered form from field definitions
+- Form renders appropriate input components per field type (see table below)
+- Submit button triggers background execution, shows toast notification
+- Bottom section: past runs table — timestamp, model, total tokens, cost
+- Expandable run detail: full rendered response via shared `RunMessages` component (markdown with tool calls/results)
+- "Continue in Chat" button on completed runs (hidden for already-converted runs)
 - Delete button per run
 
 **Form field rendering:**
@@ -230,9 +235,13 @@ model Workflow {
 | Field type | Component | Validation |
 | --- | --- | --- |
 | `text` | `<Input>` | Required check |
-| `textarea` | `<Textarea>` | Required check |
+| `textarea` | `<MentionTextarea>` (supports @-mentions for file references) | Required check |
 | `url` | `<Input type="url">` | Required + URL format |
 | `select` | `<Select>` with options | Required + valid option |
+
+### Command palette
+
+Workflows are accessible from the `Cmd+K` command palette. Available workflows are fetched from the database (filtered to `fileExists: true`) and listed under a "Workflows" heading. Selecting a workflow navigates to its detail page. Implementation in `src/lib/command-palette.functions.ts` via the `getCommandPaletteWorkflows` server function.
 
 ### CLI tooling
 
@@ -245,7 +254,8 @@ Chokidar watcher on `{obsidianConfigPath}/workflows/` directory (same pattern as
 - On file add: parse, validate, upsert `Workflow` row with `fileExists: true`
 - On file change: re-parse, validate, upsert `Workflow` row
 - On file delete: set `Workflow.fileExists = false` (keep row for run history)
-- Watcher can be integrated into the existing task scheduler module or run as a separate singleton
+- Watcher is a separate singleton module (`src/lib/workflow-watcher.ts`) with eager initialization on import
+- Registers `SIGTERM`/`SIGINT` handlers and Vite HMR dispose for clean shutdown
 
 ## Open Questions
 
@@ -271,3 +281,4 @@ Suggested build order:
 - 2026-03-16: Initial requirements draft
 - 2026-03-16: Resolved open questions — no conditional template syntax (empty fields → "not entered"), toast notifications for now, thread title is just the workflow title
 - 2026-03-16: Full implementation complete — schema, validators, executor, watcher, server functions, UI (list + form + run history), convert-to-chat, example files, nav link
+- 2026-03-22: Requirements audit — documented `notification` frontmatter field, `MentionTextarea` for textarea fields, `durationMs` in activity metadata, completion/failure notifications, command palette integration, Obsidian file link on detail page, `fieldsJson` default value, watcher shutdown handling, splat route parameter
