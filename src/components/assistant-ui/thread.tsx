@@ -22,7 +22,7 @@ import {
   RefreshCwIcon,
   SquareIcon,
 } from "lucide-react";
-import { type FC, useCallback, useRef } from "react";
+import { type FC, useCallback, useRef, useSyncExternalStore } from "react";
 import { ComposerAddAttachment, ComposerAttachments, UserMessageAttachments } from "#/components/assistant-ui/attachment";
 import { MarkdownText } from "#/components/assistant-ui/markdown-text";
 import {
@@ -54,7 +54,7 @@ export const Thread: FC = () => {
             turnAnchor="bottom"
             aria-live="polite"
             aria-relevant="additions"
-            className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-1 pt-1 lg:px-4 lg:pt-4"
+            className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-auto scroll-smooth px-3 pt-2 lg:px-4 lg:pt-4"
           >
             <AuiIf condition={(s) => s.thread.isEmpty}>
               <ThreadWelcome />
@@ -140,7 +140,17 @@ const ThreadSuggestionItem: FC = () => {
   );
 };
 
+const MOBILE_QUERY = "(max-width: 1023px)";
+const subscribe = (cb: () => void) => {
+  const mql = window.matchMedia(MOBILE_QUERY);
+  mql.addEventListener("change", cb);
+  return () => mql.removeEventListener("change", cb);
+};
+const getSnapshot = () => window.matchMedia(MOBILE_QUERY).matches;
+const getServerSnapshot = () => false;
+
 const Composer: FC = () => {
+  const isMobile = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { mentionState, handleMentionInput, handleMentionKeyDown, selectMention } = useMentionAutocomplete({ textareaRef });
 
@@ -163,9 +173,12 @@ const Composer: FC = () => {
           <ComposerPrimitive.Input
             ref={textareaRef}
             placeholder="Send a message..."
-            className="aui-composer-input max-h-32 min-h-10 w-full resize-none bg-transparent px-1.75 py-1 text-sm outline-none placeholder:text-muted-foreground/80"
+            className="aui-composer-input max-h-32 min-h-10 w-full resize-none bg-transparent px-1.75 py-1 text-base lg:text-sm outline-none placeholder:text-muted-foreground/80"
             rows={1}
-            autoFocus
+            submitMode={isMobile ? "none" : "enter"}
+            unstable_focusOnScrollToBottom={!isMobile}
+            unstable_focusOnRunStart={!isMobile}
+            autoFocus={!isMobile}
             aria-label="Message input"
             onKeyDown={onKeyDown}
             onInput={handleMentionInput}
@@ -190,7 +203,7 @@ const ComposerAction: FC = () => {
             type="button"
             variant="default"
             size="icon"
-            className="aui-composer-send size-8 rounded-full"
+            className="aui-composer-send size-8 rounded-full transition-transform active:scale-90"
             aria-label="Send message"
           >
             <ArrowUpIcon className="aui-composer-send-icon size-4" />

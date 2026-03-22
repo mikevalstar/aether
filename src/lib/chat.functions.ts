@@ -225,17 +225,6 @@ function resolveExportFolder(template: string): string {
     .replace(/\{DD\}/g, dd);
 }
 
-function sanitizeFilename(name: string): string {
-  return (
-    name
-      // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional — strip control chars from filenames
-      .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
-      .replace(/_+/g, "_")
-      .replace(/^_|_$/g, "")
-      .trim() || "Untitled"
-  );
-}
-
 function formatChatAsMarkdown(
   thread: {
     title: string;

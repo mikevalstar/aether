@@ -74,6 +74,7 @@ export const Route = createRootRoute({
 function RootErrorComponent({ error }: ErrorComponentProps) {
   let router: ReturnType<typeof useRouter> | null = null;
   try {
+    // biome-ignore lint/correctness/useHookAtTopLevel: intentional — router context may be unavailable during HMR error recovery
     router = useRouter();
   } catch {
     // Router context may be unavailable during HMR reloads
@@ -82,10 +83,7 @@ function RootErrorComponent({ error }: ErrorComponentProps) {
   return (
     <div className="page-wrap py-12">
       <div className="surface-card overflow-hidden">
-        <ErrorDisplay
-          error={error}
-          onRetry={() => (router ? router.invalidate() : window.location.reload())}
-        />
+        <ErrorDisplay error={error} onRetry={() => (router ? router.invalidate() : window.location.reload())} />
       </div>
     </div>
   );
