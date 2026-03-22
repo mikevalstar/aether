@@ -24,6 +24,7 @@ type ObsidianTreeNavProps = {
 };
 
 const EXPANDED_KEY = "aether:obsidian:expanded";
+const SECTIONS_KEY = "aether:obsidian:sections";
 
 function loadExpanded(): Set<string> {
   try {
@@ -36,6 +37,20 @@ function loadExpanded(): Set<string> {
 function saveExpanded(set: Set<string>) {
   try {
     localStorage.setItem(EXPANDED_KEY, JSON.stringify([...set]));
+  } catch {}
+}
+
+function loadSectionCollapsed(): Record<string, boolean> {
+  try {
+    const stored = localStorage.getItem(SECTIONS_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  return {};
+}
+
+function saveSectionCollapsed(state: Record<string, boolean>) {
+  try {
+    localStorage.setItem(SECTIONS_KEY, JSON.stringify(state));
   } catch {}
 }
 
@@ -112,6 +127,15 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
   }, []);
 
   const [newFileOpen, setNewFileOpen] = useState(false);
+  const [sectionCollapsed, setSectionCollapsed] = useState(loadSectionCollapsed);
+
+  const toggleSection = useCallback((key: string) => {
+    setSectionCollapsed((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      saveSectionCollapsed(next);
+      return next;
+    });
+  }, []);
 
   const isSearching = search.trim().length > 0;
   const filteredNodes = useMemo(
@@ -183,35 +207,59 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
 
       {aiConfigNode && aiConfigNode.type === "folder" && (
         <div className="border-b border-[var(--coral)]/20 bg-[var(--coral)]/5 px-3 py-2">
-          <div className="mb-1 flex items-center gap-1.5 px-2">
+          <button
+            type="button"
+            onClick={() => toggleSection("aiConfig")}
+            className="mb-1 flex w-full items-center gap-1.5 px-2 transition-colors hover:opacity-80"
+          >
+            <ChevronRightIcon
+              className={cn(
+                "size-3 shrink-0 text-[var(--coral)] transition-transform duration-150",
+                !sectionCollapsed.aiConfig && "rotate-90",
+              )}
+            />
             <SparklesIcon className="size-3 text-[var(--coral)]" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--coral)]">AI Config</span>
-          </div>
-          <TreeList
-            nodes={aiConfigNode.children}
-            currentRoutePath={currentRoutePath}
-            expanded={expanded}
-            toggleFolder={toggleFolder}
-            isSearching={isSearching}
-            depth={0}
-          />
+          </button>
+          {!sectionCollapsed.aiConfig && (
+            <TreeList
+              nodes={aiConfigNode.children}
+              currentRoutePath={currentRoutePath}
+              expanded={expanded}
+              toggleFolder={toggleFolder}
+              isSearching={isSearching}
+              depth={0}
+            />
+          )}
         </div>
       )}
 
       {aiMemoryNode && aiMemoryNode.type === "folder" && (
         <div className="border-b border-[var(--teal)]/20 bg-[var(--teal)]/5 px-3 py-2">
-          <div className="mb-1 flex items-center gap-1.5 px-2">
+          <button
+            type="button"
+            onClick={() => toggleSection("aiMemory")}
+            className="mb-1 flex w-full items-center gap-1.5 px-2 transition-colors hover:opacity-80"
+          >
+            <ChevronRightIcon
+              className={cn(
+                "size-3 shrink-0 text-[var(--teal)] transition-transform duration-150",
+                !sectionCollapsed.aiMemory && "rotate-90",
+              )}
+            />
             <BrainIcon className="size-3 text-[var(--teal)]" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--teal)]">AI Memory</span>
-          </div>
-          <TreeList
-            nodes={aiMemoryNode.children}
-            currentRoutePath={currentRoutePath}
-            expanded={expanded}
-            toggleFolder={toggleFolder}
-            isSearching={isSearching}
-            depth={0}
-          />
+          </button>
+          {!sectionCollapsed.aiMemory && (
+            <TreeList
+              nodes={aiMemoryNode.children}
+              currentRoutePath={currentRoutePath}
+              expanded={expanded}
+              toggleFolder={toggleFolder}
+              isSearching={isSearching}
+              depth={0}
+            />
+          )}
         </div>
       )}
 
