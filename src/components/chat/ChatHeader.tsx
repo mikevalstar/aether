@@ -80,7 +80,7 @@ export function ChatHeader({
   }, [title]);
 
   return (
-    <div className="border-b-2 border-[var(--teal)] px-4 py-3">
+    <div className="border-b-2 border-[var(--teal)] px-2 py-2 lg:px-4 lg:py-3">
       <div className="flex items-center gap-3">
         {showMobileMenu && (
           <Button type="button" variant="ghost" size="icon-sm" onClick={onMobileMenuClick} aria-label="Open threads">
@@ -139,7 +139,7 @@ export function ChatHeader({
 
         <div className="flex items-center gap-2">
           <Select value={model} onValueChange={(value) => onModelChange?.(value)} disabled={disabled}>
-            <SelectTrigger className="min-w-40 border-[var(--teal)]/30 bg-[var(--teal-subtle)] font-semibold text-[var(--teal)] hover:bg-[var(--teal-subtle)]">
+            <SelectTrigger className="min-w-0 border-[var(--teal)]/30 bg-[var(--teal-subtle)] font-semibold text-[var(--teal)] hover:bg-[var(--teal-subtle)] lg:min-w-40">
               <SelectValue placeholder="Choose model" />
             </SelectTrigger>
             <SelectContent>
@@ -147,7 +147,7 @@ export function ChatHeader({
                 <SelectItem key={m.id} value={m.id}>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{m.label}</span>
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge variant="secondary" className="hidden text-[10px] lg:inline-flex">
                       {m.description}
                     </Badge>
                   </div>

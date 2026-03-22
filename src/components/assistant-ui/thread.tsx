@@ -54,7 +54,7 @@ export const Thread: FC = () => {
             turnAnchor="bottom"
             aria-live="polite"
             aria-relevant="additions"
-            className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-4 pt-4"
+            className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-1 pt-1 lg:px-4 lg:pt-4"
           >
             <AuiIf condition={(s) => s.thread.isEmpty}>
               <ThreadWelcome />
@@ -68,7 +68,7 @@ export const Thread: FC = () => {
               }}
             />
 
-            <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer sticky bottom-0 mx-auto mt-auto flex w-full max-w-(--thread-max-width) flex-col gap-2 overflow-visible rounded-t-(--composer-radius) bg-background pb-2">
+            <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer sticky bottom-0 mx-auto mt-auto flex w-full max-w-(--thread-max-width) flex-col gap-2 overflow-visible rounded-t-(--composer-radius) bg-background pb-1 lg:pb-2">
               <ThreadScrollToBottom />
               <Composer />
             </ThreadPrimitive.ViewportFooter>

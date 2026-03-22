@@ -97,17 +97,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <TooltipProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </TooltipProvider>
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+        {import.meta.env.VITE_DEV_TOOLS === "true" && (
+          <TanStackDevtools
+            config={{
+              position: "bottom-right",
+            }}
+            plugins={[
+              {
+                name: "Tanstack Router",
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+            ]}
+          />
+        )}
         <Scripts />
       </body>
     </html>
