@@ -1,7 +1,13 @@
-# Visit https://soloterm.com to learn more
 name: aether
 icon: null
 processes:
+  Tunnel:
+    command: pnpm tunnel
+    working_dir: null
+    auto_start: true
+    auto_restart: false
+    restart_when_changed: []
+    env: {}
   Storybook:
     command: pnpm run storybook
     working_dir: null

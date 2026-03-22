@@ -32,6 +32,9 @@ importers:
       '@dnd-kit/react':
         specifier: ^0.3.2
         version: 0.3.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@gorgonjs/gorgon':
+        specifier: ^1.6.1
+        version: 1.6.1
       '@libsql/client':
         specifier: ^0.17.2
         version: 0.17.2
@@ -915,6 +918,9 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@gorgonjs/gorgon@1.6.1':
+    resolution: {integrity: sha512-7UL0KI1LtApDcLHcKohHkHScMtPTPY++5McYOlOd3DtAHB4XqHaLg9vUQBXTJjXU72Q4moB7oKBFlS1PB0ZDjA==}
 
   '@hono/node-server@1.19.9':
     resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
@@ -6054,6 +6060,8 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
 
   '@floating-ui/utils@0.2.11': {}
+
+  '@gorgonjs/gorgon@1.6.1': {}
 
   '@hono/node-server@1.19.9(hono@4.11.4)':
     dependencies:

@@ -439,3 +439,8 @@ a {
 .react-grid-item > .react-resizable-handle {
   display: none;
 }
+
+/* Square block typing cursor instead of default dot */
+:where(.aui-md[data-status="running"]) {
+  --aui-content: "\25A0";
+}

@@ -239,7 +239,7 @@ function ChatPage() {
   );
 
   return (
-    <main className="page-wrap flex h-[calc(100vh-4.5rem)] min-h-[500px] px-0 py-0 lg:px-4 lg:py-2">
+    <main className="page-wrap flex h-[calc(100dvh-1.75rem)] min-h-0 px-0 py-0 lg:h-[calc(100dvh-4.5rem)] lg:min-h-[500px] lg:px-4 lg:py-2">
       <div ref={containerRef} className="flex min-h-0 w-full flex-col gap-0 lg:flex-row lg:gap-0">
         {/* Main chat area */}
         <section className="order-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-[var(--surface)] lg:rounded-xl lg:border lg:border-[var(--line)] lg:rounded-r-none lg:border-r-0">
