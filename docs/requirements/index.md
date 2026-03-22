@@ -26,9 +26,10 @@ Status legend: `todo`, `in-progress`, `done`
 | [Notifications](notifications.md) | done | Two-channel notifications: in-browser toasts (10s polling) + Pushover push to phone. Bell icon in header with unread count. | [notifications](notifications.md) | 2026-03-16 |
 | [Command Palette](command-palette.md) | done | `Cmd+K` command palette for quick navigation to pages, workflows, obsidian docs, and common actions. Lazy-loaded data. | [command-palette](command-palette.md) | 2026-03-17 |
 | [Calendar](calendar.md) | done | iCal feed sync with file cache, interactive month/day calendar widget on dashboard, and AI tool for date-range queries. | [calendar](calendar.md) | 2026-03-17 |
-| [Board (Kanban)](board.md) | todo | Interactive kanban board backed by an Obsidian Kanban Markdown file, with AI tools for task management. | [board](board.md) | 2026-03-17 |
-| [Plugin System](plugins.md) | todo | Standardized plugin interface for AI tools, settings, activity, dashboard widgets, and command palette. Built-in modules now, external later. | [plugins](plugins.md) | 2026-03-21 |
-| [Plugin — API Balances](plugin-api-balances.md) | todo | Dashboard widget + AI tool showing credit balances for OpenRouter, OpenAI, Kilo Code. Per-service config with 10-min cache. | [plugin-api-balances](plugin-api-balances.md) | 2026-03-21 |
+| [Board (Kanban)](board.md) | done | Interactive kanban board backed by an Obsidian Kanban Markdown file, with AI tools for task management. | [board](board.md) | 2026-03-21 |
+| [Plugin System](plugins.md) | done | Standardized plugin interface for AI tools, settings, activity, dashboard widgets, and command palette. Built-in modules now, external later. | [plugins](plugins.md) | 2026-03-21 |
+| [Plugin — API Balances](plugin-api-balances.md) | done | Dashboard widget + AI tool showing credit balances for OpenRouter, OpenAI, Kilo Code. Per-service config with 10-min cache. | [plugin-api-balances](plugin-api-balances.md) | 2026-03-21 |
+| [Triggers](triggers.md) | draft | Event-driven AI prompts fired by file changes or plugin events. Config-as-markdown in `triggers/` folder, `{{details}}` placeholder, concurrent execution. | [triggers](triggers.md) | 2026-03-21 |
 
 
 # Ideas

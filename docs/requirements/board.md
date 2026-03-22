@@ -1,8 +1,8 @@
 ---
 title: Board (Kanban)
-status: todo
+status: done
 owner: self
-last_updated: 2026-03-17
+last_updated: 2026-03-21
 canonical_file: docs/requirements/board.md
 ---
 
@@ -34,28 +34,28 @@ The kanban file is standard Markdown with Obsidian Kanban plugin conventions:
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Board page | todo | `/board` route showing kanban columns parsed from the configured Obsidian Markdown file. |
-| Dynamic columns | todo | Columns derived from `##` headings in the file. Order matches file order. |
-| Add task | todo | Add a new task to any column. |
-| Remove task | todo | Delete a task from any column. |
-| Move task | todo | Move a task between columns (change status). |
-| File picker preference | todo | Searchable combobox in user preferences to select the kanban file from the Obsidian vault. |
-| AI tools | todo | Dedicated tools for the AI to list tasks, add tasks, and update/move tasks. |
-| Command palette | todo | Add "Board" to the `PAGES` array in `CommandPalette.tsx`. |
-| Header nav | todo | Add "Board" link to authenticated header navigation. |
+| Board page | done | `/board` route showing kanban columns parsed from the configured Obsidian Markdown file. |
+| Dynamic columns | done | Columns derived from `##` headings in the file. Order matches file order. |
+| Add task | done | Add a new task to any column. |
+| Remove task | done | Delete a task from any column. |
+| Move task | done | Move a task between columns (change status). |
+| File picker preference | done | Searchable combobox in user preferences to select the kanban file from the Obsidian vault. |
+| AI tools | done | Dedicated tools for the AI to list tasks, add tasks, and update/move tasks. |
+| Command palette | done | Add "Board" to the `PAGES` array in `CommandPalette.tsx`. |
+| Header nav | done | Add "Board" link to authenticated header navigation. |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Kanban file parser | todo | Parse the Obsidian Kanban Markdown format into structured columns + tasks. | [Detail](#kanban-file-parser) |
-| Kanban file serializer | todo | Serialize structured data back to valid Obsidian Kanban Markdown, preserving frontmatter and settings footer. | [Detail](#kanban-file-serializer) |
-| Board UI | todo | Interactive kanban board with columns, task cards, and drag-or-button-based movement. | [Detail](#board-ui) |
-| Empty/unconfigured state | todo | Friendly state when no kanban file is selected, with link to preferences. | Inline |
-| Preference: kanban file picker | todo | Searchable combobox in `/settings/preferences` for selecting the kanban `.md` file. | [Detail](#kanban-file-picker) |
-| AI tool: `board_list_tasks` | todo | List all tasks with their column/status, optional column filter. | [Detail](#ai-tools) |
-| AI tool: `board_add_task` | todo | Add a new task to a specified column. | [Detail](#ai-tools) |
-| AI tool: `board_update_task` | todo | Update task text or move to a different column. | [Detail](#ai-tools) |
+| Kanban file parser | done | Parse the Obsidian Kanban Markdown format into structured columns + tasks. | [Detail](#kanban-file-parser) |
+| Kanban file serializer | done | Serialize structured data back to valid Obsidian Kanban Markdown, preserving frontmatter and settings footer. | [Detail](#kanban-file-serializer) |
+| Board UI | done | Interactive kanban board with columns, task cards, and drag-or-button-based movement. | [Detail](#board-ui) |
+| Empty/unconfigured state | done | Friendly state when no kanban file is selected, with link to preferences. | Inline |
+| Preference: kanban file picker | done | Searchable combobox in `/settings/preferences` for selecting the kanban `.md` file. | [Detail](#kanban-file-picker) |
+| AI tool: `board_list_tasks` | done | List all tasks with their column/status, optional column filter. | [Detail](#ai-tools) |
+| AI tool: `board_add_task` | done | Add a new task to a specified column. | [Detail](#ai-tools) |
+| AI tool: `board_update_task` | done | Update task text or move to a different column. | [Detail](#ai-tools) |
 
 ## Detail
 
@@ -118,13 +118,13 @@ All tools read/write the kanban file configured in the current user's preference
 
 | Step | Status | Plan |
 | --- | --- | --- |
-| 1. Parser/serializer | todo | Create `src/lib/board/kanban-parser.ts` with parse and serialize functions. |
-| 2. Server functions | todo | Create `src/lib/board/board.functions.ts` with CRUD operations that read/parse, mutate, serialize/write. |
-| 3. Preference | todo | Add `kanbanFile` to `UserPreferences` type, add combobox picker to preferences page. |
-| 4. Board route | todo | Create `src/routes/board.tsx` with loader, column rendering, and mutation actions. |
-| 5. Board UI components | todo | Create `src/components/board/` with `BoardView`, `BoardColumn`, `BoardTask` components. |
-| 6. AI tools | todo | Register `board_list_tasks`, `board_add_task`, `board_update_task` in the chat tool registry. |
-| 7. Nav integration | todo | Add to header nav and command palette `PAGES` array. |
+| 1. Parser/serializer | done | Create `src/lib/board/kanban-parser.ts` with parse and serialize functions. |
+| 2. Server functions | done | Create `src/lib/board/board.functions.ts` with CRUD operations that read/parse, mutate, serialize/write. |
+| 3. Preference | done | Add `kanbanFile` to `UserPreferences` type, add combobox picker to preferences page. |
+| 4. Board route | done | Create `src/routes/board.tsx` with loader, column rendering, and mutation actions. |
+| 5. Board UI components | done | Create `src/components/board/` with `BoardView`, `BoardColumn`, `BoardTask` components. |
+| 6. AI tools | done | Register `board_list_tasks`, `board_add_task`, `board_update_task` in the chat tool registry. |
+| 7. Nav integration | done | Add to header nav and command palette `PAGES` array. |
 
 ## Open Questions
 
@@ -133,3 +133,4 @@ All tools read/write the kanban file configured in the current user's preference
 ## Change Log
 
 - 2026-03-17: Created initial requirements doc for Board (Kanban) feature.
+- 2026-03-21: Marked all requirements and sub-features as done. All implemented: parser/serializer, board UI with drag-and-drop, task CRUD, file picker settings, AI tools (list_tasks, list_columns, add_task, update_task), header nav, command palette, dashboard widget.

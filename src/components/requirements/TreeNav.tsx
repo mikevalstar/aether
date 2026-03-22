@@ -12,7 +12,7 @@ type TreeNavProps = {
 
 export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
   return (
-    <div className="surface-card h-fit overflow-hidden lg:sticky lg:top-24">
+    <div className="surface-card lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:flex lg:flex-col overflow-hidden">
       <div className="border-b border-[var(--line)] bg-[var(--teal-subtle)] px-5 py-4">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Requirements</p>
         <h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
@@ -24,7 +24,7 @@ export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
         </p>
       </div>
 
-      <nav className="max-h-[calc(100vh-10rem)] overflow-y-auto px-3 py-3">
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
         <TreeList nodes={nodes} currentRoutePath={currentRoutePath} />
       </nav>
     </div>

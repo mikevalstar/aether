@@ -1,6 +1,6 @@
 ---
 title: Plugin System
-status: todo
+status: done
 owner: Mike
 last_updated: 2026-03-21
 canonical_file: docs/requirements/plugins.md
@@ -24,15 +24,15 @@ canonical_file: docs/requirements/plugins.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Plugin interface | todo | TypeScript interface that plugins implement to declare capabilities |
-| Plugin registry | todo | Central registry that discovers and manages all plugins |
-| Plugin settings page | todo | Global `/settings/plugins` page listing all plugins with enable/disable toggles |
-| Per-plugin settings | todo | Each plugin can declare a settings component, rendered at `/settings/plugins/[id]` |
-| AI tools integration | todo | Plugins can supply tools that are merged into `createAiTools()` |
-| Activity items | todo | Plugins can log typed activity items via a provided context |
-| Dashboard widgets | todo | Plugins can supply dashboard widget components |
-| Command palette | todo | Plugins can register pages/actions in the command palette |
-| Plugin options storage | todo | Plugin-specific options stored in user preferences JSON |
+| Plugin interface | done | TypeScript interface that plugins implement to declare capabilities |
+| Plugin registry | done | Central registry that discovers and manages all plugins |
+| Plugin settings page | done | Global `/settings/plugins` page listing all plugins with enable/disable toggles |
+| Per-plugin settings | done | Each plugin can declare a settings component, rendered at `/settings/plugins/[id]` |
+| AI tools integration | done | Plugins can supply tools that are merged into `createAiTools()` |
+| Activity items | done | Plugins can log typed activity items via a provided context |
+| Dashboard widgets | done | Plugins can supply dashboard widget components |
+| Command palette | done | Plugins can register pages/actions in the command palette |
+| Plugin options storage | done | Plugin-specific options stored in user preferences JSON |
 
 ## Plugin Interface
 
@@ -273,20 +273,20 @@ type UserPreferences = {
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Plugin interface types | todo | Shared, server, and client types in `src/plugins/types.ts` | Inline |
-| Plugin registry | todo | Central `src/plugins/index.ts` with discovery helpers | Inline |
-| Server/client split | todo | Plugin definition split into server + client parts to respect bundle boundary | Inline |
-| Global plugins settings page | todo | `/settings/plugins` — list all plugins, toggle enable/disable, health badges | Inline |
-| Per-plugin settings page | todo | `/settings/plugins/$pluginId` — render option fields + custom component with full client context | Inline |
-| AI tools integration | todo | `createAiTools()` calls registry to merge enabled plugin tools | Inline |
-| System prompt integration | todo | Plugin system prompts injected into `/api/chat` so AI knows about plugin tools | Inline |
-| Activity integration | todo | `logActivity` in PluginContext creates `ActivityLog` with plugin-prefixed type; declared activity types for filter chips | Inline |
-| Dashboard integration | todo | Dashboard loader calls plugin `loadWidgetData()`, passes data + context to widget components | Inline |
-| Command palette integration | todo | CommandPalette queries enabled plugins for commands | Inline |
-| Settings nav update | todo | Add "Plugins" section to settings sidebar | Inline |
-| Plugin health check | todo | Status indicator on plugins settings page for plugins with external connections | Inline |
-| IMAP plugin (first plugin) | todo | Proton Mail IMAP integration as first plugin | `docs/requirements/plugin-imap.md` |
-| API Balances plugin | todo | Balance/credit dashboard widget for OpenRouter, OpenAI, Kilo Code | `docs/requirements/plugin-api-balances.md` |
+| Plugin interface types | done | Shared, server, and client types in `src/plugins/types.ts` | Inline |
+| Plugin registry | done | Central `src/plugins/index.ts` with discovery helpers | Inline |
+| Server/client split | done | Plugin definition split into server + client parts to respect bundle boundary | Inline |
+| Global plugins settings page | done | `/settings/plugins` — list all plugins, toggle enable/disable, health badges | Inline |
+| Per-plugin settings page | done | `/settings/plugins/$pluginId` — render option fields + custom component with full client context | Inline |
+| AI tools integration | done | `createAiTools()` calls registry to merge enabled plugin tools | Inline |
+| System prompt integration | done | Plugin system prompts injected into `/api/chat` so AI knows about plugin tools | Inline |
+| Activity integration | done | `logActivity` in PluginContext creates `ActivityLog` with plugin-prefixed type; declared activity types for filter chips | Inline |
+| Dashboard integration | done | Dashboard loader calls plugin `loadWidgetData()`, passes data + context to widget components | Inline |
+| Command palette integration | done | CommandPalette queries enabled plugins for commands | Inline |
+| Settings nav update | done | Add "Plugins" section to settings sidebar | Inline |
+| Plugin health check | done | Status indicator on plugins settings page for plugins with external connections | Inline |
+| IMAP plugin (first plugin) | done | Proton Mail IMAP integration as first plugin | `docs/requirements/plugin-imap.md` |
+| API Balances plugin | done | Balance/credit dashboard widget for OpenRouter, OpenAI, Kilo Code | `docs/requirements/plugin-api-balances.md` |
 
 ## Detail
 
@@ -392,3 +392,4 @@ None currently — all resolved.
 
 - 2026-03-21: Initial requirements drafted
 - 2026-03-21: Added server/client split, system prompt integration, widget data loaders, declared activity types, underscore IDs, full client context for settings, health check, plaintext secrets caveat
+- 2026-03-21: Marked all requirements and sub-features as done. Full plugin system implemented with registry, settings pages, AI tool integration, system prompt injection, activity logging, dashboard widgets, command palette, health checks. Two plugins shipped: IMAP Email and API Balances.

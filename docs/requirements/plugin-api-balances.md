@@ -1,6 +1,6 @@
 ---
 title: Plugin — API Balances
-status: todo
+status: done
 owner: Mike
 last_updated: 2026-03-21
 canonical_file: docs/requirements/plugin-api-balances.md
@@ -24,25 +24,25 @@ canonical_file: docs/requirements/plugin-api-balances.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Plugin skeleton | todo | `src/plugins/api_balances/` following `imap_email` file structure (meta, server, client, index) |
-| Service integrations | todo | OpenRouter, OpenAI, Kilo Code — each independently configurable and toggleable |
-| Config & settings | todo | Per-service API key fields with individual test buttons; per-service enable/disable toggles |
-| Dashboard widget | todo | Single widget showing balance/credit status for all enabled services |
-| AI tool | todo | `api_balances_get_balances` tool returning structured balance data for all enabled services |
-| Caching | todo | In-memory cache with 10-minute TTL per service, refreshed on request |
+| Plugin skeleton | done | `src/plugins/api_balances/` following `imap_email` file structure (meta, server, client, index) |
+| Service integrations | done | OpenRouter, OpenAI, Kilo Code — each independently configurable and toggleable |
+| Config & settings | done | Per-service API key fields with individual test buttons; per-service enable/disable toggles |
+| Dashboard widget | done | Single widget showing balance/credit status for all enabled services |
+| AI tool | done | `api_balances_get_balances` tool returning structured balance data for all enabled services |
+| Caching | done | In-memory cache with 10-minute TTL per service, refreshed on request |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Plugin meta & options schema | todo | Plugin ID, option fields for each service's credentials + enable toggles | Inline |
-| OpenRouter integration | todo | `GET /api/v1/credits` — management API key, returns total_credits & total_usage | Inline |
-| OpenAI integration | todo | `GET /v1/dashboard/billing/credit_grants` — API key, returns credit grant balance | Inline |
-| Kilo Code integration | todo | `GET /kilo/profile` or undocumented balance endpoint — API key, returns balance if available | Inline |
-| Balance cache layer | todo | In-memory cache keyed by `{userId}:{service}`, 10-min TTL, lazy refresh | Inline |
-| Dashboard widget | todo | Half-width widget showing per-service balance rows with status indicators | Inline |
-| AI tool | todo | Single tool returning all enabled service balances as structured data | Inline |
-| Health check | todo | Test each enabled service's connection/auth independently | Inline |
+| Plugin meta & options schema | done | Plugin ID, option fields for each service's credentials + enable toggles | Inline |
+| OpenRouter integration | done | `GET /api/v1/credits` — management API key, returns total_credits & total_usage | Inline |
+| OpenAI integration | done | `GET /v1/dashboard/billing/credit_grants` — API key, returns credit grant balance | Inline |
+| Kilo Code integration | done | `GET /kilo/profile` or undocumented balance endpoint — API key, returns balance if available | Inline |
+| Balance cache layer | done | In-memory cache keyed by `{userId}:{service}`, 10-min TTL, lazy refresh | Inline |
+| Dashboard widget | done | Half-width widget showing per-service balance rows with status indicators | Inline |
+| AI tool | done | Single tool returning all enabled service balances as structured data | Inline |
+| Health check | done | Test each enabled service's connection/auth independently | Inline |
 
 ## Detail
 
@@ -153,3 +153,4 @@ Both could be added later if they ship official balance endpoints, or via a "man
 
 - 2026-03-21: Initial requirements drafted
 - 2026-03-21: Resolved Kilo Code endpoint (app.kilo.ai works with API key). Confirmed Anthropic and Exa have no balance endpoints.
+- 2026-03-21: Marked all requirements and sub-features as done. Plugin skeleton, all three service integrations (OpenRouter, OpenAI, Kilo), dashboard widget, AI tool, caching, and health checks all implemented.
