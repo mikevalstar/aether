@@ -81,6 +81,11 @@
       "sourceType": "github",
       "computedHash": "f8ecd3028ae60e1b710a9e1c13a43ddfb3a9d4bf67df99209a1855297c1ea2bd"
     },
+    "gorgon-cache": {
+      "source": "mikevalstar/gorgon",
+      "sourceType": "github",
+      "computedHash": "977e34bba1bd0da0f5ca4c654c5927c044566f9dd12309c150a9a34c1a47eb29"
+    },
     "harden": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",
