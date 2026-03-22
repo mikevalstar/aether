@@ -220,7 +220,7 @@ export function ChatHeader({
 
       {/* Mobile: expandable controls panel */}
       <div
-        className={`grid transition-[grid-template-rows] duration-150 ease-out lg:hidden ${mobileExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        className={`grid transition-[grid-template-rows] duration-200 ease-in-out lg:hidden ${mobileExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden">
           <div className="flex flex-wrap items-center gap-2 pt-2">
