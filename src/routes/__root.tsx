@@ -26,7 +26,19 @@ export const Route = createRootRoute({
       },
       {
         name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
+      },
+      {
+        name: "apple-mobile-web-app-capable",
+        content: "yes",
+      },
+      {
+        name: "apple-mobile-web-app-status-bar-style",
+        content: "black-translucent",
+      },
+      {
+        name: "theme-color",
+        content: "#1a8a8a",
       },
       {
         title: "Aether",
@@ -46,18 +58,34 @@ export const Route = createRootRoute({
         href: "/favicon.svg",
         type: "image/svg+xml",
       },
+      {
+        rel: "manifest",
+        href: "/manifest.json",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/logo192.png",
+      },
     ],
   }),
   shellComponent: RootDocument,
 });
 
 function RootErrorComponent({ error }: ErrorComponentProps) {
-  const router = useRouter();
+  let router: ReturnType<typeof useRouter> | null = null;
+  try {
+    router = useRouter();
+  } catch {
+    // Router context may be unavailable during HMR reloads
+  }
 
   return (
     <div className="page-wrap py-12">
       <div className="surface-card overflow-hidden">
-        <ErrorDisplay error={error} onRetry={() => router.invalidate()} />
+        <ErrorDisplay
+          error={error}
+          onRetry={() => (router ? router.invalidate() : window.location.reload())}
+        />
       </div>
     </div>
   );
