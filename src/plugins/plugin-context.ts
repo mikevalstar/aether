@@ -87,6 +87,8 @@ export function createPluginContext(pluginId: string, userId: string, threadId?:
     userId,
     threadId,
     timezone,
+    aiConfigFolder: process.env.OBSIDIAN_AI_CONFIG ?? "ai-config",
+    aiMemoryFolder: process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory",
 
     async getOptions<T = Record<string, unknown>>(): Promise<T> {
       const user = await prisma.user.findUnique({

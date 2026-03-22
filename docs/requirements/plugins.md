@@ -97,6 +97,10 @@ type PluginContext = {
   userId: string;
   threadId?: string;
   timezone?: string;
+  /** Relative path to the AI config folder within the Obsidian vault */
+  aiConfigFolder: string;
+  /** Relative path to the AI memory folder within the Obsidian vault */
+  aiMemoryFolder: string;
   /** Read this plugin's stored options */
   getOptions: <T = Record<string, unknown>>() => Promise<T>;
   /** Obsidian helpers — read/write/edit/search docs */
@@ -393,3 +397,4 @@ None currently — all resolved.
 - 2026-03-21: Initial requirements drafted
 - 2026-03-21: Added server/client split, system prompt integration, widget data loaders, declared activity types, underscore IDs, full client context for settings, health check, plaintext secrets caveat
 - 2026-03-21: Marked all requirements and sub-features as done. Full plugin system implemented with registry, settings pages, AI tool integration, system prompt injection, activity logging, dashboard widgets, command palette, health checks. Two plugins shipped: IMAP Email and API Balances.
+- 2026-03-22: Added `aiConfigFolder` and `aiMemoryFolder` strings to PluginContext so plugins know which Obsidian folders to use for AI config and memory.

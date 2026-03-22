@@ -56,6 +56,10 @@ export type PluginContext = {
   userId: string;
   threadId?: string;
   timezone?: string;
+  /** Relative path to the AI config folder within the Obsidian vault */
+  aiConfigFolder: string;
+  /** Relative path to the AI memory folder within the Obsidian vault */
+  aiMemoryFolder: string;
   getOptions: <T = Record<string, unknown>>() => Promise<T>;
   obsidian: ObsidianPluginContext;
   logActivity: (params: PluginActivityParams) => Promise<void>;

@@ -163,6 +163,8 @@ Your server functions receive a `PluginContext` with:
 | `userId` | Current user's ID |
 | `threadId` | Current chat thread ID (if in chat context) |
 | `timezone` | User's timezone |
+| `aiConfigFolder` | Relative path to the AI config folder in the Obsidian vault (default `"ai-config"`) |
+| `aiMemoryFolder` | Relative path to the AI memory folder in the Obsidian vault (default `"ai-memory"`) |
 | `getOptions<T>()` | Read this plugin's stored options |
 | `obsidian.read(path)` | Read a file from the Obsidian vault |
 | `obsidian.write(path, content)` | Write a file to the vault |
