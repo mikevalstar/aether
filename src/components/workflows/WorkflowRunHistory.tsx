@@ -91,7 +91,7 @@ export function WorkflowRunHistory({ runs }: { runs: WorkflowRunItem[] }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>

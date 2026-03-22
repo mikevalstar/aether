@@ -109,7 +109,7 @@ export function TaskRunHistory({
           <p className="text-sm text-muted-foreground">No runs yet for this task.</p>
         </div>
       ) : (
-        <div className="rounded-md border">
+        <div className="rounded-md border bg-card">
           <Table>
             <TableHeader>
               <TableRow>

@@ -78,7 +78,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
