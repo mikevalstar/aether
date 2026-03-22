@@ -83,10 +83,7 @@ function RootErrorComponent({ error }: ErrorComponentProps) {
   return (
     <div className="page-wrap py-12">
       <div className="surface-card overflow-hidden">
-        <ErrorDisplay
-          error={error}
-          onRetry={() => (router ? router.invalidate() : window.location.reload())}
-        />
+        <ErrorDisplay error={error} onRetry={() => (router ? router.invalidate() : window.location.reload())} />
       </div>
     </div>
   );
