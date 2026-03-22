@@ -17,7 +17,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CommandKButton from "#/components/CommandKButton";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
 import { Button } from "#/components/ui/button";
@@ -79,18 +79,37 @@ export default function Header({ serverSession }: HeaderProps) {
   const { data: clientSession } = authClient.useSession();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [chatHeaderExpanded, setChatHeaderExpanded] = useState(false);
   const routerState = useRouterState();
 
-  // Close mobile menu on navigation
+  // Close mobile menu / chat overlay on navigation
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally re-run on pathname change
   useEffect(() => {
     setMobileOpen(false);
+    setChatHeaderExpanded(false);
   }, [routerState.location.pathname]);
+
+  const chatNavRef = useRef<HTMLDivElement>(null);
+  const chatToggleRef = useRef<HTMLButtonElement>(null);
+
+  // Close chat overlay when tapping anywhere outside the nav panel or toggle button
+  useEffect(() => {
+    if (!chatHeaderExpanded) return;
+    const handler = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (chatNavRef.current?.contains(target)) return;
+      if (chatToggleRef.current?.contains(target)) return;
+      setChatHeaderExpanded(false);
+    };
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
+  }, [chatHeaderExpanded]);
 
   // Prefer client session (reactive) once available, fall back to server session for SSR
   const session = clientSession ?? serverSession;
   const isAuthed = !!session?.user;
   const routerPath = routerState.location.pathname;
+  const isChatRoute = routerPath.startsWith("/chat");
 
   // Check if any system link is currently active
   const systemIsActive = systemLinks.some((link) => routerPath.startsWith(link.to));
@@ -99,8 +118,101 @@ export default function Header({ serverSession }: HeaderProps) {
   const visiblePrimary = isAuthed ? primaryLinks : publicLinks;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-[var(--header-bg)] px-4 backdrop-blur-sm">
-      <nav className="page-wrap flex items-center gap-6 py-3">
+    <header
+      className={`sticky top-0 z-50 bg-[var(--header-bg)] backdrop-blur-sm ${isChatRoute ? "border-b-0 lg:border-b lg:border-border" : "border-b border-border"}`}
+      data-chat-route={isChatRoute || undefined}
+    >
+      {/* Mobile chat: collapsed accent bar */}
+      {isChatRoute && (
+        <button
+          ref={chatToggleRef}
+          type="button"
+          className="flex w-full items-center justify-center gap-2 py-1.5 lg:hidden"
+          onClick={() => setChatHeaderExpanded((v) => !v)}
+          aria-label="Show navigation"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--teal)]">Aether</span>
+          <ChevronDown
+            className={`size-3 text-[var(--teal)] transition-transform duration-150 ${chatHeaderExpanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+
+      {/* Mobile chat: expanded overlay nav */}
+      {isChatRoute && chatHeaderExpanded && (
+        <div
+          ref={chatNavRef}
+          className="absolute left-0 right-0 top-full z-[70] overflow-hidden border-b border-[var(--teal)]/20 bg-[var(--header-bg)] shadow-xl backdrop-blur-md lg:hidden animate-in slide-in-from-top-2 fade-in duration-200"
+        >
+          {/* Primary nav grid */}
+          <div className="grid grid-cols-3 gap-1 px-3 pt-3 pb-2">
+            {visiblePrimary.map((link, i) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="group flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 no-underline transition-colors hover:bg-[var(--teal-subtle)] active:scale-95"
+                activeProps={{
+                  className:
+                    "group flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 no-underline bg-[var(--teal-subtle)] active:scale-95",
+                }}
+                style={{ animationDelay: `${i * 30}ms` }}
+              >
+                <div className="flex size-10 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)] transition-colors group-hover:bg-[var(--teal)]/15 group-[[class*=bg-\\[var]]:bg-[var(--teal)]/15">
+                  <link.icon className="size-5" />
+                </div>
+                <span className="text-[11px] font-semibold text-[var(--ink-soft)] group-hover:text-[var(--ink)]">
+                  {link.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* System section */}
+          {isAuthed && (
+            <>
+              <div className="mx-4 border-t border-[var(--line)]/60" />
+              <div className="px-3 pt-2 pb-3">
+                <p className="mb-1.5 px-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--ink-dim)]">System</p>
+                <div className="flex flex-wrap gap-1">
+                  {systemLinks.map((link, i) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--ink-soft)] no-underline transition-colors hover:bg-[var(--teal-subtle)] hover:text-[var(--ink)]"
+                      activeProps={{
+                        className:
+                          "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-[var(--teal-subtle)] text-[var(--teal)] no-underline",
+                      }}
+                      style={{ animationDelay: `${(visiblePrimary.length + i) * 30}ms` }}
+                    >
+                      <link.icon className="size-3.5" />
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Footer: theme + sign out */}
+          <div className="flex items-center justify-between border-t border-[var(--line)]/60 px-4 py-2">
+            <ThemeToggle />
+            {isAuthed && (
+              <button
+                type="button"
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--ink-soft)] transition-colors hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => void authClient.signOut()}
+              >
+                <LogOut className="size-3.5" />
+                Sign out
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Full nav bar: always visible on desktop, hidden on mobile for chat route */}
+      <nav className={`page-wrap flex items-center gap-6 py-3 px-4 ${isChatRoute ? "hidden lg:flex" : "flex"}`}>
         {/* Brand — links to dashboard when authed, home when not */}
         <Link to={isAuthed ? "/dashboard" : "/"} className="text-sm font-bold text-primary no-underline tracking-wide">
           Aether
