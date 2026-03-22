@@ -1,6 +1,6 @@
 ---
 title: Requirements Index
-last_updated: 2026-03-21
+last_updated: 2026-03-22
 canonical_file: docs/requirements/index.md
 ---
 
@@ -10,26 +10,26 @@ Status legend: `todo`, `in-progress`, `done`
 
 | [Feature](index.md) | Status | Summary | File | Last updated |
 | --- | --- | --- | --- | --- |
-| [Authentication](auth.md) | in-progress | Invite-only auth with session-based access, admin-created accounts, and password rotation. | [auth](auth.md) | 2026-03-14 |
-| [Chat](chat.md) | in-progress | Authenticated multi-thread Claude chat with streaming, tool inspection, and per-thread usage tracking. | [chat](chat.md) | 2026-03-14 |
-| [Requirements Viewer](requirements-viewer.md) | done | Authenticated in-app viewer for requirement Markdown with index landing, linked docs, frontmatter-backed page chrome, and a left-hand file tree. | [requirements-viewer](requirements-viewer.md) | 2026-03-14 |
-| [Usage](usage.md) | in-progress | Authenticated chat usage analytics with date/model filters, charts, and recent exchange history. | [usage](usage.md) | 2026-03-14 |
-| [Obsidian](obsidian.md) | done | Obsidian vault browser with tree nav, title search, Markdown rendering/editing, and AI config section at `/o/$`. | [obsidian](obsidian.md) | 2026-03-14 |
-| [System Settings](system-settings.md) | done | AI config files in Obsidian with zod validation, real-time editor feedback, config library, seed/pull CLI scripts. | [system-settings](system-settings.md) | 2026-03-14 |
-| [Activity Log](activity.md) | done | Generic activity log with file-change tracking (AI & manual), diff viewing, and revert. Extensible to future activity types. | [activity](activity.md) | 2026-03-15 |
-| [Logs Viewer](logs.md) | done | Authenticated daily log browser for rotated `./logs` files with day selection, server-side search/filtering, pagination, and raw JSON inspection. | [logs](logs.md) | 2026-03-17 |
-| [User Preferences](user-preferences.md) | done | Profile editing and app settings (Obsidian templates folder) at `/settings/preferences`. | [user-preferences](user-preferences.md) | 2026-03-15 |
-| [AI Skills](skills.md) | todo | Markdown-based skill files in AI config that teach the AI specialized tasks via two-phase loading (summary + on-demand instructions). | [skills](skills.md) | 2026-03-15 |
-| [Periodic Tasks](periodic-tasks.md) | done | Cron-scheduled AI tasks defined as markdown in config `tasks/` folder, stored as ChatThread records, with list/history UI. | [periodic-tasks](periodic-tasks.md) | 2026-03-16 |
-| [Workflows](workflows.md) | done | Form-based AI workflows defined as markdown in config `workflows/` folder, user-triggered via UI forms, background execution, convertible to chat. | [workflows](workflows.md) | 2026-03-16 |
-| [System Tasks](system-tasks.md) | done | Code-defined maintenance cron jobs (cleanup stale records, etc.) — no UI, logs to activity only when acting. | [system-tasks](system-tasks.md) | 2026-03-16 |
-| [Notifications](notifications.md) | done | Two-channel notifications: in-browser toasts (10s polling) + Pushover push to phone. Bell icon in header with unread count. | [notifications](notifications.md) | 2026-03-16 |
-| [Command Palette](command-palette.md) | done | `Cmd+K` command palette for quick navigation to pages, workflows, obsidian docs, and common actions. Lazy-loaded data. | [command-palette](command-palette.md) | 2026-03-17 |
-| [Calendar](calendar.md) | done | iCal feed sync with file cache, interactive month/day calendar widget on dashboard, and AI tool for date-range queries. | [calendar](calendar.md) | 2026-03-17 |
-| [Board (Kanban)](board.md) | done | Interactive kanban board backed by an Obsidian Kanban Markdown file, with AI tools for task management. | [board](board.md) | 2026-03-21 |
-| [Plugin System](plugins.md) | done | Standardized plugin interface for AI tools, settings, activity, dashboard widgets, and command palette. Built-in modules now, external later. | [plugins](plugins.md) | 2026-03-21 |
-| [Plugin — API Balances](plugin-api-balances.md) | done | Dashboard widget + AI tool showing credit balances for OpenRouter, OpenAI, Kilo Code. Per-service config with 10-min cache. | [plugin-api-balances](plugin-api-balances.md) | 2026-03-21 |
-| [Triggers](triggers.md) | draft | Event-driven AI prompts fired by file changes or plugin events. Config-as-markdown in `triggers/` folder, `{{details}}` placeholder, concurrent execution. | [triggers](triggers.md) | 2026-03-21 |
+| [Authentication](auth.md) | in-progress | Invite-only auth with session-based access, admin-created accounts, password rotation, and profile settings. | [auth](auth.md) | 2026-03-22 |
+| [Chat](chat.md) | in-progress | Multi-model AI chat with streaming, threads, tool ecosystem (~20 tools), skills, @-mentions, effort levels, and export to Obsidian. | [chat](chat.md) | 2026-03-22 |
+| [Requirements Viewer](requirements-viewer.md) | done | Authenticated in-app viewer for requirement Markdown with index landing, linked docs, frontmatter-backed page chrome, status badges, and a left-hand file tree. | [requirements-viewer](requirements-viewer.md) | 2026-03-22 |
+| [Usage](usage.md) | in-progress | Chat usage analytics with date range picker, task type filter, stacked-by-model cost charts, and thread-linked exchange history. | [usage](usage.md) | 2026-03-22 |
+| [Obsidian](obsidian.md) | done | Obsidian vault browser with tree nav, fuzzy search, Markdown rendering/editing, AI config validation, AI memory, @-mention autocomplete, and chat export at `/o/$`. | [obsidian](obsidian.md) | 2026-03-22 |
+| [System Settings](system-settings.md) | done | AI config files in Obsidian with zod validation, real-time editor feedback, config library for prompts/tasks/workflows/skills, seed/pull CLI scripts. | [system-settings](system-settings.md) | 2026-03-22 |
+| [Activity Log](activity.md) | done | Multi-type activity log (file changes, cron tasks, workflows, notifications, plugins) with diff viewing, revert, chat thread detail, and dashboard digest. | [activity](activity.md) | 2026-03-22 |
+| [Logs Viewer](logs.md) | done | Authenticated daily log browser with calendar day picker, summary stat cards, server-side search/filtering, pagination, and raw JSON inspection. | [logs](logs.md) | 2026-03-22 |
+| [User Preferences](user-preferences.md) | done | Multi-page settings layout (profile, chat, notifications, calendar, board, plugins) at `/settings/`. | [user-preferences](user-preferences.md) | 2026-03-22 |
+| [AI Skills](skills.md) | done | Markdown-based skill files in AI config that teach the AI specialized tasks via two-phase loading (summary + on-demand `load_skill` tool). | [skills](skills.md) | 2026-03-22 |
+| [Periodic Tasks](periodic-tasks.md) | done | Cron-scheduled AI tasks with timezone, notification control, run-now UI, stored as ChatThread records. | [periodic-tasks](periodic-tasks.md) | 2026-03-22 |
+| [Workflows](workflows.md) | done | Form-based AI workflows with @-mention fields, notification control, command palette integration, background execution, convertible to chat. | [workflows](workflows.md) | 2026-03-22 |
+| [System Tasks](system-tasks.md) | done | Code-defined maintenance cron jobs (cleanup stale records, cleanup old notifications, calendar sync). | [system-tasks](system-tasks.md) | 2026-03-22 |
+| [Notifications](notifications.md) | done | Two-channel notifications (in-browser toasts + Pushover push) with configurable notification levels, test send, bell icon with unread count. | [notifications](notifications.md) | 2026-03-22 |
+| [Command Palette](command-palette.md) | done | `Cmd+K` command palette for pages, workflows, obsidian search, plugin commands, and quick actions. Lazy-loaded data. | [command-palette](command-palette.md) | 2026-03-22 |
+| [Calendar](calendar.md) | done | iCal feed sync with event detail dialogs, next-event countdown widget, meeting link extraction, keyboard nav, and AI tool. | [calendar](calendar.md) | 2026-03-22 |
+| [Board (Kanban)](board.md) | done | Interactive kanban board with drag-and-drop, dashboard widget, activity logging, and AI tools for task management. | [board](board.md) | 2026-03-22 |
+| [Plugin System](plugins.md) | done | Standardized plugin interface with dual-file registration, AI tools, settings, health checks, test connection, dashboard widgets, and command palette. | [plugins](plugins.md) | 2026-03-22 |
+| [Plugin — API Balances](plugin-api-balances.md) | done | Dashboard widget + AI tool showing credit balances for OpenRouter, OpenAI, Kilo Code. Per-service config with test connection and 10-min cache. | [plugin-api-balances](plugin-api-balances.md) | 2026-03-22 |
+| [Triggers](triggers.md) | draft | Event-driven AI prompts fired by file changes or plugin events. Config-as-markdown in `triggers/` folder, `{{details}}` placeholder, concurrent execution. | [triggers](triggers.md) | 2026-03-22 |
 
 
 # Ideas
