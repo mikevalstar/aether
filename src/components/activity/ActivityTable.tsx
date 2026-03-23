@@ -1,6 +1,7 @@
-import { Bell, Bot, Clock, Cog, FileText, History, PenLine, Play, Timer } from "lucide-react";
+import { Bell, Bot, Clock, Cog, FileText, History, PenLine, Play, Puzzle, Timer } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import type { ActivityListItem } from "#/lib/activity.functions";
+import { getPlugin } from "#/plugins";
 import { formatRelativeTime } from "./format-relative-time";
 
 export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[]; onItemClick: (id: string) => void }) {
@@ -66,8 +67,38 @@ const TYPE_CONFIG: Record<string, { icon: typeof FileText; label: string; color:
   ai_notification: { icon: Bell, label: "Notification", color: "oklch(0.65 0.14 25)" },
 };
 
+/** Palette of colors assigned to plugins by index for consistent badge styling. */
+const PLUGIN_COLORS = [
+  "oklch(0.65 0.15 300)", // purple
+  "oklch(0.65 0.14 200)", // cyan
+  "oklch(0.60 0.16 50)", // amber
+  "oklch(0.65 0.13 160)", // green
+  "oklch(0.60 0.15 350)", // pink
+];
+
+function resolvePluginType(type: string): { icon: typeof FileText; label: string; color: string } | null {
+  const parts = type.split(":");
+  if (parts.length < 3 || parts[0] !== "plugin") return null;
+
+  const pluginId = parts[1];
+  const actType = parts.slice(2).join(":");
+  const plugin = getPlugin(pluginId);
+  if (!plugin) return null;
+
+  const activityDef = plugin.activityTypes?.find((at) => at.type === actType);
+  const label = activityDef?.label ?? actType;
+  const icon = activityDef?.icon ?? plugin.meta.icon ?? Puzzle;
+
+  // Deterministic color from plugin id
+  let hash = 0;
+  for (let i = 0; i < pluginId.length; i++) hash = (hash * 31 + pluginId.charCodeAt(i)) | 0;
+  const color = PLUGIN_COLORS[Math.abs(hash) % PLUGIN_COLORS.length];
+
+  return { icon, label, color };
+}
+
 function TypeBadge({ type }: { type: string }) {
-  const config = TYPE_CONFIG[type];
+  const config = TYPE_CONFIG[type] ?? resolvePluginType(type);
   if (!config) {
     return (
       <Badge variant="outline" className="text-xs">
