@@ -392,13 +392,12 @@ a {
 /* ─── Dashboard Grid (react-grid-layout) ─── */
 
 .dashboard-grid-item-content {
-  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
 .dashboard-grid-item-content > * {
-  flex: 1;
+  flex: none;
 }
 
 .dashboard-drag-handle {
