@@ -13,6 +13,7 @@ export const CHAT_MODELS = [
     description: "Fastest",
     supportsWebTools: true,
     supportsEffort: false,
+    supportsCodeExecution: false,
     webToolVersion: "legacy" as const,
     provider: "anthropic" as const,
     pricing: {
@@ -26,6 +27,7 @@ export const CHAT_MODELS = [
     description: "Balanced",
     supportsWebTools: true,
     supportsEffort: true,
+    supportsCodeExecution: true,
     webToolVersion: "latest" as const,
     provider: "anthropic" as const,
     pricing: {
@@ -39,6 +41,7 @@ export const CHAT_MODELS = [
     description: "Strongest",
     supportsWebTools: true,
     supportsEffort: true,
+    supportsCodeExecution: true,
     webToolVersion: "latest" as const,
     provider: "anthropic" as const,
     pricing: {
@@ -52,6 +55,7 @@ export const CHAT_MODELS = [
     description: "Agentic, autonomous",
     supportsWebTools: true,
     supportsEffort: false,
+    supportsCodeExecution: false,
     webToolVersion: "none" as const,
     provider: "openrouter" as const,
     pricing: {
@@ -65,6 +69,7 @@ export const CHAT_MODELS = [
     description: "Complex systems engineering",
     supportsWebTools: true,
     supportsEffort: false,
+    supportsCodeExecution: false,
     webToolVersion: "none" as const,
     provider: "openrouter" as const,
     pricing: {
@@ -91,4 +96,8 @@ export function getWebToolVersion(model: ChatModel): WebToolVersion {
 
 export function getModelProvider(model: ChatModel): ModelProvider {
   return CHAT_MODELS.find((m) => m.id === model)?.provider ?? "anthropic";
+}
+
+export function supportsCodeExecution(model: ChatModel): boolean {
+  return CHAT_MODELS.find((m) => m.id === model)?.supportsCodeExecution ?? false;
 }

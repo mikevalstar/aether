@@ -2,7 +2,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { ToolSet } from "ai";
 import type { ChatModel } from "#/lib/chat-models";
-import { getModelProvider, getWebToolVersion } from "#/lib/chat-models";
+import { getModelProvider, getWebToolVersion, supportsCodeExecution } from "#/lib/chat-models";
 import type { UserPreferences } from "#/lib/preferences";
 import { aiMemory } from "#/lib/tools/ai-memory";
 import {
@@ -89,8 +89,13 @@ export function createAiTools(
 
   const pluginTools = prefs ? getPluginTools(userId, threadId, timezone, prefs) : {};
 
+  const codeExecutionTools: ToolSet = supportsCodeExecution(model)
+    ? { code_execution: anthropic.tools.codeExecution_20260120() }
+    : {};
+
   return {
     ...webTools,
+    ...codeExecutionTools,
     fetch_url_markdown: fetchUrlMarkdown,
     ...obsidianTools,
     ...boardTools,
