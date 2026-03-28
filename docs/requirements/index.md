@@ -28,6 +28,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Calendar](calendar.md) | done | iCal feed sync with event detail dialogs, next-event countdown widget, meeting link extraction, keyboard nav, and AI tool. | [calendar](calendar.md) | 2026-03-22 |
 | [Board (Kanban)](board.md) | done | Interactive kanban board with drag-and-drop, dashboard widget, activity logging, and AI tools for task management. | [board](board.md) | 2026-03-22 |
 | [Plugin System](plugins.md) | done | Standardized plugin interface with dual-file registration, AI tools, settings, health checks, test connection, dashboard widgets, and command palette. | [plugins](plugins.md) | 2026-03-22 |
+| [Plugin — Email (IMAP)](plugin-imap.md) | done | IMAP email plugin with six AI tools (list, read, search, folders, move, archive), dashboard inbox widget, and Proton Mail Bridge support. | [plugin-imap](plugin-imap.md) | 2026-03-28 |
 | [Plugin — API Balances](plugin-api-balances.md) | done | Dashboard widget + AI tool showing credit balances for OpenRouter, OpenAI, Kilo Code. Per-service config with test connection and 10-min cache. | [plugin-api-balances](plugin-api-balances.md) | 2026-03-22 |
 | [Triggers](triggers.md) | draft | Event-driven AI prompts fired by file changes or plugin events. Config-as-markdown in `triggers/` folder, `{{details}}` placeholder, concurrent execution. | [triggers](triggers.md) | 2026-03-22 |
 
