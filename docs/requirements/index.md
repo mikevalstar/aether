@@ -31,6 +31,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Plugin — Email (IMAP)](plugin-imap.md) | done | IMAP email plugin with six AI tools (list, read, search, folders, move, archive), dashboard inbox widget, and Proton Mail Bridge support. | [plugin-imap](plugin-imap.md) | 2026-03-28 |
 | [Plugin — API Balances](plugin-api-balances.md) | done | Dashboard widget + AI tool showing credit balances for OpenRouter, OpenAI, Kilo Code. Per-service config with test connection and 10-min cache. | [plugin-api-balances](plugin-api-balances.md) | 2026-03-22 |
 | [Triggers](triggers.md) | draft | Event-driven AI prompts fired by file changes or plugin events. Config-as-markdown in `triggers/` folder, `{{details}}` placeholder, concurrent execution. | [triggers](triggers.md) | 2026-03-22 |
+| [OpenRouter Model Browser](openrouter-models.md) | todo | Browse OpenRouter model catalog from chat settings, see pricing, enable/disable models for use in chat. | [openrouter-models](openrouter-models.md) | 2026-03-28 |
 
 
 # Ideas
@@ -50,7 +51,6 @@ Future ideas and things to build, but we don't have enough detail to write requi
 - AI Memory — structured, persistent memory system backed by Obsidian markdown files. The AI builds knowledge about the user over time. Fully transparent and auditable — every memory is a readable/editable/deletable markdown file.
 - Smart Home Integration — Home Assistant / MQTT plugin for controlling and monitoring smart home devices via AI tools.
 - Web Access / Browsing — AI tool for fetching and parsing web pages, extracting structured data, monitoring changes. Scoped read-access (not full browser automation) to keep the attack surface small.
-- Daily Briefing — sample workflow/cron prompt that combines calendar, kanban tasks, recent Obsidian changes, and other data sources into a morning summary. Ships as a bundled example prompt, not a dedicated feature.
 - Webhook Receiver — authenticated inbound webhook endpoint that triggers AI workflows. Enables external integrations (GitHub push → summarize changes, Sentry alert → investigate) without building per-platform adapters.
 - Conversation Branching — extend existing branch navigation into explicit fork/branch workflows. Explore multiple approaches in parallel from a single conversation point. Leverage the web UI advantage over messaging-app-based assistants.
 - Important Files list - this might just be config

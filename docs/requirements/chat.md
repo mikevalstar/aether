@@ -35,6 +35,7 @@ canonical_file: docs/requirements/chat.md
 | Tool ecosystem | done | The AI has access to web search, Obsidian vault tools, kanban board tools, calendar, notifications, AI memory, skills, and plugin-provided tools. |
 | @-mention autocomplete | done | Users can type `@` in the composer to search and insert Obsidian file references. |
 | Context compaction | planned | Long conversations should be compacted to reduce token usage and stay within context limits. |
+| User-added OpenRouter models | planned | Users can browse and enable additional OpenRouter models from `/settings/chat`. See [OpenRouter Model Browser](openrouter-models.md). |
 | Attachments | in-progress | The composer and transcript support attachments in the UI, but product rules for storage and model handling are not yet explicitly defined. |
 
 ## Sub-features
@@ -221,4 +222,5 @@ canonical_file: docs/requirements/chat.md
 - 2026-03-22: Added Export to Obsidian sub-feature (planned) — export chat threads as Markdown with frontmatter to a configurable vault folder.
 - 2026-03-28: Added Kimi K2.5 (`moonshotai/kimi-k2.5`) to the selectable OpenRouter model list with usage pricing metadata for cost estimation.
 - 2026-03-28: Improved `/api/chat` validation errors so unsupported models, unsupported effort levels, malformed JSON, and schema mismatches return specific messages instead of a generic invalid-request response.
+- 2026-03-28: Added planned "User-added OpenRouter models" major requirement, linking to new [OpenRouter Model Browser](openrouter-models.md) requirements doc.
 - 2026-03-22: Comprehensive audit of implemented features. Updated AI-generated titles, editable titles, and Export to Obsidian from planned/in-progress to done. Added new sub-features: effort level, @-mention autocomplete, thread search, mobile thread drawer, skills system, plugin tools, tool ecosystem, system prompt and skills. Updated model list to include OpenRouter models (MiniMax M2.7, GLM-5). Corrected export file naming (uses thread ID, not title). Added tool-inspector.tsx to dependencies. Reordered changelog chronologically.
