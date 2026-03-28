@@ -1,6 +1,13 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
+
+const createTodoInputSchema = z
+  .object({
+    title: z.string().trim().min(1),
+  })
+  .strict();
 
 const getTodos = createServerFn({
   method: "GET",
@@ -13,7 +20,7 @@ const getTodos = createServerFn({
 const createTodo = createServerFn({
   method: "POST",
 })
-  .inputValidator((data: { title: string }) => data)
+  .inputValidator((data) => createTodoInputSchema.parse(data))
   .handler(async ({ data }) => {
     return await prisma.todo.create({
       data,

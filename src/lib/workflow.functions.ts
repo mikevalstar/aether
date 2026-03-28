@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-models";
@@ -6,6 +7,19 @@ import { toObsidianRoutePath } from "#/lib/obsidian";
 import type { WorkflowField } from "#/lib/workflow-executor";
 import { executeWorkflow } from "#/lib/workflow-executor";
 import { getWorkflowConfig } from "#/lib/workflow-watcher";
+
+const filenameInputSchema = z.object({
+  filename: z.string().trim().min(1, "Filename is required"),
+});
+
+const threadIdInputSchema = z.object({
+  threadId: z.string().trim().min(1, "Thread ID is required"),
+});
+
+const workflowRunInputSchema = z.object({
+  filename: z.string().trim().min(1, "Filename is required"),
+  formValues: z.record(z.string(), z.string()),
+});
 
 export type WorkflowListItem = {
   id: string;
@@ -77,7 +91,7 @@ export const getWorkflowsPageData = createServerFn({ method: "GET" }).handler(as
 });
 
 export const getWorkflowDetail = createServerFn({ method: "GET" })
-  .inputValidator((data: { filename: string }) => data)
+  .inputValidator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
 
@@ -139,7 +153,7 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
   });
 
 export const runWorkflow = createServerFn({ method: "POST" })
-  .inputValidator((data: { filename: string; formValues: Record<string, string> }) => data)
+  .inputValidator((data) => workflowRunInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -160,7 +174,7 @@ export const runWorkflow = createServerFn({ method: "POST" })
   });
 
 export const deleteWorkflowRun = createServerFn({ method: "POST" })
-  .inputValidator((data: { threadId: string }) => data)
+  .inputValidator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -179,7 +193,7 @@ export const deleteWorkflowRun = createServerFn({ method: "POST" })
   });
 
 export const convertWorkflowToChat = createServerFn({ method: "POST" })
-  .inputValidator((data: { threadId: string }) => data)
+  .inputValidator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 

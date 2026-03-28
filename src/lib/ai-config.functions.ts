@@ -1,12 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
 import { getValidatorForFile } from "#/lib/ai-config-validators";
 import { ensureSession } from "#/lib/auth.functions";
 
-type ValidateAiConfigInput = {
-  filename: string;
-  rawContent: string;
-};
+const filenameInputSchema = z
+  .object({
+    filename: z.string().trim().min(1, "Filename is required"),
+  })
+  .strict();
+
+const validateAiConfigInputSchema = z
+  .object({
+    filename: z.string().trim().min(1, "Filename is required"),
+    rawContent: z.string(),
+  })
+  .strict();
 
 export type AiConfigValidationResponse = {
   isValid: boolean;
@@ -16,7 +25,7 @@ export type AiConfigValidationResponse = {
 };
 
 export const validateAiConfigContent = createServerFn({ method: "POST" })
-  .inputValidator((data: ValidateAiConfigInput) => data)
+  .inputValidator((data) => validateAiConfigInputSchema.parse(data))
   .handler(async ({ data }): Promise<AiConfigValidationResponse> => {
     await ensureSession();
 
@@ -41,7 +50,7 @@ export const validateAiConfigContent = createServerFn({ method: "POST" })
   });
 
 export const getAiConfigValidatorInfo = createServerFn({ method: "GET" })
-  .inputValidator((data: { filename: string }) => data)
+  .inputValidator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }): Promise<{ description: string; label: string } | null> => {
     await ensureSession();
 

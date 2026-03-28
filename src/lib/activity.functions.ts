@@ -1,14 +1,29 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 
-type ActivityListInput = {
-  page?: number;
-  type?: string;
-};
+const activityListInputSchema = z
+  .object({
+    page: z.coerce.number().int().min(1).optional(),
+    type: z.string().trim().optional(),
+  })
+  .strict();
+
+const idInputSchema = z
+  .object({
+    id: z.string().trim().min(1, "ID is required"),
+  })
+  .strict();
+
+const activityLogIdInputSchema = z
+  .object({
+    activityLogId: z.string().trim().min(1, "Activity log ID is required"),
+  })
+  .strict();
 
 export type ActivityListItem = {
   id: string;
@@ -33,7 +48,7 @@ export type ActivityListResult = {
 const PAGE_SIZE = 50;
 
 export const getActivityList = createServerFn({ method: "GET" })
-  .inputValidator((data: ActivityListInput) => data)
+  .inputValidator((data) => activityListInputSchema.parse(data))
   .handler(async ({ data }): Promise<ActivityListResult> => {
     const session = await ensureSession();
     const page = Math.max(1, data.page ?? 1);
@@ -104,7 +119,7 @@ export type ActivityDetail = {
 };
 
 export const getActivityDetail = createServerFn({ method: "GET" })
-  .inputValidator((data: { id: string }) => data)
+  .inputValidator((data) => idInputSchema.parse(data))
   .handler(async ({ data }): Promise<ActivityDetail | null> => {
     const session = await ensureSession();
 
@@ -175,7 +190,7 @@ export const getActivityDetail = createServerFn({ method: "GET" })
   });
 
 export const revertFileChange = createServerFn({ method: "POST" })
-  .inputValidator((data: { activityLogId: string }) => data)
+  .inputValidator((data) => activityLogIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
