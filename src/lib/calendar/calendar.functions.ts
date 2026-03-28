@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { parsePreferences } from "#/lib/preferences";
@@ -6,15 +7,29 @@ import { getAllCachedEvents, queryEvents, writeFeedCache } from "./cache";
 import { fetchAndParseIcal } from "./ical-parser";
 import type { CalendarEvent } from "./types";
 
+const calendarEventsInputSchema = z
+  .object({
+    startDate: z.string().trim().min(1),
+    endDate: z.string().trim().min(1),
+  })
+  .strict();
+
+const calendarMonthInputSchema = z
+  .object({
+    year: z.coerce.number().int().min(1970).max(9999),
+    month: z.coerce.number().int().min(0).max(11),
+  })
+  .strict();
+
 export const getCalendarEvents = createServerFn({ method: "GET" })
-  .inputValidator((data: { startDate: string; endDate: string }) => data)
+  .inputValidator((data) => calendarEventsInputSchema.parse(data))
   .handler(async ({ data }): Promise<CalendarEvent[]> => {
     await ensureSession();
     return queryEvents(data.startDate, data.endDate);
   });
 
 export const getCalendarEventsForMonth = createServerFn({ method: "GET" })
-  .inputValidator((data: { year: number; month: number }) => data)
+  .inputValidator((data) => calendarMonthInputSchema.parse(data))
   .handler(async ({ data }): Promise<CalendarEvent[]> => {
     await ensureSession();
     const start = new Date(data.year, data.month, 1);

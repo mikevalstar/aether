@@ -77,6 +77,20 @@ export const CHAT_MODELS = [
       outputCostPerMillionTokensUsd: 2.3,
     },
   },
+  {
+    id: "moonshotai/kimi-k2.5",
+    label: "Kimi K2.5",
+    description: "Low-cost reasoning",
+    supportsWebTools: true,
+    supportsEffort: false,
+    supportsCodeExecution: false,
+    webToolVersion: "none" as const,
+    provider: "openrouter" as const,
+    pricing: {
+      inputCostPerMillionTokensUsd: 0.42,
+      outputCostPerMillionTokensUsd: 2.2,
+    },
+  },
 ] as const;
 
 export type ChatModel = (typeof CHAT_MODELS)[number]["id"];

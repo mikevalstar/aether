@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
@@ -16,11 +17,34 @@ import {
 import { getAllIndexedNotes, searchVault } from "#/lib/obsidian/vault-index";
 import { parsePreferences } from "#/lib/preferences";
 
-type ObsidianViewerInput = {
-  path?: string;
-};
-
 type DiscoveredDocument = ObsidianDocument;
+
+const obsidianViewerInputSchema = z
+  .object({
+    path: z.string().trim().optional(),
+  })
+  .strict();
+
+const saveObsidianDocumentInputSchema = z
+  .object({
+    relativePath: z.string(),
+    content: z.string(),
+  })
+  .strict();
+
+const createObsidianFileInputSchema = z
+  .object({
+    folder: z.string(),
+    filename: z.string(),
+    templateFilename: z.string().trim().optional(),
+  })
+  .strict();
+
+const searchObsidianMentionsInputSchema = z
+  .object({
+    query: z.string(),
+  })
+  .strict();
 
 function getObsidianRoot() {
   return process.env.OBSIDIAN_DIR ?? "";
@@ -35,7 +59,7 @@ function getAiMemoryRelPath() {
 }
 
 export const getObsidianViewerData = createServerFn({ method: "GET" })
-  .inputValidator((data: ObsidianViewerInput) => data)
+  .inputValidator((data) => obsidianViewerInputSchema.parse(data))
   .handler(async ({ data }): Promise<ObsidianViewerData> => {
     await ensureSession();
 
@@ -216,13 +240,8 @@ function humanizeFileName(relativePath: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-type SaveObsidianDocumentInput = {
-  relativePath: string;
-  content: string;
-};
-
 export const saveObsidianDocument = createServerFn({ method: "POST" })
-  .inputValidator((data: SaveObsidianDocumentInput) => data)
+  .inputValidator((data) => saveObsidianDocumentInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -316,14 +335,8 @@ export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(a
   return readTemplatesFromDir(TEMPLATES_DIR);
 });
 
-type CreateObsidianFileInput = {
-  folder: string;
-  filename: string;
-  templateFilename?: string;
-};
-
 export const createObsidianFile = createServerFn({ method: "POST" })
-  .inputValidator((data: CreateObsidianFileInput) => data)
+  .inputValidator((data) => createObsidianFileInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -467,7 +480,7 @@ export type ObsidianMentionResult = {
 };
 
 export const searchObsidianMentions = createServerFn({ method: "GET" })
-  .inputValidator((data: { query: string }) => data)
+  .inputValidator((data) => searchObsidianMentionsInputSchema.parse(data))
   .handler(async ({ data }): Promise<ObsidianMentionResult[]> => {
     await ensureSession();
 

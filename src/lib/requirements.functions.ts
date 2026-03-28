@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
+import { z } from "zod";
 import { ensureSession } from "#/lib/auth.functions";
 import {
   normalizeRequirementRoutePath,
@@ -11,9 +12,11 @@ import {
   toRequirementRoutePath,
 } from "#/lib/requirements";
 
-type RequirementsViewerInput = {
-  path?: string;
-};
+const requirementsViewerInputSchema = z
+  .object({
+    path: z.string().trim().optional(),
+  })
+  .strict();
 
 type RequirementFrontmatter = {
   title?: unknown;
@@ -28,7 +31,7 @@ type DiscoveredRequirementDocument = RequirementDocument;
 const REQUIREMENTS_ROOT = path.join(process.cwd(), "docs", "requirements");
 
 export const getRequirementsViewerData = createServerFn({ method: "GET" })
-  .inputValidator((data: RequirementsViewerInput) => data)
+  .inputValidator((data) => requirementsViewerInputSchema.parse(data))
   .handler(async ({ data }): Promise<RequirementsViewerData> => {
     await ensureSession();
 

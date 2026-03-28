@@ -1,8 +1,54 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { parsePreferences, serializePreferences } from "#/lib/preferences";
 import { getPlugin, plugins } from "#/plugins";
+
+const pluginIdSchema = z
+  .string()
+  .trim()
+  .min(1, "Plugin ID is required")
+  .refine((pluginId) => plugins.some((plugin) => plugin.meta.id === pluginId), {
+    message: "Unknown plugin",
+  });
+
+const pluginOptionsSchema = z.record(z.string(), z.unknown());
+
+const togglePluginInputSchema = z.object({
+  pluginId: pluginIdSchema,
+  enabled: z.boolean(),
+});
+
+const pluginIdInputSchema = z.object({
+  pluginId: pluginIdSchema,
+});
+
+const pluginOptionsInputSchema = z.object({
+  pluginId: pluginIdSchema,
+  options: pluginOptionsSchema,
+});
+
+const imapConnectionOptionsSchema = z
+  .object({
+    host: z.string().trim().min(1).default("127.0.0.1"),
+    port: z.coerce.number().int().positive().default(1143),
+    username: z.string().default(""),
+    password: z.string().default(""),
+    tls: z.coerce.boolean().default(false),
+  })
+  .passthrough();
+
+const apiBalancesConnectionOptionsSchema = z
+  .object({
+    openrouter_enabled: z.coerce.boolean().default(false),
+    openrouter_api_key: z.string().optional(),
+    openai_enabled: z.coerce.boolean().default(false),
+    openai_api_key: z.string().optional(),
+    kilo_enabled: z.coerce.boolean().default(false),
+    kilo_api_key: z.string().optional(),
+  })
+  .passthrough();
 
 export const getPluginsPageData = createServerFn({ method: "GET" }).handler(async () => {
   const session = await ensureSession();
@@ -30,7 +76,7 @@ export const getPluginsPageData = createServerFn({ method: "GET" }).handler(asyn
 });
 
 export const togglePlugin = createServerFn({ method: "POST" })
-  .inputValidator((data: { pluginId: string; enabled: boolean }) => data)
+  .inputValidator((data) => togglePluginInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const user = await prisma.user.findUnique({
@@ -53,8 +99,7 @@ export const togglePlugin = createServerFn({ method: "POST" })
   });
 
 export const savePluginOptions = createServerFn({ method: "POST" })
-  // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
-  .inputValidator((data: { pluginId: string; options: Record<string, any> }) => data)
+  .inputValidator((data) => pluginOptionsInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const user = await prisma.user.findUnique({
@@ -75,7 +120,7 @@ export const savePluginOptions = createServerFn({ method: "POST" })
   });
 
 export const getPluginOptions = createServerFn({ method: "GET" })
-  .inputValidator((data: { pluginId: string }) => data)
+  .inputValidator((data) => pluginIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const user = await prisma.user.findUnique({
@@ -94,7 +139,7 @@ export const getPluginOptions = createServerFn({ method: "GET" })
   });
 
 export const checkPluginHealthFn = createServerFn({ method: "GET" })
-  .inputValidator((data: { pluginId: string }) => data)
+  .inputValidator((data) => pluginIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { checkPluginHealth } = await import("#/plugins/index.server");
@@ -102,25 +147,26 @@ export const checkPluginHealthFn = createServerFn({ method: "GET" })
   });
 
 export const testPluginConnection = createServerFn({ method: "POST" })
-  // biome-ignore lint/suspicious/noExplicitAny: serialization boundary requires any
-  .inputValidator((data: { pluginId: string; options: Record<string, any> }) => data)
+  .inputValidator((data) => pluginOptionsInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
 
     if (data.pluginId === "imap_email") {
       const { testConnection } = await import("#/plugins/imap_email/lib/imap-client");
+      const options = imapConnectionOptionsSchema.parse(data.options);
       return await testConnection({
-        host: (data.options.host as string) ?? "127.0.0.1",
-        port: (data.options.port as number) ?? 1143,
-        username: (data.options.username as string) ?? "",
-        password: (data.options.password as string) ?? "",
-        tls: (data.options.tls as boolean) ?? false,
+        host: options.host,
+        port: options.port,
+        username: options.username,
+        password: options.password,
+        tls: options.tls,
       });
     }
 
     if (data.pluginId === "api_balances") {
       const { testApiBalancesConnection } = await import("#/plugins/api_balances/lib/test-connection");
-      return await testApiBalancesConnection(data.options);
+      const options = apiBalancesConnectionOptionsSchema.parse(data.options);
+      return await testApiBalancesConnection(options);
     }
 
     return { success: false, message: "No test available for this plugin" };

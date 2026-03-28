@@ -2,14 +2,17 @@ import { createReadStream, type Dirent, promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import * as ndjson from "ndjson";
+import { z } from "zod";
 import { ensureSession } from "#/lib/auth.functions";
 
-type LogViewerInput = {
-  day?: string;
-  query?: string;
-  level?: string;
-  page?: number;
-};
+const logViewerInputSchema = z
+  .object({
+    day: z.string().trim().optional(),
+    query: z.string().trim().optional(),
+    level: z.string().trim().optional(),
+    page: z.coerce.number().int().min(1).optional(),
+  })
+  .strict();
 
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
 
@@ -54,7 +57,7 @@ const PINO_LEVELS: Record<number, LogLevel> = {
 };
 
 export const getLogViewerData = createServerFn({ method: "GET" })
-  .inputValidator((data: LogViewerInput) => data)
+  .inputValidator((data) => logViewerInputSchema.parse(data))
   .handler(async ({ data }): Promise<LogViewerResult> => {
     await ensureSession();
 

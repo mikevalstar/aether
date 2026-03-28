@@ -1,12 +1,16 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 import {
   type AppChatMessage,
+  CHAT_EFFORT_LEVELS,
   CHAT_MODELS,
+  type ChatEffort,
+  type ChatModel,
   type ChatThreadSummary,
   DEFAULT_CHAT_EFFORT,
   DEFAULT_CHAT_MODEL,
@@ -19,28 +23,46 @@ import {
 import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
 
-type ChatThreadInput = {
-  threadId?: string;
-};
+const chatModelIds = CHAT_MODELS.map((model) => model.id) as [ChatModel, ...ChatModel[]];
+const chatEffortLevels = [...CHAT_EFFORT_LEVELS] as [ChatEffort, ...ChatEffort[]];
 
-type CreateThreadInput = {
-  model?: string;
-  effort?: string;
-};
+const threadIdInputSchema = z.object({
+  threadId: z.string().trim().min(1, "Thread ID is required"),
+});
 
-type UpdateThreadModelInput = {
-  threadId: string;
-  model: string;
-};
+const chatThreadInputSchema = z
+  .object({
+    threadId: z.string().trim().optional(),
+  })
+  .strict();
 
-type UpdateThreadTitleInput = {
-  threadId: string;
-  title: string;
-};
+const createChatThreadInputSchema = z
+  .object({
+    model: z.enum(chatModelIds).optional(),
+    effort: z.enum(chatEffortLevels).optional(),
+  })
+  .strict();
 
-type DeleteThreadInput = {
-  threadId: string;
-};
+const updateChatThreadModelInputSchema = z
+  .object({
+    threadId: z.string().trim().min(1, "Thread ID is required"),
+    model: z.enum(chatModelIds),
+  })
+  .strict();
+
+const updateChatThreadEffortInputSchema = z
+  .object({
+    threadId: z.string().trim().min(1, "Thread ID is required"),
+    effort: z.enum(chatEffortLevels),
+  })
+  .strict();
+
+const updateChatThreadTitleInputSchema = z
+  .object({
+    threadId: z.string().trim().min(1, "Thread ID is required"),
+    title: z.string(),
+  })
+  .strict();
 
 function mapThreadSummary(thread: {
   id: string;
@@ -71,7 +93,7 @@ function mapThreadSummary(thread: {
 }
 
 export const getChatPageData = createServerFn({ method: "GET" })
-  .inputValidator((data: ChatThreadInput) => data)
+  .inputValidator((data) => chatThreadInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -104,7 +126,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
   });
 
 export const createChatThread = createServerFn({ method: "POST" })
-  .inputValidator((data: CreateThreadInput) => data)
+  .inputValidator((data) => createChatThreadInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const model = data.model && isChatModel(data.model) ? data.model : DEFAULT_CHAT_MODEL;
@@ -123,13 +145,9 @@ export const createChatThread = createServerFn({ method: "POST" })
   });
 
 export const updateChatThreadModel = createServerFn({ method: "POST" })
-  .inputValidator((data: UpdateThreadModelInput) => data)
+  .inputValidator((data) => updateChatThreadModelInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
-
-    if (!isChatModel(data.model)) {
-      throw new Error("Invalid model");
-    }
 
     const thread = await prisma.chatThread.findFirst({
       where: { id: data.threadId, userId: session.user.id },
@@ -148,13 +166,9 @@ export const updateChatThreadModel = createServerFn({ method: "POST" })
   });
 
 export const updateChatThreadEffort = createServerFn({ method: "POST" })
-  .inputValidator((data: { threadId: string; effort: string }) => data)
+  .inputValidator((data) => updateChatThreadEffortInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
-
-    if (!isChatEffort(data.effort)) {
-      throw new Error("Invalid effort level");
-    }
 
     const thread = await prisma.chatThread.findFirst({
       where: { id: data.threadId, userId: session.user.id },
@@ -173,7 +187,7 @@ export const updateChatThreadEffort = createServerFn({ method: "POST" })
   });
 
 export const updateChatThreadTitle = createServerFn({ method: "POST" })
-  .inputValidator((data: UpdateThreadTitleInput) => data)
+  .inputValidator((data) => updateChatThreadTitleInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -194,7 +208,7 @@ export const updateChatThreadTitle = createServerFn({ method: "POST" })
   });
 
 export const deleteChatThread = createServerFn({ method: "POST" })
-  .inputValidator((data: DeleteThreadInput) => data)
+  .inputValidator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -272,12 +286,8 @@ function formatChatAsMarkdown(
   return `${frontmatter}\n\n${body}\n`;
 }
 
-type ExportChatInput = {
-  threadId: string;
-};
-
 export const exportChatThreadToObsidian = createServerFn({ method: "POST" })
-  .inputValidator((data: ExportChatInput) => data)
+  .inputValidator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
