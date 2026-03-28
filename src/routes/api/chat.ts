@@ -6,8 +6,8 @@ import {
   type LanguageModelUsage,
   stepCountIs,
   streamText,
-  type UIMessage,
 } from "ai";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config";
 import { createAiTools, getModel } from "#/lib/ai-tools";
@@ -15,6 +15,7 @@ import { auth } from "#/lib/auth";
 import {
   type AppChatMessage,
   addChatUsageTotals,
+  type ChatEffort,
   type ChatModel,
   type ChatTaskType,
   type ChatUsageEntry,
@@ -74,12 +75,85 @@ async function generateChatTitle(userMessage: string): Promise<TitleGenerationRe
   }
 }
 
-type ChatRequestBody = {
-  id?: string;
-  messages?: UIMessage[];
-  model?: string;
-  effort?: string;
-};
+const chatRequestBodySchema = z
+  .object({
+    id: z.string().trim().min(1),
+    messages: z
+      .array(
+        z
+          .object({
+            id: z.string().trim().min(1),
+            role: z.string().trim().min(1),
+            parts: z.array(z.unknown()),
+          })
+          .passthrough(),
+      )
+      .min(1),
+    model: z.string().trim().optional(),
+    effort: z.string().trim().optional(),
+  })
+  .passthrough();
+
+function joinQuoted(values: readonly string[]): string {
+  return values.map((value) => `"${value}"`).join(", ");
+}
+
+async function parseChatRequest(request: Request) {
+  let json: unknown;
+
+  try {
+    json = await request.json();
+  } catch {
+    return {
+      ok: false as const,
+      response: new Response("Invalid chat request: request body must be valid JSON.", { status: 400 }),
+    };
+  }
+
+  const parsedBody = chatRequestBodySchema.safeParse(json);
+
+  if (!parsedBody.success) {
+    const issue = parsedBody.error.issues[0];
+    const path = issue?.path.length ? issue.path.join(".") : "request body";
+    const reason = issue?.message ?? "Request body does not match the expected shape.";
+
+    return {
+      ok: false as const,
+      response: new Response(`Invalid chat request: ${path} ${reason}.`, { status: 400 }),
+    };
+  }
+
+  const body = parsedBody.data;
+
+  if (body.model && !isChatModel(body.model)) {
+    return {
+      ok: false as const,
+      response: new Response(
+        `Unsupported chat model "${body.model}". Supported models: ${joinQuoted(CHAT_MODELS.map((model) => model.id))}.`,
+        { status: 400 },
+      ),
+    };
+  }
+
+  if (body.effort && !isChatEffort(body.effort)) {
+    return {
+      ok: false as const,
+      response: new Response(
+        `Unsupported chat effort "${body.effort}". Supported effort levels: ${joinQuoted(["low", "medium", "high"])}.`,
+        { status: 400 },
+      ),
+    };
+  }
+
+  return {
+    ok: true as const,
+    body: {
+      ...body,
+      model: body.model as ChatModel | undefined,
+      effort: body.effort as ChatEffort | undefined,
+    },
+  };
+}
 
 export const Route = createFileRoute("/api/chat")({
   server: {
@@ -91,14 +165,14 @@ export const Route = createFileRoute("/api/chat")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const body = (await request.json()) as ChatRequestBody;
+        const parsedRequest = await parseChatRequest(request);
+        if (!parsedRequest.ok) {
+          return parsedRequest.response;
+        }
+        const body = parsedRequest.body;
         logger.info({ userId: session.user.id, threadId: body.id, model: body.model }, "Chat request received");
         const threadId = body.id;
-        const incomingMessages = Array.isArray(body.messages) ? (body.messages as AppChatMessage[]) : [];
-
-        if (!threadId || incomingMessages.length === 0) {
-          return new Response("Invalid chat request", { status: 400 });
-        }
+        const incomingMessages = body.messages as AppChatMessage[];
 
         const thread = await prisma.chatThread.findFirst({
           where: {
@@ -111,8 +185,8 @@ export const Route = createFileRoute("/api/chat")({
           return new Response("Not found", { status: 404 });
         }
 
-        const model = body.model && isChatModel(body.model) ? body.model : DEFAULT_CHAT_MODEL;
-        const effort = body.effort && isChatEffort(body.effort) ? body.effort : DEFAULT_CHAT_EFFORT;
+        const model = body.model ?? DEFAULT_CHAT_MODEL;
+        const effort = body.effort ?? DEFAULT_CHAT_EFFORT;
         const modelDef = CHAT_MODELS.find((m) => m.id === model);
         const userRecord = await prisma.user.findUnique({
           where: { id: session.user.id },

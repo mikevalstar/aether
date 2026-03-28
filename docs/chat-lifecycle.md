@@ -14,7 +14,7 @@ The chat feature is an AI conversation interface powered by Claude (via Vercel A
 | **Schema** | `prisma/schema.prisma` (`ChatUsageEvent`) | Per-exchange usage records for analytics |
 | **Schema** | `prisma/schema.prisma` (`ActivityLog` + `FileChangeDetail`) | File change tracking from AI tool use |
 | **Types** | `src/lib/chat.ts` | `AppChatMessage`, `ChatUsageEntry`, `ChatUsageTotals`, serialization helpers, cost estimation |
-| **Models config** | `src/lib/chat-models.ts` | Model definitions (Haiku/Sonnet/Opus), pricing, effort/tool support flags |
+| **Models config** | `src/lib/chat-models.ts` | Model definitions (Anthropic + OpenRouter), pricing, effort/tool support flags |
 | **Server functions** | `src/lib/chat.functions.ts` | Thread CRUD: create, update title/model/effort, delete, page data loader |
 | **API endpoint** | `src/routes/api/chat.ts` | POST handler — title generation, system prompt, streaming, persistence |
 | **AI tools** | `src/lib/ai-tools.ts` | Tool set factory: web tools, Obsidian tools, notifications |
@@ -35,6 +35,8 @@ The chat feature is an AI conversation interface powered by Claude (via Vercel A
 ## 1. Route Entry & Authentication
 
 When a user navigates to `/chat`, TanStack Router loads the route defined in `src/routes/chat.tsx`.
+
+Before the API streams any model output, `src/routes/api/chat.ts` validates the incoming JSON payload. Invalid JSON, missing required fields, unsupported models, and unsupported effort values return a targeted `400` text response so the chat UI can show a specific error instead of a generic request failure.
 
 1. **`beforeLoad`** calls `getSession()` from `src/lib/auth.functions.ts`
 2. If no session exists, the user is redirected to `/login`
@@ -198,6 +200,9 @@ The `onFinish` callback in the API endpoint persists everything in a single Pris
 | Claude Haiku 4.5 | $1 | $5 |
 | Claude Sonnet 4.6 | $3 | $15 |
 | Claude Opus 4.6 | $5 | $25 |
+| MiniMax M2.7 | $0.30 | $1.20 |
+| GLM-5 | $0.72 | $2.30 |
+| Kimi K2.5 | $0.42 | $2.20 |
 
 Costs are rounded to 6 decimal places. The UI displays `"<$0.0001"` for very small amounts.
 
