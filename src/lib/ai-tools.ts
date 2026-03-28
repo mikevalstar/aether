@@ -105,4 +105,36 @@ export function createAiTools(
   };
 }
 
+/** Category + conditional metadata for each tool, used by the chat debug page. */
+export function getToolCategories(): Record<string, { category: string; conditional?: string }> {
+  return {
+    // Web (Anthropic)
+    web_search: { category: "Web", conditional: "Anthropic models only" },
+    web_fetch: { category: "Web", conditional: "Anthropic models only" },
+    // Code
+    code_execution: { category: "Code", conditional: "Sonnet 4.6 and Opus 4.6 only" },
+    // Utility
+    fetch_url_markdown: { category: "Utility" },
+    send_notification: { category: "Utility" },
+    calendar_events: { category: "Utility" },
+    // Obsidian
+    obsidian_folders: { category: "Obsidian" },
+    obsidian_list: { category: "Obsidian" },
+    obsidian_search: { category: "Obsidian" },
+    obsidian_read: { category: "Obsidian" },
+    obsidian_write: { category: "Obsidian" },
+    obsidian_edit: { category: "Obsidian" },
+    obsidian_ai_notes_list: { category: "Obsidian" },
+    // Memory
+    ai_memory: { category: "Memory" },
+    // Board
+    board_list_columns: { category: "Board" },
+    board_list_tasks: { category: "Board" },
+    board_add_task: { category: "Board" },
+    board_update_task: { category: "Board" },
+    // Skills
+    load_skill: { category: "Skills", conditional: "Only when skills are configured" },
+  };
+}
+
 export { anthropic, openrouter };

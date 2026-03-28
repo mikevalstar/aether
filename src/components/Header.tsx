@@ -6,6 +6,7 @@ import {
   BookOpen,
   CheckSquare,
   ChevronDown,
+  CircuitBoard,
   Columns3,
   FileText,
   GitBranch,
@@ -66,6 +67,7 @@ const systemLinks: NavLink[] = [
   { to: "/activity", label: "Activity", icon: Activity, auth: true },
   { to: "/usage", label: "Usage", icon: BarChart3, auth: true },
   { to: "/logs", label: "Logs", icon: ScrollText, auth: true },
+  { to: "/chat-debug", label: "Chat Debug", icon: CircuitBoard, auth: true },
   { to: "/requirements", label: "Requirements", icon: FileText, auth: true },
 ];
 

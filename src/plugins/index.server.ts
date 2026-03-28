@@ -67,6 +67,33 @@ export async function getPluginWidgetData(
   return results;
 }
 
+/** List all registered plugins with metadata + enabled status for the given user. */
+export function getRegisteredPlugins(prefs: UserPreferences) {
+  const enabled = new Set(prefs.enabledPlugins ?? []);
+  return serverPlugins.map((p) => ({
+    id: p.meta.id,
+    name: p.meta.name,
+    description: p.meta.description,
+    version: p.meta.version,
+    hasHealthCheck: p.meta.hasHealthCheck ?? false,
+    enabled: enabled.has(p.meta.id),
+  }));
+}
+
+/** Get all plugin tools across ALL registered plugins (regardless of enabled state). */
+export function getAllPluginTools(userId: string, threadId: string, timezone: string | undefined): ToolSet {
+  const tools: ToolSet = {};
+  for (const plugin of serverPlugins) {
+    if (!plugin.server?.createTools) continue;
+    const ctx = createPluginContext(plugin.meta.id, userId, threadId, timezone);
+    const pluginTools = plugin.server.createTools(ctx);
+    for (const [name, t] of Object.entries(pluginTools)) {
+      tools[`${plugin.meta.id}_${name}`] = t;
+    }
+  }
+  return tools;
+}
+
 export async function checkPluginHealth(
   pluginId: string,
   userId: string,

@@ -133,6 +133,7 @@ Server functions are created with `createServerFn()`. API routes use a `server` 
 - `/usage` — Usage tracking
 - `/users` — Users management
 - `/settings/password` — Password settings
+- `/chat-debug` — Chat system debug info (models, tools, skills, plugins, config)
 - `/o/` — Obsidian library browser
 - `/requirements/` — Requirements viewer
 - `/about` — About page

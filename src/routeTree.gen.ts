@@ -14,6 +14,7 @@ import { Route as UsageRouteImport } from './routes/usage'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ChatDebugRouteImport } from './routes/chat-debug'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as ActivityRouteImport } from './routes/activity'
@@ -69,6 +70,11 @@ const LoginRoute = LoginRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatDebugRoute = ChatDebugRouteImport.update({
+  id: '/chat-debug',
+  path: '/chat-debug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/activity': typeof ActivityRoute
   '/board': typeof BoardRoute
   '/chat': typeof ChatRoute
+  '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
@@ -271,6 +278,7 @@ export interface FileRoutesByTo {
   '/activity': typeof ActivityRoute
   '/board': typeof BoardRoute
   '/chat': typeof ChatRoute
+  '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/activity': typeof ActivityRoute
   '/board': typeof BoardRoute
   '/chat': typeof ChatRoute
+  '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
@@ -350,6 +359,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/board'
     | '/chat'
+    | '/chat-debug'
     | '/dashboard'
     | '/login'
     | '/logs'
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/board'
     | '/chat'
+    | '/chat-debug'
     | '/dashboard'
     | '/login'
     | '/logs'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/board'
     | '/chat'
+    | '/chat-debug'
     | '/dashboard'
     | '/login'
     | '/logs'
@@ -464,6 +476,7 @@ export interface RootRouteChildren {
   ActivityRoute: typeof ActivityRoute
   BoardRoute: typeof BoardRoute
   ChatRoute: typeof ChatRoute
+  ChatDebugRoute: typeof ChatDebugRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
@@ -521,6 +534,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat-debug': {
+      id: '/chat-debug'
+      path: '/chat-debug'
+      fullPath: '/chat-debug'
+      preLoaderRoute: typeof ChatDebugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -780,6 +800,7 @@ const rootRouteChildren: RootRouteChildren = {
   ActivityRoute: ActivityRoute,
   BoardRoute: BoardRoute,
   ChatRoute: ChatRoute,
+  ChatDebugRoute: ChatDebugRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
