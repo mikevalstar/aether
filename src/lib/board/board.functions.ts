@@ -1,8 +1,32 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { ensureSession } from "#/lib/auth.functions";
 import { readKanbanBoard, resolveKanbanPath, writeKanbanBoard } from "#/lib/board/board.server";
 import type { KanbanColumn } from "#/lib/board/kanban-parser";
 import { logger } from "#/lib/logger";
+
+const addBoardTaskInputSchema = z
+  .object({
+    column: z.string().trim().min(1),
+    text: z.string().trim().min(1),
+  })
+  .strict();
+
+const removeBoardTaskInputSchema = z
+  .object({
+    column: z.string().trim().min(1),
+    taskIndex: z.coerce.number().int().min(0),
+  })
+  .strict();
+
+const moveBoardTaskInputSchema = z
+  .object({
+    fromColumn: z.string().trim().min(1),
+    fromIndex: z.coerce.number().int().min(0),
+    toColumn: z.string().trim().min(1),
+    toIndex: z.coerce.number().int().min(0),
+  })
+  .strict();
 
 // --- Server functions (safe to import from route/client code) ---
 
@@ -23,10 +47,8 @@ export const getBoardData = createServerFn({ method: "GET" }).handler(async () =
   }
 });
 
-type AddTaskInput = { column: string; text: string };
-
 export const addBoardTask = createServerFn({ method: "POST" })
-  .inputValidator((data: AddTaskInput) => data)
+  .inputValidator((data) => addBoardTaskInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { board, absolutePath, relativePath, rawContent } = await readKanbanBoard(session.user.id);
@@ -40,10 +62,8 @@ export const addBoardTask = createServerFn({ method: "POST" })
     return { success: true, columns: board.columns };
   });
 
-type RemoveTaskInput = { column: string; taskIndex: number };
-
 export const removeBoardTask = createServerFn({ method: "POST" })
-  .inputValidator((data: RemoveTaskInput) => data)
+  .inputValidator((data) => removeBoardTaskInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { board, absolutePath, relativePath, rawContent } = await readKanbanBoard(session.user.id);
@@ -65,15 +85,8 @@ export const removeBoardTask = createServerFn({ method: "POST" })
     return { success: true, columns: board.columns };
   });
 
-type MoveTaskInput = {
-  fromColumn: string;
-  fromIndex: number;
-  toColumn: string;
-  toIndex: number;
-};
-
 export const moveBoardTask = createServerFn({ method: "POST" })
-  .inputValidator((data: MoveTaskInput) => data)
+  .inputValidator((data) => moveBoardTaskInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { board, absolutePath, relativePath, rawContent } = await readKanbanBoard(session.user.id);

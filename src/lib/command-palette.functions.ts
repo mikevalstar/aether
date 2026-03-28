@@ -1,8 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { toObsidianRoutePath } from "#/lib/obsidian";
 import { searchVault } from "#/lib/obsidian/vault-index";
+
+const queryInputSchema = z
+  .object({
+    query: z.string(),
+  })
+  .strict();
 
 export type CommandPaletteWorkflow = {
   filename: string;
@@ -28,7 +35,7 @@ export type CommandPaletteObsidianResult = {
 };
 
 export const searchCommandPaletteObsidian = createServerFn({ method: "GET" })
-  .inputValidator((data: { query: string }) => data)
+  .inputValidator((data) => queryInputSchema.parse(data))
   .handler(async ({ data }): Promise<CommandPaletteObsidianResult[]> => {
     await ensureSession();
 

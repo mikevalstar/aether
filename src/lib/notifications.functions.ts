@@ -1,7 +1,20 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { sendPushover } from "#/lib/pushover";
+
+const markNotificationReadInputSchema = z
+  .object({
+    id: z.string().trim().min(1, "Notification ID is required"),
+  })
+  .strict();
+
+const testPushoverInputSchema = z
+  .object({
+    userKey: z.string().trim().min(1, "Pushover user key is required"),
+  })
+  .strict();
 
 export const getUnreadNotifications = createServerFn({ method: "GET" }).handler(async () => {
   const session = await ensureSession();
@@ -45,10 +58,7 @@ export const getRecentNotifications = createServerFn({ method: "GET" }).handler(
 });
 
 export const markNotificationRead = createServerFn({ method: "POST" })
-  .inputValidator((data: { id: string }) => {
-    if (!data.id) throw new Error("Notification ID is required");
-    return data;
-  })
+  .inputValidator((data) => markNotificationReadInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -72,10 +82,7 @@ export const markAllNotificationsRead = createServerFn({ method: "POST" }).handl
 });
 
 export const testPushoverNotification = createServerFn({ method: "POST" })
-  .inputValidator((data: { userKey: string }) => {
-    if (!data.userKey?.trim()) throw new Error("Pushover user key is required");
-    return { userKey: data.userKey.trim() };
-  })
+  .inputValidator((data) => testPushoverInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
 

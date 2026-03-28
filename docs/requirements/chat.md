@@ -93,9 +93,16 @@ canonical_file: docs/requirements/chat.md
 ### Model selection and tool access
 
 - Requirement: Each thread must use one supported AI model with an optional effort level, and tool availability must depend on that model's provider and capabilities.
-- Notes: Supported models are Claude Haiku 4.5, Claude Sonnet 4.6, Claude Opus 4.6 (Anthropic), MiniMax M2.7, and GLM-5 (OpenRouter). Anthropic models use native web tools (`web_search`, `web_fetch`) with version-specific APIs: Haiku uses legacy versions, Sonnet and Opus use latest versions. OpenRouter models use Exa-based web search and fetch tools instead. All models also get `fetch_url_markdown`. Sonnet and Opus support effort levels (low, medium, high) via Anthropic's provider options. Anthropic models use ephemeral cache control. The selected model and effort are persisted to the thread and sent with each request. Tool-use steps are capped at 10 per response (`stepCountIs(10)`).
+- Notes: Supported models are Claude Haiku 4.5, Claude Sonnet 4.6, Claude Opus 4.6 (Anthropic), MiniMax M2.7, GLM-5, and Kimi K2.5 (OpenRouter). Anthropic models use native web tools (`web_search`, `web_fetch`) with version-specific APIs: Haiku uses legacy versions, Sonnet and Opus use latest versions. OpenRouter models use Exa-based web search and fetch tools instead. All models also get `fetch_url_markdown`. Sonnet and Opus support effort levels (low, medium, high) via Anthropic's provider options. Anthropic models use ephemeral cache control. The selected model and effort are persisted to the thread and sent with each request. Tool-use steps are capped at 10 per response (`stepCountIs(10)`).
 - Dependencies: `src/lib/chat-models.ts`, `src/lib/ai-tools.ts`, `src/routes/chat.tsx`, `src/routes/api/chat.ts`, `src/lib/tools/fetch-url-markdown.ts`, `src/lib/tools/exa-tools.ts`.
 - Follow-up: Decide whether model changes should affect only future turns, or whether the UI should show mixed-model history more explicitly.
+
+### Chat request validation
+
+- Requirement: Invalid `/api/chat` requests must return a specific, user-readable 400 error that explains whether the JSON body is malformed, required fields are missing, or the selected model/effort is unsupported.
+- Notes: The API accepts extra SDK transport fields but validates the core chat payload (`id`, `messages`, optional `model`, optional `effort`). Validation errors return targeted plain-text messages instead of a generic `Invalid chat request`, so the chat UI can surface actionable feedback directly.
+- Dependencies: `src/routes/api/chat.ts`, `src/components/chat/ChatWorkspace.tsx`, `src/lib/chat-models.ts`.
+- Follow-up: Consider switching these plain-text API errors to a structured JSON format if the UI needs richer field-level handling later.
 
 ### Tool ecosystem
 
@@ -212,4 +219,6 @@ canonical_file: docs/requirements/chat.md
 - 2026-03-14: Added AI-generated titles and editable titles sub-features.
 - 2026-03-15: Added context compaction sub-feature (planned) with implementation notes.
 - 2026-03-22: Added Export to Obsidian sub-feature (planned) — export chat threads as Markdown with frontmatter to a configurable vault folder.
+- 2026-03-28: Added Kimi K2.5 (`moonshotai/kimi-k2.5`) to the selectable OpenRouter model list with usage pricing metadata for cost estimation.
+- 2026-03-28: Improved `/api/chat` validation errors so unsupported models, unsupported effort levels, malformed JSON, and schema mismatches return specific messages instead of a generic invalid-request response.
 - 2026-03-22: Comprehensive audit of implemented features. Updated AI-generated titles, editable titles, and Export to Obsidian from planned/in-progress to done. Added new sub-features: effort level, @-mention autocomplete, thread search, mobile thread drawer, skills system, plugin tools, tool ecosystem, system prompt and skills. Updated model list to include OpenRouter models (MiniMax M2.7, GLM-5). Corrected export file naming (uses thread ID, not title). Added tool-inspector.tsx to dependencies. Reordered changelog chronologically.

@@ -1,8 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import dayjs from "dayjs";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { buildUsageDateRange, getChatModelLabel, normalizeUsageSearch, type UsageSearchInput } from "#/lib/chat-usage";
+
+const usageSearchInputSchema = z
+  .object({
+    from: z.string().trim().optional(),
+    to: z.string().trim().optional(),
+    model: z.string().trim().optional(),
+    taskType: z.string().trim().optional(),
+  })
+  .strict();
 
 type DailyUsagePoint = {
   date: string;
@@ -67,7 +77,7 @@ export type ChatUsageStatsResult = {
 };
 
 export const getChatUsageStats = createServerFn({ method: "GET" })
-  .inputValidator((data: UsageSearchInput) => data)
+  .inputValidator((data) => usageSearchInputSchema.parse(data) as UsageSearchInput)
   .handler(async ({ data }): Promise<ChatUsageStatsResult> => {
     const session = await ensureSession();
     const search = normalizeUsageSearch(data);

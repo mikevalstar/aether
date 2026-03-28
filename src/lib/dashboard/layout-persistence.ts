@@ -1,14 +1,27 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { parsePreferences, serializePreferences } from "#/lib/preferences";
 
-/** Serializable layout item (subset of LayoutItem without functions) */
-type SerializableLayoutItem = { i: string; x: number; y: number; w: number; h: number };
-type SerializableLayouts = Record<string, SerializableLayoutItem[]>;
+const dashboardLayoutItemSchema = z
+  .object({
+    i: z.string().trim().min(1),
+    x: z.coerce.number().int().min(0),
+    y: z.coerce.number().int().min(0),
+    w: z.coerce.number().int().min(1),
+    h: z.coerce.number().int().min(1),
+  })
+  .strict();
+
+const saveDashboardLayoutInputSchema = z
+  .object({
+    layouts: z.record(z.string(), z.array(dashboardLayoutItemSchema)),
+  })
+  .strict();
 
 export const saveDashboardLayout = createServerFn({ method: "POST" })
-  .inputValidator((data: { layouts: SerializableLayouts }) => data)
+  .inputValidator((data) => saveDashboardLayoutInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 

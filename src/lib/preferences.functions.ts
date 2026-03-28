@@ -1,17 +1,63 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { auth } from "#/lib/auth";
 import { ensureSession } from "#/lib/auth.functions";
+import { CHAT_MODELS, type ChatModel } from "#/lib/chat-models";
 import { searchVault } from "#/lib/obsidian/vault-index";
 import { listObsidianFolders } from "#/lib/obsidian.functions";
-import { parsePreferences, serializePreferences, type UserPreferences } from "#/lib/preferences";
+import { parsePreferences, serializePreferences } from "#/lib/preferences";
 
-type UpdateProfileInput = {
-  name: string;
-};
+const chatModelIds = CHAT_MODELS.map((model) => model.id) as [ChatModel, ...ChatModel[]];
 
-type UpdatePreferencesInput = Partial<UserPreferences>;
+const calendarFeedSchema = z
+  .object({
+    id: z.string().trim().min(1),
+    name: z.string().trim().min(1),
+    url: z.string().trim().min(1),
+    color: z.string().trim().min(1),
+    syncInterval: z.coerce.number().int().min(1),
+  })
+  .strict();
+
+const dashboardLayoutItemSchema = z
+  .object({
+    i: z.string().trim().min(1),
+    x: z.coerce.number().int().min(0),
+    y: z.coerce.number().int().min(0),
+    w: z.coerce.number().int().min(1),
+    h: z.coerce.number().int().min(1),
+  })
+  .strict();
+
+const updateProfileInputSchema = z
+  .object({
+    name: z.string().trim().min(1, "Name is required"),
+  })
+  .strict();
+
+const updatePreferencesInputSchema = z
+  .object({
+    obsidianTemplatesFolder: z.string().trim().optional(),
+    pushoverUserKey: z.string().trim().optional(),
+    calendarFeeds: z.array(calendarFeedSchema).optional(),
+    kanbanFile: z.string().trim().optional(),
+    dashboardBoardColumn: z.string().trim().optional(),
+    timezone: z.string().trim().optional(),
+    defaultChatModel: z.enum(chatModelIds).optional(),
+    enabledPlugins: z.array(z.string().trim().min(1)).optional(),
+    pluginOptions: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
+    dashboardLayouts: z.record(z.string(), z.array(dashboardLayoutItemSchema)).optional(),
+    obsidianChatExportFolder: z.string().trim().optional(),
+  })
+  .strict();
+
+const queryInputSchema = z
+  .object({
+    query: z.string(),
+  })
+  .strict();
 
 export const getPreferencesPageData = createServerFn({
   method: "GET",
@@ -42,13 +88,7 @@ export const getPreferencesPageData = createServerFn({
 });
 
 export const updateUserProfile = createServerFn({ method: "POST" })
-  .inputValidator((data: UpdateProfileInput) => {
-    const name = data.name.trim();
-    if (!name) {
-      throw new Error("Name is required");
-    }
-    return { name };
-  })
+  .inputValidator((data) => updateProfileInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
 
@@ -61,7 +101,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
   });
 
 export const updateUserPreferences = createServerFn({ method: "POST" })
-  .inputValidator((data: UpdatePreferencesInput) => data)
+  .inputValidator((data) => updatePreferencesInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -91,10 +131,8 @@ export const getDashboardBoardColumn = createServerFn({ method: "GET" }).handler
   return prefs.dashboardBoardColumn ?? null;
 });
 
-type SearchVaultFilesInput = { query: string };
-
 export const searchVaultFiles = createServerFn({ method: "GET" })
-  .inputValidator((data: SearchVaultFilesInput) => data)
+  .inputValidator((data) => queryInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
     const results = await searchVault(data.query, 20);
