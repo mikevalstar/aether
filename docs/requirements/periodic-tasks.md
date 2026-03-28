@@ -128,7 +128,7 @@ The task executor (`src/lib/task-executor.ts`) uses Vercel AI SDK's `generateTex
 
 ### Scheduler engine
 
-**Architecture:** Singleton module following the same pattern as `src/lib/obsidian/vault-index.ts` — eager init on import, chokidar file watching, HMR cleanup, process shutdown handling.
+**Architecture:** Explicitly started singleton runtime. `src/start.ts` uses TanStack Start request middleware to call `ensureAppRuntimeStarted()` in `src/lib/app-runtime.ts`, which boots the scheduler and workflow watcher idempotently. The scheduler still uses chokidar + croner internally, but importing helper modules no longer starts background processes.
 
 **Module:** `src/lib/task-scheduler.ts`
 
@@ -183,21 +183,21 @@ new Cron(config.cron, {
 **Env kill switch:** If `DISABLE_CRON=true` is set, the scheduler syncs task DB rows (so UI still works) but does not create cron jobs or start the file watcher. System tasks also do not start.
 
 **Lifecycle:**
-1. On module import, call `initScheduler()` eagerly (idempotent via `initPromise`)
-2. Ensure the `tasks/` directory exists (creates it with `recursive: true`)
-3. Check `DISABLE_CRON` env var — if truthy, sync task DB only (upsert rows, mark deleted files), skip cron jobs and watcher
-4. Read all `tasks/*.md` files from the AI config path, parse and validate
-5. Find first admin user for DB operations; bail if none exists
-6. Get existing `Task` rows for restart guard comparison
-7. Upsert `Task` rows in the database with current frontmatter values; mark any `Task` rows whose files no longer exist as `fileExists: false`
-8. **Restart guard:** For each task, compare `lastRunAt` from DB against the cron schedule. If the next scheduled run after `lastRunAt` is in the past but within grace window (<60s ago), set `startAt` to the following run to avoid double-running after a quick restart.
-9. Register valid tasks as `Cron` instances, stored in a `Map<filename, ScheduledTask>`
-10. Start chokidar watcher on `{obsidianConfigPath}/tasks/` directory (ignoring non-`.md` files)
-11. On file add/change: stop existing job, re-parse, validate, upsert `Task` row (set `fileExists: true`), create new `Cron`, update Map
-12. On file delete: stop job, delete from Map, set `Task.fileExists = false` in DB (do NOT delete the row)
-13. Start system tasks via `startSystemTasks()`
-14. On process shutdown (`SIGTERM`/`SIGINT`): stop all jobs (including system tasks), close chokidar watcher, clear state
-15. On Vite HMR (`import.meta.hot.dispose`): same cleanup (prevents stacking during dev)
+1. `src/start.ts` request middleware calls `ensureAppRuntimeStarted()` on the server; bootstrap is idempotent per process.
+2. `src/lib/app-runtime.ts` starts the workflow watcher and task scheduler explicitly, and owns process/HMR cleanup.
+3. Scheduler ensures the `tasks/` directory exists (creates it with `recursive: true`)
+4. Check `DISABLE_CRON` env var — if truthy, sync task DB only (upsert rows, mark deleted files), skip cron jobs and watcher
+5. Read and validate all `tasks/*.md` files from the AI config path
+6. Find first admin user for DB operations; bail if none exists
+7. Get existing `Task` rows for restart guard comparison
+8. Upsert `Task` rows in the database with current frontmatter values; mark any `Task` rows whose files no longer exist as `fileExists: false`
+9. **Restart guard:** For each task, compare `lastRunAt` from DB against the cron schedule. If the next scheduled run after `lastRunAt` is in the past but within grace window (<60s ago), set `startAt` to the following run to avoid double-running after a quick restart.
+10. Register valid tasks as `Cron` instances, stored in a `Map<filename, ScheduledTask>`
+11. Start chokidar watcher on `{obsidianConfigPath}/tasks/` directory (ignoring non-`.md` files)
+12. On file add/change: stop existing job, re-parse, validate, upsert `Task` row (set `fileExists: true`), create new `Cron`, update Map
+13. On file delete: stop job, delete from Map, set `Task.fileExists = false` in DB (do NOT delete the row)
+14. Start system tasks via `startSystemTasks()`
+15. On process shutdown (`SIGTERM`/`SIGINT`) or Vite HMR disposal: `src/lib/app-runtime.ts` stops all jobs, closes watchers, and clears runtime state
 
 **Exposed API:**
 - `initScheduler(): Promise<void>` — idempotent, safe to call multiple times

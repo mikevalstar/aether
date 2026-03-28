@@ -18,6 +18,9 @@ let initPromise: Promise<void> | null = null;
 
 export function initWorkflowWatcher(): Promise<void> {
   if (initPromise) return initPromise;
+
+  logger.info("Initializing workflow watcher");
+
   initPromise = doInit();
   return initPromise;
 }
@@ -235,21 +238,5 @@ async function upsertWorkflowRow(filename: string, config: WorkflowConfig, userI
       fieldsJson: JSON.stringify(config.fields),
       fileExists: true,
     },
-  });
-}
-
-// ── Eager initialization ─────────────────────────────────────────────
-void initWorkflowWatcher();
-
-// ── Cleanup ──────────────────────────────────────────────────────────
-function handleShutdown() {
-  void closeWorkflowWatcher();
-}
-process.on("SIGTERM", handleShutdown);
-process.on("SIGINT", handleShutdown);
-
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
-    void closeWorkflowWatcher();
   });
 }

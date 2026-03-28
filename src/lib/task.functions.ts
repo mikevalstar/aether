@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { prisma } from "#/db";
+import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-models";
 import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/task-scheduler";
@@ -50,6 +51,7 @@ export type TaskRunItem = {
 };
 
 export const getTasksPageData = createServerFn({ method: "GET" }).handler(async () => {
+  await ensureAppRuntimeStarted();
   await ensureSession();
 
   const taskRows = await prisma.task.findMany({
@@ -140,6 +142,7 @@ export const getTaskRunHistory = createServerFn({ method: "GET" })
 export const triggerTaskRun = createServerFn({ method: "POST" })
   .inputValidator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
+    await ensureAppRuntimeStarted();
     await ensureSession();
     await schedulerTriggerTask(data.filename);
     return { success: true };

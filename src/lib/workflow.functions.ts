@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { prisma } from "#/db";
+import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-models";
 import { toObsidianRoutePath } from "#/lib/obsidian";
@@ -155,6 +156,7 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
 export const runWorkflow = createServerFn({ method: "POST" })
   .inputValidator((data) => workflowRunInputSchema.parse(data))
   .handler(async ({ data }) => {
+    await ensureAppRuntimeStarted();
     const session = await ensureSession();
 
     const config = getWorkflowConfig(data.filename);

@@ -2,13 +2,18 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import chokidar from "chokidar";
 import { Cron, scheduledJobs } from "croner";
-import matter from "gray-matter";
 import { prisma } from "#/db";
-import { taskFrontmatterSchema, taskValidator } from "#/lib/ai-config-validators/task";
 import { logger } from "#/lib/logger";
 import { startupTimer } from "#/lib/startup-timer";
 import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
 import { executeTask, type TaskConfig } from "#/lib/task-executor";
+import { getTasksDir, type LoadedTaskConfig, loadTaskConfigs, parseTaskFile } from "#/lib/task-scheduler/task-loader";
+import {
+  findSchedulerAdminUser,
+  getExistingTaskRows,
+  markMissingTaskRows,
+  upsertTaskRow,
+} from "#/lib/task-scheduler/task-sync";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -44,6 +49,8 @@ const GRACE_WINDOW_MS = 60_000; // 60 seconds
 
 export function initScheduler(): Promise<void> {
   if (initPromise) return initPromise;
+
+  logger.info("Initializing task scheduler");
 
   initPromise = doInit();
   return initPromise;
@@ -112,67 +119,39 @@ async function doInit(): Promise<void> {
     logger.info("DISABLE_CRON=true — scheduler disabled, syncing task DB only");
   }
 
-  // Read all task files
-  let files: string[];
+  let loadedTasks: LoadedTaskConfig[];
   try {
-    files = await fs.readdir(tasksDir);
+    loadedTasks = await loadTaskConfigs(tasksDir);
   } catch {
     done.skip("cannot read tasks directory", { dir: tasksDir });
     return;
   }
 
-  // Find admin user for DB operations
-  const adminUser = await prisma.user.findFirst({
-    where: { role: "admin" },
-    orderBy: { createdAt: "asc" },
-  });
+  const adminUser = await findSchedulerAdminUser();
 
   if (!adminUser) {
     done.skip("no admin user found");
     return;
   }
 
-  // Get existing task rows for restart guard
-  const existingTasks = await prisma.task.findMany({
-    where: { userId: adminUser.id },
-  });
+  const existingTasks = await getExistingTaskRows(adminUser.id);
   const taskRowsByFilename = new Map(existingTasks.map((t) => [t.filename, t]));
 
-  // Mark all existing tasks as fileExists: false initially, then flip as we find files
   const foundFiles = new Set<string>();
 
-  for (const file of files) {
-    if (!file.endsWith(".md")) continue;
-    const filePath = path.join(tasksDir, file);
+  for (const { filename, config } of loadedTasks) {
+    foundFiles.add(filename);
 
-    const stat = await fs.stat(filePath).catch(() => null);
-    if (!stat?.isFile()) continue;
-
-    const config = await parseTaskFile(filePath);
-    if (!config) continue;
-
-    foundFiles.add(file);
-
-    // Upsert task row
-    await upsertTaskRow(file, config, adminUser.id);
+    await upsertTaskRow(filename, config, adminUser.id);
 
     if (cronDisabled) continue;
 
-    // Create cron job
-    const existingRow = taskRowsByFilename.get(file);
-    const job = createCronJob(file, config, existingRow?.lastRunAt ?? null);
-    tasks.set(file, { config, job });
+    const existingRow = taskRowsByFilename.get(filename);
+    const job = createCronJob(filename, config, existingRow?.lastRunAt ?? null);
+    tasks.set(filename, { config, job });
   }
 
-  // Mark deleted files
-  for (const existing of existingTasks) {
-    if (!foundFiles.has(existing.filename) && existing.fileExists) {
-      await prisma.task.update({
-        where: { id: existing.id },
-        data: { fileExists: false },
-      });
-    }
-  }
+  await markMissingTaskRows(existingTasks, foundFiles);
 
   if (cronDisabled) return;
 
@@ -249,47 +228,6 @@ async function handleFileDelete(filePath: string): Promise<void> {
   logger.info({ task: filename }, "Task file deleted");
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────
-
-function getTasksDir(): string {
-  const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
-  const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
-  if (!obsidianDir || !aiConfigRel) return "";
-  return path.join(obsidianDir, aiConfigRel, "tasks");
-}
-
-async function parseTaskFile(filePath: string): Promise<TaskConfig | null> {
-  try {
-    const content = await fs.readFile(filePath, "utf8");
-    const parsed = matter(content);
-    const fm = parsed.data as Record<string, unknown>;
-
-    const validation = taskValidator.validate(fm, parsed.content);
-    if (!validation.isValid) {
-      logger.warn({ file: filePath, errors: validation.errors }, "Task validation failed");
-      return null;
-    }
-
-    const data = taskFrontmatterSchema.parse(fm);
-
-    return {
-      title: data.title,
-      cron: data.cron,
-      model: data.model,
-      effort: data.effort,
-      enabled: data.enabled !== false,
-      endDate: data.endDate,
-      maxTokens: data.maxTokens,
-      timezone: data.timezone,
-      notification: data.notification ?? "notify",
-      body: parsed.content,
-    };
-  } catch (err) {
-    logger.error({ file: filePath, err }, "Failed to parse task file");
-    return null;
-  }
-}
-
 function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | null): Cron | null {
   // Remove any existing croner job with the same name to avoid "name already taken" errors.
   // This handles cases where stop() didn't fully unregister the name (e.g. paused jobs).
@@ -361,50 +299,4 @@ function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | n
     logger.error({ task: filename, err }, "Failed to create cron job");
     return null;
   }
-}
-
-async function upsertTaskRow(filename: string, config: TaskConfig, userId: string): Promise<void> {
-  await prisma.task.upsert({
-    where: { filename },
-    create: {
-      filename,
-      title: config.title,
-      cron: config.cron,
-      model: config.model ?? "claude-haiku-4-5",
-      effort: config.effort ?? "low",
-      enabled: config.enabled,
-      endDate: config.endDate ? new Date(config.endDate) : null,
-      maxTokens: config.maxTokens ?? null,
-      timezone: config.timezone ?? null,
-      fileExists: true,
-      userId,
-    },
-    update: {
-      title: config.title,
-      cron: config.cron,
-      model: config.model ?? "claude-haiku-4-5",
-      effort: config.effort ?? "low",
-      enabled: config.enabled,
-      endDate: config.endDate ? new Date(config.endDate) : null,
-      maxTokens: config.maxTokens ?? null,
-      timezone: config.timezone ?? null,
-      fileExists: true,
-    },
-  });
-}
-
-// ── Eager initialization ─────────────────────────────────────────────
-void initScheduler();
-
-// ── Cleanup ──────────────────────────────────────────────────────────
-function handleShutdown() {
-  void closeScheduler();
-}
-process.on("SIGTERM", handleShutdown);
-process.on("SIGINT", handleShutdown);
-
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
-    void closeScheduler();
-  });
 }

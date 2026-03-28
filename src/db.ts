@@ -11,7 +11,3 @@ const adapter = new PrismaBetterSqlite3({
 
 export const prisma = new PrismaClient({ adapter });
 dbTimer();
-
-// Eager-init the task scheduler and workflow watcher on server start (side-effect imports)
-import("#/lib/task-scheduler").catch(() => {});
-import("#/lib/workflow-watcher").catch(() => {});
