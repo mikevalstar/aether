@@ -1,5 +1,13 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createRootRoute, type ErrorComponentProps, HeadContent, Outlet, Scripts, useRouter } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  type ErrorComponentProps,
+  HeadContent,
+  Link,
+  Outlet,
+  Scripts,
+  useRouter,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import CommandPalette from "../components/CommandPalette";
 import Footer from "../components/Footer";
@@ -14,6 +22,7 @@ import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
   errorComponent: RootErrorComponent,
+  notFoundComponent: NotFoundComponent,
   beforeLoad: async () => {
     const session = await getSession();
     return { session };
@@ -70,6 +79,20 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootDocument,
 });
+
+function NotFoundComponent() {
+  return (
+    <div className="page-wrap py-12">
+      <div className="surface-card p-8 text-center">
+        <h1 className="text-4xl font-display font-bold text-teal mb-2">404</h1>
+        <p className="text-muted-foreground mb-6">This page doesn't exist.</p>
+        <Link to="/" className="text-teal hover:underline text-sm font-medium">
+          Go home
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function RootErrorComponent({ error }: ErrorComponentProps) {
   let router: ReturnType<typeof useRouter> | null = null;
