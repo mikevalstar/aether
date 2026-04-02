@@ -3,25 +3,51 @@ import path from "node:path";
 import { logger } from "#/lib/logger";
 import type { CachedFeedData, CalendarEvent } from "./types";
 
-const CACHE_DIR = path.resolve("data/calendars");
+const BASE_CACHE_DIR = path.resolve("data/calendars");
 
-function ensureCacheDir() {
-  if (!fs.existsSync(CACHE_DIR)) {
-    fs.mkdirSync(CACHE_DIR, { recursive: true });
+/** One-time migration: remove global (non-user-scoped) cache files from the old layout. */
+function migrateGlobalCache() {
+  if (!fs.existsSync(BASE_CACHE_DIR)) return;
+  const entries = fs.readdirSync(BASE_CACHE_DIR).filter((f) => f.endsWith(".json"));
+  for (const file of entries) {
+    const filePath = path.join(BASE_CACHE_DIR, file);
+    try {
+      fs.unlinkSync(filePath);
+      logger.info({ file }, "Removed global calendar cache file (migrated to per-user)");
+    } catch (err) {
+      logger.warn({ file, err }, "Failed to remove global calendar cache file");
+    }
   }
 }
 
-function feedCachePath(feedId: string): string {
-  return path.join(CACHE_DIR, `${feedId}.json`);
+let migrated = false;
+
+function userCacheDir(userId: string): string {
+  return path.join(BASE_CACHE_DIR, userId);
 }
 
-export function writeFeedCache(data: CachedFeedData): void {
-  ensureCacheDir();
-  fs.writeFileSync(feedCachePath(data.feedId), JSON.stringify(data, null, 2), "utf-8");
+function ensureUserCacheDir(userId: string) {
+  if (!migrated) {
+    migrateGlobalCache();
+    migrated = true;
+  }
+  const dir = userCacheDir(userId);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
 }
 
-export function readFeedCache(feedId: string): CachedFeedData | null {
-  const filePath = feedCachePath(feedId);
+function feedCachePath(userId: string, feedId: string): string {
+  return path.join(userCacheDir(userId), `${feedId}.json`);
+}
+
+export function writeFeedCache(userId: string, data: CachedFeedData): void {
+  ensureUserCacheDir(userId);
+  fs.writeFileSync(feedCachePath(userId, data.feedId), JSON.stringify(data, null, 2), "utf-8");
+}
+
+export function readFeedCache(userId: string, feedId: string): CachedFeedData | null {
+  const filePath = feedCachePath(userId, feedId);
   if (!fs.existsSync(filePath)) return null;
 
   try {
@@ -33,33 +59,34 @@ export function readFeedCache(feedId: string): CachedFeedData | null {
   }
 }
 
-export function deleteFeedCache(feedId: string): void {
-  const filePath = feedCachePath(feedId);
+export function deleteFeedCache(userId: string, feedId: string): void {
+  const filePath = feedCachePath(userId, feedId);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }
 }
 
-export function getLastSyncTime(feedId: string): Date | null {
-  const cached = readFeedCache(feedId);
+export function getLastSyncTime(userId: string, feedId: string): Date | null {
+  const cached = readFeedCache(userId, feedId);
   if (!cached?.lastSyncedAt) return null;
   return new Date(cached.lastSyncedAt);
 }
 
 /**
- * Query cached events across all feeds for a given date range.
+ * Query cached events for a specific user across their feeds for a given date range.
  */
-export function queryEvents(startDate: string, endDate: string): CalendarEvent[] {
-  ensureCacheDir();
+export function queryEvents(userId: string, startDate: string, endDate: string): CalendarEvent[] {
+  ensureUserCacheDir(userId);
   const start = new Date(startDate);
   const end = new Date(endDate);
   const allEvents: CalendarEvent[] = [];
+  const dir = userCacheDir(userId);
 
-  const files = fs.readdirSync(CACHE_DIR).filter((f) => f.endsWith(".json"));
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
 
   for (const file of files) {
     try {
-      const raw = fs.readFileSync(path.join(CACHE_DIR, file), "utf-8");
+      const raw = fs.readFileSync(path.join(dir, file), "utf-8");
       const data = JSON.parse(raw) as CachedFeedData;
 
       for (const event of data.events) {
@@ -80,16 +107,17 @@ export function queryEvents(startDate: string, endDate: string): CalendarEvent[]
 }
 
 /**
- * Get all cached events across all feeds (for dashboard use).
+ * Get all cached events for a specific user across their feeds (for dashboard use).
  */
-export function getAllCachedEvents(): CalendarEvent[] {
-  ensureCacheDir();
+export function getAllCachedEvents(userId: string): CalendarEvent[] {
+  ensureUserCacheDir(userId);
   const allEvents: CalendarEvent[] = [];
-  const files = fs.readdirSync(CACHE_DIR).filter((f) => f.endsWith(".json"));
+  const dir = userCacheDir(userId);
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
 
   for (const file of files) {
     try {
-      const raw = fs.readFileSync(path.join(CACHE_DIR, file), "utf-8");
+      const raw = fs.readFileSync(path.join(dir, file), "utf-8");
       const data = JSON.parse(raw) as CachedFeedData;
       allEvents.push(...data.events);
     } catch (err) {

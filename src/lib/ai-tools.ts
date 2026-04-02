@@ -107,7 +107,7 @@ export function createAiTools(
     ...obsidianTools,
     ...boardTools,
     send_notification: createSendNotification(userId),
-    calendar_events: createCalendarEvents(timezone),
+    calendar_events: createCalendarEvents(userId, timezone),
     ...pluginTools,
   };
 }

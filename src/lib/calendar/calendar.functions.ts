@@ -24,22 +24,22 @@ const calendarMonthInputSchema = z
 export const getCalendarEvents = createServerFn({ method: "GET" })
   .inputValidator((data) => calendarEventsInputSchema.parse(data))
   .handler(async ({ data }): Promise<CalendarEvent[]> => {
-    await ensureSession();
-    return queryEvents(data.startDate, data.endDate);
+    const session = await ensureSession();
+    return queryEvents(session.user.id, data.startDate, data.endDate);
   });
 
 export const getCalendarEventsForMonth = createServerFn({ method: "GET" })
   .inputValidator((data) => calendarMonthInputSchema.parse(data))
   .handler(async ({ data }): Promise<CalendarEvent[]> => {
-    await ensureSession();
+    const session = await ensureSession();
     const start = new Date(data.year, data.month, 1);
     const end = new Date(data.year, data.month + 1, 0, 23, 59, 59);
-    return queryEvents(start.toISOString(), end.toISOString());
+    return queryEvents(session.user.id, start.toISOString(), end.toISOString());
   });
 
 export const getAllCalendarEvents = createServerFn({ method: "GET" }).handler(async (): Promise<CalendarEvent[]> => {
-  await ensureSession();
-  return getAllCachedEvents();
+  const session = await ensureSession();
+  return getAllCachedEvents(session.user.id);
 });
 
 export type FeedSyncResult = {
@@ -67,7 +67,7 @@ export const syncCalendarFeedsNow = createServerFn({ method: "POST" }).handler(a
   for (const feed of feeds) {
     try {
       const events = await fetchAndParseIcal(feed);
-      writeFeedCache({
+      writeFeedCache(session.user.id, {
         feedId: feed.id,
         feedName: feed.name,
         lastSyncedAt: new Date().toISOString(),

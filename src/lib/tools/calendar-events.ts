@@ -8,7 +8,7 @@ import { queryEvents } from "#/lib/calendar/cache";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export function createCalendarEvents(userTimezone?: string) {
+export function createCalendarEvents(userId: string, userTimezone?: string) {
   const tz = userTimezone || process.env.DEFAULT_TIMEZONE || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return tool({
@@ -26,7 +26,7 @@ export function createCalendarEvents(userTimezone?: string) {
         return { error: "Invalid date format. Please provide recognizable date strings." };
       }
 
-      const events = queryEvents(start.toISOString(), end.toISOString());
+      const events = queryEvents(userId, start.toISOString(), end.toISOString());
 
       return {
         timezone: tz,

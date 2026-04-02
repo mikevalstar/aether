@@ -27,7 +27,7 @@ export async function syncCalendarFeeds(): Promise<void> {
     for (const feed of feeds) {
       totalFeeds++;
       try {
-        if (!isSyncDue(feed)) {
+        if (!isSyncDue(user.id, feed)) {
           skippedNotDue++;
           continue;
         }
@@ -35,7 +35,7 @@ export async function syncCalendarFeeds(): Promise<void> {
         logger.info({ feedId: feed.id, feedName: feed.name, feedUrl: feed.url }, "Syncing calendar feed");
         const events = await fetchAndParseIcal(feed);
 
-        writeFeedCache({
+        writeFeedCache(user.id, {
           feedId: feed.id,
           feedName: feed.name,
           lastSyncedAt: new Date().toISOString(),
@@ -53,8 +53,8 @@ export async function syncCalendarFeeds(): Promise<void> {
   logger.debug({ totalFeeds, totalSynced, skippedNotDue }, "Calendar sync cycle complete");
 }
 
-function isSyncDue(feed: CalendarFeed): boolean {
-  const lastSync = getLastSyncTime(feed.id);
+function isSyncDue(userId: string, feed: CalendarFeed): boolean {
+  const lastSync = getLastSyncTime(userId, feed.id);
   if (!lastSync) return true;
 
   const minutesSinceSync = (Date.now() - lastSync.getTime()) / (1000 * 60);
