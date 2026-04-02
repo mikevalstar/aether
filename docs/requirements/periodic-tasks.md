@@ -180,13 +180,15 @@ new Cron(config.cron, {
 - `paused` replaces manual `enabled` check — disabled tasks are created paused (with no callback, so `nextRun` is still available)
 - `catch` handler replaces manual try/catch — keeps the job alive after errors
 
-**Env kill switch:** If `DISABLE_CRON=true` is set, the scheduler syncs task DB rows (so UI still works) but does not create cron jobs or start the file watcher. System tasks also do not start.
+**Env kill switches:**
+- `DISABLE_CRON=true` — globally disables everything: file-based task cron jobs, the file watcher, and system tasks (cleanup, calendar sync). DB rows are still synced so the UI works.
+- `DISABLE_TASKS=true` — disables only file-based task cron jobs and the file watcher. System tasks (cleanup, calendar sync) continue to run. Useful when running a secondary instance alongside a local dev server.
 
 **Lifecycle:**
 1. `src/start.ts` request middleware calls `ensureAppRuntimeStarted()` on the server; bootstrap is idempotent per process.
 2. `src/lib/app-runtime.ts` starts the workflow watcher and task scheduler explicitly, and owns process/HMR cleanup.
 3. Scheduler ensures the `tasks/` directory exists (creates it with `recursive: true`)
-4. Check `DISABLE_CRON` env var — if truthy, sync task DB only (upsert rows, mark deleted files), skip cron jobs and watcher
+4. Check `DISABLE_CRON` / `DISABLE_TASKS` env vars — if either is truthy, sync task DB only (upsert rows, mark deleted files), skip task cron jobs and watcher. If only `DISABLE_TASKS`, system tasks still start.
 5. Read and validate all `tasks/*.md` files from the AI config path
 6. Find first admin user for DB operations; bail if none exists
 7. Get existing `Task` rows for restart guard comparison

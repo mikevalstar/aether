@@ -115,8 +115,11 @@ async function doInit(): Promise<void> {
   }
 
   const cronDisabled = process.env.DISABLE_CRON === "true";
+  const tasksDisabled = cronDisabled || process.env.DISABLE_TASKS === "true";
   if (cronDisabled) {
     logger.info("DISABLE_CRON=true — scheduler disabled, syncing task DB only");
+  } else if (tasksDisabled) {
+    logger.info("DISABLE_TASKS=true — file-based tasks disabled, system tasks will still run");
   }
 
   let loadedTasks: LoadedTaskConfig[];
@@ -144,7 +147,7 @@ async function doInit(): Promise<void> {
 
     await upsertTaskRow(filename, config, adminUser.id);
 
-    if (cronDisabled) continue;
+    if (tasksDisabled) continue;
 
     const existingRow = taskRowsByFilename.get(filename);
     const job = createCronJob(filename, config, existingRow?.lastRunAt ?? null);
@@ -153,25 +156,29 @@ async function doInit(): Promise<void> {
 
   await markMissingTaskRows(existingTasks, foundFiles);
 
+  // When DISABLE_CRON is set, skip everything (tasks + system tasks)
   if (cronDisabled) return;
 
-  // Start file watcher
-  watcher = chokidar.watch(tasksDir, {
-    ignored: (filePath, stats) => {
-      if (stats?.isFile() && !filePath.endsWith(".md")) return true;
-      return false;
-    },
-    persistent: true,
-    ignoreInitial: true,
-  });
-
-  watcher
-    .on("add", (filePath: string) => void handleFileAddOrChange(filePath))
-    .on("change", (filePath: string) => void handleFileAddOrChange(filePath))
-    .on("unlink", (filePath: string) => void handleFileDelete(filePath))
-    .on("error", (err: unknown) => {
-      logger.error({ err }, "Task watcher error");
+  // When only DISABLE_TASKS is set, skip file watcher but still start system tasks
+  if (!tasksDisabled) {
+    // Start file watcher
+    watcher = chokidar.watch(tasksDir, {
+      ignored: (filePath, stats) => {
+        if (stats?.isFile() && !filePath.endsWith(".md")) return true;
+        return false;
+      },
+      persistent: true,
+      ignoreInitial: true,
     });
+
+    watcher
+      .on("add", (filePath: string) => void handleFileAddOrChange(filePath))
+      .on("change", (filePath: string) => void handleFileAddOrChange(filePath))
+      .on("unlink", (filePath: string) => void handleFileDelete(filePath))
+      .on("error", (err: unknown) => {
+        logger.error({ err }, "Task watcher error");
+      });
+  }
 
   // Register code-defined system tasks (cleanup, etc.)
   startSystemTasks();

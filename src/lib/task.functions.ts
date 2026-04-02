@@ -62,6 +62,7 @@ export const getTasksPageData = createServerFn({ method: "GET" }).handler(async 
   const scheduledByFilename = new Map(scheduledTasks.map((t) => [t.filename, t]));
 
   const cronDisabled = process.env.DISABLE_CRON === "true";
+  const tasksDisabled = cronDisabled || process.env.DISABLE_TASKS === "true";
 
   const items: TaskListItem[] = taskRows.map((row) => {
     const scheduled = scheduledByFilename.get(row.filename);
@@ -87,7 +88,7 @@ export const getTasksPageData = createServerFn({ method: "GET" }).handler(async 
     };
   });
 
-  return { items, cronDisabled };
+  return { items, cronDisabled, tasksDisabled };
 });
 
 export const getTaskRunHistory = createServerFn({ method: "GET" })

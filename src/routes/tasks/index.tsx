@@ -41,12 +41,15 @@ function TasksPage() {
           </p>
         </section>
 
-        {data.cronDisabled && (
+        {data.tasksDisabled && (
           <Alert variant="destructive" className="mb-6">
             <AlertTriangle className="size-4" />
             <AlertDescription>
-              The task scheduler is globally disabled (<code className="text-xs">DISABLE_CRON=true</code>). Tasks will not
-              run automatically. You can still trigger them manually.
+              {data.cronDisabled
+                ? <>The scheduler is globally disabled (<code className="text-xs">DISABLE_CRON=true</code>). Tasks and system jobs will not run automatically.</>
+                : <>File-based tasks are disabled (<code className="text-xs">DISABLE_TASKS=true</code>). System jobs (cleanup, calendar sync) are still running.</>
+              }{" "}
+              You can still trigger tasks manually.
             </AlertDescription>
           </Alert>
         )}
