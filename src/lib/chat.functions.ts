@@ -17,7 +17,7 @@ import {
   getChatPreviewFromMessages,
   getMessageText,
   isChatEffort,
-  isChatModel,
+  resolveModelId,
   parseStoredMessages,
 } from "#/lib/chat";
 import { logger } from "#/lib/logger";
@@ -81,7 +81,7 @@ function mapThreadSummary(thread: {
   return {
     id: thread.id,
     title: thread.title,
-    model: isChatModel(thread.model) ? thread.model : DEFAULT_CHAT_MODEL,
+    model: resolveModelId(thread.model) ?? DEFAULT_CHAT_MODEL,
     effort: isChatEffort(thread.effort) ? thread.effort : DEFAULT_CHAT_EFFORT,
     preview: getChatPreviewFromMessages(messages),
     totalInputTokens: thread.totalInputTokens,
@@ -129,7 +129,7 @@ export const createChatThread = createServerFn({ method: "POST" })
   .inputValidator((data) => createChatThreadInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
-    const model = data.model && isChatModel(data.model) ? data.model : DEFAULT_CHAT_MODEL;
+    const model = (data.model && resolveModelId(data.model)) ?? DEFAULT_CHAT_MODEL;
     const effort = data.effort && isChatEffort(data.effort) ? data.effort : DEFAULT_CHAT_EFFORT;
 
     const thread = await prisma.chatThread.create({

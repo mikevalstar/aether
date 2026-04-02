@@ -8,7 +8,7 @@ import {
   DEFAULT_CHAT_MODEL,
   estimateChatUsageCostUsd,
   isChatEffort,
-  isChatModel,
+  resolveModelId,
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
@@ -266,8 +266,8 @@ export async function executeWorkflow(
 }
 
 function resolveModel(workflowModel?: string, configModel?: string): ChatModel {
-  if (workflowModel && isChatModel(workflowModel)) return workflowModel;
-  if (configModel && isChatModel(configModel)) return configModel;
+  if (workflowModel) { const r = resolveModelId(workflowModel); if (r) return r; }
+  if (configModel) { const r = resolveModelId(configModel); if (r) return r; }
   return DEFAULT_CHAT_MODEL;
 }
 

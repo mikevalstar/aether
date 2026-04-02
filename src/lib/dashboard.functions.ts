@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { getChatPreviewFromMessages, parseStoredMessages } from "#/lib/chat";
-import { DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-models";
+import { DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
 import { getChatModelLabel } from "#/lib/chat-usage";
 
 export type DashboardThread = {
@@ -67,7 +67,7 @@ export const getDashboardData = createServerFn({ method: "GET" }).handler(async 
   return {
     recentThreads: threads.map((t) => {
       const messages = parseStoredMessages(t.messagesJson);
-      const model = isChatModel(t.model) ? t.model : DEFAULT_CHAT_MODEL;
+      const model = resolveModelId(t.model) ?? DEFAULT_CHAT_MODEL;
       return {
         id: t.id,
         title: t.title,

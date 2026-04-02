@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { CHAT_MODELS, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat";
+import { CHAT_MODELS, resolveModelId } from "#/lib/chat";
 
 export const TASK_TYPES = ["chat", "title"] as const;
 export type TaskType = (typeof TASK_TYPES)[number];
@@ -27,7 +27,7 @@ export type UsageSearchInput = {
 };
 
 export function normalizeUsageSearch(input: UsageSearchInput) {
-  const model = input.model && isChatModel(input.model) ? input.model : "all";
+  const model = (input.model && resolveModelId(input.model)) ?? "all";
   const taskType = input.taskType && isTaskType(input.taskType) ? input.taskType : "all";
 
   const from = normalizeDateInput(input.from);
@@ -59,11 +59,9 @@ export function formatUsageCurrency(value: number) {
 }
 
 export function getChatModelLabel(model: string) {
-  return (
-    CHAT_MODELS.find((item) => item.id === model)?.label ??
-    (isChatModel(model) ? CHAT_MODELS.find((item) => item.id === model)?.label : model) ??
-    DEFAULT_CHAT_MODEL
-  );
+  const resolved = resolveModelId(model);
+  if (resolved) return CHAT_MODELS.find((item) => item.id === resolved)?.label ?? resolved;
+  return model;
 }
 
 function normalizeDateInput(value: string | undefined) {

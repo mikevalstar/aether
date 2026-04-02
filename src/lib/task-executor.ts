@@ -8,7 +8,7 @@ import {
   DEFAULT_CHAT_MODEL,
   estimateChatUsageCostUsd,
   isChatEffort,
-  isChatModel,
+  resolveModelId,
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
@@ -250,8 +250,8 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
 }
 
 function resolveModel(taskModel?: string, configModel?: string): ChatModel {
-  if (taskModel && isChatModel(taskModel)) return taskModel;
-  if (configModel && isChatModel(configModel)) return configModel;
+  if (taskModel) { const r = resolveModelId(taskModel); if (r) return r; }
+  if (configModel) { const r = resolveModelId(configModel); if (r) return r; }
   return DEFAULT_CHAT_MODEL;
 }
 

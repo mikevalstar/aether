@@ -26,14 +26,13 @@ import {
   getChatTitleFromMessages,
   getMessageText,
   isChatEffort,
-  isChatModel,
   parseStoredMessages,
   parseUsageHistory,
   serializeMessages,
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
-import { CHAT_MODELS } from "#/lib/chat-models";
+import { CHAT_MODELS, resolveModelId } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
 import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
@@ -125,14 +124,18 @@ async function parseChatRequest(request: Request) {
 
   const body = parsedBody.data;
 
-  if (body.model && !isChatModel(body.model)) {
-    return {
-      ok: false as const,
-      response: new Response(
-        `Unsupported chat model "${body.model}". Supported models: ${joinQuoted(CHAT_MODELS.map((model) => model.id))}.`,
-        { status: 400 },
-      ),
-    };
+  if (body.model) {
+    const resolved = resolveModelId(body.model);
+    if (!resolved) {
+      return {
+        ok: false as const,
+        response: new Response(
+          `Unsupported chat model "${body.model}". Supported models: ${joinQuoted(CHAT_MODELS.map((model) => model.id))}.`,
+          { status: 400 },
+        ),
+      };
+    }
+    body.model = resolved;
   }
 
   if (body.effort && !isChatEffort(body.effort)) {

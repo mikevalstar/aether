@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
-import { type ChatModel, DEFAULT_CHAT_MODEL, isChatModel } from "#/lib/chat-models";
+import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
 import { toObsidianRoutePath } from "#/lib/obsidian";
 import type { WorkflowField } from "#/lib/workflow-executor";
 import { executeWorkflow } from "#/lib/workflow-executor";
@@ -121,7 +121,7 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
       id: t.id,
       title: t.title,
       type: t.type,
-      model: isChatModel(t.model) ? t.model : DEFAULT_CHAT_MODEL,
+      model: resolveModelId(t.model) ?? DEFAULT_CHAT_MODEL,
       effort: t.effort,
       totalInputTokens: t.totalInputTokens,
       totalOutputTokens: t.totalOutputTokens,

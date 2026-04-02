@@ -10,6 +10,7 @@ export {
   DEFAULT_CHAT_MODEL,
   isChatEffort,
   isChatModel,
+  resolveModelId,
 } from "#/lib/chat-models";
 
 export const ANTHROPIC_PRICING_SOURCE_URL = "https://docs.anthropic.com/en/docs/about-claude/models/overview";

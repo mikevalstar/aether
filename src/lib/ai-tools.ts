@@ -1,8 +1,9 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { ToolSet } from "ai";
+import { minimax as createMinimax } from "vercel-minimax-ai-provider";
 import type { ChatModel } from "#/lib/chat-models";
-import { getModelProvider, getWebToolVersion, supportsCodeExecution } from "#/lib/chat-models";
+import { getModelProvider, getProviderModelId, getWebToolVersion, supportsCodeExecution } from "#/lib/chat-models";
 import type { UserPreferences } from "#/lib/preferences";
 import { aiMemory } from "#/lib/tools/ai-memory";
 import {
@@ -29,10 +30,16 @@ const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
 export function getModel(modelId: ChatModel) {
   const provider = getModelProvider(modelId);
-  if (provider === "openrouter") {
-    return openrouter.chat(modelId);
+  if (provider === "minimax") {
+    if (process.env.MINIMAX_API_KEY) {
+      return createMinimax(getProviderModelId(modelId, "minimax"));
+    }
+    return openrouter.chat(getProviderModelId(modelId, "openrouter"));
   }
-  return anthropic(modelId);
+  if (provider === "openrouter") {
+    return openrouter.chat(getProviderModelId(modelId, "openrouter"));
+  }
+  return anthropic(getProviderModelId(modelId, "anthropic"));
 }
 
 function getAnthropicWebTools(webToolVersion: "latest" | "legacy"): ToolSet {
