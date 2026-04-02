@@ -68,7 +68,7 @@ export const Thread: FC = () => {
               }}
             />
 
-            <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer sticky bottom-0 mx-auto mt-auto flex w-full max-w-(--thread-max-width) flex-col gap-2 overflow-visible rounded-t-(--composer-radius) bg-background pb-1 lg:pb-2">
+            <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer sticky bottom-0 mx-auto mt-auto flex w-full max-w-(--thread-max-width) flex-col gap-2 overflow-visible rounded-t-(--composer-radius) bg-background pb-[max(0.25rem,env(safe-area-inset-bottom))] lg:pb-2">
               <ThreadScrollToBottom />
               <Composer />
             </ThreadPrimitive.ViewportFooter>

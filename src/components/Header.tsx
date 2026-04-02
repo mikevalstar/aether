@@ -121,7 +121,7 @@ export default function Header({ serverSession }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-[var(--header-bg)] backdrop-blur-sm ${isChatRoute ? "border-b-0 lg:border-b lg:border-border" : "border-b border-border"}`}
+      className={`sticky top-0 z-50 bg-[var(--header-bg)] backdrop-blur-sm pt-[env(safe-area-inset-top)] ${isChatRoute ? "border-b-0 lg:border-b lg:border-border" : "border-b border-border"}`}
       data-chat-route={isChatRoute || undefined}
     >
       {/* Mobile chat: collapsed accent bar */}
