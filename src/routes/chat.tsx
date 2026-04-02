@@ -407,7 +407,7 @@ function ChatPage() {
 
         {/* Mobile drawer */}
         <Drawer open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen} direction="right">
-          <DrawerContent className="h-full">
+          <DrawerContent className="h-full pt-[env(safe-area-inset-top)]">
             <DrawerHeader className="flex flex-row items-center justify-between border-b border-[var(--line)]">
               <DrawerTitle className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
                 Threads
