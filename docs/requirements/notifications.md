@@ -184,7 +184,7 @@ Push is sent when ANY of these conditions is true (and delivery is not `silent`)
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Push level setting | todo | Add `pushNotificationMinLevel` dropdown to `/settings/notifications` |
+| Push level setting | done | Add `pushNotificationMinLevel` dropdown to `/settings/notifications` |
 | Push logic | done | `notify()` checks user's min level preference before sending push |
 
 ### Phase 5: Dashboard Widget
@@ -256,7 +256,7 @@ Items explicitly deferred for later versions:
 | 5. Task/workflow executors | 1 | done | Update task and workflow execution to pass new fields to `notify()`. |
 | 6. Notifications page | 2 | done | Create `/notifications` route with server functions, filters, bulk actions, pagination. |
 | 7. Header bell update | 3 | done | Filter bell dropdown to medium+ levels, add level badges, link to full page. |
-| 8. Push level preference | 4 | todo | Add `pushNotificationMinLevel` to preferences type, settings UI, and push logic. |
+| 8. Push level preference | 4 | done | Add `pushNotificationMinLevel` to preferences type, settings UI, and push logic. |
 | 9. Dashboard widget | 5 | todo | Create notification dashboard widget with counts and quick actions. |
 | 10. AI tool update | 6 | done | Add `level` parameter to `send_notification` tool. |
 
