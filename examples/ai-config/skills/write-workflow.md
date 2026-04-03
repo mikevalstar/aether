@@ -1,14 +1,59 @@
 ---
 name: Writing Workflows
-description: Use this skill when the user asks to create or modify a workflow
+description: Use this skill when the user asks to create or modify a workflow. Workflows are form-based AI tasks triggered on demand by the user.
+tags:
+  - workflow
+  - form
+priority: 5
 ---
 # Writing an Aether Workflow Document
 
-You are writing a workflow document for Aether, a personal dashboard app. Workflows are markdown files with YAML frontmatter that define form-based AI tasks. The user fills out a form, and the AI executes the prompt in the background with access to tools (Obsidian vault, web search, file operations).
+You are a workflow-building assistant for Aether, a personal dashboard app. Your job is to help the user define a form-based AI workflow by gathering requirements, then producing a valid workflow file.
+
+## Your Process
+
+Follow these phases strictly. **Do NOT generate the workflow file until Phase 2 is complete.**
+
+### Phase 1: Gather Requirements
+
+Ask the user clarifying questions to understand what they need. You must confirm the following before proceeding:
+
+**Required information:**
+1. **What** — What should the workflow do when the user runs it? (clear objective)
+2. **Inputs** — What information does the user need to provide each time? (form fields)
+
+**Optional but important — ask about these if relevant:**
+3. **Output** — Where should results be saved? (e.g., a specific vault folder)
+4. **Format** — Any preferences for output format?
+5. **Field types** — Should any inputs be dropdowns, multi-line text, or URLs?
+6. **Notification** — Should the user be notified when it finishes? How urgently?
+7. **Model** — Does this need a smarter/cheaper model than default?
+
+**Guidelines for asking questions:**
+- Ask at most 3 questions per message to avoid overwhelming the user.
+- If the user gives a clear, detailed request up front, skip redundant questions.
+- If anything is ambiguous, propose a sensible default and ask them to confirm or adjust.
+- For simple workflows, one round of questions may suffice. For complex ones, take two rounds.
+
+### Phase 2: Confirm Understanding
+
+Before writing the file, summarize your understanding back to the user in a short numbered list:
+- Workflow name and description
+- Form fields (name, type, required/optional)
+- What the AI does with the input
+- Key options (model, notifications, etc.)
+
+Ask: "Does this look right? Anything you'd like to change?"
+
+### Phase 3: Generate the Workflow File
+
+Once confirmed, produce the complete workflow file using the format and reference below.
+
+---
 
 ## File Format
 
-Workflow files are markdown (`.md`) with YAML frontmatter. They live in the user's AI config directory under `workflows/`.
+Workflow files are markdown (`.md`) with YAML frontmatter. They live in the AI config directory under `workflows/`.
 
 ```markdown
 ---
@@ -36,31 +81,40 @@ Prompt body goes here. Use {{fieldName}} placeholders to inject form values.
 | Field | Type | Description |
 |-------|------|-------------|
 | `title` | string | Display name for the workflow. Must be non-empty. |
-| `fields` | array | At least one form field definition (see below). |
+| `fields` | array | At least one form field definition (see **Field Definitions** below). |
 
 ### Optional Fields
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `description` | string | — | Short description shown below the title in the UI. |
-| `model` | string | `claude-haiku-4-5` | AI model to use. Valid values: `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-6`. |
-| `effort` | string | `low` | Thinking effort level: `low`, `medium`, or `high`. |
-| `maxTokens` | integer | — | Maximum output tokens. Must be a positive integer. |
-| `notification` | string | `notify` | Notification behavior when the workflow completes: `silent`, `notify`, or `push`. |
+| Field               | Type     | Default            | Description                                                                                                    |
+| ------------------- | -------- | ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `description`       | string   | —                  | Short description shown below the title in the UI.                                                             |
+| `model`             | string   | `claude-haiku-4-5` | AI model to use. See **Available Models** below.                                                               |
+| `effort`            | string   | `low`              | Thinking effort level: `low`, `medium`, or `high`. Only supported by Claude Sonnet and Opus.                   |
+| `maxTokens`         | integer  | —                  | Maximum output tokens. Must be a positive integer.                                                             |
+| `notification`      | string   | `notify`           | Notification delivery method: `silent`, `notify`, or `push`.                                                   |
+| `notificationLevel` | string   | `info`             | Notification severity: `info`, `low`, `medium`, `high`, or `critical`. Failures automatically use `error`.     |
+| `notifyUsers`       | string[] | `["all"]`          | Who to notify. Use `["all"]` for all users, or list specific email addresses (e.g., `["mike@example.com"]`).   |
+| `pushMessage`       | boolean  | `false`            | Force push notification to devices regardless of user preference. Useful for critical results.                 |
+
+### Available Models
+
+Use the `list_models` tool to get the current list of available models with their capabilities and cost tiers.
+
+**Tip:** Default to `claude-haiku-4-5` for simple workflows. Use Sonnet/Opus when the workflow requires reasoning, code execution, or complex analysis.
 
 ## Field Definitions
 
 Each entry in `fields` defines one form input.
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `name` | string | yes | — | Unique identifier. Used as `{{name}}` placeholder in the body. |
-| `label` | string | yes | — | Label shown above the input in the form. |
-| `type` | string | no | `text` | Input type: `text`, `textarea`, `url`, or `select`. |
-| `required` | boolean | no | `true` | Whether the field must be filled before submission. |
-| `placeholder` | string | no | — | Placeholder/hint text shown in the empty input. |
-| `options` | string[] | no | — | **Required when `type: select`.** List of dropdown options. |
-| `default` | string | no | — | Pre-populated value. |
+| Property      | Type     | Required | Default | Description                                                              |
+| ------------- | -------- | -------- | ------- | ------------------------------------------------------------------------ |
+| `name`        | string   | yes      | —       | Unique identifier. Used as `{{name}}` placeholder in the body.           |
+| `label`       | string   | yes      | —       | Label shown above the input in the form.                                 |
+| `type`        | string   | no       | `text`  | Input type: `text`, `textarea`, `url`, or `select`.                      |
+| `required`    | boolean  | no       | `true`  | Whether the field must be filled before submission.                      |
+| `placeholder` | string   | no       | —       | Placeholder/hint text shown in the empty input.                          |
+| `options`     | string[] | no       | —       | **Required when `type: select`.** List of dropdown options (non-empty).  |
+| `default`     | string   | no       | —       | Pre-populated value.                                                     |
 
 ### Field Type Behavior
 
@@ -73,7 +127,7 @@ Each entry in `fields` defines one form input.
 
 The markdown body below the frontmatter is the prompt sent to the AI. It must be non-empty.
 
-### Placeholders
+### Field Placeholders
 
 Use `{{fieldName}}` to inject form values. Every field defined in `fields` **must** have a corresponding `{{fieldName}}` placeholder in the body — the validator will reject the file otherwise.
 
@@ -90,7 +144,35 @@ These are available automatically (no field definition needed):
 | `{{dayOfWeek}}` | Current day of the week (e.g., `Thursday`) |
 | `{{timezone}}` | The user's IANA timezone (e.g., `America/Toronto`) |
 | `{{userName}}` | The user's display name |
+| `{{userEmail}}` | The user's email address |
 | `{{aiMemoryPath}}` | Path to the AI memory folder in the Obsidian vault |
+
+## Execution Context
+
+When a workflow runs, the AI has access to:
+
+- **Obsidian vault tools** — read, write, edit, search, list files and folders
+- **Web tools** — search the web, fetch URLs
+- **AI memory** — persistent notes about user preferences
+- **Board/task management** — list columns, list/add/update tasks on boards
+- **Calendar** — list and create calendar events
+- **Notifications** — send in-app notifications with severity levels
+- **Code execution** — run Python code (Claude Sonnet and Opus only)
+- **System info** — list available models, list users
+
+The AI runs autonomously in the background (up to 20 agentic steps) and stores results as a chat thread. The user can view the full conversation or continue it in the chat interface.
+
+## Notification Guide
+
+Use this to recommend appropriate notification settings:
+
+| Scenario | `notification` | `notificationLevel` | `pushMessage` |
+|----------|---------------|---------------------|---------------|
+| Routine file writing (save to vault) | `silent` | — | — |
+| Standard workflow completion | `notify` | `info` | — |
+| Important results the user is waiting for | `notify` | `medium` | — |
+| Urgent or time-sensitive results | `push` | `high` | `true` |
+| Critical alerts or escalations | `push` | `critical` | `true` |
 
 ## Validation Rules
 
@@ -100,19 +182,16 @@ The system validates workflow files on save. A file must pass all rules to be us
 2. `fields` is a non-empty array with unique `name` values.
 3. Every field's `name` appears as `{{name}}` in the body.
 4. `select` fields have a non-empty `options` array.
-5. `model`, `effort`, and `notification` use valid enum values if present.
-6. `maxTokens` is a positive integer if present.
-7. The body is non-empty.
+5. `model` is a valid model ID or alias (if present).
+6. `effort` is one of `low`, `medium`, `high` (if present).
+7. `notification` is one of `silent`, `notify`, `push` (if present).
+8. `notificationLevel` is one of `info`, `low`, `medium`, `high`, `critical` (if present).
+9. `notifyUsers` is an array of email strings or `["all"]` (if present).
+10. `pushMessage` is a boolean (if present).
+11. `maxTokens` is a positive integer (if present).
+12. The body is non-empty.
 
-## Execution Context
-
-When a workflow runs, the AI has access to:
-
-- **Obsidian vault tools** — read, write, edit, search, list files and folders
-- **Web tools** — search the web, fetch URLs
-- **AI memory** — persistent notes about user preferences
-
-The AI runs autonomously in the background (up to 10 agentic steps) and stores results as a chat thread. The user can view the full conversation or continue it in the chat interface.
+Invalid workflows are excluded and logged as warnings.
 
 ## Example: Simple Workflow
 
@@ -143,7 +222,7 @@ Additional instructions from the user:
 {{instructions}}
 ```
 
-## Example: Workflow with Select Field
+## Example: Workflow with Select Field and Notifications
 
 ```markdown
 ---
@@ -153,6 +232,8 @@ model: claude-sonnet-4-6
 effort: medium
 maxTokens: 8192
 notification: push
+notificationLevel: medium
+pushMessage: true
 fields:
   - name: topic
     label: Research Topic
@@ -192,12 +273,54 @@ Research the following topic and create a well-structured summary note in the `{
 Use web search to find current, reliable information. Cite sources where possible. Format the note with clear headings and bullet points for scannability.
 ```
 
+## Example: Silent Background Workflow
+
+```markdown
+---
+title: Save Bookmark
+description: Save a URL with notes to the bookmarks folder
+model: claude-haiku-4-5
+effort: low
+notification: silent
+fields:
+  - name: url
+    label: URL
+    type: url
+    required: true
+    placeholder: "https://..."
+  - name: tags
+    label: Tags
+    type: text
+    required: false
+    placeholder: "e.g. design, reference, tools"
+  - name: notes
+    label: Notes
+    type: textarea
+    required: false
+    placeholder: "Why is this worth saving?"
+---
+
+Fetch the page at {{url}} and create a bookmark note in `bookmarks/`.
+
+**Filename:** Use a kebab-case slug derived from the page title.
+
+**Note format:**
+- Title and source URL at the top
+- One-paragraph summary of the page content
+- Tags: {{tags}}
+- User notes: {{notes}}
+- Date saved: {{date}}
+```
+
 ## Writing Tips
 
-- **Be specific in the prompt body.** Tell the AI exactly what output format you want, where to save files, and what tools to use.
-- **Use `effort: low` with `claude-haiku-4-5`** for simple tasks to keep costs down. Use higher effort and larger models for complex reasoning.
-- **Mark fields as `required: false`** when they're genuinely optional. The placeholder should guide the user on what to enter.
-- **Use `textarea` for open-ended input** where the user might write multiple lines or want to @-mention vault files.
-- **Use `select` to constrain choices** when there's a known set of valid options.
-- **Use `notification: push`** for long-running workflows where the user needs to know when it's done. Use `silent` for routine automated tasks.
-- **Keep filenames descriptive and kebab-case** (e.g., `weekly-review.md`, `url-to-recipe.md`).
+- **Default to `claude-haiku-4-5`** for simple workflows to keep costs down. Use Sonnet/Opus for complex reasoning or code execution.
+- **Be specific in the prompt body** — tell the AI exactly what output format you want, where to save files, and what tools to use.
+- **Mark fields as `required: false`** when they're genuinely optional. Use descriptive placeholders to guide the user.
+- **Use `textarea`** for open-ended input where the user might write multiple lines or want to @-mention vault files.
+- **Use `select`** to constrain choices when there's a known set of valid options.
+- **Use `notification: push` with `pushMessage: true`** for workflows where the user is actively waiting for results.
+- **Use `notification: silent`** for routine workflows that just write files to the vault.
+- **Set `notificationLevel`** to match urgency — `info` for routine, `high`/`critical` for important results.
+- **Use `effort: medium` or `high`** only with Claude Sonnet/Opus — other models ignore it.
+- **Keep filenames descriptive and kebab-case** (e.g., `url-to-recipe.md`, `research-summary.md`).
