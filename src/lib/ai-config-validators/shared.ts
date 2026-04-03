@@ -11,7 +11,7 @@ export const validFieldTypes = ["text", "textarea", "url", "select"] as const;
 export const modelField = z
   .string()
   .refine((v) => resolveModelId(v) !== undefined, "Must be a valid model ID or alias")
-  .transform((v) => resolveModelId(v)!)
+  .transform((v) => resolveModelId(v) as string)
   .optional();
 
 /** Reusable effort field */

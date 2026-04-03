@@ -199,7 +199,7 @@ export const revertFileChange = createServerFn({ method: "POST" })
       include: { fileChangeDetail: true },
     });
 
-    if (!item || !item.fileChangeDetail) {
+    if (!item?.fileChangeDetail) {
       throw new Error("Not found");
     }
 

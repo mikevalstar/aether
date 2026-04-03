@@ -42,7 +42,7 @@ export async function readAiConfig(filename: string): Promise<AiConfigReadResult
 export async function readSystemPrompt(vars: PromptVars): Promise<string | null> {
   const result = await readAiConfig("system-prompt.md");
 
-  if (!result || !result.validation.isValid) return null;
+  if (!result?.validation.isValid) return null;
 
   return interpolatePrompt(result.body, vars);
 }
@@ -57,7 +57,7 @@ export async function readTitlePromptConfig(): Promise<{
 } | null> {
   const result = await readAiConfig("title-prompt.md");
 
-  if (!result || !result.validation.isValid) return null;
+  if (!result?.validation.isValid) return null;
 
   const model = result.frontmatter.model;
   if (typeof model !== "string") return null;
@@ -86,7 +86,7 @@ Be thorough but concise. Focus on producing useful output. If you write files, u
 export async function readTaskPromptConfig(vars: PromptVars): Promise<{ model?: string; effort?: string; prompt: string }> {
   const result = await readAiConfig("task-prompt.md");
 
-  if (!result || !result.validation.isValid) {
+  if (!result?.validation.isValid) {
     return {
       prompt: interpolatePrompt(DEFAULT_TASK_SYSTEM_PROMPT, vars),
     };
@@ -107,7 +107,7 @@ export async function readWorkflowPromptConfig(
 ): Promise<{ model?: string; effort?: string; prompt: string }> {
   const result = await readAiConfig("workflow-prompt.md");
 
-  if (!result || !result.validation.isValid) {
+  if (!result?.validation.isValid) {
     return {
       prompt: interpolatePrompt(DEFAULT_WORKFLOW_SYSTEM_PROMPT, vars),
     };

@@ -60,17 +60,19 @@ globalThis.__aetherSchedulerState ??= {
 
 const { tasks } = globalThis.__aetherSchedulerState;
 
+const state = globalThis.__aetherSchedulerState;
+
 function getWatcher() {
-  return globalThis.__aetherSchedulerState!.watcher;
+  return state.watcher;
 }
 function setWatcher(w: ReturnType<typeof chokidar.watch> | null) {
-  globalThis.__aetherSchedulerState!.watcher = w;
+  state.watcher = w;
 }
 function getInitPromise() {
-  return globalThis.__aetherSchedulerState!.initPromise;
+  return state.initPromise;
 }
 function setInitPromise(p: Promise<void> | null) {
-  globalThis.__aetherSchedulerState!.initPromise = p;
+  state.initPromise = p;
 }
 
 const GRACE_WINDOW_MS = 60_000; // 60 seconds
@@ -78,7 +80,8 @@ const GRACE_WINDOW_MS = 60_000; // 60 seconds
 // ── Public API ───────────────────────────────────────────────────────
 
 export function initScheduler(): Promise<void> {
-  if (getInitPromise()) return getInitPromise()!;
+  const existing = getInitPromise();
+  if (existing) return existing;
 
   logger.info("Initializing task scheduler");
 
