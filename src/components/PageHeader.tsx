@@ -44,9 +44,10 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <main className="relative overflow-hidden">
-      {glows?.map((glow) => (
-        <GlowBg key={`${glow.color}-${glow.position}`} color={glow.color} size={glow.size} position={glow.position} />
-      ))}
+      {Array.isArray(glows) &&
+        glows.map((glow) => (
+          <GlowBg key={`${glow.color}-${glow.position}`} color={glow.color} size={glow.size} position={glow.position} />
+        ))}
 
       <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
         <section className={`mb-8 ${action ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""}`}>

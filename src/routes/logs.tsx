@@ -7,15 +7,8 @@ import { PageHeader } from "#/components/PageHeader";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Calendar } from "#/components/ui/calendar";
+import { PaginationControls } from "#/components/PaginationControls";
 import { Input } from "#/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "#/components/ui/pagination";
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
@@ -325,61 +318,18 @@ function LogsPage() {
             )}
           </section>
 
-          {data.totalPages > 1 && (
-            <section className="mt-4 flex justify-center">
-              <Pagination>
-                <PaginationContent>
-                  {data.page > 1 && (
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() =>
-                          updateSearch({
-                            day: activeDay,
-                            query: data.filters.query,
-                            level: activeLevel,
-                            page: data.page - 1,
-                          })
-                        }
-                      />
-                    </PaginationItem>
-                  )}
-                  {Array.from({ length: data.totalPages }, (_, index) => index + 1)
-                    .filter((page) => page === 1 || page === data.totalPages || Math.abs(page - data.page) <= 2)
-                    .map((page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          isActive={page === data.page}
-                          onClick={() =>
-                            updateSearch({
-                              day: activeDay,
-                              query: data.filters.query,
-                              level: activeLevel,
-                              page,
-                            })
-                          }
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                  {data.page < data.totalPages && (
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() =>
-                          updateSearch({
-                            day: activeDay,
-                            query: data.filters.query,
-                            level: activeLevel,
-                            page: data.page + 1,
-                          })
-                        }
-                      />
-                    </PaginationItem>
-                  )}
-                </PaginationContent>
-              </Pagination>
-            </section>
-          )}
+          <PaginationControls
+            page={data.page}
+            totalPages={data.totalPages}
+            onPageChange={(page) =>
+              updateSearch({
+                day: activeDay,
+                query: data.filters.query,
+                level: activeLevel,
+                page,
+              })
+            }
+          />
         </>
       ) : (
         <section className="surface-card px-6 py-16 text-center">

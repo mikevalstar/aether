@@ -5,15 +5,8 @@ import { z } from "zod";
 import { ActivityDetailDialog } from "#/components/activity/ActivityDetailDialog";
 import { ActivityTable } from "#/components/activity/ActivityTable";
 import { PageHeader } from "#/components/PageHeader";
+import { PaginationControls } from "#/components/PaginationControls";
 import { Button } from "#/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "#/components/ui/pagination";
 import { toast } from "#/components/ui/sonner";
 import {
   type ActivityDetail,
@@ -156,61 +149,11 @@ function ActivityPage() {
 
       <ActivityTable items={data.items} onItemClick={(id) => void openDetail(id)} />
 
-      {data.totalPages > 1 && (
-        <section className="mt-4 flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              {data.page > 1 && (
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() =>
-                      void navigate({
-                        search: {
-                          ...search,
-                          page: data.page - 1,
-                        },
-                        replace: true,
-                      })
-                    }
-                  />
-                </PaginationItem>
-              )}
-              {Array.from({ length: data.totalPages }, (_, i) => i + 1)
-                .filter((p) => p === 1 || p === data.totalPages || Math.abs(p - data.page) <= 2)
-                .map((p) => (
-                  <PaginationItem key={p}>
-                    <PaginationLink
-                      isActive={p === data.page}
-                      onClick={() =>
-                        void navigate({
-                          search: { ...search, page: p },
-                          replace: true,
-                        })
-                      }
-                    >
-                      {p}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-              {data.page < data.totalPages && (
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() =>
-                      void navigate({
-                        search: {
-                          ...search,
-                          page: data.page + 1,
-                        },
-                        replace: true,
-                      })
-                    }
-                  />
-                </PaginationItem>
-              )}
-            </PaginationContent>
-          </Pagination>
-        </section>
-      )}
+      <PaginationControls
+        page={data.page}
+        totalPages={data.totalPages}
+        onPageChange={(p) => void navigate({ search: { ...search, page: p }, replace: true })}
+      />
 
       <ActivityDetailDialog
         detail={detailData}

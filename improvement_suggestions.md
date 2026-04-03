@@ -169,7 +169,7 @@ const handleSave = async (e) => {
 
 ---
 
-### 2.5 Pagination Logic — Nearly Identical in 2 Routes
+### ~~2.5 Pagination Logic — Nearly Identical in 2 Routes~~ ✅ DONE
 
 **Files:** `logs.tsx` (lines 336–390), `activity.tsx` (lines 169–223)
 
