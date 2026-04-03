@@ -224,7 +224,7 @@ const handleSave = async (e) => {
 
 ---
 
-### 3.4 `EFFORT_LABELS` — Defined Twice
+### ~~3.4 `EFFORT_LABELS` — Defined Twice~~ ✅ DONE
 
 - `components/chat/ChatEmptyState.tsx` (lines 11–15)
 - `components/chat/ChatHeader.tsx` (lines 27–31)
@@ -233,7 +233,7 @@ const handleSave = async (e) => {
 
 ---
 
-### 3.5 Model/Effort Selector — Duplicated Between ChatEmptyState and ChatHeader
+### ~~3.5 Model/Effort Selector — Duplicated Between ChatEmptyState and ChatHeader~~ ✅ DONE
 
 `ChatEmptyState.tsx` (lines 67–98) duplicates the exact same model/effort dropdown UI from `ChatHeader.tsx` (lines 161–192).
 

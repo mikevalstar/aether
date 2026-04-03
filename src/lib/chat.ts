@@ -8,6 +8,7 @@ export {
   type ChatModel,
   DEFAULT_CHAT_EFFORT,
   DEFAULT_CHAT_MODEL,
+  EFFORT_LABELS,
   isChatEffort,
   isChatModel,
   resolveModelId,

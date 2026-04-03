@@ -2,6 +2,12 @@ export const CHAT_EFFORT_LEVELS = ["low", "medium", "high"] as const;
 export type ChatEffort = (typeof CHAT_EFFORT_LEVELS)[number];
 export const DEFAULT_CHAT_EFFORT: ChatEffort = "low";
 
+export const EFFORT_LABELS: Record<ChatEffort, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+};
+
 export function isChatEffort(value: string): value is ChatEffort {
   return CHAT_EFFORT_LEVELS.includes(value as ChatEffort);
 }

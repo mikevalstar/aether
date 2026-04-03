@@ -1,9 +1,9 @@
 import { ChevronDownIcon, FileDownIcon, MenuIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Badge } from "#/components/ui/badge";
+import { ModelEffortSelector } from "#/components/chat/ModelEffortSelector";
 import { Button } from "#/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
-import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatEffort, type ChatModel } from "#/lib/chat";
+import type { ChatEffort, ChatModel } from "#/lib/chat";
+import { CHAT_MODELS } from "#/lib/chat";
 
 export interface ChatHeaderProps {
   title: string;
@@ -24,12 +24,6 @@ export interface ChatHeaderProps {
   onExport?: () => void;
 }
 
-const EFFORT_LABELS: Record<ChatEffort, string> = {
-  low: "Low",
-  medium: "Med",
-  high: "High",
-};
-
 export function ChatHeader({
   title,
   model,
@@ -48,7 +42,7 @@ export function ChatHeader({
   onDelete,
   onExport,
 }: ChatHeaderProps) {
-  const currentModelSupportsEffort = CHAT_MODELS.find((m) => m.id === model)?.supportsEffort ?? false;
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(title);
   const [mobileExpanded, setMobileExpanded] = useState(false);
@@ -158,38 +152,14 @@ export function ChatHeader({
 
         {/* Desktop: inline controls (always visible) */}
         <div className="hidden items-center gap-2 lg:flex">
-          <Select value={model} onValueChange={(value) => onModelChange?.(value)} disabled={disabled}>
-            <SelectTrigger className="min-w-0 border-[var(--teal)]/30 bg-[var(--teal-subtle)] font-semibold text-[var(--teal)] hover:bg-[var(--teal-subtle)] lg:min-w-40">
-              <SelectValue placeholder="Choose model" />
-            </SelectTrigger>
-            <SelectContent>
-              {CHAT_MODELS.map((m) => (
-                <SelectItem key={m.id} value={m.id}>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{m.label}</span>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {m.description}
-                    </Badge>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {currentModelSupportsEffort && (
-            <Select value={effort} onValueChange={(value) => onEffortChange?.(value)} disabled={disabled}>
-              <SelectTrigger className="w-20 border-[var(--coral)]/30 bg-[var(--coral)]/8 font-semibold text-[var(--coral)] hover:bg-[var(--coral)]/12">
-                <SelectValue placeholder="Effort" />
-              </SelectTrigger>
-              <SelectContent>
-                {CHAT_EFFORT_LEVELS.map((level) => (
-                  <SelectItem key={level} value={level}>
-                    {EFFORT_LABELS[level]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+          <ModelEffortSelector
+            model={model}
+            effort={effort}
+            disabled={disabled}
+            modelClassName="lg:min-w-40"
+            onModelChange={onModelChange}
+            onEffortChange={onEffortChange}
+          />
 
           {onExport && (
             <Button
@@ -224,33 +194,15 @@ export function ChatHeader({
       >
         <div className="overflow-hidden">
           <div className="flex flex-wrap items-center gap-2 pt-2">
-            <Select value={model} onValueChange={(value) => onModelChange?.(value)} disabled={disabled}>
-              <SelectTrigger className="min-w-0 flex-1 border-[var(--teal)]/30 bg-[var(--teal-subtle)] font-semibold text-[var(--teal)] hover:bg-[var(--teal-subtle)]">
-                <SelectValue placeholder="Choose model" />
-              </SelectTrigger>
-              <SelectContent>
-                {CHAT_MODELS.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
-                    <span className="font-medium">{m.label}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {currentModelSupportsEffort && (
-              <Select value={effort} onValueChange={(value) => onEffortChange?.(value)} disabled={disabled}>
-                <SelectTrigger className="w-20 border-[var(--coral)]/30 bg-[var(--coral)]/8 font-semibold text-[var(--coral)] hover:bg-[var(--coral)]/12">
-                  <SelectValue placeholder="Effort" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CHAT_EFFORT_LEVELS.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      {EFFORT_LABELS[level]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <ModelEffortSelector
+              model={model}
+              effort={effort}
+              disabled={disabled}
+              showModelBadges={false}
+              modelClassName="flex-1"
+              onModelChange={onModelChange}
+              onEffortChange={onEffortChange}
+            />
 
             <div className="ml-auto flex items-center gap-1">
               {onExport && (
