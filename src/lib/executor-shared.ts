@@ -44,8 +44,6 @@ export type ExecutionContext = {
   notifyUsers: string[];
   /** Force push notification regardless of user preference */
   pushMessage: boolean;
-  /** Link for notifications (e.g. "/tasks" or "/workflows") */
-  notificationLink: string;
   /** Extra metadata to include in the activity log */
   extraMetadata?: Record<string, unknown>;
   /** Extra Prisma operations to run in the success transaction */
@@ -177,7 +175,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     );
 
     if (ctx.notification !== "silent") {
-      await sendExecutionNotification(ctx, true);
+      await sendExecutionNotification(ctx, threadId, true);
     }
 
     return { threadId, success: true };
@@ -224,7 +222,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     ]);
 
     if (ctx.notification !== "silent") {
-      await sendExecutionNotification(ctx, false, errorMessage);
+      await sendExecutionNotification(ctx, threadId, false, errorMessage);
     }
 
     return { threadId, success: false };
@@ -234,18 +232,27 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
 /**
  * Send notification for task/workflow execution, respecting targeting and severity settings.
  */
-async function sendExecutionNotification(ctx: ExecutionContext, success: boolean, errorMessage?: string): Promise<void> {
+async function sendExecutionNotification(
+  ctx: ExecutionContext,
+  threadId: string,
+  success: boolean,
+  errorMessage?: string,
+): Promise<void> {
   const label = ctx.type === "task" ? "Task" : "Workflow";
   const title = success ? `${label} completed: ${ctx.title}` : `${label} failed: ${ctx.title}`;
-  const level = success ? ctx.notificationLevel : "critical";
+  const level = success ? ctx.notificationLevel : "error";
   const category = ctx.type;
   const source = ctx.filename;
   const forcePush = !success || ctx.pushMessage || ctx.notification === "push";
 
+  // Link to the specific task/workflow page with the run highlighted
+  const basePath = ctx.type === "task" ? "/tasks" : "/workflows";
+  const link = `${basePath}/${encodeURIComponent(ctx.filename)}?highlight=${encodeURIComponent(threadId)}`;
+
   const notificationParams = {
     title,
     body: errorMessage,
-    link: ctx.notificationLink,
+    link,
     level,
     category,
     source,

@@ -58,7 +58,6 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
     notificationLevel: config.notificationLevel,
     notifyUsers: config.notifyUsers,
     pushMessage: config.pushMessage,
-    notificationLink: "/tasks",
     onSuccessOps: ({ threadId }) => [
       prisma.task.update({
         where: { filename },

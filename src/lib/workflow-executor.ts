@@ -69,7 +69,6 @@ export async function executeWorkflow(
     notificationLevel: config.notificationLevel,
     notifyUsers: config.notifyUsers,
     pushMessage: config.pushMessage,
-    notificationLink: "/workflows",
     extraMetadata: { formValues },
     onSuccessOps: ({ threadId }) => [
       prisma.workflow.update({

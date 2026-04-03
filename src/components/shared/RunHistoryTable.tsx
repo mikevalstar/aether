@@ -29,6 +29,8 @@ export interface RunHistoryTableProps {
   onConvertToChat: (data: { data: { threadId: string } }) => Promise<unknown>;
   /** Label for empty state (e.g. "task" or "workflow") */
   emptyLabel?: string;
+  /** Auto-expand and highlight this run ID (e.g. from a notification link) */
+  highlightId?: string;
 }
 
 function RunDetail({ run }: { run: RunItem }) {
@@ -43,9 +45,9 @@ function RunDetail({ run }: { run: RunItem }) {
   );
 }
 
-export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = "run" }: RunHistoryTableProps) {
+export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = "run", highlightId }: RunHistoryTableProps) {
   const router = useRouter();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(highlightId ?? null);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const [convertingIds, setConvertingIds] = useState<Set<string>>(new Set());
 
@@ -120,7 +122,10 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
 
             return (
               <Fragment key={run.id}>
-                <TableRow className="cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : run.id)}>
+                <TableRow
+                  className={`cursor-pointer ${highlightId === run.id ? "bg-[var(--teal-subtle)]" : ""}`}
+                  onClick={() => setExpandedId(isExpanded ? null : run.id)}
+                >
                   <TableCell>
                     {isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
                   </TableCell>

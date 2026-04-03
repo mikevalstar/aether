@@ -1,12 +1,18 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowLeft, CalendarClock, ExternalLink } from "lucide-react";
+import { z } from "zod";
 import { TaskRunHistory } from "#/components/tasks/TaskRunHistory";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { getSession } from "#/lib/auth.functions";
 import { getTaskRunHistory } from "#/lib/task.functions";
 
+const taskSearchSchema = z.object({
+  highlight: z.string().optional(),
+});
+
 export const Route = createFileRoute("/tasks/$")({
+  validateSearch: taskSearchSchema,
   beforeLoad: async () => {
     const session = await getSession();
     if (!session) {
@@ -23,6 +29,7 @@ export const Route = createFileRoute("/tasks/$")({
 
 function TaskRunHistoryPage() {
   const data = Route.useLoaderData();
+  const { highlight } = Route.useSearch();
 
   return (
     <main className="relative overflow-hidden">
@@ -55,7 +62,7 @@ function TaskRunHistoryPage() {
           </h1>
         </section>
 
-        <TaskRunHistory task={data.task} runs={data.runs} />
+        <TaskRunHistory task={data.task} runs={data.runs} highlightId={highlight} />
       </div>
     </main>
   );
