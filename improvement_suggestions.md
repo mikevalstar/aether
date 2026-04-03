@@ -196,7 +196,7 @@ const handleSave = async (e) => {
 
 ---
 
-### 3.2 Run History Components — 95% Identical
+### ~~3.2 Run History Components — 95% Identical~~ ✅ DONE
 
 **Files:**
 - `components/tasks/TaskRunHistory.tsx`
@@ -214,7 +214,7 @@ const handleSave = async (e) => {
 
 ---
 
-### 3.3 `formatCost` — Defined in 3 Places
+### ~~3.3 `formatCost` — Defined in 3 Places~~ ✅ DONE
 
 - `components/tasks/TaskRunHistory.tsx` (lines 34–36)
 - `components/workflows/WorkflowRunHistory.tsx` (lines 33–35)

@@ -34,6 +34,7 @@ export type TaskListItem = {
 export type TaskRunItem = {
   id: string;
   title: string;
+  type: string;
   model: ChatModel;
   effort: string;
   totalInputTokens: number;
@@ -115,6 +116,7 @@ export const getTaskRunHistory = createServerFn({ method: "GET" })
     const runs: TaskRunItem[] = threads.map((t) => ({
       id: t.id,
       title: t.title,
+      type: t.type,
       model: resolveModelId(t.model) ?? DEFAULT_CHAT_MODEL,
       effort: t.effort,
       totalInputTokens: t.totalInputTokens,
@@ -168,6 +170,32 @@ export const deleteTaskRun = createServerFn({ method: "POST" })
 
     await prisma.chatThread.delete({ where: { id: data.threadId } });
     return { success: true };
+  });
+
+export const convertTaskToChat = createServerFn({ method: "POST" })
+  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+
+    const thread = await prisma.chatThread.findFirst({
+      where: {
+        id: data.threadId,
+        type: "task",
+        userId: session.user.id,
+      },
+    });
+
+    if (!thread) throw new Error("Not found");
+
+    await prisma.chatThread.update({
+      where: { id: data.threadId },
+      data: {
+        type: "chat",
+        sourceTaskFile: null,
+      },
+    });
+
+    return { success: true, threadId: data.threadId };
   });
 
 // ── Reconciliation ──────────────────────────────────────────────────
