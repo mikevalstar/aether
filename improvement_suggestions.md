@@ -6,7 +6,7 @@ Comprehensive code review findings organized by priority and category.
 
 ## 1. Critical Duplication
 
-### 1.1 Path Normalization Utilities — 8 Identical Functions in Two Files
+### ~~1.1 Path Normalization Utilities — 8 Identical Functions in Two Files~~ ✅ DONE
 
 **Files:**
 - `src/lib/obsidian.ts` (lines 97–158)
