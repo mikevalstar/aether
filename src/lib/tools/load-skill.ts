@@ -7,7 +7,8 @@ import type { SkillEntry } from "#/lib/skills";
  */
 export function createLoadSkill(skills: SkillEntry[]) {
   return tool({
-    description: "Load a skill to get specialized instructions for a task",
+    description:
+      "Load a skill's full instructions before performing a specialized task. Call this when the user's request matches one of the available skill descriptions listed in the system prompt. Always load the skill BEFORE starting the task — do not attempt the task from memory alone.",
     inputSchema: z.object({
       filename: z.string().describe("The skill filename to load (e.g. write-workflow.md)"),
     }),

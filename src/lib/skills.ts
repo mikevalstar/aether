@@ -97,13 +97,12 @@ export function buildSkillsPromptSection(skills: SkillEntry[]): string {
 
   return [
     "",
-    "## Skills",
     "",
-    "You have access to specialized skills. Use the `load_skill` tool to load a skill's full instructions when the user's request matches a skill's description or you feel the skill will be useful for your current task.",
+    "<skills>",
+    "You have access to specialized skills that provide detailed instructions for specific tasks. When a user's request matches a skill description below, call the `load_skill` tool to load its full instructions BEFORE attempting the task. Do not guess at a skill's process — always load it first.",
     "",
-    "Available Skills:",
-    "<Skills>",
+    "Available skills:",
     ...lines,
-    "</Skills>",
+    "</skills>",
   ].join("\n");
 }
