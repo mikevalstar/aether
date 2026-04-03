@@ -1,3 +1,11 @@
+import {
+  normalizeRelativePath,
+  resolveLinkTarget,
+  safeDecodeURIComponent,
+  stripHashAndQuery,
+  stripMarkdownSuffix,
+} from "#/lib/path-utils";
+
 export type ObsidianTreeNode =
   | {
       type: "folder";
@@ -67,100 +75,7 @@ export function normalizeObsidianRoutePath(input?: string | null) {
 }
 
 export function resolveObsidianLinkTarget(currentRelativePath: string, href?: string) {
-  if (!href) {
-    return null;
-  }
-
-  const trimmedHref = href.trim();
-
-  if (!trimmedHref || trimmedHref.startsWith("#") || hasProtocol(trimmedHref)) {
-    return null;
-  }
-
-  const hash = extractHash(trimmedHref);
-  const linkPath = stripHashAndQuery(trimmedHref);
-  const candidate = linkPath.startsWith("/")
-    ? linkPath
-    : joinRelativePath(getRelativeDirectory(currentRelativePath), linkPath);
-  const routePath = normalizeObsidianRoutePath(candidate);
-
-  if (routePath === null) {
-    return null;
-  }
-
-  return {
-    routePath,
-    hash: hash ? `#${hash}` : undefined,
-  };
-}
-
-function stripHashAndQuery(value: string) {
-  return value.split("#", 1)[0]?.split("?", 1)[0] ?? value;
-}
-
-function extractHash(value: string) {
-  const hashIndex = value.indexOf("#");
-  return hashIndex >= 0 ? value.slice(hashIndex + 1) : "";
-}
-
-function safeDecodeURIComponent(value: string) {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
-}
-
-function hasProtocol(value: string) {
-  return /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value) || value.startsWith("//");
-}
-
-function joinRelativePath(base: string, value: string) {
-  if (!base) {
-    return value;
-  }
-
-  return `${base}/${value}`;
-}
-
-function getRelativeDirectory(value: string) {
-  const normalized = value.replace(/\\/g, "/");
-  const segments = normalized.split("/").filter(Boolean);
-  segments.pop();
-  return segments.join("/");
-}
-
-function stripMarkdownSuffix(value: string) {
-  return value.replace(/\.md$/i, "");
-}
-
-function normalizeRelativePath(value: string) {
-  const normalized = value.replace(/\\/g, "/").trim();
-
-  if (!normalized) {
-    return "";
-  }
-
-  const segments: string[] = [];
-
-  for (const segment of normalized.split("/")) {
-    if (!segment || segment === ".") {
-      continue;
-    }
-
-    if (segment === "..") {
-      if (segments.length === 0) {
-        return null;
-      }
-
-      segments.pop();
-      continue;
-    }
-
-    segments.push(segment);
-  }
-
-  return segments.join("/");
+  return resolveLinkTarget(currentRelativePath, href, normalizeObsidianRoutePath);
 }
 
 /**

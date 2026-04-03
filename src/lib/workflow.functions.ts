@@ -8,17 +8,10 @@ import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
 import { toObsidianRoutePath } from "#/lib/obsidian";
+import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
 import type { WorkflowField } from "#/lib/workflow-executor";
 import { executeWorkflow } from "#/lib/workflow-executor";
 import { getWorkflowConfig, getWorkflowsDir } from "#/lib/workflow-watcher";
-
-const filenameInputSchema = z.object({
-  filename: z.string().trim().min(1, "Filename is required"),
-});
-
-const threadIdInputSchema = z.object({
-  threadId: z.string().trim().min(1, "Thread ID is required"),
-});
 
 const workflowRunInputSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),

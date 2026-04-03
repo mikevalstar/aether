@@ -2,6 +2,12 @@ export const CHAT_EFFORT_LEVELS = ["low", "medium", "high"] as const;
 export type ChatEffort = (typeof CHAT_EFFORT_LEVELS)[number];
 export const DEFAULT_CHAT_EFFORT: ChatEffort = "low";
 
+export const EFFORT_LABELS: Record<ChatEffort, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+};
+
 export function isChatEffort(value: string): value is ChatEffort {
   return CHAT_EFFORT_LEVELS.includes(value as ChatEffort);
 }
@@ -109,10 +115,6 @@ export function resolveModelId(value: string): ChatModel | undefined {
   const byAlias = CHAT_MODELS.find((m) => "aliases" in m && m.aliases.includes(value));
   if (byAlias) return byAlias.id;
   return undefined;
-}
-
-export function isChatModel(value: string): value is ChatModel {
-  return resolveModelId(value) !== undefined;
 }
 
 export type WebToolVersion = (typeof CHAT_MODELS)[number]["webToolVersion"];

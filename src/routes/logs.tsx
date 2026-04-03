@@ -3,21 +3,13 @@ import dayjs from "dayjs";
 import { CalendarDays, FileSearch, Search, TerminalSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { PageHeader } from "#/components/PageHeader";
+import { PaginationControls } from "#/components/PaginationControls";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Calendar } from "#/components/ui/calendar";
-import { GlowBg } from "#/components/ui/glow-bg";
 import { Input } from "#/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "#/components/ui/pagination";
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
-import { SectionLabel } from "#/components/ui/section-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { getSession } from "#/lib/auth.functions";
@@ -99,306 +91,255 @@ function LogsPage() {
   const endCount = Math.min(data.totalMatched, data.page * data.pageSize);
 
   return (
-    <main className="relative overflow-hidden">
-      <GlowBg color="var(--teal)" size="size-[520px]" position="-right-48 -top-48" />
-      <GlowBg color="var(--coral)" size="size-[320px]" position="-left-32 top-80" />
-
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        <section className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <PageHeader
+      icon={TerminalSquare}
+      label="Logs"
+      title="Daily log"
+      highlight="viewer"
+      description="Pick a single day, then search and filter structured Pino logs without loading the whole log history at once."
+      glows={[
+        { color: "var(--teal)", size: "size-[520px]", position: "-right-48 -top-48" },
+        { color: "var(--coral)", size: "size-[320px]", position: "-left-32 top-80" },
+      ]}
+      action={
+        <div className="surface-card flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+          <FileSearch className="size-4 text-[var(--coral)]" />
+          <span>{selectedDayLabel}</span>
+        </div>
+      }
+    >
+      <section className="surface-card mb-6 p-4 sm:p-5">
+        <form className="grid gap-3 lg:grid-cols-[220px_180px_minmax(0,1fr)_auto_auto]" onSubmit={submitSearch}>
           <div>
-            <SectionLabel icon={TerminalSquare} color="text-[var(--teal)]">
-              Logs
-            </SectionLabel>
-            <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
-              Daily log <span className="text-[var(--teal)]">viewer</span>
-            </h1>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              Pick a single day, then search and filter structured Pino logs without loading the whole log history at once.
-            </p>
-          </div>
-
-          <div className="surface-card flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
-            <FileSearch className="size-4 text-[var(--coral)]" />
-            <span>{selectedDayLabel}</span>
-          </div>
-        </section>
-
-        <section className="surface-card mb-6 p-4 sm:p-5">
-          <form className="grid gap-3 lg:grid-cols-[220px_180px_minmax(0,1fr)_auto_auto]" onSubmit={submitSearch}>
-            <div>
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Day</p>
-              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start gap-2 font-normal" disabled={!hasLogs}>
-                    <CalendarDays className="size-4 text-[var(--teal)]" />
-                    <span className="truncate">{hasLogs ? selectedDayLabel : "No log files"}</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-3" align="start">
-                  <div className="mb-3 flex items-center justify-between gap-3 px-1 text-xs text-muted-foreground">
-                    <div>
-                      <p className="font-semibold uppercase tracking-[0.12em] text-foreground">Select day</p>
-                      <p>Highlighted days have logs</p>
-                    </div>
-                    <Badge variant="outline" className="gap-2 rounded-md px-2 py-1 font-normal">
-                      <span className="size-2 rounded-full bg-[var(--teal)]" />
-                      {data.availableDays.length}
-                    </Badge>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Day</p>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2 font-normal" disabled={!hasLogs}>
+                  <CalendarDays className="size-4 text-[var(--teal)]" />
+                  <span className="truncate">{hasLogs ? selectedDayLabel : "No log files"}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="start">
+                <div className="mb-3 flex items-center justify-between gap-3 px-1 text-xs text-muted-foreground">
+                  <div>
+                    <p className="font-semibold uppercase tracking-[0.12em] text-foreground">Select day</p>
+                    <p>Highlighted days have logs</p>
                   </div>
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    defaultMonth={selectedDate ?? dayjs(data.availableDays[0]).toDate()}
-                    onSelect={(date) => {
-                      if (!date) {
-                        return;
-                      }
+                  <Badge variant="outline" className="gap-2 rounded-md px-2 py-1 font-normal">
+                    <span className="size-2 rounded-full bg-[var(--teal)]" />
+                    {data.availableDays.length}
+                  </Badge>
+                </div>
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  defaultMonth={selectedDate ?? dayjs(data.availableDays[0]).toDate()}
+                  onSelect={(date) => {
+                    if (!date) {
+                      return;
+                    }
 
-                      const nextDay = dayjs(date).format("YYYY-MM-DD");
-                      if (!availableDaySet.has(nextDay)) {
-                        return;
-                      }
+                    const nextDay = dayjs(date).format("YYYY-MM-DD");
+                    if (!availableDaySet.has(nextDay)) {
+                      return;
+                    }
 
-                      setCalendarOpen(false);
-                      updateSearch({
-                        day: nextDay,
-                        query: data.filters.query,
-                        level: activeLevel,
-                        page: 1,
-                      });
-                    }}
-                    disabled={(date) => !availableDaySet.has(dayjs(date).format("YYYY-MM-DD"))}
-                    modifiers={{
-                      hasLogs: (date) => availableDaySet.has(dayjs(date).format("YYYY-MM-DD")),
-                    }}
-                    modifiersClassNames={{
-                      hasLogs:
-                        "rounded-md bg-[var(--teal)]/12 text-[var(--teal)] ring-1 ring-[var(--teal)]/25 hover:bg-[var(--teal)]/18",
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div>
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Level</p>
-              <Select
-                value={activeLevel}
-                onValueChange={(value) => {
-                  updateSearch({
-                    day: activeDay,
-                    query: data.filters.query,
-                    level: value,
-                    page: 1,
-                  });
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="All levels" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEVEL_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Search</p>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={queryInput}
-                  onChange={(event) => setQueryInput(event.target.value)}
-                  placeholder="Search message, error, or JSON fields"
-                  className="pl-9"
-                  disabled={!hasLogs}
+                    setCalendarOpen(false);
+                    updateSearch({
+                      day: nextDay,
+                      query: data.filters.query,
+                      level: activeLevel,
+                      page: 1,
+                    });
+                  }}
+                  disabled={(date) => !availableDaySet.has(dayjs(date).format("YYYY-MM-DD"))}
+                  modifiers={{
+                    hasLogs: (date) => availableDaySet.has(dayjs(date).format("YYYY-MM-DD")),
+                  }}
+                  modifiersClassNames={{
+                    hasLogs:
+                      "rounded-md bg-[var(--teal)]/12 text-[var(--teal)] ring-1 ring-[var(--teal)]/25 hover:bg-[var(--teal)]/18",
+                  }}
                 />
-              </div>
-            </div>
+              </PopoverContent>
+            </Popover>
+          </div>
 
-            <Button type="submit" className="self-end" disabled={!hasLogs}>
-              Search
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="self-end"
-              disabled={!hasLogs || !data.filters.query}
-              onClick={() => {
-                setQueryInput("");
+          <div>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Level</p>
+            <Select
+              value={activeLevel}
+              onValueChange={(value) => {
                 updateSearch({
                   day: activeDay,
-                  query: undefined,
-                  level: activeLevel,
+                  query: data.filters.query,
+                  level: value,
                   page: 1,
                 });
               }}
             >
-              Clear
-            </Button>
-          </form>
-        </section>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All levels" />
+              </SelectTrigger>
+              <SelectContent>
+                {LEVEL_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        {hasLogs ? (
-          <>
-            <section className="mb-6 grid gap-3 sm:grid-cols-3">
-              <LogStatCard label="Entries in day" value={data.totalEntries.toLocaleString()} accent="var(--teal)" />
-              <LogStatCard label="Matched filters" value={data.totalMatched.toLocaleString()} accent="var(--coral)" />
-              <LogStatCard
-                label="Errors + fatals"
-                value={(data.matchedLevelCounts.error + data.matchedLevelCounts.fatal).toLocaleString()}
-                accent="var(--destructive)"
+          <div>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Search</p>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={queryInput}
+                onChange={(event) => setQueryInput(event.target.value)}
+                placeholder="Search message, error, or JSON fields"
+                className="pl-9"
+                disabled={!hasLogs}
               />
-            </section>
+            </div>
+          </div>
 
-            <section className="surface-card overflow-hidden">
-              <div className="flex flex-col gap-2 border-b border-border px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  Showing {startCount.toLocaleString()}-{endCount.toLocaleString()} of {data.totalMatched.toLocaleString()}{" "}
-                  matched entries.
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {LEVEL_OPTIONS.filter(isSpecificLevelOption).map((option) => (
-                    <Badge key={option.value} variant="outline" className="gap-2 rounded-md px-2 py-1 font-normal">
-                      <span className={levelDotClass(option.value)} />
-                      {option.label} {data.matchedLevelCounts[option.value].toLocaleString()}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+          <Button type="submit" className="self-end" disabled={!hasLogs}>
+            Search
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="self-end"
+            disabled={!hasLogs || !data.filters.query}
+            onClick={() => {
+              setQueryInput("");
+              updateSearch({
+                day: activeDay,
+                query: undefined,
+                level: activeLevel,
+                page: 1,
+              });
+            }}
+          >
+            Clear
+          </Button>
+        </form>
+      </section>
 
-              {data.entries.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[120px]">Time</TableHead>
-                      <TableHead className="w-[110px]">Level</TableHead>
-                      <TableHead>Entry</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.entries.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="align-top text-xs text-muted-foreground">
-                          <div className="font-medium text-foreground">{formatLogTime(entry.timestamp)}</div>
-                          <div>
-                            {entry.sourceFile}:{entry.line}
-                          </div>
-                        </TableCell>
-                        <TableCell className="align-top">
-                          <Badge variant="outline" className={levelBadgeClass(entry.level)}>
-                            <span className={levelDotClass(entry.level)} />
-                            {entry.level}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="max-w-0 align-top whitespace-normal">
-                          <div className="font-medium text-foreground">{entry.message}</div>
-                          {entry.contextItems.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                              {entry.contextItems.map((item) => (
-                                <span
-                                  key={`${entry.id}:${item.key}`}
-                                  className="rounded-md border border-border bg-muted/40 px-2 py-1"
-                                >
-                                  <span className="font-medium text-foreground">{item.key}</span>: {item.value}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          {entry.errorMessage && <p className="mt-2 text-sm text-destructive">{entry.errorMessage}</p>}
-                          <details className="mt-3 rounded-lg border border-border bg-muted/25 p-3">
-                            <summary className="cursor-pointer text-sm font-medium text-foreground">
-                              View structured JSON
-                            </summary>
-                            <pre className="mt-3 max-h-72 overflow-auto rounded-md bg-background/80 p-3 text-xs leading-5 text-muted-foreground">
-                              {entry.detailsJson}
-                            </pre>
-                          </details>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="px-6 py-16 text-center">
-                  <h2 className="text-lg font-semibold text-foreground">No matching entries</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Try a different day, clear the search, or widen the level filter.
-                  </p>
-                </div>
-              )}
-            </section>
-
-            {data.totalPages > 1 && (
-              <section className="mt-4 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    {data.page > 1 && (
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() =>
-                            updateSearch({
-                              day: activeDay,
-                              query: data.filters.query,
-                              level: activeLevel,
-                              page: data.page - 1,
-                            })
-                          }
-                        />
-                      </PaginationItem>
-                    )}
-                    {Array.from({ length: data.totalPages }, (_, index) => index + 1)
-                      .filter((page) => page === 1 || page === data.totalPages || Math.abs(page - data.page) <= 2)
-                      .map((page) => (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            isActive={page === data.page}
-                            onClick={() =>
-                              updateSearch({
-                                day: activeDay,
-                                query: data.filters.query,
-                                level: activeLevel,
-                                page,
-                              })
-                            }
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                    {data.page < data.totalPages && (
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() =>
-                            updateSearch({
-                              day: activeDay,
-                              query: data.filters.query,
-                              level: activeLevel,
-                              page: data.page + 1,
-                            })
-                          }
-                        />
-                      </PaginationItem>
-                    )}
-                  </PaginationContent>
-                </Pagination>
-              </section>
-            )}
-          </>
-        ) : (
-          <section className="surface-card px-6 py-16 text-center">
-            <h2 className="text-lg font-semibold text-foreground">No log files yet</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Aether is configured to rotate structured logs into `./logs` once the app starts writing them.
-            </p>
+      {hasLogs ? (
+        <>
+          <section className="mb-6 grid gap-3 sm:grid-cols-3">
+            <LogStatCard label="Entries in day" value={data.totalEntries.toLocaleString()} accent="var(--teal)" />
+            <LogStatCard label="Matched filters" value={data.totalMatched.toLocaleString()} accent="var(--coral)" />
+            <LogStatCard
+              label="Errors + fatals"
+              value={(data.matchedLevelCounts.error + data.matchedLevelCounts.fatal).toLocaleString()}
+              accent="var(--destructive)"
+            />
           </section>
-        )}
-      </div>
-    </main>
+
+          <section className="surface-card overflow-hidden">
+            <div className="flex flex-col gap-2 border-b border-border px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                Showing {startCount.toLocaleString()}-{endCount.toLocaleString()} of {data.totalMatched.toLocaleString()}{" "}
+                matched entries.
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {LEVEL_OPTIONS.filter(isSpecificLevelOption).map((option) => (
+                  <Badge key={option.value} variant="outline" className="gap-2 rounded-md px-2 py-1 font-normal">
+                    <span className={levelDotClass(option.value)} />
+                    {option.label} {data.matchedLevelCounts[option.value].toLocaleString()}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {data.entries.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[120px]">Time</TableHead>
+                    <TableHead className="w-[110px]">Level</TableHead>
+                    <TableHead>Entry</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.entries.map((entry) => (
+                    <TableRow key={entry.id}>
+                      <TableCell className="align-top text-xs text-muted-foreground">
+                        <div className="font-medium text-foreground">{formatLogTime(entry.timestamp)}</div>
+                        <div>
+                          {entry.sourceFile}:{entry.line}
+                        </div>
+                      </TableCell>
+                      <TableCell className="align-top">
+                        <Badge variant="outline" className={levelBadgeClass(entry.level)}>
+                          <span className={levelDotClass(entry.level)} />
+                          {entry.level}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-0 align-top whitespace-normal">
+                        <div className="font-medium text-foreground">{entry.message}</div>
+                        {entry.contextItems.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            {entry.contextItems.map((item) => (
+                              <span
+                                key={`${entry.id}:${item.key}`}
+                                className="rounded-md border border-border bg-muted/40 px-2 py-1"
+                              >
+                                <span className="font-medium text-foreground">{item.key}</span>: {item.value}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {entry.errorMessage && <p className="mt-2 text-sm text-destructive">{entry.errorMessage}</p>}
+                        <details className="mt-3 rounded-lg border border-border bg-muted/25 p-3">
+                          <summary className="cursor-pointer text-sm font-medium text-foreground">
+                            View structured JSON
+                          </summary>
+                          <pre className="mt-3 max-h-72 overflow-auto rounded-md bg-background/80 p-3 text-xs leading-5 text-muted-foreground">
+                            {entry.detailsJson}
+                          </pre>
+                        </details>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="px-6 py-16 text-center">
+                <h2 className="text-lg font-semibold text-foreground">No matching entries</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Try a different day, clear the search, or widen the level filter.
+                </p>
+              </div>
+            )}
+          </section>
+
+          <PaginationControls
+            page={data.page}
+            totalPages={data.totalPages}
+            onPageChange={(page) =>
+              updateSearch({
+                day: activeDay,
+                query: data.filters.query,
+                level: activeLevel,
+                page,
+              })
+            }
+          />
+        </>
+      ) : (
+        <section className="surface-card px-6 py-16 text-center">
+          <h2 className="text-lg font-semibold text-foreground">No log files yet</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Aether is configured to rotate structured logs into `./logs` once the app starts writing them.
+          </p>
+        </section>
+      )}
+    </PageHeader>
   );
 }
 

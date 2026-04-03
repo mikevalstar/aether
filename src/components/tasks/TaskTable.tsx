@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import cronstrue from "cronstrue";
 import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Play } from "lucide-react";
 import { useState } from "react";
+import { formatRelativeTime } from "#/components/activity/format-relative-time";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
@@ -16,25 +17,6 @@ function formatCron(cron: string): string {
   } catch {
     return cron;
   }
-}
-
-function formatRelativeTime(iso: string): string {
-  const date = new Date(iso);
-  const now = Date.now();
-  const diff = date.getTime() - now;
-  const absDiff = Math.abs(diff);
-
-  if (absDiff < 60_000) return "just now";
-  if (absDiff < 3_600_000) {
-    const mins = Math.round(absDiff / 60_000);
-    return diff > 0 ? `in ${mins}m` : `${mins}m ago`;
-  }
-  if (absDiff < 86_400_000) {
-    const hours = Math.round(absDiff / 3_600_000);
-    return diff > 0 ? `in ${hours}h` : `${hours}h ago`;
-  }
-  const days = Math.round(absDiff / 86_400_000);
-  return diff > 0 ? `in ${days}d` : `${days}d ago`;
 }
 
 function StatusBadge({ status }: { status: string | null }) {

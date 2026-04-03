@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { AiConfigValidator } from "./types";
 
 const REQUIRED_PLACEHOLDERS = ["{{date}}", "{{userName}}", "{{aiMemoryPath}}"] as const;
+const OPTIONAL_PLACEHOLDERS = ["{{userEmail}}"] as const;
 
 const bodySchema: z.ZodType<string> = z
   .string()
@@ -18,6 +19,9 @@ export const systemPromptValidator: AiConfigValidator = {
     "",
     "**Required placeholders in body:**",
     ...REQUIRED_PLACEHOLDERS.map((p) => `- \`${p}\` — replaced at runtime`),
+    "",
+    "**Optional placeholders:**",
+    ...OPTIONAL_PLACEHOLDERS.map((p) => `- \`${p}\` — replaced at runtime`),
     "",
     "No frontmatter is required.",
   ].join("\n"),

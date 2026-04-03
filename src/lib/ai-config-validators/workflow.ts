@@ -1,11 +1,15 @@
 import { z } from "zod";
-import { CHAT_MODELS, resolveModelId } from "#/lib/chat-models";
+import {
+  effortField,
+  formatFrontmatterErrors,
+  modelField,
+  notificationField,
+  validEfforts,
+  validFieldTypes,
+  validModelIds,
+  validNotificationLevels,
+} from "./shared";
 import type { AiConfigValidator } from "./types";
-
-const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
-const validEfforts = ["low", "medium", "high"] as const;
-const validNotificationLevels = ["silent", "notify", "push"] as const;
-const validFieldTypes = ["text", "textarea", "url", "select"] as const;
 
 export const workflowFieldSchema = z.object({
   name: z.string().min(1, "field name is required"),
@@ -20,14 +24,10 @@ export const workflowFieldSchema = z.object({
 export const workflowFrontmatterSchema = z.object({
   title: z.string().min(1, "title is required"),
   description: z.string().optional(),
-  model: z
-    .string()
-    .refine((v) => resolveModelId(v) !== undefined, "Must be a valid model ID or alias")
-    .transform((v) => resolveModelId(v)!)
-    .optional(),
-  effort: z.enum(validEfforts).optional(),
+  model: modelField,
+  effort: effortField,
   maxTokens: z.number().int().positive().optional(),
-  notification: z.enum(validNotificationLevels).optional(),
+  notification: notificationField,
   fields: z.array(workflowFieldSchema).min(1, "at least one field is required"),
 });
 
@@ -53,15 +53,10 @@ export const workflowValidator: AiConfigValidator = {
     "**Body:** The prompt template sent to the AI. Use `{{fieldName}}` placeholders. Must be non-empty.",
   ].join("\n"),
   validate(frontmatter: Record<string, unknown>, body: string) {
-    const errors: string[] = [];
-
     const fmResult = workflowFrontmatterSchema.safeParse(frontmatter);
-    if (!fmResult.success) {
-      for (const issue of fmResult.error.issues) {
-        const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
-        errors.push(`Frontmatter — ${path}${issue.message}`);
-      }
-    } else {
+    const errors = formatFrontmatterErrors(fmResult);
+
+    if (fmResult.success) {
       // Validate unique field names
       const names = fmResult.data.fields.map((f) => f.name);
       const dupes = names.filter((n, i) => names.indexOf(n) !== i);

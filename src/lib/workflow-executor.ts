@@ -1,21 +1,8 @@
-import { generateText, stepCountIs } from "ai";
 import { prisma } from "#/db";
 import { readWorkflowPromptConfig } from "#/lib/ai-config";
-import { createAiTools, getModel } from "#/lib/ai-tools";
-import {
-  type ChatModel,
-  DEFAULT_CHAT_EFFORT,
-  DEFAULT_CHAT_MODEL,
-  estimateChatUsageCostUsd,
-  isChatEffort,
-  resolveModelId,
-  serializeUsageHistory,
-  usageTotalsFromLanguageModelUsage,
-} from "#/lib/chat";
-import { CHAT_MODELS } from "#/lib/chat-models";
-import { formatIsoDate } from "#/lib/date";
-import { logger } from "#/lib/logger";
-import { type NotificationLevel, notify } from "#/lib/notify";
+import { executePrompt, resolveEffort, resolveModel } from "#/lib/executor-shared";
+import type { NotificationLevel } from "#/lib/notify";
+import { interpolatePrompt } from "#/lib/prompt-utils";
 
 export type WorkflowField = {
   name: string;
@@ -44,241 +31,51 @@ export async function executeWorkflow(
   formValues: Record<string, string>,
   userId: string,
 ): Promise<{ threadId: string; success: boolean }> {
-  const startTime = Date.now();
-
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new Error("User not found");
   }
 
   // Resolve model and effort
-  const workflowPromptConfig = await readWorkflowPromptConfig(user.name);
+  const userVars = { userName: user.name, userEmail: user.email };
+  const workflowPromptConfig = await readWorkflowPromptConfig(userVars);
   const model = resolveModel(config.model, workflowPromptConfig.model);
   const effort = resolveEffort(config.effort, workflowPromptConfig.effort);
-  const modelDef = CHAT_MODELS.find((m) => m.id === model);
 
-  // Create ChatThread for this run
-  const threadId = `thread_${crypto.randomUUID()}`;
-  await prisma.chatThread.create({
-    data: {
-      id: threadId,
-      type: "workflow",
-      title: config.title,
-      model,
-      effort,
-      sourceWorkflowFile: filename,
-      userId,
-    },
-  });
-
-  const systemPrompt = workflowPromptConfig.prompt;
-
-  // Substitute placeholders in the workflow body
-  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
-  let workflowBody = config.body
-    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-    .replace(/\{\{userName\}\}/g, user.name)
-    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
-
-  // Substitute form field values
+  // Substitute placeholders in the workflow body, then form field values
+  let workflowBody = interpolatePrompt(config.body, userVars);
   for (const field of config.fields) {
     const value = formValues[field.name]?.trim() || "not entered";
     workflowBody = workflowBody.replace(new RegExp(`\\{\\{${field.name}\\}\\}`, "g"), value);
   }
 
   const userTimezone = user.preferences ? (JSON.parse(user.preferences) as { timezone?: string }).timezone : undefined;
-  const tools = createAiTools(model, userId, threadId, userTimezone);
-  const toolNames = Object.keys(tools);
 
-  try {
-    const result = await generateText({
-      model: getModel(model),
-      system: systemPrompt,
-      prompt: workflowBody,
-      tools,
-      stopWhen: stepCountIs(20),
-      ...(config.maxTokens ? { maxTokens: config.maxTokens } : {}),
-      providerOptions: {
-        anthropic: {
-          cacheControl: { type: "ephemeral" as const },
-          ...(modelDef?.supportsEffort && { effort }),
-        },
-      },
-    });
-
-    const messagesJson = JSON.stringify(result.response.messages);
-    const usage = usageTotalsFromLanguageModelUsage(result.usage);
-    const estimatedCost = estimateChatUsageCostUsd(model, usage);
-
-    const usageEntry = {
-      id: `usage_${crypto.randomUUID()}`,
-      model,
-      taskType: "workflow" as const,
-      createdAt: new Date().toISOString(),
-      ...usage,
-      estimatedCostUsd: estimatedCost,
-      cumulativeInputTokens: usage.inputTokens,
-      cumulativeOutputTokens: usage.outputTokens,
-      cumulativeTotalTokens: usage.totalTokens,
-      cumulativeEstimatedCostUsd: estimatedCost,
-    };
-
-    const durationMs = Date.now() - startTime;
-
-    await prisma.$transaction([
-      prisma.chatThread.update({
-        where: { id: threadId },
-        data: {
-          messagesJson,
-          usageHistoryJson: serializeUsageHistory([usageEntry]),
-          totalInputTokens: usage.inputTokens,
-          totalOutputTokens: usage.outputTokens,
-          totalEstimatedCostUsd: estimatedCost,
-          systemPromptJson: JSON.stringify(systemPrompt),
-          availableToolsJson: JSON.stringify(toolNames),
-        },
-      }),
-      prisma.chatUsageEvent.create({
-        data: {
-          id: `usage_event_${crypto.randomUUID()}`,
-          userId,
-          threadId,
-          model,
-          taskType: "workflow",
-          inputTokens: usage.inputTokens,
-          outputTokens: usage.outputTokens,
-          totalTokens: usage.totalTokens,
-          estimatedCostUsd: estimatedCost,
-        },
-      }),
-      prisma.activityLog.create({
-        data: {
-          type: "workflow",
-          summary: `Ran workflow: ${config.title}`,
-          metadata: JSON.stringify({
-            workflowFile: filename,
-            chatThreadId: threadId,
-            model,
-            inputTokens: usage.inputTokens,
-            outputTokens: usage.outputTokens,
-            estimatedCostUsd: estimatedCost,
-            durationMs,
-            success: true,
-            formValues,
-          }),
-          userId,
-        },
-      }),
+  return executePrompt({
+    type: "workflow",
+    filename,
+    title: config.title,
+    model,
+    effort,
+    systemPrompt: workflowPromptConfig.prompt,
+    userPrompt: workflowBody,
+    userId,
+    userTimezone,
+    maxTokens: config.maxTokens,
+    notification: config.notification,
+    notificationLink: "/workflows",
+    extraMetadata: { formValues },
+    onSuccessOps: ({ threadId }) => [
       prisma.workflow.update({
         where: { filename },
-        data: {
-          lastRunAt: new Date(),
-          lastRunStatus: "success",
-          lastThreadId: threadId,
-        },
+        data: { lastRunAt: new Date(), lastRunStatus: "success", lastThreadId: threadId },
       }),
-    ]);
-
-    logger.info(
-      {
-        workflow: filename,
-        threadId,
-        model,
-        inputTokens: usage.inputTokens,
-        outputTokens: usage.outputTokens,
-        costUsd: estimatedCost,
-        durationMs,
-      },
-      "Workflow completed successfully",
-    );
-
-    if (config.notification !== "silent") {
-      await notify({
-        userId,
-        title: `Workflow completed: ${config.title}`,
-        link: `/workflows`,
-        pushToPhone: config.notification === "push",
-      });
-    }
-
-    return { threadId, success: true };
-  } catch (err) {
-    const durationMs = Date.now() - startTime;
-    const errorMessage = err instanceof Error ? err.message : "Unknown error";
-
-    logger.error({ workflow: filename, err, durationMs }, "Workflow execution failed");
-
-    await prisma.$transaction([
-      prisma.chatThread.update({
-        where: { id: threadId },
-        data: {
-          messagesJson: JSON.stringify([
-            {
-              id: `msg_${crypto.randomUUID()}`,
-              role: "assistant",
-              parts: [
-                {
-                  type: "text",
-                  text: `Workflow execution failed: ${errorMessage}`,
-                },
-              ],
-            },
-          ]),
-        },
-      }),
-      prisma.activityLog.create({
-        data: {
-          type: "workflow",
-          summary: `Workflow failed: ${config.title}`,
-          metadata: JSON.stringify({
-            workflowFile: filename,
-            chatThreadId: threadId,
-            error: errorMessage,
-            durationMs,
-            success: false,
-            formValues,
-          }),
-          userId,
-        },
-      }),
+    ],
+    onErrorOps: ({ threadId }) => [
       prisma.workflow.update({
         where: { filename },
-        data: {
-          lastRunAt: new Date(),
-          lastRunStatus: "error",
-          lastThreadId: threadId,
-        },
+        data: { lastRunAt: new Date(), lastRunStatus: "error", lastThreadId: threadId },
       }),
-    ]);
-
-    if (config.notification !== "silent") {
-      await notify({
-        userId,
-        title: `Workflow failed: ${config.title}`,
-        body: errorMessage,
-        link: `/workflows`,
-        pushToPhone: true,
-      });
-    }
-
-    return { threadId, success: false };
-  }
-}
-
-function resolveModel(workflowModel?: string, configModel?: string): ChatModel {
-  if (workflowModel) {
-    const r = resolveModelId(workflowModel);
-    if (r) return r;
-  }
-  if (configModel) {
-    const r = resolveModelId(configModel);
-    if (r) return r;
-  }
-  return DEFAULT_CHAT_MODEL;
-}
-
-function resolveEffort(workflowEffort?: string, configEffort?: string): string {
-  if (workflowEffort && isChatEffort(workflowEffort)) return workflowEffort;
-  if (configEffort && isChatEffort(configEffort)) return configEffort;
-  return DEFAULT_CHAT_EFFORT;
+    ],
+  });
 }

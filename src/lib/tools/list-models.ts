@@ -14,7 +14,7 @@ export const listModels = tool({
       provider: m.provider,
       supportsEffort: m.supportsEffort,
       supportsCodeExecution: m.supportsCodeExecution,
-      ...(("aliases" in m && m.aliases.length > 0) ? { aliases: m.aliases } : {}),
+      ...("aliases" in m && m.aliases.length > 0 ? { aliases: m.aliases } : {}),
     }));
   },
 });

@@ -17,18 +17,15 @@ import {
   getChatPreviewFromMessages,
   getMessageText,
   isChatEffort,
-  resolveModelId,
   parseStoredMessages,
+  resolveModelId,
 } from "#/lib/chat";
 import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
+import { threadIdInputSchema } from "#/lib/shared-schemas";
 
 const chatModelIds = CHAT_MODELS.map((model) => model.id) as [ChatModel, ...ChatModel[]];
 const chatEffortLevels = [...CHAT_EFFORT_LEVELS] as [ChatEffort, ...ChatEffort[]];
-
-const threadIdInputSchema = z.object({
-  threadId: z.string().trim().min(1, "Thread ID is required"),
-});
 
 const chatThreadInputSchema = z
   .object({

@@ -16,6 +16,7 @@ const sampleRuns = [
   {
     id: "run-1",
     title: "Daily Summary",
+    type: "task",
     model: "claude-haiku-4-5" as const,
     effort: "low",
     totalInputTokens: 1250,
@@ -33,6 +34,7 @@ const sampleRuns = [
   {
     id: "run-2",
     title: "Daily Summary",
+    type: "task",
     model: "claude-haiku-4-5" as const,
     effort: "low",
     totalInputTokens: 980,

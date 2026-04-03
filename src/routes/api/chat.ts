@@ -293,8 +293,8 @@ export const Route = createFileRoute("/api/chat")({
           },
         });
 
-        const userName = session.user.name || "User";
-        const [configuredPrompt, skills] = await Promise.all([readSystemPrompt(userName), readAllSkills()]);
+        const userVars = { userName: session.user.name || "User", userEmail: session.user.email };
+        const [configuredPrompt, skills] = await Promise.all([readSystemPrompt(userVars), readAllSkills()]);
 
         if (!configuredPrompt) {
           return new Response("System prompt is not configured", {

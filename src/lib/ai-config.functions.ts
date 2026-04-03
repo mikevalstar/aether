@@ -3,12 +3,7 @@ import { z } from "zod";
 import { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
 import { getValidatorForFile } from "#/lib/ai-config-validators";
 import { ensureSession } from "#/lib/auth.functions";
-
-const filenameInputSchema = z
-  .object({
-    filename: z.string().trim().min(1, "Filename is required"),
-  })
-  .strict();
+import { filenameInputSchema } from "#/lib/shared-schemas";
 
 const validateAiConfigInputSchema = z
   .object({

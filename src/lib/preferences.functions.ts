@@ -8,6 +8,7 @@ import { CHAT_MODELS, type ChatModel } from "#/lib/chat-models";
 import { searchVault } from "#/lib/obsidian/vault-index";
 import { listObsidianFolders } from "#/lib/obsidian.functions";
 import { parsePreferences, serializePreferences } from "#/lib/preferences";
+import { queryInputSchema } from "#/lib/shared-schemas";
 
 const chatModelIds = CHAT_MODELS.map((model) => model.id) as [ChatModel, ...ChatModel[]];
 
@@ -50,12 +51,6 @@ const updatePreferencesInputSchema = z
     pluginOptions: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
     dashboardLayouts: z.record(z.string(), z.array(dashboardLayoutItemSchema)).optional(),
     obsidianChatExportFolder: z.string().trim().optional(),
-  })
-  .strict();
-
-const queryInputSchema = z
-  .object({
-    query: z.string(),
   })
   .strict();
 

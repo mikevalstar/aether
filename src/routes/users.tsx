@@ -21,8 +21,8 @@ import { formatDate } from "#/lib/date";
 import {
   createManagedUser,
   getUsersPageData,
-  removeManagedUser,
   type ManagedUserRole,
+  removeManagedUser,
 } from "#/lib/user-management.functions";
 
 export const Route = createFileRoute("/users")({
@@ -201,9 +201,7 @@ function UsersPage() {
                   </p>
                 </div>
                 <div className="flex justify-end">
-                  {user.id !== currentUser.id && (
-                    <RemoveUserButton userId={user.id} userName={user.name} />
-                  )}
+                  {user.id !== currentUser.id && <RemoveUserButton userId={user.id} userName={user.name} />}
                 </div>
               </article>
             ))}

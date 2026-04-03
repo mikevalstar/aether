@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import type { ActivityChatThread, ActivityDetail } from "#/lib/activity.functions";
 import { formatDateTime } from "#/lib/date";
+import { formatCost } from "#/lib/format";
 import { ContentView } from "./ContentView";
 import { DiffView } from "./DiffView";
 import { formatRelativeTime } from "./format-relative-time";
@@ -240,11 +241,6 @@ function FileStatus({ detail }: { detail: ActivityDetail }) {
       Modified since
     </Badge>
   );
-}
-
-function formatCost(usd: number): string {
-  if (usd < 0.01) return `$${usd.toFixed(6)}`;
-  return `$${usd.toFixed(4)}`;
 }
 
 function ChatThreadMeta({ thread }: { thread: ActivityChatThread }) {
