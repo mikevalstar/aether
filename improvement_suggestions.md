@@ -241,7 +241,7 @@ const handleSave = async (e) => {
 
 ---
 
-### 3.6 `formatRelativeTime` — Reimplemented in TaskTable
+### ~~3.6 `formatRelativeTime` — Reimplemented in TaskTable~~ ✅ DONE
 
 `components/tasks/TaskTable.tsx` (lines 21–38) reimplements the same logic that already exists in `components/activity/format-relative-time.ts`.
 
