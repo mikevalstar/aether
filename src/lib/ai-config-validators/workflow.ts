@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CHAT_MODELS } from "#/lib/chat-models";
+import { CHAT_MODELS, resolveModelId } from "#/lib/chat-models";
 import type { AiConfigValidator } from "./types";
 
 const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
@@ -20,7 +20,11 @@ export const workflowFieldSchema = z.object({
 export const workflowFrontmatterSchema = z.object({
   title: z.string().min(1, "title is required"),
   description: z.string().optional(),
-  model: z.enum(validModelIds).optional(),
+  model: z
+    .string()
+    .refine((v) => resolveModelId(v) !== undefined, "Must be a valid model ID or alias")
+    .transform((v) => resolveModelId(v)!)
+    .optional(),
   effort: z.enum(validEfforts).optional(),
   maxTokens: z.number().int().positive().optional(),
   notification: z.enum(validNotificationLevels).optional(),
@@ -39,7 +43,7 @@ export const workflowValidator: AiConfigValidator = {
     "",
     "**Optional frontmatter:**",
     `- \`description\` — short description shown in the UI`,
-    `- \`model\` — one of: ${validModelIds.join(", ")}`,
+    `- \`model\` — one of: ${validModelIds.join(", ")} (aliases also accepted)`,
     `- \`effort\` — one of: ${validEfforts.join(", ")}`,
     "- `maxTokens` — positive integer output token limit",
     `- \`notification\` — one of: ${validNotificationLevels.join(", ")} (default: notify)`,

@@ -38,22 +38,53 @@ type ScheduledTask = {
 };
 
 // ── State ────────────────────────────────────────────────────────────
+// Store scheduler state on globalThis so it survives Vite HMR module replacement.
+// Without this, HMR creates a fresh empty Map while the app-runtime's global
+// startPromise still references the old (resolved) init — causing "task not found".
 
-const tasks = new Map<string, ScheduledTask>();
-let watcher: ReturnType<typeof chokidar.watch> | null = null;
-let initPromise: Promise<void> | null = null;
+type SchedulerState = {
+  tasks: Map<string, ScheduledTask>;
+  watcher: ReturnType<typeof chokidar.watch> | null;
+  initPromise: Promise<void> | null;
+};
+
+declare global {
+  var __aetherSchedulerState: SchedulerState | undefined;
+}
+
+globalThis.__aetherSchedulerState ??= {
+  tasks: new Map(),
+  watcher: null,
+  initPromise: null,
+};
+
+const { tasks } = globalThis.__aetherSchedulerState;
+
+function getWatcher() {
+  return globalThis.__aetherSchedulerState!.watcher;
+}
+function setWatcher(w: ReturnType<typeof chokidar.watch> | null) {
+  globalThis.__aetherSchedulerState!.watcher = w;
+}
+function getInitPromise() {
+  return globalThis.__aetherSchedulerState!.initPromise;
+}
+function setInitPromise(p: Promise<void> | null) {
+  globalThis.__aetherSchedulerState!.initPromise = p;
+}
 
 const GRACE_WINDOW_MS = 60_000; // 60 seconds
 
 // ── Public API ───────────────────────────────────────────────────────
 
 export function initScheduler(): Promise<void> {
-  if (initPromise) return initPromise;
+  if (getInitPromise()) return getInitPromise()!;
 
   logger.info("Initializing task scheduler");
 
-  initPromise = doInit();
-  return initPromise;
+  const p = doInit();
+  setInitPromise(p);
+  return p;
 }
 
 export function getScheduledTasks(): ScheduledTaskInfo[] {
@@ -75,7 +106,13 @@ export function getScheduledTasks(): ScheduledTaskInfo[] {
 
 export async function triggerTask(filename: string): Promise<void> {
   const task = tasks.get(filename);
-  if (!task) throw new Error(`Task not found: ${filename}`);
+  if (!task) {
+    logger.error(
+      { filename, loadedTasks: Array.from(tasks.keys()), count: tasks.size },
+      "Task not found in scheduler map",
+    );
+    throw new Error(`Task not found: ${filename}`);
+  }
 
   logger.info({ task: filename }, "Manually triggering task");
   await executeTask(filename, task.config);
@@ -89,12 +126,13 @@ export async function closeScheduler(): Promise<void> {
   }
   tasks.clear();
 
-  if (watcher) {
-    await watcher.close();
-    watcher = null;
+  const w = getWatcher();
+  if (w) {
+    await w.close();
+    setWatcher(null);
   }
 
-  initPromise = null;
+  setInitPromise(null);
 }
 
 // ── Init ─────────────────────────────────────────────────────────────
@@ -162,7 +200,7 @@ async function doInit(): Promise<void> {
   // When only DISABLE_TASKS is set, skip file watcher but still start system tasks
   if (!tasksDisabled) {
     // Start file watcher
-    watcher = chokidar.watch(tasksDir, {
+    const newWatcher = chokidar.watch(tasksDir, {
       ignored: (filePath, stats) => {
         if (stats?.isFile() && !filePath.endsWith(".md")) return true;
         return false;
@@ -170,8 +208,9 @@ async function doInit(): Promise<void> {
       persistent: true,
       ignoreInitial: true,
     });
+    setWatcher(newWatcher);
 
-    watcher
+    newWatcher
       .on("add", (filePath: string) => void handleFileAddOrChange(filePath))
       .on("change", (filePath: string) => void handleFileAddOrChange(filePath))
       .on("unlink", (filePath: string) => void handleFileDelete(filePath))
