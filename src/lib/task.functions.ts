@@ -1,10 +1,14 @@
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
+import { logger } from "#/lib/logger";
 import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/task-scheduler";
+import { getTasksDir } from "#/lib/task-scheduler/task-loader";
 
 const filenameInputSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),
@@ -54,6 +58,9 @@ export const getTasksPageData = createServerFn({ method: "GET" }).handler(async 
   await ensureAppRuntimeStarted();
   await ensureSession();
 
+  // Reconcile: check if any "file removed" tasks actually have their files back
+  await reconcileMissingTasks();
+
   const taskRows = await prisma.task.findMany({
     orderBy: { title: "asc" },
   });
@@ -95,6 +102,9 @@ export const getTaskRunHistory = createServerFn({ method: "GET" })
   .inputValidator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
+
+    // Reconcile this specific task if marked as missing
+    await reconcileMissingTasks();
 
     const task = await prisma.task.findUnique({
       where: { filename: data.filename },
@@ -167,3 +177,33 @@ export const deleteTaskRun = createServerFn({ method: "POST" })
     await prisma.chatThread.delete({ where: { id: data.threadId } });
     return { success: true };
   });
+
+// ── Reconciliation ──────────────────────────────────────────────────
+
+async function reconcileMissingTasks(): Promise<void> {
+  const tasksDir = getTasksDir();
+  if (!tasksDir) return;
+
+  const missing = await prisma.task.findMany({
+    where: { fileExists: false },
+    select: { id: true, filename: true },
+  });
+
+  if (missing.length === 0) return;
+
+  for (const row of missing) {
+    const filePath = path.join(tasksDir, row.filename);
+    try {
+      const stat = await fs.stat(filePath);
+      if (stat.isFile()) {
+        await prisma.task.update({
+          where: { id: row.id },
+          data: { fileExists: true },
+        });
+        logger.info({ task: row.filename }, "Task file restored — marking as active");
+      }
+    } catch {
+      // File still doesn't exist, leave as-is
+    }
+  }
+}

@@ -175,7 +175,7 @@ async function handleFileDelete(filePath: string): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function getWorkflowsDir(): string {
+export function getWorkflowsDir(): string {
   const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
   const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
   if (!obsidianDir || !aiConfigRel) return "";

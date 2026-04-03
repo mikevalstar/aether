@@ -1,13 +1,16 @@
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
+import { logger } from "#/lib/logger";
 import { toObsidianRoutePath } from "#/lib/obsidian";
 import type { WorkflowField } from "#/lib/workflow-executor";
 import { executeWorkflow } from "#/lib/workflow-executor";
-import { getWorkflowConfig } from "#/lib/workflow-watcher";
+import { getWorkflowConfig, getWorkflowsDir } from "#/lib/workflow-watcher";
 
 const filenameInputSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),
@@ -58,6 +61,9 @@ export type WorkflowRunItem = {
 export const getWorkflowsPageData = createServerFn({ method: "GET" }).handler(async () => {
   await ensureSession();
 
+  // Reconcile: check if any "file removed" workflows actually have their files back
+  await reconcileMissingWorkflows();
+
   const rows = await prisma.workflow.findMany({
     orderBy: { title: "asc" },
   });
@@ -95,6 +101,9 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
   .inputValidator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
+
+    // Reconcile workflows in case file was temporarily missing
+    await reconcileMissingWorkflows();
 
     const workflow = await prisma.workflow.findUnique({
       where: { filename: data.filename },
@@ -219,3 +228,33 @@ export const convertWorkflowToChat = createServerFn({ method: "POST" })
 
     return { success: true, threadId: data.threadId };
   });
+
+// ── Reconciliation ──────────────────────────────────────────────────
+
+async function reconcileMissingWorkflows(): Promise<void> {
+  const workflowsDir = getWorkflowsDir();
+  if (!workflowsDir) return;
+
+  const missing = await prisma.workflow.findMany({
+    where: { fileExists: false },
+    select: { id: true, filename: true },
+  });
+
+  if (missing.length === 0) return;
+
+  for (const row of missing) {
+    const filePath = path.join(workflowsDir, row.filename);
+    try {
+      const stat = await fs.stat(filePath);
+      if (stat.isFile()) {
+        await prisma.workflow.update({
+          where: { id: row.id },
+          data: { fileExists: true },
+        });
+        logger.info({ workflow: row.filename }, "Workflow file restored — marking as active");
+      }
+    } catch {
+      // File still doesn't exist, leave as-is
+    }
+  }
+}
