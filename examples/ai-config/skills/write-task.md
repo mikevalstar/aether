@@ -1,6 +1,6 @@
 ---
 name: Writing Tasks
-description: Use this skill when the user asks to create, modify, or schedule a periodic/recurring task
+description: Use this skill when the user asks to create, modify, or schedule a periodic/recurring task. You can use this to check things in the future if the user asks
 tags:
   - task
   - scheduling
@@ -18,7 +18,7 @@ Task files are markdown (`.md`) with YAML frontmatter. They live in the AI confi
 ---
 title: Task Name
 cron: "0 9 * * *"
-model: claude-haiku-4-5
+model: minimax/minimax-m2.7
 effort: low
 enabled: true
 ---
@@ -37,15 +37,15 @@ Prompt body goes here. Use {{date}}, {{userName}}, or {{aiMemoryPath}} placehold
 
 ### Optional Fields
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `model` | string | `claude-haiku-4-5` | AI model to use. Valid values: `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-6`. |
-| `effort` | string | `low` | Thinking effort level: `low`, `medium`, or `high`. |
-| `enabled` | boolean | `true` | Set to `false` to pause the task without deleting it. |
-| `endDate` | string | — | ISO 8601 date (e.g., `2026-12-31`). Task stops running after this date. |
-| `maxTokens` | integer | — | Maximum output tokens. Positive integer. Limits response length and cost. |
-| `timezone` | string | server timezone | IANA timezone (e.g., `America/Toronto`). Controls when the cron fires. |
-| `notification` | string | `notify` | Notification when task completes: `silent`, `notify`, or `push`. |
+| Field          | Type    | Default                | Description                                                                                                        |
+| -------------- | ------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `model`        | string  | `minimax/minimax-m2.7` | AI model to use. Valid values: `minimax/minimax-m2.7`, `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-6`. |
+| `effort`       | string  | `low`                  | Thinking effort level: `low`, `medium`, or `high`.                                                                 |
+| `enabled`      | boolean | `true`                 | Set to `false` to pause the task without deleting it.                                                              |
+| `endDate`      | string  | —                      | ISO 8601 date (e.g., `2026-12-31`). Task stops running after this date.                                            |
+| `maxTokens`    | integer | —                      | Maximum output tokens. Positive integer. Limits response length and cost.                                          |
+| `timezone`     | string  | server timezone        | IANA timezone (e.g., `America/Toronto`). Controls when the cron fires.                                             |
+| `notification` | string  | `notify`               | Notification when task completes: `silent`, `notify`, or `push`.                                                   |
 
 ## Cron Expression Reference
 
