@@ -191,10 +191,10 @@ Push is sent when ANY of these conditions is true (and delivery is not `silent`)
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Notification widget | todo | Dashboard widget showing recent notifications grouped by level |
-| Count badges | todo | Count badges by level (e.g., "2 critical, 5 high") |
-| Quick actions | todo | Mark as read / dismiss directly from the widget |
-| Link through | todo | Click notification to navigate to its link, or to full notifications page |
+| Notification widget | done | Dashboard widget showing recent notifications with level icons and unread badge |
+| Count badges | done | Count badges by level (e.g., "2 Critical, 5 High") linking to filtered notifications page |
+| Quick actions | deferred | Mark as read / dismiss directly from the widget (deferred — click-through covers most use) |
+| Link through | done | Click notification to navigate to its link; "View all" links to `/notifications` |
 
 ### Phase 6: AI Notify Tool Update
 
@@ -257,7 +257,7 @@ Items explicitly deferred for later versions:
 | 6. Notifications page | 2 | done | Create `/notifications` route with server functions, filters, bulk actions, pagination. |
 | 7. Header bell update | 3 | done | Filter bell dropdown to medium+ levels, add level badges, link to full page. |
 | 8. Push level preference | 4 | done | Add `pushNotificationMinLevel` to preferences type, settings UI, and push logic. |
-| 9. Dashboard widget | 5 | todo | Create notification dashboard widget with counts and quick actions. |
+| 9. Dashboard widget | 5 | done | Create notification dashboard widget with counts and quick actions. |
 | 10. AI tool update | 6 | done | Add `level` parameter to `send_notification` tool. |
 
 ## Open Questions
@@ -270,4 +270,4 @@ None at this time.
 - 2026-03-16: Resolved open questions — auto-dismiss after 30 days, header dropdown only, push is opt-in per source via `pushToPhone` flag. Added AI notify tool.
 - 2026-03-22: Updated to match implementation — corrected preferences route, added test Pushover, documented NotificationLevel type, per-task/workflow notification config, pushToPhone DB field, activity log for AI notify, notification sources table.
 - 2026-04-03: Major rewrite — notification categorization with severity levels (info, error, low, medium, high, critical), full-page management UI, bulk actions (mark read, archive, delete), filtering by level/category/source, task/workflow frontmatter for `notificationLevel`/`notifyUsers`/`pushMessage`, per-user push level preferences, dashboard widget, phased implementation plan. Deferred: mute/snooze, quiet hours, digest mode, email notifications, templates, grouping.
-- 2026-04-03: Implemented phases 1–3 and 6 — schema migration, notify utility with severity/category/source, NotificationSeverity/NotificationDelivery types, task/workflow frontmatter updates, full `/notifications` page with filters/bulk actions/pagination, header bell filtering to medium+ with level dots and "view all" link, AI tool level parameter.
+- 2026-04-03: Implemented phases 1–6 — schema migration, notify utility with severity/category/source, NotificationSeverity/NotificationDelivery types, task/workflow frontmatter updates, full `/notifications` page with filters/bulk actions/pagination, header bell filtering to medium+ with level dots and "view all" link, AI tool level parameter, push level preference setting, dashboard notification widget with level counts and click-through.

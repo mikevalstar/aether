@@ -42,10 +42,15 @@ const BUILTIN_DEFAULTS: Record<string, DefaultWidgetLayout> = {
     sm: { i: "recent-chats", x: 1, y: 40, w: 1, h: 18 },
     xs: { i: "recent-chats", x: 0, y: 76, w: 1, h: 18 },
   },
+  notifications: {
+    lg: { i: "notifications", x: 3, y: 51, w: 1, h: 20 },
+    sm: { i: "notifications", x: 0, y: 58, w: 1, h: 20 },
+    xs: { i: "notifications", x: 0, y: 94, w: 1, h: 20 },
+  },
   "activity-digest": {
-    lg: { i: "activity-digest", x: 3, y: 51, w: 1, h: 18 },
-    sm: { i: "activity-digest", x: 0, y: 58, w: 2, h: 14 },
-    xs: { i: "activity-digest", x: 0, y: 94, w: 1, h: 14 },
+    lg: { i: "activity-digest", x: 3, y: 71, w: 1, h: 18 },
+    sm: { i: "activity-digest", x: 1, y: 58, w: 1, h: 14 },
+    xs: { i: "activity-digest", x: 0, y: 114, w: 1, h: 14 },
   },
 };
 
