@@ -194,7 +194,11 @@ model Notification {
   title        String
   body         String?
   link         String?
+  level        String    @default("info")
+  category     String?
+  source       String?
   read         Boolean   @default(false)
+  archived     Boolean   @default(false)
   pushToPhone  Boolean   @default(false)
   pushedAt     DateTime?
   createdAt    DateTime  @default(now())
@@ -202,4 +206,5 @@ model Notification {
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read, createdAt])
+  @@index([userId, archived, level, createdAt])
 }

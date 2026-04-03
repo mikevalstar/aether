@@ -1,8 +1,8 @@
 ---
 title: Notifications
-status: done
+status: in-progress
 owner: self
-last_updated: 2026-03-22
+last_updated: 2026-04-03
 canonical_file: docs/requirements/notifications.md
 ---
 
@@ -10,153 +10,254 @@ canonical_file: docs/requirements/notifications.md
 
 ## Purpose
 
-- Problem: No way to know when background events happen (task completions, workflow results, failures) unless actively watching the app.
-- Outcome: Two-channel notification system — in-browser toasts when the app is open, Pushover push notifications to phone when it's not (or always).
-- Notes: Single-user app, so no complex subscription/preference matrix needed.
+- Problem: Notifications are flat — no way to distinguish between a minor info message and a critical failure. No full-page management, no filtering, no categorization. The header dropdown is the only way to see notifications. Tasks and workflows can't target specific users or control notification severity.
+- Outcome: A categorized notification system with levels (info, error, low, medium, high, critical), full-page management UI with bulk actions, per-user push notification preferences by level, and a dashboard widget. Tasks and workflows gain frontmatter to control notification targeting and severity.
+- Notes: Single-user app today, but the system is built multi-user-ready (notifications target users by email). Admin-only levels (error) reserved for system diagnostics.
 
 ## Current Reality
 
-- Current behavior: No notification system exists.
-- Constraints: SQLite backend, no WebSocket infrastructure. Pushover requires a $5 one-time mobile app purchase.
-- Non-goals: Email notifications, Web Push API / service workers, full `/notifications` history page (header dropdown only for now).
+- Current behavior: Notifications exist with a simple model (title, body, link, read, pushToPhone). The header bell shows recent notifications in a dropdown. Pushover integration works for push. Tasks/workflows have a `notification` field (`silent`/`notify`/`push`) controlling delivery channel.
+- Constraints: SQLite backend, no WebSocket infrastructure. Pushover for push notifications.
+- Non-goals (this version): Email notifications, mute/snooze per source, quiet hours, digest mode, notification templates, system-level notification UI.
 
 ## Environment Variables
 
 | Variable | Purpose | Example |
 | --- | --- | --- |
-| `PUSHOVER_APP_TOKEN` | Pushover application API token (create app at pushover.net) | `azGDORePK8gMaC0QOYAMyEEuzJnyUi` |
-| `APP_URL` | Base URL of the app, used for clickable links in push notifications | `https://aether.example.com` |
+| `PUSHOVER_APP_TOKEN` | Pushover application API token | `azGDORePK8gMaC0QOYAMyEEuzJnyUi` |
+| `APP_URL` | Base URL for clickable links in push notifications | `https://aether.example.com` |
+
+## Notification Levels
+
+| Level | Severity | Description | Shown in header bell? | Default push? |
+| --- | --- | --- | --- | --- |
+| `info` | 0 | Informational — routine completions, status updates | No | No |
+| `low` | 1 | Low priority — minor items worth noting | No | No |
+| `medium` | 2 | Medium priority — notable events that deserve attention | Yes | No |
+| `high` | 3 | High priority — important events requiring timely attention | Yes | No |
+| `critical` | 4 | Critical — failures, urgent issues requiring immediate action | Yes | Yes |
+| `error` | 5 | System errors — admin-only, internal diagnostics | Yes (admin only) | Yes |
+
+- Default level is `info` when not specified.
+- The header bell notification dropdown only shows `medium`, `high`, `critical`, and `error` (error for admins only).
+- The full notification page shows all levels with filtering.
 
 ## User Preferences
 
 | Preference | Storage | Notes |
 | --- | --- | --- |
-| `pushoverUserKey` | `preferences` JSON column on User model | User's Pushover user key from their Pushover account. When blank, push notifications are disabled. Configured at `/settings/notifications`. |
+| `pushoverUserKey` | `preferences` JSON on User | Pushover user key. When blank, push disabled. |
+| `pushNotificationMinLevel` | `preferences` JSON on User | Minimum level to trigger a push notification. Default: `critical`. Options: `info`, `low`, `medium`, `high`, `critical`. |
+
+## Data Model
+
+### Notification (updated)
+
+```prisma
+model Notification {
+  id           String    @id @default(cuid())
+  title        String
+  body         String?
+  link         String?
+  level        String    @default("info")    // info, low, medium, high, critical, error
+  category     String?                       // source category: "task", "workflow", "ai", "system"
+  source       String?                       // specific source identifier, e.g. task filename
+  read         Boolean   @default(false)
+  archived     Boolean   @default(false)
+  pushToPhone  Boolean   @default(false)
+  pushedAt     DateTime?
+  createdAt    DateTime  @default(now())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+  @@index([userId, archived, level, createdAt])
+}
+```
+
+**Changes from current model:**
+- Added `level` — notification severity (`info`, `low`, `medium`, `high`, `critical`, `error`)
+- Added `category` — source type for filtering (`task`, `workflow`, `ai`, `system`)
+- Added `source` — specific source identifier (e.g., task filename, workflow name)
+- Added `archived` — separate from read; archived notifications are hidden from default views
+- New composite index on `(userId, archived, level, createdAt)` for efficient filtered queries
+
+### NotificationLevel type (updated)
+
+Replace the existing `NotificationLevel` type (`"silent" | "notify" | "push"`) in `src/lib/notify.ts`:
+
+```typescript
+// Notification severity levels
+export type NotificationSeverity = "info" | "low" | "medium" | "high" | "critical" | "error";
+
+// Delivery behavior (replaces old NotificationLevel)
+export type NotificationDelivery = "silent" | "notify" | "push";
+```
+
+The old `NotificationLevel` (`silent`/`notify`/`push`) becomes `NotificationDelivery` and controls the delivery channel. The new `NotificationSeverity` controls the importance level of the notification content. Both concepts coexist:
+- `NotificationDelivery` — whether to create a notification at all and whether to push (used in task/workflow frontmatter)
+- `NotificationSeverity` — how important the notification is (determines visibility in header, push eligibility based on user prefs)
+
+## Task & Workflow Frontmatter Changes
+
+### New frontmatter fields
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `notification` | string | `notify` | Delivery behavior: `silent`, `notify`, `push` (unchanged) |
+| `notificationLevel` | string | `info` | Severity level: `info`, `low`, `medium`, `high`, `critical` |
+| `notifyUsers` | string[] | `["all"]` | Email addresses of users to notify. `"all"` means all users. |
+| `pushMessage` | boolean | `false` | Force push notification regardless of user preference level |
+
+**Example task frontmatter:**
+```yaml
+---
+title: Daily Summary
+cron: "0 8 * * *"
+model: claude-haiku-4-5
+notification: notify
+notificationLevel: medium
+notifyUsers:
+  - all
+pushMessage: false
+---
+```
+
+**Example workflow frontmatter:**
+```yaml
+---
+title: URL to Recipe
+notification: notify
+notificationLevel: low
+notifyUsers:
+  - mike@example.com
+pushMessage: false
+fields:
+  - name: url
+    label: Recipe URL
+    type: url
+---
+```
+
+### Push notification logic
+
+Push is sent when ANY of these conditions is true (and delivery is not `silent`):
+1. `pushMessage: true` in the frontmatter (force push)
+2. `notification: push` in the frontmatter (legacy behavior)
+3. The notification's `level` meets or exceeds the user's `pushNotificationMinLevel` preference
+4. Task/workflow failure (always pushes, unless `notification: silent`)
 
 ## Major Requirements
 
+### Phase 1: Data Model & Core (schema + notify utility updates)
+
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Notification model | done | Store notifications in SQLite for history and browser polling. |
-| Server-side send utility | done | `src/lib/notify.ts` — creates DB record + optionally sends Pushover push. |
-| In-browser polling | done | Poll every 10s for unread notifications, show toasts via sonner. |
-| Pushover integration | done | POST to Pushover API when configured and `pushToPhone` flag is set. |
-| Preferences UI | done | Add Pushover user key field to `/settings/notifications` with test send button. |
-| Notification UI | done | Header bell icon with unread count badge, dropdown with auto-dismissing notifications. |
-| AI notify tool | done | Chat tool that lets Claude send the user a notification (in-app + optional push). |
+| Schema migration | todo | Add `level`, `category`, `source`, `archived` columns to Notification model |
+| Notify utility update | todo | Update `notify()` to accept `level`, `category`, `source`; implement push logic based on user preference level |
+| NotificationSeverity type | todo | New severity type + validation, rename old NotificationLevel to NotificationDelivery |
+| Task/workflow frontmatter | todo | Add `notificationLevel`, `notifyUsers`, `pushMessage` to task and workflow validators and executors |
+| Backward compat | todo | Default existing notifications to `info` level; existing task/workflow `notification` field continues to work |
 
-## Sub-features
+### Phase 2: Full Page Notifications Management
 
-| Sub-feature | Status | Summary | Detail |
-| --- | --- | --- | --- |
-| Notification DB model | done | Prisma model for notifications with title, body, link, read status, pushToPhone flag, timestamps. | Inline |
-| Notify utility | done | Server function that writes to DB and optionally pushes to Pushover. | Inline |
-| Notification levels | done | `NotificationLevel` type (`silent`, `notify`, `push`) used by tasks and workflows to control notification behavior. | Inline |
-| Pushover client | done | HTTP POST to `https://api.pushover.net/1/messages.json` with app token, user key, message, URL. | Inline |
-| Test Pushover | done | Server function + UI button to send a test push notification to verify Pushover configuration. | Inline |
-| Browser polling | done | Client-side hook (`useNotifications`) polling server every 10s for unread notifications. | Inline |
-| Toast display | done | New unread notifications trigger sonner toasts with title, message, and optional click-through link. | Inline |
-| Notification bell | done | Header icon with unread count badge; click opens a popover of recent notifications. | Inline |
-| Mark as read | done | Clicking a notification or "mark all read" updates the DB. | Inline |
-| Preferences: Pushover key | done | Text input for Pushover user key on `/settings/notifications` with a help link to pushover.net and a test send button. | Inline |
-| AI notify tool | done | AI chat tool so Claude can send notifications when asked or for important info. Logs to activity log. | Inline |
+| Area | Status | Requirement |
+| --- | --- | --- |
+| Notifications page | todo | Full page at `/notifications` with filterable, sortable notification list |
+| Filters | todo | Filter by level, category, read/unread, archived/active, date range |
+| Bulk actions | todo | Select multiple: mark read, mark unread, archive, delete |
+| Individual actions | todo | Mark read/unread, archive, delete, click-through to link |
+| Level badges | todo | Color-coded severity badges on each notification |
+| Pagination | todo | Cursor-based pagination for large notification lists |
+| Command palette | todo | Add `/notifications` to command palette |
 
-## Detail
+### Phase 3: Header Bell Update
 
-### Notification DB model
+| Area | Status | Requirement |
+| --- | --- | --- |
+| Filtered bell | todo | Header bell only shows medium, high, critical (+ error for admins) |
+| Level indicators | todo | Color-coded dots or badges by level in the dropdown |
+| Link to full page | todo | "View all notifications" link at bottom of dropdown leading to `/notifications` |
 
-- Fields: `id`, `userId`, `title`, `body` (optional), `link` (optional, relative app URL), `read` (boolean, default false), `pushToPhone` (boolean, default false), `pushedAt` (nullable, when Pushover was sent), `createdAt`.
-- Index on `(userId, read, createdAt)` for efficient polling queries.
+### Phase 4: User Preference — Push Level
 
-### Notify utility (`src/lib/notify.ts`)
+| Area | Status | Requirement |
+| --- | --- | --- |
+| Push level setting | todo | Add `pushNotificationMinLevel` dropdown to `/settings/notifications` |
+| Push logic | todo | `notify()` checks user's min level preference before sending push |
 
-- `notify({ userId, title, body?, link?, pushToPhone? })` — main entry point.
-- Creates a Notification record in DB (including the `pushToPhone` flag).
-- `pushToPhone` flag controls whether Pushover is sent (default `false`). Not all notifications justify a phone push.
-- When `pushToPhone` is true, `PUSHOVER_APP_TOKEN` is set, and user has `pushoverUserKey`: sends Pushover push.
-- Pushover message includes `url: APP_URL + link` so tapping the notification opens the right page.
-- Gracefully handles Pushover failures (log warning, don't throw — the DB record is the source of truth).
-- Exports `NotificationLevel` type (`"silent" | "notify" | "push"`) and `isNotificationLevel()` guard, used by task and workflow executors.
+### Phase 5: Dashboard Widget
 
-### Notification levels
+| Area | Status | Requirement |
+| --- | --- | --- |
+| Notification widget | todo | Dashboard widget showing recent notifications grouped by level |
+| Count badges | todo | Count badges by level (e.g., "2 critical, 5 high") |
+| Quick actions | todo | Mark as read / dismiss directly from the widget |
+| Link through | todo | Click notification to navigate to its link, or to full notifications page |
 
-- `NotificationLevel` = `"silent" | "notify" | "push"` — exported from `src/lib/notify.ts`.
-- Tasks and workflows each have a `notification` frontmatter field (default: `notify`) that controls their notification behavior:
-  - `silent` — no notification on completion or failure.
-  - `notify` — in-app notification only.
-  - `push` — in-app notification + Pushover push to phone.
-- Task/workflow failures always push to phone regardless of the configured level (as long as `notification` is not `silent`).
+### Phase 6: AI Notify Tool Update
 
-### Browser polling
+| Area | Status | Requirement |
+| --- | --- | --- |
+| Level parameter | todo | Add `level` parameter to the `send_notification` AI tool |
+| Default behavior | todo | AI tool defaults to `info` level; Claude can choose higher levels for urgent findings |
 
-- `useNotifications()` hook polls `getUnreadNotifications` server function every 10s.
-- Returns unread count and notification list.
-- On new notifications (comparing IDs), triggers sonner toasts via a callback (`setOnNew`).
-- Minimal payload: only fetch unread, limit to recent 20.
+## Previously Implemented (v1)
 
-### Notification bell (header)
+These features from the original implementation remain and are being enhanced:
 
-- Bell icon in the header (`src/components/NotificationBell.tsx`), included in `src/components/Header.tsx`.
-- Badge shows unread count (hide badge when 0, caps display at "9+").
-- Click opens a Popover with recent notifications (read + unread, last ~20) fetched via `getRecentNotifications`.
-- Unread notifications highlighted with teal-subtle background; unread items shown with semibold title.
-- Each item shows title, body (truncated to 2 lines), time ago, and wraps in a `<Link>` to `notification.link` if set.
-- "Mark all as read" action at the top of the dropdown (only shown when there are unread notifications).
-- Notifications auto-dismiss after 30 days — a system task cleans up old read notifications. Unread notifications persist until read.
-
-### Pushover integration
-
-- Simple HTTP POST, no SDK needed — `fetch()` to Pushover API via `src/lib/pushover.ts`.
-- Fields sent: `token` (app), `user` (from preferences), `title`, `message`, `url`, `url_title`.
-- Uses `URLSearchParams` for the request body.
-- Priority: normal (0) by default. Callers opt-in to push via `pushToPhone` flag on `notify()`.
-
-### Test Pushover
-
-- `testPushoverNotification` server function in `src/lib/notifications.functions.ts`.
-- Sends a test push ("Aether Test — Push notifications are working!") directly via `sendPushover()` without creating a DB record.
-- Returns success/error status. UI button on `/settings/notifications` triggers this.
-
-### AI notify tool
-
-- Registered as `send_notification` tool in `src/lib/ai-tools.ts`, created via `createSendNotification()` in `src/lib/tools/send-notification.ts`.
-- Parameters: `title` (string), `body` (optional string), `link` (optional string), `pushToPhone` (boolean, default false).
-- Claude should only use this tool when the user explicitly asks to be notified/reminded, or when something genuinely important comes up (e.g., a critical finding during a task).
-- The tool description emphasizes restraint — don't push to phone unless the user asked or the matter is urgent.
-- Creates a notification via the same `notify()` utility.
-- Logs an `ai_notification` entry to `activityLog` with title, body, link, and pushToPhone metadata.
-- Available in all AI contexts: interactive chat, periodic tasks, and workflows.
+| Area | Status | Notes |
+| --- | --- | --- |
+| Notification DB model | done | Being extended with new columns |
+| Notify utility | done | Being extended with level/category/source |
+| Pushover integration | done | Push logic being enhanced with level-based preferences |
+| Browser polling | done | Unchanged — polls every 10s |
+| Toast display | done | Unchanged — toasts on new notifications |
+| Notification bell | done | Being updated to filter by level |
+| Mark as read | done | Unchanged |
+| Preferences: Pushover key | done | Being extended with push level preference |
+| AI notify tool | done | Being extended with level parameter |
+| Test Pushover | done | Unchanged |
 
 ## Notification Sources
 
-These are the places that call `notify()`:
+| Source | Event | Default Level | Category | Push behavior |
+| --- | --- | --- | --- | --- |
+| Periodic tasks | Task completed | Configurable via `notificationLevel` (default: `info`) | `task` | Per frontmatter + user pref |
+| Periodic tasks | Task failed | `critical` | `task` | Always (unless `silent`) |
+| Workflows | Workflow completed | Configurable via `notificationLevel` (default: `info`) | `workflow` | Per frontmatter + user pref |
+| Workflows | Workflow failed | `critical` | `workflow` | Always (unless `silent`) |
+| AI chat tool | Claude sends notification | Configurable per call (default: `info`) | `ai` | Per call + user pref |
+| System | Future system diagnostics | `error` | `system` | Always |
 
-| Source | Event | Push to phone? |
-| --- | --- | --- |
-| Periodic tasks | Task run completed | Configurable per task via `notification` frontmatter (`silent`, `notify`, `push`) |
-| Periodic tasks | Task run failed | Yes (always, unless `notification` is `silent`) |
-| Workflows | Workflow execution completed | Configurable per workflow via `notification` frontmatter (`silent`, `notify`, `push`) |
-| Workflows | Workflow execution failed | Yes (always, unless `notification` is `silent`) |
-| AI chat tool | Claude sends a notification | Configurable per call (Claude decides based on importance) |
+## Future Enhancements
 
-More sources can be added incrementally.
+Items explicitly deferred for later versions:
+
+| Feature | Notes |
+| --- | --- |
+| Mute/snooze per source | Temporarily silence notifications from a specific task or workflow |
+| Quiet hours | Suppress push notifications during configured time windows |
+| Digest mode | Batch low/medium notifications into periodic summary pushes |
+| Email notifications | Send notifications via email (requires email infrastructure) |
+| Notification templates | Structured title/body templates for tasks and workflows |
+| System-level notification UI | Dedicated surface for system errors beyond the notification feed |
+| Notification grouping | Collapse repeated notifications from the same source |
 
 ## Implementation Plan
 
-| Step | Status | Plan |
-| --- | --- | --- |
-| 1. Schema | done | Add `Notification` model to `prisma/schema.prisma`. |
-| 2. Env vars | done | Add `PUSHOVER_APP_TOKEN` and `APP_URL` to `.env.example`. |
-| 3. Preferences | done | Add `pushoverUserKey` to `UserPreferences` type and `/settings/notifications` page UI. |
-| 4. Pushover client | done | Create `src/lib/pushover.ts` — thin wrapper around the Pushover REST API. |
-| 5. Notify utility | done | Create `src/lib/notify.ts` with `notify()` function and `NotificationLevel` type. |
-| 6. Server functions | done | Create `src/lib/notifications.functions.ts` — getUnread, getRecent, markRead, markAllRead, testPushover. |
-| 7. Polling hook | done | Create `src/hooks/useNotifications.ts` with 10s polling interval. |
-| 8. Toast integration | done | Wire polling hook to sonner toasts for new notifications. |
-| 9. Header bell | done | Add `NotificationBell` component + popover to `src/components/Header.tsx`. |
-| 10. AI notify tool | done | Register `send_notification` tool in `src/lib/ai-tools.ts` via `src/lib/tools/send-notification.ts`. |
-| 11. Wire up sources | done | Add `notify()` calls to periodic tasks and workflows with configurable notification levels. |
-| 12. Cleanup system task | done | Add `cleanup-old-notifications` to system tasks (daily at 3 AM, delete read notifications older than 30 days). |
+| Step | Phase | Status | Plan |
+| --- | --- | --- | --- |
+| 1. Schema migration | 1 | todo | Add `level`, `category`, `source`, `archived` to Notification model. Run `pnpm db:push`. |
+| 2. Type updates | 1 | todo | Create `NotificationSeverity` type, rename `NotificationLevel` to `NotificationDelivery`, update all imports. |
+| 3. Notify utility | 1 | todo | Update `notify()` signature and push logic to use severity levels and user preferences. |
+| 4. Task/workflow validators | 1 | todo | Add `notificationLevel`, `notifyUsers`, `pushMessage` to task and workflow zod validators. |
+| 5. Task/workflow executors | 1 | todo | Update task and workflow execution to pass new fields to `notify()`. |
+| 6. Notifications page | 2 | todo | Create `/notifications` route with server functions, filters, bulk actions, pagination. |
+| 7. Header bell update | 3 | todo | Filter bell dropdown to medium+ levels, add level badges, link to full page. |
+| 8. Push level preference | 4 | todo | Add `pushNotificationMinLevel` to preferences type, settings UI, and push logic. |
+| 9. Dashboard widget | 5 | todo | Create notification dashboard widget with counts and quick actions. |
+| 10. AI tool update | 6 | todo | Add `level` parameter to `send_notification` tool. |
 
 ## Open Questions
 
@@ -166,4 +267,5 @@ None at this time.
 
 - 2026-03-16: Initial requirements written.
 - 2026-03-16: Resolved open questions — auto-dismiss after 30 days, header dropdown only, push is opt-in per source via `pushToPhone` flag. Added AI notify tool.
-- 2026-03-22: Updated to match implementation — corrected preferences route to `/settings/notifications`, added test Pushover feature, documented `NotificationLevel` type and per-task/workflow notification configuration, added `pushToPhone` DB field, documented activity log entry for AI notify tool, corrected AI tool registration location, updated notification sources table with configurable levels.
+- 2026-03-22: Updated to match implementation — corrected preferences route, added test Pushover, documented NotificationLevel type, per-task/workflow notification config, pushToPhone DB field, activity log for AI notify, notification sources table.
+- 2026-04-03: Major rewrite — notification categorization with severity levels (info, error, low, medium, high, critical), full-page management UI, bulk actions (mark read, archive, delete), filtering by level/category/source, task/workflow frontmatter for `notificationLevel`/`notifyUsers`/`pushMessage`, per-user push level preferences, dashboard widget, phased implementation plan. Deferred: mute/snooze, quiet hours, digest mode, email notifications, templates, grouping.

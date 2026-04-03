@@ -13,7 +13,7 @@ import {
 } from "#/lib/chat";
 import { CHAT_MODELS } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
-import { type NotificationLevel, notify } from "#/lib/notify";
+import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
 
 export type ExecutionContext = {
   /** "task" or "workflow" */
@@ -36,8 +36,14 @@ export type ExecutionContext = {
   userTimezone?: string;
   /** Max output tokens */
   maxTokens?: number;
-  /** Notification level */
-  notification: NotificationLevel;
+  /** Notification delivery behavior */
+  notification: NotificationDelivery;
+  /** Notification severity level */
+  notificationLevel: NotificationSeverity;
+  /** Email addresses to notify — ["all"] for all users */
+  notifyUsers: string[];
+  /** Force push notification regardless of user preference */
+  pushMessage: boolean;
   /** Link for notifications (e.g. "/tasks" or "/workflows") */
   notificationLink: string;
   /** Extra metadata to include in the activity log */
@@ -171,12 +177,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     );
 
     if (ctx.notification !== "silent") {
-      await notify({
-        userId: ctx.userId,
-        title: `${ctx.type === "task" ? "Task" : "Workflow"} completed: ${ctx.title}`,
-        link: ctx.notificationLink,
-        pushToPhone: ctx.notification === "push",
-      });
+      await sendExecutionNotification(ctx, true);
     }
 
     return { threadId, success: true };
@@ -223,16 +224,44 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     ]);
 
     if (ctx.notification !== "silent") {
-      await notify({
-        userId: ctx.userId,
-        title: `${ctx.type === "task" ? "Task" : "Workflow"} failed: ${ctx.title}`,
-        body: errorMessage,
-        link: ctx.notificationLink,
-        pushToPhone: true,
-      });
+      await sendExecutionNotification(ctx, false, errorMessage);
     }
 
     return { threadId, success: false };
+  }
+}
+
+/**
+ * Send notification for task/workflow execution, respecting targeting and severity settings.
+ */
+async function sendExecutionNotification(ctx: ExecutionContext, success: boolean, errorMessage?: string): Promise<void> {
+  const label = ctx.type === "task" ? "Task" : "Workflow";
+  const title = success ? `${label} completed: ${ctx.title}` : `${label} failed: ${ctx.title}`;
+  const level = success ? ctx.notificationLevel : "critical";
+  const category = ctx.type;
+  const source = ctx.filename;
+  const forcePush = !success || ctx.pushMessage || ctx.notification === "push";
+
+  const notificationParams = {
+    title,
+    body: errorMessage,
+    link: ctx.notificationLink,
+    level,
+    category,
+    source,
+    pushToPhone: forcePush,
+  };
+
+  // Send to targeted users
+  if (ctx.notifyUsers.length === 1 && ctx.notifyUsers[0] === "all") {
+    // For "all" — use notifyUsers helper
+    await notifyUsers({ ...notificationParams, emails: ["all"] });
+  } else if (ctx.notifyUsers.length > 0) {
+    // Specific users by email
+    await notifyUsers({ ...notificationParams, emails: ctx.notifyUsers });
+  } else {
+    // Fallback: notify the executing user
+    await notify({ ...notificationParams, userId: ctx.userId });
   }
 }
 

@@ -28,6 +28,8 @@ export const getUnreadNotifications = createServerFn({ method: "GET" }).handler(
       title: true,
       body: true,
       link: true,
+      level: true,
+      category: true,
       createdAt: true,
     },
   });
@@ -39,7 +41,7 @@ export const getRecentNotifications = createServerFn({ method: "GET" }).handler(
   const session = await ensureSession();
 
   const notifications = await prisma.notification.findMany({
-    where: { userId: session.user.id },
+    where: { userId: session.user.id, archived: false },
     orderBy: { createdAt: "desc" },
     take: 20,
     select: {
@@ -47,6 +49,8 @@ export const getRecentNotifications = createServerFn({ method: "GET" }).handler(
       title: true,
       body: true,
       link: true,
+      level: true,
+      category: true,
       read: true,
       createdAt: true,
     },
