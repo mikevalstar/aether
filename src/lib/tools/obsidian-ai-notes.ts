@@ -3,6 +3,7 @@ import path from "node:path";
 import { tool } from "ai";
 import jmespath from "jmespath";
 import { z } from "zod";
+import { OBSIDIAN_AI_MEMORY, OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { getIndexedNote } from "#/lib/obsidian/vault-index";
 
 /**
@@ -32,8 +33,8 @@ const AI_MEMORY_SUBFOLDERS = ["notes", "templates", "tasks", "workflows"];
  * Called at module load (fire-and-forget) and can be awaited if needed.
  */
 export async function ensureAiMemoryFolders(): Promise<void> {
-  const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
-  const aiMemoryRel = process.env.OBSIDIAN_AI_MEMORY ?? "";
+  const obsidianRoot = OBSIDIAN_DIR;
+  const aiMemoryRel = OBSIDIAN_AI_MEMORY;
 
   if (!obsidianRoot || !aiMemoryRel) return;
 
@@ -130,8 +131,8 @@ export async function searchAiMemoryNotes({
   search?: string;
   filter?: string;
 }) {
-  const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
-  const aiMemoryRel = process.env.OBSIDIAN_AI_MEMORY ?? "";
+  const obsidianRoot = OBSIDIAN_DIR;
+  const aiMemoryRel = OBSIDIAN_AI_MEMORY;
 
   if (!obsidianRoot || !aiMemoryRel) {
     return { error: "AI memory folder is not configured." };

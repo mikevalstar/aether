@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { parseAndValidateAiConfig } from "#/lib/ai-config/ai-config.shared";
 import { logger } from "#/lib/logger";
+import { OBSIDIAN_AI_CONFIG, OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 
 export type SkillSummary = {
   name: string;
@@ -16,8 +17,8 @@ export type SkillEntry = SkillSummary & {
 };
 
 function getSkillsDir(): string {
-  const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
-  const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
+  const obsidianDir = OBSIDIAN_DIR;
+  const aiConfigRel = OBSIDIAN_AI_CONFIG;
   if (!obsidianDir || !aiConfigRel) return "";
   return path.join(obsidianDir, aiConfigRel, "skills");
 }

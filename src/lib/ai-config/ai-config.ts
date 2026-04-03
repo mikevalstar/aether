@@ -1,14 +1,15 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { type AiConfigReadResult, parseAndValidateAiConfig } from "./ai-config.shared";
+import { OBSIDIAN_AI_CONFIG, OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { interpolatePrompt, type PromptVars } from "#/lib/prompt-utils";
+import { type AiConfigReadResult, parseAndValidateAiConfig } from "./ai-config.shared";
 
 export type { AiConfigReadResult } from "./ai-config.shared";
 export { parseAndValidateAiConfig } from "./ai-config.shared";
 
 function getAiConfigDir(): string {
-  const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
-  const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
+  const obsidianDir = OBSIDIAN_DIR;
+  const aiConfigRel = OBSIDIAN_AI_CONFIG;
 
   if (!obsidianDir || !aiConfigRel) return "";
 

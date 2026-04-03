@@ -2,12 +2,9 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { resolveNotePath } from "#/lib/obsidian/vault-index";
 import type { ObsidianToolContext } from "./obsidian-context";
-
-function getObsidianRoot() {
-  return process.env.OBSIDIAN_DIR ?? "";
-}
 
 export function createObsidianRead(ctx: ObsidianToolContext) {
   return tool({
@@ -17,7 +14,7 @@ export function createObsidianRead(ctx: ObsidianToolContext) {
       relativePath: z.string().describe("The relative path to the file within the vault, e.g. 'folder/note.md'"),
     }),
     execute: async ({ relativePath }) => {
-      const obsidianRoot = getObsidianRoot();
+      const obsidianRoot = OBSIDIAN_DIR;
       if (!obsidianRoot) {
         return { error: "Obsidian vault is not configured." };
       }

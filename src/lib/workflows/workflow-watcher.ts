@@ -5,6 +5,7 @@ import matter from "gray-matter";
 import { prisma } from "#/db";
 import { workflowFrontmatterSchema, workflowValidator } from "#/lib/ai-config/validators/workflow";
 import { logger } from "#/lib/logger";
+import { OBSIDIAN_AI_CONFIG, OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { startupTimer } from "#/lib/startup-timer";
 import type { WorkflowConfig } from "#/lib/workflows/workflow-executor";
 
@@ -176,8 +177,8 @@ async function handleFileDelete(filePath: string): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────
 
 export function getWorkflowsDir(): string {
-  const obsidianDir = process.env.OBSIDIAN_DIR ?? "";
-  const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
+  const obsidianDir = OBSIDIAN_DIR;
+  const aiConfigRel = OBSIDIAN_AI_CONFIG;
   if (!obsidianDir || !aiConfigRel) return "";
   return path.join(obsidianDir, aiConfigRel, "workflows");
 }
