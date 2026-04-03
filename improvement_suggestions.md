@@ -118,7 +118,7 @@ beforeLoad: async () => {
 
 ---
 
-### 2.2 Page Header Layout — Duplicated in 5+ Routes
+### ~~2.2 Page Header Layout — Duplicated in 5+ Routes~~ ✅ DONE
 
 **Files:** `logs.tsx`, `usage.tsx`, `activity.tsx`, `board.tsx`, `users.tsx`
 

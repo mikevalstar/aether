@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { ActivityDetailDialog } from "#/components/activity/ActivityDetailDialog";
 import { ActivityTable } from "#/components/activity/ActivityTable";
+import { PageHeader } from "#/components/PageHeader";
 import { Button } from "#/components/ui/button";
-import { GlowBg } from "#/components/ui/glow-bg";
 import {
   Pagination,
   PaginationContent,
@@ -14,7 +14,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "#/components/ui/pagination";
-import { SectionLabel } from "#/components/ui/section-label";
 import { toast } from "#/components/ui/sonner";
 import {
   type ActivityDetail,
@@ -127,101 +126,91 @@ function ActivityPage() {
   }, [detailId]);
 
   return (
-    <main className="relative overflow-hidden">
-      <GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
+    <PageHeader
+      icon={History}
+      label="Activity"
+      title="Activity"
+      highlight="log"
+      description="Track all file changes made by AI tools and manual edits."
+    >
+      <section className="mb-4 flex gap-2">
+        {getTypeFilters().map((filter) => (
+          <Button
+            key={filter.value}
+            variant={activeType === filter.value ? "default" : "outline"}
+            size="sm"
+            onClick={() =>
+              void navigate({
+                search: {
+                  page: 1,
+                  type: filter.value === "all" ? undefined : filter.value,
+                },
+                replace: true,
+              })
+            }
+          >
+            {filter.label}
+          </Button>
+        ))}
+      </section>
 
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        <section className="mb-8">
-          <SectionLabel icon={History} color="text-[var(--teal)]">
-            Activity
-          </SectionLabel>
-          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Activity <span className="text-[var(--teal)]">log</span>
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Track all file changes made by AI tools and manual edits.
-          </p>
-        </section>
+      <ActivityTable items={data.items} onItemClick={(id) => void openDetail(id)} />
 
-        <section className="mb-4 flex gap-2">
-          {getTypeFilters().map((filter) => (
-            <Button
-              key={filter.value}
-              variant={activeType === filter.value ? "default" : "outline"}
-              size="sm"
-              onClick={() =>
-                void navigate({
-                  search: {
-                    page: 1,
-                    type: filter.value === "all" ? undefined : filter.value,
-                  },
-                  replace: true,
-                })
-              }
-            >
-              {filter.label}
-            </Button>
-          ))}
-        </section>
-
-        <ActivityTable items={data.items} onItemClick={(id) => void openDetail(id)} />
-
-        {data.totalPages > 1 && (
-          <section className="mt-4 flex justify-center">
-            <Pagination>
-              <PaginationContent>
-                {data.page > 1 && (
-                  <PaginationItem>
-                    <PaginationPrevious
+      {data.totalPages > 1 && (
+        <section className="mt-4 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              {data.page > 1 && (
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() =>
+                      void navigate({
+                        search: {
+                          ...search,
+                          page: data.page - 1,
+                        },
+                        replace: true,
+                      })
+                    }
+                  />
+                </PaginationItem>
+              )}
+              {Array.from({ length: data.totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === data.totalPages || Math.abs(p - data.page) <= 2)
+                .map((p) => (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      isActive={p === data.page}
                       onClick={() =>
                         void navigate({
-                          search: {
-                            ...search,
-                            page: data.page - 1,
-                          },
+                          search: { ...search, page: p },
                           replace: true,
                         })
                       }
-                    />
+                    >
+                      {p}
+                    </PaginationLink>
                   </PaginationItem>
-                )}
-                {Array.from({ length: data.totalPages }, (_, i) => i + 1)
-                  .filter((p) => p === 1 || p === data.totalPages || Math.abs(p - data.page) <= 2)
-                  .map((p) => (
-                    <PaginationItem key={p}>
-                      <PaginationLink
-                        isActive={p === data.page}
-                        onClick={() =>
-                          void navigate({
-                            search: { ...search, page: p },
-                            replace: true,
-                          })
-                        }
-                      >
-                        {p}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                {data.page < data.totalPages && (
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() =>
-                        void navigate({
-                          search: {
-                            ...search,
-                            page: data.page + 1,
-                          },
-                          replace: true,
-                        })
-                      }
-                    />
-                  </PaginationItem>
-                )}
-              </PaginationContent>
-            </Pagination>
-          </section>
-        )}
-      </div>
+                ))}
+              {data.page < data.totalPages && (
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() =>
+                      void navigate({
+                        search: {
+                          ...search,
+                          page: data.page + 1,
+                        },
+                        replace: true,
+                      })
+                    }
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
+        </section>
+      )}
 
       <ActivityDetailDialog
         detail={detailData}
@@ -230,6 +219,6 @@ function ActivityPage() {
         onClose={closeDetail}
         onRevert={(id) => void handleRevert(id)}
       />
-    </main>
+    </PageHeader>
   );
 }
