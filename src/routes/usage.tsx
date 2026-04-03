@@ -1,10 +1,8 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
-import { ChartLine, CircleDollarSign, Coins, Hash, Layers, MessageSquare, TrendingUp } from "lucide-react";
+import { ChartLine, CircleDollarSign, Coins, Hash, Layers, MessageSquare, TrendingUp, Zap } from "lucide-react";
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Legend,
@@ -29,11 +27,15 @@ import { formatUsageCurrency, getTaskTypeLabel, normalizeUsageSearch, TASK_TYPES
 import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat-usage.functions";
 import { formatDateTime } from "#/lib/date";
 
+const VIEW_MODES = ["cost", "tokens", "prompts"] as const;
+type ViewMode = (typeof VIEW_MODES)[number];
+
 const usageSearchSchema = z.object({
   from: z.string().optional(),
   to: z.string().optional(),
   model: z.string().optional(),
   taskType: z.string().optional(),
+  view: z.enum(VIEW_MODES).optional(),
 });
 
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
@@ -49,7 +51,8 @@ export const Route = createFileRoute("/usage")({
   },
   loaderDeps: ({ search }) => search,
   loader: async ({ deps }) => {
-    return await getChatUsageStats({ data: deps });
+    const { view: _view, ...serverParams } = deps;
+    return await getChatUsageStats({ data: serverParams });
   },
   component: UsagePage,
 });
@@ -62,21 +65,28 @@ function UsagePage() {
     to?: string;
     model?: string;
     taskType?: string;
+    view?: ViewMode;
   };
   const search = normalizeUsageSearch(rawSearch);
+  const view: ViewMode = rawSearch.view && VIEW_MODES.includes(rawSearch.view) ? rawSearch.view : "cost";
 
   const hasData = data.totals.events > 0;
 
-  function updateSearch(next: { from?: string; to?: string; model?: string; taskType?: string }) {
+  function updateSearch(next: { from?: string; to?: string; model?: string; taskType?: string; view?: ViewMode }) {
     void navigate({
       search: {
         from: next.from,
         to: next.to,
         model: next.model,
         taskType: next.taskType,
+        view: next.view,
       },
       replace: true,
     });
+  }
+
+  function setView(v: ViewMode) {
+    updateSearch({ from: search.from, to: search.to, model: search.model, taskType: search.taskType, view: v });
   }
 
   return (
@@ -84,9 +94,9 @@ function UsagePage() {
       icon={ChartLine}
       label="Usage"
       color="text-[var(--coral)]"
-      title="Chat cost"
-      highlight="stats"
-      description="Track estimated spend, token volume, and model mix across every completed chat exchange."
+      title="Usage"
+      highlight="analytics"
+      description="Track spend, token volume, and prompt count across every completed chat exchange."
       glows={[
         { color: "var(--coral)", size: "size-[500px]", position: "-right-48 -top-48" },
         { color: "var(--teal)", size: "size-[350px]", position: "-left-36 top-96" },
@@ -113,6 +123,7 @@ function UsagePage() {
                   to,
                   model: search.model,
                   taskType: search.taskType,
+                  view,
                 });
               }}
             />
@@ -127,6 +138,7 @@ function UsagePage() {
                   to: search.to,
                   model: value,
                   taskType: search.taskType,
+                  view,
                 });
               }}
             >
@@ -153,6 +165,7 @@ function UsagePage() {
                   to: search.to,
                   model: search.model,
                   taskType: value,
+                  view,
                 });
               }}
             >
@@ -172,157 +185,23 @@ function UsagePage() {
         </div>
       </section>
 
+      {/* View mode toggle */}
+      <section className="mb-6 flex gap-1 rounded-lg border border-[var(--line)] bg-[var(--muted)] p-1 w-fit">
+        <ViewModeButton active={view === "cost"} onClick={() => setView("cost")} icon={CircleDollarSign} label="Cost" />
+        <ViewModeButton active={view === "tokens"} onClick={() => setView("tokens")} icon={Coins} label="Tokens" />
+        <ViewModeButton active={view === "prompts"} onClick={() => setView("prompts")} icon={Zap} label="Prompts" />
+      </section>
+
+      {/* Stat cards — adapt to view mode */}
       <section className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Estimated cost"
-          value={formatUsageCurrency(data.totals.estimatedCostUsd)}
-          detail={`${data.totals.events.toLocaleString()} tracked exchanges`}
-          icon={CircleDollarSign}
-          color="var(--coral)"
-        />
-        <StatCard
-          label="Total tokens"
-          value={Math.round(data.totals.totalTokens).toLocaleString()}
-          detail={`${Math.round(data.totals.averageTokensPerEvent).toLocaleString()} avg per exchange`}
-          icon={Coins}
-          color="var(--teal)"
-        />
-        <StatCard
-          label="Input vs output"
-          value={`${data.totals.inputTokens.toLocaleString()} / ${data.totals.outputTokens.toLocaleString()}`}
-          detail={`${data.totals.activeDays.toLocaleString()} active days`}
-          icon={Layers}
-          color="var(--chart-3)"
-        />
-        <StatCard
-          label="Average cost"
-          value={formatUsageCurrency(data.totals.averageCostPerEvent)}
-          detail="Average estimated cost per exchange"
-          icon={TrendingUp}
-          color="var(--chart-4)"
-        />
+        <ViewStatCards data={data} view={view} />
       </section>
 
       {hasData ? (
         <>
           <section className="mb-6 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
-            <ChartCard
-              title="Estimated cost over time"
-              subtitle="Daily spend within the selected range, stacked by model."
-              icon={CircleDollarSign}
-              accentColor="var(--coral)"
-            >
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data.dailyUsage}>
-                    <defs>
-                      {data.dailyUsageModels.map((model, index) => (
-                        <linearGradient key={model} id={`costFill-${index}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={CHART_COLORS[index % CHART_COLORS.length]} stopOpacity={0.32} />
-                          <stop offset="95%" stopColor={CHART_COLORS[index % CHART_COLORS.length]} stopOpacity={0.02} />
-                        </linearGradient>
-                      ))}
-                    </defs>
-                    <CartesianGrid stroke="var(--line)" vertical={false} />
-                    <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                    <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatAxisCurrency(value)} />
-                    <RechartsTooltip
-                      formatter={(value, name) => [formatUsageCurrency(toChartNumber(value as number | string)), name]}
-                      labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
-                    />
-                    <Legend />
-                    {data.dailyUsageModels.map((model, index) => (
-                      <Area
-                        key={model}
-                        type="monotone"
-                        dataKey={model}
-                        stackId="cost"
-                        stroke={CHART_COLORS[index % CHART_COLORS.length]}
-                        fill={`url(#costFill-${index})`}
-                        strokeWidth={2}
-                      />
-                    ))}
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </ChartCard>
-
-            <ChartCard
-              title="Model mix"
-              subtitle="Cost share by model in the selected range."
-              icon={Layers}
-              accentColor="var(--chart-3)"
-            >
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={data.modelBreakdown}
-                      dataKey="estimatedCostUsd"
-                      nameKey="label"
-                      innerRadius={68}
-                      outerRadius={104}
-                      paddingAngle={3}
-                    >
-                      {data.modelBreakdown.map((entry, index) => (
-                        <Cell key={entry.model} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip formatter={(value) => formatUsageCurrency(toChartNumber(value))} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="grid gap-2">
-                {data.modelBreakdown.map((item, index) => {
-                  const color = CHART_COLORS[index % CHART_COLORS.length];
-                  return (
-                    <div
-                      key={item.model}
-                      className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5 text-sm"
-                      style={{
-                        borderColor: `oklch(from ${color} l c h / 0.2)`,
-                      }}
-                    >
-                      <div className="flex min-w-0 items-center gap-2">
-                        <span className="size-2.5 rounded-full" style={{ backgroundColor: color }} />
-                        <span className="truncate">{item.label}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">{formatUsageCurrency(item.estimatedCostUsd)}</span>
-                        <span className="font-semibold" style={{ color }}>
-                          {Math.round(item.shareOfCost * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </ChartCard>
-          </section>
-
-          <section className="mb-6">
-            <ChartCard
-              title="Daily token flow"
-              subtitle="Input and output tokens by day."
-              icon={Coins}
-              accentColor="var(--teal)"
-            >
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.dailyUsage}>
-                    <CartesianGrid stroke="var(--line)" vertical={false} />
-                    <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                    <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatAxisTokens(value)} />
-                    <RechartsTooltip
-                      formatter={(value) => Math.round(toChartNumber(value)).toLocaleString()}
-                      labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
-                    />
-                    <Bar dataKey="inputTokens" stackId="tokens" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="outputTokens" stackId="tokens" fill="var(--chart-3)" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </ChartCard>
+            <ViewMainChart data={data} view={view} />
+            <ViewModelMix data={data} view={view} />
           </section>
 
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
@@ -334,14 +213,14 @@ function UsagePage() {
             >
               <div className="grid gap-2">
                 {data.recentEvents.map((event) => (
-                  <div key={event.id} className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 text-[var(--ink-soft)]">
-                        <span>{formatDateTime(event.createdAt)}</span>
-                        <span className="text-[var(--ink)]">{event.modelLabel}</span>
-                        <Badge variant="outline">{getTaskTypeLabel(event.taskType)}</Badge>
+                  <div key={event.id} className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+                    <div className="flex min-w-0 items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3 text-[var(--ink-soft)]">
+                        <span className="shrink-0">{formatDateTime(event.createdAt)}</span>
+                        <span className="shrink-0 text-[var(--ink)]">{event.modelLabel}</span>
+                        <Badge variant="outline" className="shrink-0">{getTaskTypeLabel(event.taskType)}</Badge>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex shrink-0 items-center gap-3">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="cursor-default">{event.totalTokens.toLocaleString()} tokens</span>
@@ -412,6 +291,296 @@ function UsagePage() {
     </PageHeader>
   );
 }
+
+/* ── View mode button ────────────────────────────────────── */
+
+function ViewModeButton(props: {
+  active: boolean;
+  onClick: () => void;
+  icon: (props: { className?: string }) => React.ReactNode;
+  label: string;
+}) {
+  const Icon = props.icon;
+  return (
+    <button
+      type="button"
+      onClick={props.onClick}
+      className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+        props.active ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"
+      }`}
+    >
+      <Icon className="size-3.5" />
+      {props.label}
+    </button>
+  );
+}
+
+/* ── View-adaptive stat cards ────────────────────────────── */
+
+function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewMode }) {
+  const t = data.totals;
+
+  if (view === "tokens") {
+    return (
+      <>
+        <StatCard
+          label="Total tokens"
+          value={Math.round(t.totalTokens).toLocaleString()}
+          detail={`${t.events.toLocaleString()} exchanges`}
+          icon={Coins}
+          color="var(--teal)"
+        />
+        <StatCard
+          label="Input tokens"
+          value={Math.round(t.inputTokens).toLocaleString()}
+          detail={`${t.events > 0 ? Math.round(t.inputTokens / t.events).toLocaleString() : "0"} avg per exchange`}
+          icon={TrendingUp}
+          color="var(--chart-1)"
+        />
+        <StatCard
+          label="Output tokens"
+          value={Math.round(t.outputTokens).toLocaleString()}
+          detail={`${t.events > 0 ? Math.round(t.outputTokens / t.events).toLocaleString() : "0"} avg per exchange`}
+          icon={Layers}
+          color="var(--chart-3)"
+        />
+        <StatCard
+          label="Avg tokens per exchange"
+          value={Math.round(t.averageTokensPerEvent).toLocaleString()}
+          detail={`${t.activeDays.toLocaleString()} active days`}
+          icon={Hash}
+          color="var(--chart-4)"
+        />
+      </>
+    );
+  }
+
+  if (view === "prompts") {
+    const avgPerDay = t.activeDays > 0 ? (t.events / t.activeDays).toFixed(1) : "0";
+    return (
+      <>
+        <StatCard
+          label="Total prompts"
+          value={t.events.toLocaleString()}
+          detail={`${t.activeDays.toLocaleString()} active days`}
+          icon={Zap}
+          color="var(--coral)"
+        />
+        <StatCard
+          label="Avg prompts per day"
+          value={avgPerDay}
+          detail="Across active days only"
+          icon={TrendingUp}
+          color="var(--teal)"
+        />
+        <StatCard
+          label="Total tokens used"
+          value={Math.round(t.totalTokens).toLocaleString()}
+          detail={`${Math.round(t.averageTokensPerEvent).toLocaleString()} avg per prompt`}
+          icon={Coins}
+          color="var(--chart-3)"
+        />
+        <StatCard
+          label="Total cost"
+          value={formatUsageCurrency(t.estimatedCostUsd)}
+          detail={`${formatUsageCurrency(t.averageCostPerEvent)} avg per prompt`}
+          icon={CircleDollarSign}
+          color="var(--chart-4)"
+        />
+      </>
+    );
+  }
+
+  // Default: cost view
+  return (
+    <>
+      <StatCard
+        label="Estimated cost"
+        value={formatUsageCurrency(t.estimatedCostUsd)}
+        detail={`${t.events.toLocaleString()} tracked exchanges`}
+        icon={CircleDollarSign}
+        color="var(--coral)"
+      />
+      <StatCard
+        label="Total tokens"
+        value={Math.round(t.totalTokens).toLocaleString()}
+        detail={`${Math.round(t.averageTokensPerEvent).toLocaleString()} avg per exchange`}
+        icon={Coins}
+        color="var(--teal)"
+      />
+      <StatCard
+        label="Input vs output"
+        value={`${t.inputTokens.toLocaleString()} / ${t.outputTokens.toLocaleString()}`}
+        detail={`${t.activeDays.toLocaleString()} active days`}
+        icon={Layers}
+        color="var(--chart-3)"
+      />
+      <StatCard
+        label="Average cost"
+        value={formatUsageCurrency(t.averageCostPerEvent)}
+        detail="Average estimated cost per exchange"
+        icon={TrendingUp}
+        color="var(--chart-4)"
+      />
+    </>
+  );
+}
+
+/* ── View-adaptive main chart ────────────────────────────── */
+
+function ViewMainChart({ data, view }: { data: ChatUsageStatsResult; view: ViewMode }) {
+  const viewConfig = getViewConfig(view);
+
+  const dataKeySuffix = view === "tokens" ? "__tokens" : view === "prompts" ? "__events" : "";
+
+  return (
+    <ChartCard
+      title={viewConfig.chartTitle}
+      subtitle={viewConfig.chartSubtitle}
+      icon={viewConfig.chartIcon}
+      accentColor={viewConfig.chartAccent}
+    >
+      <div className="h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data.dailyUsage}>
+            <defs>
+              {data.dailyUsageModels.map((model, index) => (
+                <linearGradient key={model} id={`fill-${view}-${index}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={CHART_COLORS[index % CHART_COLORS.length]} stopOpacity={0.32} />
+                  <stop offset="95%" stopColor={CHART_COLORS[index % CHART_COLORS.length]} stopOpacity={0.02} />
+                </linearGradient>
+              ))}
+            </defs>
+            <CartesianGrid stroke="var(--line)" vertical={false} />
+            <XAxis dataKey="label" tickLine={false} axisLine={false} />
+            <YAxis tickLine={false} axisLine={false} tickFormatter={viewConfig.axisFormatter} />
+            <RechartsTooltip
+              formatter={(value, name) => [viewConfig.tooltipFormatter(toChartNumber(value as number | string)), name]}
+              labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
+            />
+            <Legend />
+            {data.dailyUsageModels.map((model, index) => (
+              <Area
+                key={model}
+                type="monotone"
+                dataKey={`${model}${dataKeySuffix}`}
+                name={model}
+                stackId="main"
+                stroke={CHART_COLORS[index % CHART_COLORS.length]}
+                fill={`url(#fill-${view}-${index})`}
+                strokeWidth={2}
+              />
+            ))}
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </ChartCard>
+  );
+}
+
+/* ── View-adaptive model mix ─────────────────────────────── */
+
+function ViewModelMix({ data, view }: { data: ChatUsageStatsResult; view: ViewMode }) {
+  const viewConfig = getViewConfig(view);
+
+  const pieDataKey = view === "tokens" ? "totalTokens" : view === "prompts" ? "events" : "estimatedCostUsd";
+  const totalValue =
+    view === "tokens" ? data.totals.totalTokens : view === "prompts" ? data.totals.events : data.totals.estimatedCostUsd;
+
+  return (
+    <ChartCard title="Model mix" subtitle={viewConfig.mixSubtitle} icon={Layers} accentColor="var(--chart-3)">
+      <div className="h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data.modelBreakdown}
+              dataKey={pieDataKey}
+              nameKey="label"
+              innerRadius={68}
+              outerRadius={104}
+              paddingAngle={3}
+            >
+              {data.modelBreakdown.map((entry, index) => (
+                <Cell key={entry.model} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+              ))}
+            </Pie>
+            <RechartsTooltip formatter={(value) => viewConfig.tooltipFormatter(toChartNumber(value))} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="grid gap-2">
+        {data.modelBreakdown.map((item, index) => {
+          const color = CHART_COLORS[index % CHART_COLORS.length];
+          const itemValue = view === "tokens" ? item.totalTokens : view === "prompts" ? item.events : item.estimatedCostUsd;
+          const share = totalValue > 0 ? Math.round((itemValue / totalValue) * 100) : 0;
+
+          return (
+            <div
+              key={item.model}
+              className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5 text-sm"
+              style={{
+                borderColor: `oklch(from ${color} l c h / 0.2)`,
+              }}
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="size-2.5 rounded-full" style={{ backgroundColor: color }} />
+                <span className="truncate">{item.label}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">{viewConfig.legendFormatter(itemValue)}</span>
+                <span className="font-semibold" style={{ color }}>
+                  {share}%
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </ChartCard>
+  );
+}
+
+/* ── View config helper ──────────────────────────────────── */
+
+function getViewConfig(view: ViewMode) {
+  switch (view) {
+    case "tokens":
+      return {
+        chartTitle: "Tokens over time",
+        chartSubtitle: "Daily token consumption within the selected range, stacked by model.",
+        chartIcon: Coins,
+        chartAccent: "var(--teal)",
+        mixSubtitle: "Token share by model in the selected range.",
+        axisFormatter: formatAxisTokens,
+        tooltipFormatter: (v: number) => Math.round(v).toLocaleString(),
+        legendFormatter: (v: number) => Math.round(v).toLocaleString(),
+      };
+    case "prompts":
+      return {
+        chartTitle: "Prompts over time",
+        chartSubtitle: "Daily prompt count within the selected range, stacked by model.",
+        chartIcon: Zap,
+        chartAccent: "var(--coral)",
+        mixSubtitle: "Prompt share by model in the selected range.",
+        axisFormatter: (v: number) => Math.round(v).toLocaleString(),
+        tooltipFormatter: (v: number) => Math.round(v).toLocaleString(),
+        legendFormatter: (v: number) => v.toLocaleString(),
+      };
+    default:
+      return {
+        chartTitle: "Estimated cost over time",
+        chartSubtitle: "Daily spend within the selected range, stacked by model.",
+        chartIcon: CircleDollarSign,
+        chartAccent: "var(--coral)",
+        mixSubtitle: "Cost share by model in the selected range.",
+        axisFormatter: formatAxisCurrency,
+        tooltipFormatter: (v: number) => formatUsageCurrency(v),
+        legendFormatter: (v: number) => formatUsageCurrency(v),
+      };
+  }
+}
+
+/* ── Shared helpers ──────────────────────────────────────── */
 
 function TrackedField(props: { label: string; value: string }) {
   return (

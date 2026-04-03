@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
+import { resolveModelId } from "#/lib/chat";
 import { buildUsageDateRange, getChatModelLabel, normalizeUsageSearch } from "#/lib/chat-usage";
 
 const usageSearchInputSchema = z
@@ -150,12 +151,15 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
 
       const modelLabel = getChatModelLabel(event.model);
       existingDay[modelLabel] = ((existingDay[modelLabel] as number) || 0) + event.estimatedCostUsd;
+      existingDay[`${modelLabel}__tokens`] = ((existingDay[`${modelLabel}__tokens`] as number) || 0) + event.totalTokens;
+      existingDay[`${modelLabel}__events`] = ((existingDay[`${modelLabel}__events`] as number) || 0) + 1;
 
       dailyUsageMap.set(date, existingDay);
 
-      const existingModel = modelBreakdownMap.get(event.model) ?? {
-        model: event.model,
-        label: getChatModelLabel(event.model),
+      const resolvedModel = resolveModelId(event.model) ?? event.model;
+      const existingModel = modelBreakdownMap.get(resolvedModel) ?? {
+        model: resolvedModel,
+        label: modelLabel,
         estimatedCostUsd: 0,
         totalTokens: 0,
         inputTokens: 0,
@@ -169,22 +173,31 @@ export const getChatUsageStats = createServerFn({ method: "GET" })
       existingModel.inputTokens += event.inputTokens;
       existingModel.outputTokens += event.outputTokens;
       existingModel.events += 1;
-      modelBreakdownMap.set(event.model, existingModel);
+      modelBreakdownMap.set(resolvedModel, existingModel);
     }
 
-    // Collect all model labels and backfill missing days with 0
-    const allModelLabels = new Set<string>();
+    // Collect all dynamic keys (model cost, token, event counts) and backfill missing days with 0
+    const staticKeys = new Set([
+      "date",
+      "label",
+      "estimatedCostUsd",
+      "inputTokens",
+      "outputTokens",
+      "totalTokens",
+      "events",
+    ]);
+    const allDynamicKeys = new Set<string>();
     for (const day of dailyUsageMap.values()) {
       for (const key of Object.keys(day)) {
-        if (!["date", "label", "estimatedCostUsd", "inputTokens", "outputTokens", "totalTokens", "events"].includes(key)) {
-          allModelLabels.add(key);
+        if (!staticKeys.has(key)) {
+          allDynamicKeys.add(key);
         }
       }
     }
     for (const day of dailyUsageMap.values()) {
-      for (const label of allModelLabels) {
-        if (!(label in day)) {
-          day[label] = 0;
+      for (const key of allDynamicKeys) {
+        if (!(key in day)) {
+          day[key] = 0;
         }
       }
     }
