@@ -15,6 +15,7 @@ import {
 import { createCalendarEvents } from "#/lib/tools/calendar-events";
 import { exaTools } from "#/lib/tools/exa-tools";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
+import { listModels } from "#/lib/tools/list-models";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
 import { createObsidianEdit } from "#/lib/tools/obsidian-edit";
@@ -23,7 +24,6 @@ import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 import { createSendNotification } from "#/lib/tools/send-notification";
-import { listModels } from "#/lib/tools/list-models";
 import { getPluginTools } from "#/plugins/index.server";
 
 const anthropic = createAnthropic();

@@ -107,10 +107,7 @@ export function getScheduledTasks(): ScheduledTaskInfo[] {
 export async function triggerTask(filename: string): Promise<void> {
   const task = tasks.get(filename);
   if (!task) {
-    logger.error(
-      { filename, loadedTasks: Array.from(tasks.keys()), count: tasks.size },
-      "Task not found in scheduler map",
-    );
+    logger.error({ filename, loadedTasks: Array.from(tasks.keys()), count: tasks.size }, "Task not found in scheduler map");
     throw new Error(`Task not found: ${filename}`);
   }
 

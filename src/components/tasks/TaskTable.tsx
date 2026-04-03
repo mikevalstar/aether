@@ -2,12 +2,12 @@ import { Link } from "@tanstack/react-router";
 import cronstrue from "cronstrue";
 import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Play } from "lucide-react";
 import { useState } from "react";
+import { formatRelativeTime } from "#/components/activity/format-relative-time";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
-import { formatRelativeTime } from "#/components/activity/format-relative-time";
 import type { TaskListItem } from "#/lib/task.functions";
 import { triggerTaskRun } from "#/lib/task.functions";
 

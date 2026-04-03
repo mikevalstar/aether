@@ -17,8 +17,8 @@ import {
   getChatPreviewFromMessages,
   getMessageText,
   isChatEffort,
-  resolveModelId,
   parseStoredMessages,
+  resolveModelId,
 } from "#/lib/chat";
 import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";

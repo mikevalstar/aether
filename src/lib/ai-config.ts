@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { type AiConfigReadResult, parseAndValidateAiConfig } from "#/lib/ai-config.shared";
-import { type PromptVars, interpolatePrompt } from "#/lib/prompt-utils";
+import { interpolatePrompt, type PromptVars } from "#/lib/prompt-utils";
 
 export type { AiConfigReadResult } from "#/lib/ai-config.shared";
 export { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
