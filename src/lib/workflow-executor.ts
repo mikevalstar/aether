@@ -96,7 +96,7 @@ export async function executeWorkflow(
       system: systemPrompt,
       prompt: workflowBody,
       tools,
-      stopWhen: stepCountIs(10),
+      stopWhen: stepCountIs(20),
       ...(config.maxTokens ? { maxTokens: config.maxTokens } : {}),
       providerOptions: {
         anthropic: {
@@ -266,8 +266,14 @@ export async function executeWorkflow(
 }
 
 function resolveModel(workflowModel?: string, configModel?: string): ChatModel {
-  if (workflowModel) { const r = resolveModelId(workflowModel); if (r) return r; }
-  if (configModel) { const r = resolveModelId(configModel); if (r) return r; }
+  if (workflowModel) {
+    const r = resolveModelId(workflowModel);
+    if (r) return r;
+  }
+  if (configModel) {
+    const r = resolveModelId(configModel);
+    if (r) return r;
+  }
   return DEFAULT_CHAT_MODEL;
 }
 

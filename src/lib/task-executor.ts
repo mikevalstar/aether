@@ -85,7 +85,7 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
       system: systemPrompt,
       prompt: taskBody,
       tools,
-      stopWhen: stepCountIs(10),
+      stopWhen: stepCountIs(20),
       ...(config.maxTokens ? { maxTokens: config.maxTokens } : {}),
       providerOptions: {
         anthropic: {
@@ -250,8 +250,14 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
 }
 
 function resolveModel(taskModel?: string, configModel?: string): ChatModel {
-  if (taskModel) { const r = resolveModelId(taskModel); if (r) return r; }
-  if (configModel) { const r = resolveModelId(configModel); if (r) return r; }
+  if (taskModel) {
+    const r = resolveModelId(taskModel);
+    if (r) return r;
+  }
+  if (configModel) {
+    const r = resolveModelId(configModel);
+    if (r) return r;
+  }
   return DEFAULT_CHAT_MODEL;
 }
 

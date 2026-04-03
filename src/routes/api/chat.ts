@@ -316,7 +316,7 @@ export const Route = createFileRoute("/api/chat")({
           system: systemPrompt,
           messages: await convertToModelMessages(incomingMessages),
           tools,
-          stopWhen: stepCountIs(10),
+          stopWhen: stepCountIs(20),
           ...(isAnthropic && {
             providerOptions: {
               anthropic: {
