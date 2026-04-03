@@ -4,6 +4,7 @@ import chokidar from "chokidar";
 import Fuse from "fuse.js";
 import matter from "gray-matter";
 import { logger } from "#/lib/logger";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { startupTimer } from "#/lib/startup-timer";
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -65,7 +66,7 @@ export function initVaultIndex(): Promise<void> {
   if (initPromise) return initPromise;
 
   const done = startupTimer("vault index");
-  const root = getObsidianRoot();
+  const root = OBSIDIAN_DIR;
   if (!root) {
     done.skip("no obsidian dir configured");
     initPromise = Promise.resolve();
@@ -211,10 +212,6 @@ export async function closeVaultIndex(): Promise<void> {
 }
 
 // ── Internals ────────────────────────────────────────────────────────
-
-function getObsidianRoot() {
-  return process.env.OBSIDIAN_DIR ?? "";
-}
 
 function toRelativePath(root: string, absolutePath: string) {
   return path.relative(root, absolutePath).replace(/\\/g, "/");

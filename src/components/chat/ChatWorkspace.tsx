@@ -11,7 +11,7 @@ import {
   DEFAULT_CHAT_EFFORT,
   DEFAULT_CHAT_MODEL,
   parseStoredMessages,
-} from "#/lib/chat";
+} from "#/lib/chat/chat";
 
 type ChatWorkspaceProps = {
   threadId: string;

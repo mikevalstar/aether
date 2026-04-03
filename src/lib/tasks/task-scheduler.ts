@@ -6,14 +6,9 @@ import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
 import { startupTimer } from "#/lib/startup-timer";
 import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
-import { executeTask, type TaskConfig } from "#/lib/task-executor";
-import { getTasksDir, type LoadedTaskConfig, loadTaskConfigs, parseTaskFile } from "#/lib/task-scheduler/task-loader";
-import {
-  findSchedulerAdminUser,
-  getExistingTaskRows,
-  markMissingTaskRows,
-  upsertTaskRow,
-} from "#/lib/task-scheduler/task-sync";
+import { executeTask, type TaskConfig } from "#/lib/tasks/task-executor";
+import { getTasksDir, type LoadedTaskConfig, loadTaskConfigs, parseTaskFile } from "#/lib/tasks/task-loader";
+import { findSchedulerAdminUser, getExistingTaskRows, markMissingTaskRows, upsertTaskRow } from "#/lib/tasks/task-sync";
 
 // ── Types ────────────────────────────────────────────────────────────
 

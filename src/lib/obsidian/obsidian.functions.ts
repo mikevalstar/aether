@@ -9,11 +9,14 @@ import { ensureSession } from "#/lib/auth.functions";
 import { logger } from "#/lib/logger";
 import {
   normalizeObsidianRoutePath,
+  OBSIDIAN_AI_CONFIG,
+  OBSIDIAN_AI_MEMORY,
+  OBSIDIAN_DIR,
   type ObsidianDocument,
   type ObsidianTreeNode,
   type ObsidianViewerData,
   toObsidianRoutePath,
-} from "#/lib/obsidian";
+} from "#/lib/obsidian/obsidian";
 import { getAllIndexedNotes, searchVault } from "#/lib/obsidian/vault-index";
 import { parsePreferences } from "#/lib/preferences";
 
@@ -46,24 +49,12 @@ const searchObsidianMentionsInputSchema = z
   })
   .strict();
 
-function getObsidianRoot() {
-  return process.env.OBSIDIAN_DIR ?? "";
-}
-
-function getAiConfigRelPath() {
-  return process.env.OBSIDIAN_AI_CONFIG ?? "";
-}
-
-function getAiMemoryRelPath() {
-  return process.env.OBSIDIAN_AI_MEMORY ?? "";
-}
-
 export const getObsidianViewerData = createServerFn({ method: "GET" })
   .inputValidator((data) => obsidianViewerInputSchema.parse(data))
   .handler(async ({ data }): Promise<ObsidianViewerData> => {
     await ensureSession();
 
-    const obsidianRoot = getObsidianRoot();
+    const obsidianRoot = OBSIDIAN_DIR;
     if (!obsidianRoot) {
       return {
         tree: [],
@@ -75,8 +66,8 @@ export const getObsidianViewerData = createServerFn({ method: "GET" })
       };
     }
 
-    const aiConfigRel = getAiConfigRelPath();
-    const aiMemoryRel = getAiMemoryRelPath();
+    const aiConfigRel = OBSIDIAN_AI_CONFIG;
+    const aiMemoryRel = OBSIDIAN_AI_MEMORY;
     const discovered = await discoverObsidianTree(obsidianRoot, aiConfigRel, aiMemoryRel);
     const requestedPath = normalizeObsidianRoutePath(data.path);
 
@@ -245,7 +236,7 @@ export const saveObsidianDocument = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
-    const obsidianRoot = getObsidianRoot();
+    const obsidianRoot = OBSIDIAN_DIR;
     if (!obsidianRoot) {
       throw new Error("Obsidian vault not configured");
     }
@@ -294,7 +285,7 @@ export type ObsidianTemplate = {
   filename: string;
 };
 
-const TEMPLATES_DIR = path.join(import.meta.dirname, "obsidian", "templates");
+const TEMPLATES_DIR = path.join(import.meta.dirname, "templates");
 
 async function readTemplatesFromDir(dir: string): Promise<ObsidianTemplate[]> {
   let entries: import("node:fs").Dirent[];
@@ -321,7 +312,7 @@ export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(a
     select: { preferences: true },
   });
   const prefs = parsePreferences(user?.preferences);
-  const obsidianRoot = getObsidianRoot();
+  const obsidianRoot = OBSIDIAN_DIR;
 
   if (prefs.obsidianTemplatesFolder && obsidianRoot) {
     const vaultDir = path.join(obsidianRoot, prefs.obsidianTemplatesFolder);
@@ -340,7 +331,7 @@ export const createObsidianFile = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
-    const obsidianRoot = getObsidianRoot();
+    const obsidianRoot = OBSIDIAN_DIR;
     if (!obsidianRoot) {
       throw new Error("Obsidian vault not configured");
     }
@@ -447,7 +438,7 @@ export const createObsidianFile = createServerFn({ method: "POST" })
 export const listObsidianFolders = createServerFn({ method: "GET" }).handler(async (): Promise<string[]> => {
   await ensureSession();
 
-  const obsidianRoot = getObsidianRoot();
+  const obsidianRoot = OBSIDIAN_DIR;
   if (!obsidianRoot) return [];
 
   const folders: string[] = [""];

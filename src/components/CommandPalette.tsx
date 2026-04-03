@@ -88,7 +88,7 @@ export default function CommandPalette() {
           setWorkflows(data);
           workflowsCached.current = true;
         })
-        .catch(() => {})
+        .catch((err) => console.error("Failed to load workflows:", err))
         .finally(() => setWorkflowsLoading(false));
     }
   }, [open]);

@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { CHAT_MODELS, resolveModelId } from "#/lib/chat";
+import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat";
 
 export const TASK_TYPES = ["chat", "title"] as const;
 export type TaskType = (typeof TASK_TYPES)[number];

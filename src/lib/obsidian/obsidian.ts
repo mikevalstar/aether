@@ -6,6 +6,10 @@ import {
   stripMarkdownSuffix,
 } from "#/lib/path-utils";
 
+export const OBSIDIAN_DIR = process.env.OBSIDIAN_DIR ?? "";
+export const OBSIDIAN_AI_CONFIG = process.env.OBSIDIAN_AI_CONFIG ?? "";
+export const OBSIDIAN_AI_MEMORY = process.env.OBSIDIAN_AI_MEMORY ?? "";
+
 export type ObsidianTreeNode =
   | {
       type: "folder";

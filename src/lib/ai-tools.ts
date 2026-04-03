@@ -2,8 +2,8 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { ToolSet } from "ai";
 import { minimax as createMinimax } from "vercel-minimax-ai-provider";
-import type { ChatModel } from "#/lib/chat-models";
-import { getModelProvider, getProviderModelId, getWebToolVersion, supportsCodeExecution } from "#/lib/chat-models";
+import type { ChatModel } from "#/lib/chat/chat-models";
+import { getModelProvider, getProviderModelId, getWebToolVersion, supportsCodeExecution } from "#/lib/chat/chat-models";
 import type { UserPreferences } from "#/lib/preferences";
 import { aiMemory } from "#/lib/tools/ai-memory";
 import {

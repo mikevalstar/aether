@@ -62,7 +62,7 @@ export default function NotificationBell() {
         const filtered = result.notifications.filter((n) => BELL_VISIBLE_LEVELS.has(n.level));
         setRecent(filtered);
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to load notifications:", err))
       .finally(() => setLoading(false));
   }, [open]);
 

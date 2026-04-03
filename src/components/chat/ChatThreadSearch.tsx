@@ -1,7 +1,7 @@
 import Fuse, { type IFuseOptions } from "fuse.js";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import type { ChatThreadSummary } from "#/lib/chat";
+import type { ChatThreadSummary } from "#/lib/chat/chat";
 
 const fuseOptions: IFuseOptions<ChatThreadSummary> = {
   keys: [

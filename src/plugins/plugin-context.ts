@@ -1,16 +1,13 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { prisma } from "#/db";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { resolveNotePath, searchVault } from "#/lib/obsidian/vault-index";
 import { parsePreferences } from "#/lib/preferences";
 import type { ObsidianPluginContext, PluginActivityParams, PluginContext } from "./types";
 
-function getObsidianRoot() {
-  return process.env.OBSIDIAN_DIR ?? "";
-}
-
 function createObsidianPluginContext(): ObsidianPluginContext {
-  const obsidianRoot = getObsidianRoot();
+  const obsidianRoot = OBSIDIAN_DIR;
 
   return {
     async read(relativePath: string): Promise<string | null> {

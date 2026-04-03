@@ -23,8 +23,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#
 import { StatCard } from "#/components/ui/stat-card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import { getSession } from "#/lib/auth.functions";
-import { formatUsageCurrency, getTaskTypeLabel, normalizeUsageSearch, TASK_TYPES } from "#/lib/chat-usage";
-import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat-usage.functions";
+import { formatUsageCurrency, getTaskTypeLabel, normalizeUsageSearch, TASK_TYPES } from "#/lib/chat/chat-usage";
+import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat/chat-usage.functions";
 import { formatDateTime } from "#/lib/date";
 
 const VIEW_MODES = ["cost", "tokens", "prompts"] as const;

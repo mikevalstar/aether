@@ -191,7 +191,8 @@ function NotificationsPage() {
       setSelected(new Set());
       // Re-navigate to trigger loader refresh
       void navigate({ search: { ...search }, replace: true });
-    } catch {
+    } catch (err) {
+      console.error("Notification bulk action failed:", err);
       toast.error("Action failed");
     } finally {
       setLoading(false);

@@ -9,7 +9,7 @@ import {
 } from "ai";
 import { z } from "zod";
 import { prisma } from "#/db";
-import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config";
+import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config/ai-config";
 import { createAiTools, getModel } from "#/lib/ai-tools";
 import { auth } from "#/lib/auth";
 import {
@@ -31,8 +31,8 @@ import {
   serializeMessages,
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
-} from "#/lib/chat";
-import { CHAT_MODELS, resolveModelId } from "#/lib/chat-models";
+} from "#/lib/chat/chat";
+import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
 import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
@@ -65,7 +65,8 @@ async function generateChatTitle(userMessage: string): Promise<TitleGenerationRe
       model: titleModel,
       usage,
     };
-  } catch {
+  } catch (err) {
+    logger.error({ err }, "Failed to generate chat title");
     return {
       title: userMessage.length <= 72 ? userMessage : `${userMessage.slice(0, 69).trimEnd()}...`,
       model: "claude-haiku-4-5",

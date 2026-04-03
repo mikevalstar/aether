@@ -2,11 +2,8 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { getIndexedNote } from "#/lib/obsidian/vault-index";
-
-function getObsidianRoot() {
-  return process.env.OBSIDIAN_DIR ?? "";
-}
 
 function validatePath(obsidianRoot: string, inputPath?: string) {
   if (!obsidianRoot) {
@@ -39,7 +36,7 @@ export const obsidianFolders = tool({
     "Get the full folder tree structure of the user's Obsidian vault (folders only, no files). Use this to understand how the vault is organized before navigating into specific folders.",
   inputSchema: z.object({}),
   execute: async () => {
-    const obsidianRoot = getObsidianRoot();
+    const obsidianRoot = OBSIDIAN_DIR;
     const validation = validatePath(obsidianRoot);
     if ("error" in validation) return validation;
 
@@ -105,7 +102,7 @@ export const obsidianList = tool({
       .describe("Relative path to the folder to list, e.g. 'Projects'. Defaults to the vault root."),
   }),
   execute: async ({ folder }) => {
-    const obsidianRoot = getObsidianRoot();
+    const obsidianRoot = OBSIDIAN_DIR;
     const validation = validatePath(obsidianRoot, folder);
     if ("error" in validation) return validation;
 

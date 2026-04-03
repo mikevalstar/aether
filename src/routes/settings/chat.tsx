@@ -4,7 +4,7 @@ import { Button } from "#/components/ui/button";
 import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
-import { CHAT_MODELS, type ChatModel, DEFAULT_CHAT_MODEL } from "#/lib/chat-models";
+import { CHAT_MODELS, type ChatModel, DEFAULT_CHAT_MODEL } from "#/lib/chat/chat-models";
 import { updateUserPreferences } from "#/lib/preferences.functions";
 
 const settingsRoute = getRouteApi("/settings");

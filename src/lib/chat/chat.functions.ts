@@ -19,8 +19,9 @@ import {
   isChatEffort,
   parseStoredMessages,
   resolveModelId,
-} from "#/lib/chat";
+} from "#/lib/chat/chat";
 import { logger } from "#/lib/logger";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { parsePreferences } from "#/lib/preferences";
 import { threadIdInputSchema } from "#/lib/shared-schemas";
 
@@ -288,7 +289,7 @@ export const exportChatThreadToObsidian = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
-    const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
+    const obsidianRoot = OBSIDIAN_DIR;
     if (!obsidianRoot) {
       throw new Error("Obsidian vault not configured");
     }

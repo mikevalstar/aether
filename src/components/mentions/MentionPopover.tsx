@@ -1,7 +1,7 @@
 import { BookOpen, FolderOpen } from "lucide-react";
 import type { FC } from "react";
 import type { MentionState } from "#/hooks/useMentionAutocomplete";
-import type { ObsidianMentionResult } from "#/lib/obsidian.functions";
+import type { ObsidianMentionResult } from "#/lib/obsidian/obsidian.functions";
 import { cn } from "#/lib/utils";
 
 type MentionPopoverProps = {

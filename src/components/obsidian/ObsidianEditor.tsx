@@ -15,9 +15,9 @@ import {
   type AiConfigValidationResponse,
   getAiConfigValidatorInfo,
   validateAiConfigContent,
-} from "#/lib/ai-config.functions";
-import { getAiConfigFilename, type ObsidianDocument } from "#/lib/obsidian";
-import { saveObsidianDocument } from "#/lib/obsidian.functions";
+} from "#/lib/ai-config/ai-config.functions";
+import { getAiConfigFilename, type ObsidianDocument } from "#/lib/obsidian/obsidian";
+import { saveObsidianDocument } from "#/lib/obsidian/obsidian.functions";
 
 // ─── Platform detection ─────────────────────────────────────────────────
 

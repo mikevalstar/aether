@@ -1,5 +1,5 @@
 import { prisma } from "#/db";
-import { readTaskPromptConfig } from "#/lib/ai-config";
+import { readTaskPromptConfig } from "#/lib/ai-config/ai-config";
 import { executePrompt, resolveEffort, resolveModel } from "#/lib/executor-shared";
 import { logger } from "#/lib/logger";
 import type { NotificationDelivery, NotificationSeverity } from "#/lib/notify";

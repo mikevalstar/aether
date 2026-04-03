@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { MentionState } from "#/hooks/useMentionAutocomplete";
-import type { ObsidianMentionResult } from "#/lib/obsidian.functions";
+import type { ObsidianMentionResult } from "#/lib/obsidian/obsidian.functions";
 import { MentionPopover } from "./MentionPopover";
 
 const mockResults: ObsidianMentionResult[] = [

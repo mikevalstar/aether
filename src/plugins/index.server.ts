@@ -1,4 +1,5 @@
 import type { ToolSet } from "ai";
+import { logger } from "#/lib/logger";
 import type { UserPreferences } from "#/lib/preferences";
 import { apiBalancesPluginFull } from "./api_balances/index.server";
 import { imapPluginFull } from "./imap_email/index.server";
@@ -58,7 +59,8 @@ export async function getPluginWidgetData(
           const ctx = createPluginContext(p.meta.id, userId);
           const data = await p.server?.loadWidgetData?.(ctx);
           if (data) results[p.meta.id] = data;
-        } catch {
+        } catch (err) {
+          logger.error({ err, pluginId: p.meta.id }, "Failed to load plugin widget data");
           results[p.meta.id] = { error: true };
         }
       }),

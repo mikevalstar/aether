@@ -2,9 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import dayjs from "dayjs";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import { getChatPreviewFromMessages, parseStoredMessages } from "#/lib/chat";
-import { DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
-import { getChatModelLabel } from "#/lib/chat-usage";
+import { getChatPreviewFromMessages, parseStoredMessages } from "#/lib/chat/chat";
+import { DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
+import { getChatModelLabel } from "#/lib/chat/chat-usage";
 
 export type DashboardThread = {
   id: string;

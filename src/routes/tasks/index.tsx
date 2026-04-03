@@ -5,7 +5,7 @@ import { TaskEmptyState } from "#/components/tasks/TaskEmptyState";
 import { TaskTable } from "#/components/tasks/TaskTable";
 import { Alert, AlertDescription } from "#/components/ui/alert";
 import { getSession } from "#/lib/auth.functions";
-import { getTasksPageData } from "#/lib/task.functions";
+import { getTasksPageData } from "#/lib/tasks/task.functions";
 
 export const Route = createFileRoute("/tasks/")({
   beforeLoad: async () => {

@@ -4,12 +4,9 @@ import { tool } from "ai";
 import { z } from "zod";
 import { logFileChange } from "#/lib/activity";
 import { logger } from "#/lib/logger";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { resolveNotePath } from "#/lib/obsidian/vault-index";
 import type { ObsidianToolContext } from "./obsidian-context";
-
-function getObsidianRoot() {
-  return process.env.OBSIDIAN_DIR ?? "";
-}
 
 export function createObsidianWrite(ctx: ObsidianToolContext) {
   return tool({
@@ -22,7 +19,7 @@ export function createObsidianWrite(ctx: ObsidianToolContext) {
       content: z.string().describe("The full markdown content to write to the file"),
     }),
     execute: async ({ relativePath, content }) => {
-      const obsidianRoot = getObsidianRoot();
+      const obsidianRoot = OBSIDIAN_DIR;
       if (!obsidianRoot) {
         return { error: "Obsidian vault is not configured." };
       }

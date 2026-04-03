@@ -96,7 +96,8 @@ async function loadDashboardBoardColumn(): Promise<KanbanColumn | null> {
     if (!board.configured) return null;
 
     return board.columns.find((c) => c.name === columnName) ?? null;
-  } catch {
+  } catch (err) {
+    console.error("Failed to load dashboard board column:", err);
     return null;
   }
 }

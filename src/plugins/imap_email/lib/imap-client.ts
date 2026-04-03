@@ -103,7 +103,7 @@ export async function listInbox(options: ImapOptions, limit = 20): Promise<Email
     logger.error({ err, host: options.host, port: options.port }, "IMAP: listInbox failed");
     throw err;
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }
 
@@ -151,7 +151,7 @@ export async function readEmail(options: ImapOptions, uid: number): Promise<Emai
     logger.error({ err, uid, host: options.host, port: options.port }, "IMAP: readEmail failed");
     throw err;
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }
 
@@ -209,7 +209,7 @@ export async function searchEmails(options: ImapOptions, query: string, limit = 
     logger.error({ err, query, host: options.host, port: options.port }, "IMAP: searchEmails failed");
     throw err;
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }
 
@@ -226,7 +226,7 @@ export async function getUnreadCount(options: ImapOptions): Promise<number> {
     logger.error({ err, host: options.host, port: options.port }, "IMAP: getUnreadCount failed");
     throw err;
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }
 
@@ -274,7 +274,7 @@ export async function listFolders(options: ImapOptions): Promise<MailboxInfo[]> 
     logger.error({ err, host: options.host, port: options.port }, "IMAP: listFolders failed");
     throw err;
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }
 
@@ -299,7 +299,7 @@ export async function moveEmail(
     logger.error({ err, uid, sourceFolder, destinationFolder }, "IMAP: moveEmail failed");
     throw err;
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }
 
@@ -332,7 +332,7 @@ export async function archiveEmail(options: ImapOptions, uid: number, sourceFold
     logger.error({ err, uid, sourceFolder }, "IMAP: archiveEmail failed");
     throw err;
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }
 
@@ -364,6 +364,6 @@ export async function testConnection(options: ImapOptions): Promise<{
     logger.error({ err, host: options.host, port: options.port }, "IMAP: test connection failed");
     return { success: false, message };
   } finally {
-    await client.logout().catch(() => {});
+    await client.logout().catch((err) => logger.debug({ err }, "IMAP: logout failed during cleanup"));
   }
 }

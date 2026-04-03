@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ObsidianTreeNode, ObsidianViewerData } from "#/lib/obsidian";
+import type { ObsidianTreeNode, ObsidianViewerData } from "#/lib/obsidian/obsidian";
 import { ObsidianViewer } from "./ObsidianViewer";
 
 const sampleTree: ObsidianTreeNode[] = [

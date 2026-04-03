@@ -1,6 +1,7 @@
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { getIndexedNote, type IndexedNote, resolveNotePath, searchVault } from "#/lib/obsidian/vault-index";
 
 /**
@@ -51,7 +52,7 @@ export const obsidianSearch = tool({
     limit: z.number().optional().default(20).describe("Maximum number of results to return (default 20)"),
   }),
   execute: async ({ query, limit }) => {
-    const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
+    const obsidianRoot = OBSIDIAN_DIR;
     if (!obsidianRoot) {
       return { error: "Obsidian vault is not configured." };
     }

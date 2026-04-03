@@ -8,13 +8,13 @@ import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
-import { getObsidianHref } from "#/lib/obsidian";
+import { getObsidianHref } from "#/lib/obsidian/obsidian";
 import {
   createObsidianFile,
   listObsidianFolders,
   listObsidianTemplates,
   type ObsidianTemplate,
-} from "#/lib/obsidian.functions";
+} from "#/lib/obsidian/obsidian.functions";
 import { cn } from "#/lib/utils";
 
 type NewFileDialogProps = {

@@ -1,6 +1,6 @@
 import { Badge } from "#/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
-import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatEffort, type ChatModel, EFFORT_LABELS } from "#/lib/chat";
+import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatEffort, type ChatModel, EFFORT_LABELS } from "#/lib/chat/chat";
 
 export interface ModelEffortSelectorProps {
   model: ChatModel;

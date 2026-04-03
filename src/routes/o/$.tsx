@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { ObsidianViewer } from "#/components/obsidian/ObsidianViewer";
 import { getSession } from "#/lib/auth.functions";
-import { getObsidianViewerData } from "#/lib/obsidian.functions";
+import { getObsidianViewerData } from "#/lib/obsidian/obsidian.functions";
 
 const obsidianSearchSchema = z.object({
   edit: z.boolean().optional(),

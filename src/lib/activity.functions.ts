@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 
 const activityListInputSchema = z
   .object({
@@ -134,7 +135,7 @@ export const getActivityDetail = createServerFn({ method: "GET" })
     let fileExists = false;
 
     if (item.fileChangeDetail) {
-      const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
+      const obsidianRoot = OBSIDIAN_DIR;
       if (obsidianRoot) {
         const absolutePath = path.join(obsidianRoot, item.fileChangeDetail.filePath);
         try {
@@ -203,7 +204,7 @@ export const revertFileChange = createServerFn({ method: "POST" })
       throw new Error("Not found");
     }
 
-    const obsidianRoot = process.env.OBSIDIAN_DIR ?? "";
+    const obsidianRoot = OBSIDIAN_DIR;
     if (!obsidianRoot) {
       throw new Error("Obsidian vault not configured");
     }

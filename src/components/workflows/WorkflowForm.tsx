@@ -8,8 +8,8 @@ import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
-import { runWorkflow } from "#/lib/workflow.functions";
-import type { WorkflowField } from "#/lib/workflow-executor";
+import { runWorkflow } from "#/lib/workflows/workflow.functions";
+import type { WorkflowField } from "#/lib/workflows/workflow-executor";
 
 export function WorkflowForm({
   filename,

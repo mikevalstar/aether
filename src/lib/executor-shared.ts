@@ -10,8 +10,8 @@ import {
   resolveModelId,
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
-} from "#/lib/chat";
-import { CHAT_MODELS } from "#/lib/chat-models";
+} from "#/lib/chat/chat";
+import { CHAT_MODELS } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
 

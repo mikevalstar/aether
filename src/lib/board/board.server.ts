@@ -8,11 +8,8 @@ import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { type KanbanBoard, parseKanbanFile, serializeKanbanBoard } from "#/lib/board/kanban-parser";
 import { logger } from "#/lib/logger";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { parsePreferences } from "#/lib/preferences";
-
-function getObsidianRoot() {
-  return process.env.OBSIDIAN_DIR ?? "";
-}
 
 export async function resolveKanbanPath(userId: string): Promise<string | null> {
   const user = await prisma.user.findUnique({
@@ -24,7 +21,7 @@ export async function resolveKanbanPath(userId: string): Promise<string | null> 
 }
 
 export function getAbsolutePath(relativePath: string): string {
-  const obsidianRoot = getObsidianRoot();
+  const obsidianRoot = OBSIDIAN_DIR;
   if (!obsidianRoot) throw new Error("Obsidian vault not configured");
 
   const normalized = relativePath.replace(/\\/g, "/").trim();

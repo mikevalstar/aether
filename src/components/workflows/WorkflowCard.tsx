@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2, FileX, FormInput } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
-import type { WorkflowListItem } from "#/lib/workflow.functions";
+import type { WorkflowListItem } from "#/lib/workflows/workflow.functions";
 
 function StatusBadge({ status }: { status: string | null }) {
   if (!status) return null;

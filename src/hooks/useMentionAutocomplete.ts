@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type ObsidianMentionResult, searchObsidianMentions } from "#/lib/obsidian.functions";
+import { type ObsidianMentionResult, searchObsidianMentions } from "#/lib/obsidian/obsidian.functions";
 
 export type MentionState = {
   isOpen: boolean;

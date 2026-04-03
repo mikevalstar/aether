@@ -5,7 +5,7 @@ import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { getSession } from "#/lib/auth.functions";
-import { type ChatDebugData, getChatDebugData } from "#/lib/chat-debug.functions";
+import { type ChatDebugData, getChatDebugData } from "#/lib/chat/chat-debug.functions";
 
 export const Route = createFileRoute("/chat-debug")({
   beforeLoad: async () => {

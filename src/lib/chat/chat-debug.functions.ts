@@ -2,7 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
 import { createAiTools, getToolCategories } from "#/lib/ai-tools";
 import { ensureSession } from "#/lib/auth.functions";
-import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatModel, DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL } from "#/lib/chat-models";
+import {
+  CHAT_EFFORT_LEVELS,
+  CHAT_MODELS,
+  type ChatModel,
+  DEFAULT_CHAT_EFFORT,
+  DEFAULT_CHAT_MODEL,
+} from "#/lib/chat/chat-models";
+import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { parsePreferences } from "#/lib/preferences";
 import { readAllSkills, type SkillSummary } from "#/lib/skills";
 import { getAllPluginTools, getRegisteredPlugins } from "#/plugins/index.server";
@@ -172,8 +179,8 @@ export const getChatDebugData = createServerFn({ method: "GET" }).handler(async 
     config: {
       hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
       hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
-      hasObsidianDir: !!process.env.OBSIDIAN_DIR,
-      obsidianDir: process.env.OBSIDIAN_DIR ?? "(not set)",
+      hasObsidianDir: !!OBSIDIAN_DIR,
+      obsidianDir: OBSIDIAN_DIR || "(not set)",
       hasExaKey: !!process.env.EXA_API_KEY,
       maxToolSteps: 10,
     },

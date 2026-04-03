@@ -5,13 +5,13 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/markdown-components";
 import { Button } from "#/components/ui/button";
-import { getAiConfigValidatorInfo } from "#/lib/ai-config.functions";
+import { getAiConfigValidatorInfo } from "#/lib/ai-config/ai-config.functions";
 import {
   getAiConfigFilename,
   type ObsidianDocument,
   type ObsidianViewerData,
   resolveObsidianLinkTarget,
-} from "#/lib/obsidian";
+} from "#/lib/obsidian/obsidian";
 import { cn } from "#/lib/utils";
 import { ObsidianEditor } from "./ObsidianEditor";
 import { ObsidianMissingDocument } from "./ObsidianMissingDocument";

@@ -5,7 +5,7 @@ import { TaskRunHistory } from "#/components/tasks/TaskRunHistory";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { getSession } from "#/lib/auth.functions";
-import { getTaskRunHistory } from "#/lib/task.functions";
+import { getTaskRunHistory } from "#/lib/tasks/task.functions";
 
 const taskSearchSchema = z.object({
   highlight: z.string().optional(),

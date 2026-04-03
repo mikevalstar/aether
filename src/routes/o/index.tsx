@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ObsidianViewer } from "#/components/obsidian/ObsidianViewer";
 import { getSession } from "#/lib/auth.functions";
-import { getObsidianViewerData } from "#/lib/obsidian.functions";
+import { getObsidianViewerData } from "#/lib/obsidian/obsidian.functions";
 
 export const Route = createFileRoute("/o/")({
   beforeLoad: async () => {
