@@ -271,7 +271,7 @@ Both implement `useCopyToClipboard` independently.
 
 ---
 
-### 3.9 Inconsistent Table Patterns
+### ~~3.9 Inconsistent Table Patterns~~ ✅ DONE
 
 - `ActivityTable` uses raw `<table>` HTML elements
 - `TaskTable` uses shadcn `Table` primitives

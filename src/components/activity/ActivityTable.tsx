@@ -1,5 +1,6 @@
 import { Bell, Bot, Clock, Cog, FileText, History, PenLine, Play, Puzzle, Timer } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { getPlugin } from "#/plugins";
 import { formatRelativeTime } from "./format-relative-time";
@@ -11,50 +12,44 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
 
   return (
     <section className="surface-card overflow-hidden">
-      <table className="min-w-full table-fixed border-separate border-spacing-0 text-sm">
-        <colgroup>
-          <col className="w-[180px]" />
-          <col className="w-[100px]" />
-          <col />
-          <col className="w-[120px]" />
-        </colgroup>
-        <thead>
-          <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <th className="border-b border-border px-4 py-3 font-semibold">When</th>
-            <th className="border-b border-border px-4 py-3 font-semibold">Type</th>
-            <th className="border-b border-border px-4 py-3 font-semibold">Summary</th>
-            <th className="border-b border-border px-4 py-3 font-semibold">Source</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[180px]">When</TableHead>
+            <TableHead className="w-[100px]">Type</TableHead>
+            <TableHead>Summary</TableHead>
+            <TableHead className="w-[120px]">Source</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {items.map((item) => (
-            <tr
+            <TableRow
               key={item.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
+              className="cursor-pointer"
               onClick={() => onItemClick(item.id)}
             >
-              <td className="border-b border-border/50 px-4 py-3 text-muted-foreground">
+              <TableCell className="text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <Clock className="size-3.5" />
                   {formatRelativeTime(item.createdAt)}
                 </div>
-              </td>
-              <td className="border-b border-border/50 px-4 py-3">
+              </TableCell>
+              <TableCell>
                 <TypeBadge type={item.type} />
-              </td>
-              <td className="border-b border-border/50 px-4 py-3">
+              </TableCell>
+              <TableCell>
                 <span className="font-medium">{item.summary}</span>
                 {item.fileChangeDetail && (
                   <span className="ml-2 font-mono text-xs text-muted-foreground">{item.fileChangeDetail.filePath}</span>
                 )}
-              </td>
-              <td className="border-b border-border/50 px-4 py-3">
+              </TableCell>
+              <TableCell>
                 {item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </section>
   );
 }
@@ -109,7 +104,7 @@ function TypeBadge({ type }: { type: string }) {
   const Icon = config.icon;
   return (
     <Badge
-      className="gap-1 py-0 text-xs border-transparent"
+      className="gap-1 border-transparent py-0 text-xs"
       style={{
         backgroundColor: `color-mix(in oklch, ${config.color} 12%, transparent)`,
         color: config.color,
@@ -124,14 +119,14 @@ function TypeBadge({ type }: { type: string }) {
 function SourceBadge({ source }: { source: string }) {
   if (source === "ai") {
     return (
-      <Badge className="gap-1 bg-[var(--teal)]/10 py-0 text-xs text-[var(--teal)] hover:bg-[var(--teal)]/15 border-[var(--teal)]/20">
+      <Badge className="gap-1 border-[var(--teal)]/20 bg-[var(--teal)]/10 py-0 text-xs text-[var(--teal)] hover:bg-[var(--teal)]/15">
         <Bot className="size-3" />
         AI
       </Badge>
     );
   }
   return (
-    <Badge className="gap-1 bg-[var(--coral)]/10 py-0 text-xs text-[var(--coral)] hover:bg-[var(--coral)]/15 border-[var(--coral)]/20">
+    <Badge className="gap-1 border-[var(--coral)]/20 bg-[var(--coral)]/10 py-0 text-xs text-[var(--coral)] hover:bg-[var(--coral)]/15">
       <PenLine className="size-3" />
       Manual
     </Badge>
