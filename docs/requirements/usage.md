@@ -2,7 +2,7 @@
 title: Usage
 status: in-progress
 owner: self
-last_updated: 2026-03-22
+last_updated: 2026-04-02
 canonical_file: docs/requirements/usage.md
 ---
 
@@ -16,7 +16,7 @@ canonical_file: docs/requirements/usage.md
 
 ## Current Reality
 
-- Current behavior: `/usage` is an authenticated analytics page for chat usage events, with a unified date range picker (presets and custom calendar), optional model and task type filtering, summary cards, daily charts (cost stacked by model and token flow), model breakdown, recent event rows with thread links, and an empty state when no data exists.
+- Current behavior: `/usage` is an authenticated analytics page for chat usage events with three view modes (Cost, Tokens, Prompts) selectable via a segmented toggle. It includes a unified date range picker (presets and custom calendar), optional model and task type filtering, view-adaptive summary cards and charts (daily trend stacked by model, model mix donut), a daily token flow bar chart (hidden in Tokens view to avoid redundancy), recent event rows with thread links, and an empty state when no data exists.
 - Constraints: Data only exists for completed assistant responses that created `ChatUsageEvent` rows; stats are scoped to the signed-in user; the page reads directly from aggregated event history rather than recomputing from message transcripts.
 - Non-goals: Org-wide reporting, export/download, per-message transcript drill-down, budget alerts, non-chat product analytics, and manual event correction are not implemented.
 
@@ -26,8 +26,9 @@ canonical_file: docs/requirements/usage.md
 | --- | --- | --- |
 | Access control | done | Only authenticated users can load the usage page and only their own usage events are queried. |
 | Filtering | done | Users can filter usage by preset date range or custom calendar selection, model, and task type. |
-| Summary metrics | done | The page shows aggregated cost, token, and activity totals for the selected view. |
-| Trend visualization | done | The page visualizes daily cost stacked by model, daily token flow, and model cost mix for the filtered events. |
+| View mode toggle | done | Users can switch between Cost, Tokens, and Prompts views via a segmented toggle that adapts stat cards, charts, and model mix. |
+| Summary metrics | done | The page shows view-adaptive aggregated metrics (cost totals, token breakdowns, or prompt counts) for the selected view. |
+| Trend visualization | done | The main chart adapts to show daily cost, tokens, or prompts stacked by model; a daily token flow bar chart is shown in non-Tokens views; model mix donut adapts to the active metric. |
 | Event inspection | done | The page lists recent tracked exchanges with model, task type, thread link, token, cost, and timestamp data. |
 | Analytics depth | in-progress | Usage reporting is useful for high-level monitoring, but deeper drill-down, export, and budgeting workflows are not yet defined. |
 
@@ -39,10 +40,11 @@ canonical_file: docs/requirements/usage.md
 | Search normalization | done | Invalid or missing search params normalize to a safe default view. | Inline |
 | Date range picker | done | A unified date range picker provides preset ranges and a two-month calendar for custom date selection. | Inline |
 | Task type filter | done | Users can filter events by task type (e.g. chat, title generation). | Inline |
-| Summary cards | done | The page shows estimated cost, total tokens, token split, and average cost. | Inline |
-| Daily cost chart | done | Cost is visualized as a stacked area chart broken down by model for the selected range. | Inline |
-| Daily token chart | done | Input and output tokens are shown as stacked bars by day. | Inline |
-| Model breakdown | done | A pie chart and legend show cost share by model in the current result set. | Inline |
+| View mode toggle | done | A segmented toggle (Cost / Tokens / Prompts) pivots stat cards, main chart, and model mix to the selected metric. | Inline |
+| Summary cards | done | Four stat cards adapt to the active view mode showing relevant totals, averages, and breakdowns. | Inline |
+| Daily trend chart | done | The main area chart shows daily cost, tokens, or prompts stacked by model based on the active view. | Inline |
+| Daily token chart | done | Input and output tokens are shown as stacked bars by day (hidden in Tokens view to avoid redundancy). | Inline |
+| Model breakdown | done | A pie chart and legend show cost, token, or prompt share by model based on the active view. | Inline |
 | Recent exchanges table | done | The latest 10 matching events are listed with thread links, task type badges, and model context. | Inline |
 | Thread linking | done | Recent exchange rows link directly to the related chat thread. | Inline |
 | Empty state | done | Users without matching events see a clear empty state and a CTA back to chat. | Inline |
@@ -59,7 +61,7 @@ canonical_file: docs/requirements/usage.md
 ### Search params and filter behavior
 
 - Requirement: The page must support preset date ranges via a unified date range picker, custom calendar-based date selection, an optional model filter, and an optional task type filter that all update the current route state.
-- Notes: The `DateRangePicker` component provides built-in presets (Last week, Last 7 days, This month, Last month, Last 30 days, Last 90 days, All time) alongside a two-month calendar for custom selection. When no dates are provided, the picker defaults to the `30d` preset. If `from` is after `to`, the values are swapped into ascending order. Model defaults to `all` and task type defaults to `all`. Search params are `from`, `to`, `model`, and `taskType`.
+- Notes: The `DateRangePicker` component provides built-in presets (Last week, Last 7 days, This month, Last month, Last 30 days, Last 90 days, All time) alongside a two-month calendar for custom selection. When no dates are provided, the picker defaults to the `30d` preset. If `from` is after `to`, the values are swapped into ascending order. Model defaults to `all` and task type defaults to `all`. Search params are `from`, `to`, `model`, `taskType`, and `view` (cost | tokens | prompts, defaults to cost).
 - Dependencies: `src/routes/usage.tsx`, `src/lib/chat-usage.ts`, `src/components/ui/date-range-picker.tsx`.
 - Follow-up: Decide whether the page should expose an explicit reset action instead of relying on preset and field changes.
 
@@ -120,3 +122,4 @@ canonical_file: docs/requirements/usage.md
 
 - 2026-03-14: Created the initial usage requirements doc from the current `/usage` implementation and added it to the requirements index.
 - 2026-03-22: Updated to reflect task type filter, unified DateRangePicker with presets and calendar, stacked-by-model cost chart, thread linking in recent exchanges, and task type badges on event rows.
+- 2026-04-02: Added view mode toggle (Cost / Tokens / Prompts) with adaptive stat cards, main chart, and model mix donut. Server function now returns per-model token and event counts in daily data. Token flow chart hidden in Tokens view.
