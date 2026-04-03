@@ -201,7 +201,7 @@ Push is sent when ANY of these conditions is true (and delivery is not `silent`)
 | Area | Status | Requirement |
 | --- | --- | --- |
 | Level parameter | done | Add `level` parameter to the `send_notification` AI tool |
-| Default behavior | done | AI tool defaults to `info` level; Claude can choose higher levels for urgent findings |
+| Default behavior | done | AI tool defaults to `low` level; Claude can choose higher levels for urgent findings |
 
 ## Previously Implemented (v1)
 

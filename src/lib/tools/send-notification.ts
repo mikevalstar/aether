@@ -13,9 +13,9 @@ export function createSendNotification(userId: string) {
       link: z.string().optional().describe("Optional relative app URL to link to (e.g. /chat, /tasks)"),
       level: z
         .enum(["info", "low", "medium", "high", "critical"])
-        .default("info")
+        .default("low")
         .describe(
-          "Notification severity level. Use info for routine, medium for notable, high for important, critical for urgent.",
+          "Notification severity level. Use low for routine, medium for notable, high for important, critical for urgent.",
         ),
       pushToPhone: z
         .boolean()
