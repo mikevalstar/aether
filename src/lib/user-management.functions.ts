@@ -150,6 +150,29 @@ export const createManagedUser = createServerFn({ method: "POST" })
     return mapManagedUser(createdUser);
   });
 
+export const removeManagedUser = createServerFn({ method: "POST" })
+  .inputValidator((data: { userId: string }) => {
+    const userId = data.userId?.trim();
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+    return { userId };
+  })
+  .handler(async ({ data }) => {
+    const { user: adminUser } = await requireAdminUser();
+
+    if (data.userId === adminUser.id) {
+      throw new Error("You cannot remove yourself");
+    }
+
+    await auth.api.removeUser({
+      headers: getRequestHeaders(),
+      body: { userId: data.userId },
+    });
+
+    return { success: true };
+  });
+
 export const getPasswordSettingsData = createServerFn({
   method: "GET",
 }).handler(async () => {

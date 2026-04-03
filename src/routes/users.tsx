@@ -1,5 +1,16 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "#/components/ui/alert-dialog";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
@@ -7,7 +18,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import { formatDate } from "#/lib/date";
-import { createManagedUser, getUsersPageData, type ManagedUserRole } from "#/lib/user-management.functions";
+import {
+  createManagedUser,
+  getUsersPageData,
+  removeManagedUser,
+  type ManagedUserRole,
+} from "#/lib/user-management.functions";
 
 export const Route = createFileRoute("/users")({
   beforeLoad: async () => {
@@ -161,7 +177,7 @@ function UsersPage() {
             {users.map((user) => (
               <article
                 key={user.id}
-                className="grid gap-3 px-6 py-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)] sm:items-center"
+                className="grid gap-3 px-6 py-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_auto] sm:items-center"
               >
                 <div>
                   <p className="font-semibold">{user.name}</p>
@@ -184,11 +200,67 @@ function UsersPage() {
                     <span className="font-medium text-foreground">Created:</span> {formatDate(user.createdAt)}
                   </p>
                 </div>
+                <div className="flex justify-end">
+                  {user.id !== currentUser.id && (
+                    <RemoveUserButton userId={user.id} userName={user.name} />
+                  )}
+                </div>
               </article>
             ))}
           </div>
         </section>
       </section>
     </main>
+  );
+}
+
+function RemoveUserButton({ userId, userName }: { userId: string; userName: string }) {
+  const router = useRouter();
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  const handleRemove = async () => {
+    setIsRemoving(true);
+    try {
+      await removeManagedUser({ data: { userId } });
+      toast.success("User removed", {
+        description: `${userName} has been removed.`,
+      });
+      await router.invalidate();
+    } catch (err) {
+      toast.error("Failed to remove user", {
+        description: err instanceof Error ? err.message : "Something went wrong",
+      });
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+          Remove
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove {userName}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete this user account, their sessions, and associated data. This action cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleRemove}
+            disabled={isRemoving}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isRemoving ? "Removing..." : "Remove user"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
