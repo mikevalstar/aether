@@ -117,10 +117,6 @@ export function resolveModelId(value: string): ChatModel | undefined {
   return undefined;
 }
 
-export function isChatModel(value: string): value is ChatModel {
-  return resolveModelId(value) !== undefined;
-}
-
 export type WebToolVersion = (typeof CHAT_MODELS)[number]["webToolVersion"];
 export type ModelProvider = "anthropic" | "openrouter" | "minimax";
 

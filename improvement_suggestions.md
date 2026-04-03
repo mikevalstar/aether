@@ -365,7 +365,7 @@ Related type definitions are split: `ChatTaskType` in `chat.ts` defines `"chat" 
 
 ---
 
-### 5.4 Unused Export — `isChatModel()`
+### ~~5.4 Unused Export — `isChatModel()`~~ ✅ DONE
 
 `src/lib/chat-models.ts` (line 114) exports `isChatModel()` which is re-exported from `chat.ts` but never imported or called anywhere in the codebase.
 

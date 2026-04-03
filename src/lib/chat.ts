@@ -10,7 +10,6 @@ export {
   DEFAULT_CHAT_MODEL,
   EFFORT_LABELS,
   isChatEffort,
-  isChatModel,
   resolveModelId,
 } from "#/lib/chat-models";
 
