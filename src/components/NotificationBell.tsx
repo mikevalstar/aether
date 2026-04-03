@@ -7,11 +7,16 @@ import { toast } from "#/components/ui/sonner";
 import { useNotifications } from "#/hooks/useNotifications";
 import { getRecentNotifications, markAllNotificationsRead, markNotificationRead } from "#/lib/notifications.functions";
 
+/** Levels shown in the header bell dropdown — medium and above */
+const BELL_VISIBLE_LEVELS = new Set(["medium", "high", "critical", "error"]);
+
 type RecentNotification = {
   id: string;
   title: string;
   body: string | null;
   link: string | null;
+  level: string;
+  category: string | null;
   read: boolean;
   createdAt: Date;
 };
@@ -26,6 +31,13 @@ function timeAgo(date: Date): string {
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
 }
+
+const LEVEL_DOT_COLORS: Record<string, string> = {
+  medium: "bg-yellow-500",
+  high: "bg-orange-500",
+  critical: "bg-red-500",
+  error: "bg-red-700",
+};
 
 export default function NotificationBell() {
   const { unreadCount, setOnNew, poll } = useNotifications(true);
@@ -45,7 +57,11 @@ export default function NotificationBell() {
     if (!open) return;
     setLoading(true);
     getRecentNotifications()
-      .then((result) => setRecent(result.notifications))
+      .then((result) => {
+        // Filter to medium+ levels for the bell dropdown
+        const filtered = result.notifications.filter((n) => BELL_VISIBLE_LEVELS.has(n.level));
+        setRecent(filtered);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [open]);
@@ -108,6 +124,7 @@ export default function NotificationBell() {
             <div className="px-3 py-6 text-center text-xs text-muted-foreground">No notifications</div>
           ) : (
             recent.map((n) => {
+              const dotColor = LEVEL_DOT_COLORS[n.level] ?? "";
               const content = (
                 <button
                   type="button"
@@ -117,7 +134,10 @@ export default function NotificationBell() {
                   onClick={() => void handleClick(n)}
                 >
                   <div className="flex items-start justify-between gap-2 w-full">
-                    <span className={`text-sm ${!n.read ? "font-semibold" : "font-medium"}`}>{n.title}</span>
+                    <div className="flex items-center gap-1.5">
+                      {dotColor && <span className={`size-1.5 rounded-full ${dotColor}`} />}
+                      <span className={`text-sm ${!n.read ? "font-semibold" : "font-medium"}`}>{n.title}</span>
+                    </div>
                     <span className="shrink-0 text-[10px] text-muted-foreground">{timeAgo(n.createdAt)}</span>
                   </div>
                   {n.body && <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>}
@@ -134,6 +154,15 @@ export default function NotificationBell() {
               return <div key={n.id}>{content}</div>;
             })
           )}
+        </div>
+        <div className="border-t border-border">
+          <Link
+            to="/notifications"
+            className="block px-3 py-2 text-center text-xs text-muted-foreground hover:text-foreground transition-colors no-underline"
+            onClick={() => setOpen(false)}
+          >
+            View all notifications
+          </Link>
         </div>
       </PopoverContent>
     </Popover>

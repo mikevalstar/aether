@@ -4,6 +4,7 @@ status: in-progress
 owner: self
 last_updated: 2026-04-03
 canonical_file: docs/requirements/notifications.md
+canonical_file: docs/requirements/notifications.md
 ---
 
 # Notifications
@@ -153,38 +154,38 @@ Push is sent when ANY of these conditions is true (and delivery is not `silent`)
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Schema migration | todo | Add `level`, `category`, `source`, `archived` columns to Notification model |
-| Notify utility update | todo | Update `notify()` to accept `level`, `category`, `source`; implement push logic based on user preference level |
-| NotificationSeverity type | todo | New severity type + validation, rename old NotificationLevel to NotificationDelivery |
-| Task/workflow frontmatter | todo | Add `notificationLevel`, `notifyUsers`, `pushMessage` to task and workflow validators and executors |
-| Backward compat | todo | Default existing notifications to `info` level; existing task/workflow `notification` field continues to work |
+| Schema migration | done | Add `level`, `category`, `source`, `archived` columns to Notification model |
+| Notify utility update | done | Update `notify()` to accept `level`, `category`, `source`; implement push logic based on user preference level |
+| NotificationSeverity type | done | New severity type + validation, rename old NotificationLevel to NotificationDelivery |
+| Task/workflow frontmatter | done | Add `notificationLevel`, `notifyUsers`, `pushMessage` to task and workflow validators and executors |
+| Backward compat | done | Default existing notifications to `info` level; existing task/workflow `notification` field continues to work |
 
 ### Phase 2: Full Page Notifications Management
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Notifications page | todo | Full page at `/notifications` with filterable, sortable notification list |
-| Filters | todo | Filter by level, category, read/unread, archived/active, date range |
-| Bulk actions | todo | Select multiple: mark read, mark unread, archive, delete |
-| Individual actions | todo | Mark read/unread, archive, delete, click-through to link |
-| Level badges | todo | Color-coded severity badges on each notification |
-| Pagination | todo | Cursor-based pagination for large notification lists |
-| Command palette | todo | Add `/notifications` to command palette |
+| Notifications page | done | Full page at `/notifications` with filterable, sortable notification list |
+| Filters | done | Filter by level, category, read/unread/archived status via dropdowns and toggle buttons |
+| Bulk actions | done | Select multiple: mark read, mark unread, archive, delete |
+| Individual actions | done | Click-through to link; bulk actions cover mark read/unread, archive, delete |
+| Level badges | done | Color-coded severity badges with icons on each notification |
+| Pagination | done | Offset-based pagination via `PaginationControls` component |
+| Command palette | done | Add `/notifications` to command palette |
 
 ### Phase 3: Header Bell Update
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Filtered bell | todo | Header bell only shows medium, high, critical (+ error for admins) |
-| Level indicators | todo | Color-coded dots or badges by level in the dropdown |
-| Link to full page | todo | "View all notifications" link at bottom of dropdown leading to `/notifications` |
+| Filtered bell | done | Header bell only shows medium, high, critical, error in dropdown |
+| Level indicators | done | Color-coded dots by level in the dropdown |
+| Link to full page | done | "View all notifications" link at bottom of dropdown leading to `/notifications` |
 
 ### Phase 4: User Preference — Push Level
 
 | Area | Status | Requirement |
 | --- | --- | --- |
 | Push level setting | todo | Add `pushNotificationMinLevel` dropdown to `/settings/notifications` |
-| Push logic | todo | `notify()` checks user's min level preference before sending push |
+| Push logic | done | `notify()` checks user's min level preference before sending push |
 
 ### Phase 5: Dashboard Widget
 
@@ -199,8 +200,8 @@ Push is sent when ANY of these conditions is true (and delivery is not `silent`)
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Level parameter | todo | Add `level` parameter to the `send_notification` AI tool |
-| Default behavior | todo | AI tool defaults to `info` level; Claude can choose higher levels for urgent findings |
+| Level parameter | done | Add `level` parameter to the `send_notification` AI tool |
+| Default behavior | done | AI tool defaults to `info` level; Claude can choose higher levels for urgent findings |
 
 ## Previously Implemented (v1)
 
@@ -248,16 +249,16 @@ Items explicitly deferred for later versions:
 
 | Step | Phase | Status | Plan |
 | --- | --- | --- | --- |
-| 1. Schema migration | 1 | todo | Add `level`, `category`, `source`, `archived` to Notification model. Run `pnpm db:push`. |
-| 2. Type updates | 1 | todo | Create `NotificationSeverity` type, rename `NotificationLevel` to `NotificationDelivery`, update all imports. |
-| 3. Notify utility | 1 | todo | Update `notify()` signature and push logic to use severity levels and user preferences. |
-| 4. Task/workflow validators | 1 | todo | Add `notificationLevel`, `notifyUsers`, `pushMessage` to task and workflow zod validators. |
-| 5. Task/workflow executors | 1 | todo | Update task and workflow execution to pass new fields to `notify()`. |
-| 6. Notifications page | 2 | todo | Create `/notifications` route with server functions, filters, bulk actions, pagination. |
-| 7. Header bell update | 3 | todo | Filter bell dropdown to medium+ levels, add level badges, link to full page. |
+| 1. Schema migration | 1 | done | Add `level`, `category`, `source`, `archived` to Notification model. Run `pnpm db:push`. |
+| 2. Type updates | 1 | done | Create `NotificationSeverity` type, rename `NotificationLevel` to `NotificationDelivery`, update all imports. |
+| 3. Notify utility | 1 | done | Update `notify()` signature and push logic to use severity levels and user preferences. |
+| 4. Task/workflow validators | 1 | done | Add `notificationLevel`, `notifyUsers`, `pushMessage` to task and workflow zod validators. |
+| 5. Task/workflow executors | 1 | done | Update task and workflow execution to pass new fields to `notify()`. |
+| 6. Notifications page | 2 | done | Create `/notifications` route with server functions, filters, bulk actions, pagination. |
+| 7. Header bell update | 3 | done | Filter bell dropdown to medium+ levels, add level badges, link to full page. |
 | 8. Push level preference | 4 | todo | Add `pushNotificationMinLevel` to preferences type, settings UI, and push logic. |
 | 9. Dashboard widget | 5 | todo | Create notification dashboard widget with counts and quick actions. |
-| 10. AI tool update | 6 | todo | Add `level` parameter to `send_notification` tool. |
+| 10. AI tool update | 6 | done | Add `level` parameter to `send_notification` tool. |
 
 ## Open Questions
 
@@ -269,3 +270,4 @@ None at this time.
 - 2026-03-16: Resolved open questions — auto-dismiss after 30 days, header dropdown only, push is opt-in per source via `pushToPhone` flag. Added AI notify tool.
 - 2026-03-22: Updated to match implementation — corrected preferences route, added test Pushover, documented NotificationLevel type, per-task/workflow notification config, pushToPhone DB field, activity log for AI notify, notification sources table.
 - 2026-04-03: Major rewrite — notification categorization with severity levels (info, error, low, medium, high, critical), full-page management UI, bulk actions (mark read, archive, delete), filtering by level/category/source, task/workflow frontmatter for `notificationLevel`/`notifyUsers`/`pushMessage`, per-user push level preferences, dashboard widget, phased implementation plan. Deferred: mute/snooze, quiet hours, digest mode, email notifications, templates, grouping.
+- 2026-04-03: Implemented phases 1–3 and 6 — schema migration, notify utility with severity/category/source, NotificationSeverity/NotificationDelivery types, task/workflow frontmatter updates, full `/notifications` page with filters/bulk actions/pagination, header bell filtering to medium+ with level dots and "view all" link, AI tool level parameter.

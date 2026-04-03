@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as UsageRouteImport } from './routes/usage'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -55,6 +56,11 @@ const UsersRoute = UsersRouteImport.update({
 const UsageRoute = UsageRouteImport.update({
   id: '/usage',
   path: '/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogsRoute = LogsRouteImport.update({
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
+  '/notifications': typeof NotificationsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -282,6 +289,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
+  '/notifications': typeof NotificationsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -322,6 +330,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
+  '/notifications': typeof NotificationsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/logs'
+    | '/notifications'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/logs'
+    | '/notifications'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -440,6 +451,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/logs'
+    | '/notifications'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -480,6 +492,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
+  NotificationsRoute: typeof NotificationsRoute
   UsageRoute: typeof UsageRoute
   UsersRoute: typeof UsersRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       path: '/usage'
       fullPath: '/usage'
       preLoaderRoute: typeof UsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/logs': {
@@ -804,6 +824,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
+  NotificationsRoute: NotificationsRoute,
   UsageRoute: UsageRoute,
   UsersRoute: UsersRoute,
   ApiChatRoute: ApiChatRoute,
