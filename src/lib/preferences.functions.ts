@@ -51,6 +51,7 @@ const updatePreferencesInputSchema = z
     pluginOptions: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
     dashboardLayouts: z.record(z.string(), z.array(dashboardLayoutItemSchema)).optional(),
     obsidianChatExportFolder: z.string().trim().optional(),
+    pushNotificationMinLevel: z.enum(["info", "low", "medium", "high", "critical"]).optional(),
   })
   .strict();
 

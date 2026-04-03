@@ -2,7 +2,7 @@ import { prisma } from "#/db";
 import { readTaskPromptConfig } from "#/lib/ai-config";
 import { executePrompt, resolveEffort, resolveModel } from "#/lib/executor-shared";
 import { logger } from "#/lib/logger";
-import type { NotificationLevel } from "#/lib/notify";
+import type { NotificationDelivery, NotificationSeverity } from "#/lib/notify";
 import { interpolatePrompt } from "#/lib/prompt-utils";
 
 export type TaskConfig = {
@@ -14,7 +14,10 @@ export type TaskConfig = {
   endDate?: string;
   maxTokens?: number;
   timezone?: string;
-  notification: NotificationLevel;
+  notification: NotificationDelivery;
+  notificationLevel: NotificationSeverity;
+  notifyUsers: string[];
+  pushMessage: boolean;
   body: string;
 };
 
@@ -52,7 +55,9 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
     userTimezone: adminTimezone,
     maxTokens: config.maxTokens,
     notification: config.notification,
-    notificationLink: "/tasks",
+    notificationLevel: config.notificationLevel,
+    notifyUsers: config.notifyUsers,
+    pushMessage: config.pushMessage,
     onSuccessOps: ({ threadId }) => [
       prisma.task.update({
         where: { filename },

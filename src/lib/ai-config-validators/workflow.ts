@@ -4,10 +4,14 @@ import {
   formatFrontmatterErrors,
   modelField,
   notificationField,
+  notificationLevelField,
+  notifyUsersField,
+  pushMessageField,
   validEfforts,
   validFieldTypes,
   validModelIds,
-  validNotificationLevels,
+  validNotificationDeliveries,
+  validNotificationSeverities,
 } from "./shared";
 import type { AiConfigValidator } from "./types";
 
@@ -28,6 +32,9 @@ export const workflowFrontmatterSchema = z.object({
   effort: effortField,
   maxTokens: z.number().int().positive().optional(),
   notification: notificationField,
+  notificationLevel: notificationLevelField,
+  notifyUsers: notifyUsersField,
+  pushMessage: pushMessageField,
   fields: z.array(workflowFieldSchema).min(1, "at least one field is required"),
 });
 
@@ -46,7 +53,10 @@ export const workflowValidator: AiConfigValidator = {
     `- \`model\` — one of: ${validModelIds.join(", ")} (aliases also accepted)`,
     `- \`effort\` — one of: ${validEfforts.join(", ")}`,
     "- `maxTokens` — positive integer output token limit",
-    `- \`notification\` — one of: ${validNotificationLevels.join(", ")} (default: notify)`,
+    `- \`notification\` — delivery: one of: ${validNotificationDeliveries.join(", ")} (default: notify)`,
+    `- \`notificationLevel\` — severity: one of: ${validNotificationSeverities.join(", ")} (default: info)`,
+    '- `notifyUsers` — array of email addresses to notify, or ["all"] (default: all)',
+    "- `pushMessage` — boolean, force push notification (default: false)",
     "",
     "**Field types:** text, textarea, url, select",
     "",

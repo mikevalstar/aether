@@ -62,6 +62,9 @@ export async function parseTaskFile(filePath: string): Promise<TaskConfig | null
       maxTokens: data.maxTokens,
       timezone: data.timezone,
       notification: data.notification ?? "notify",
+      notificationLevel: data.notificationLevel ?? "info",
+      notifyUsers: data.notifyUsers ?? ["all"],
+      pushMessage: data.pushMessage ?? false,
       body: parsed.content,
     };
   } catch (err) {

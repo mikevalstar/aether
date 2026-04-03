@@ -4,8 +4,12 @@ import type { AiConfigValidationResult } from "./types";
 
 export const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
 export const validEfforts = ["low", "medium", "high"] as const;
-export const validNotificationLevels = ["silent", "notify", "push"] as const;
+export const validNotificationDeliveries = ["silent", "notify", "push"] as const;
+export const validNotificationSeverities = ["info", "low", "medium", "high", "critical"] as const;
 export const validFieldTypes = ["text", "textarea", "url", "select"] as const;
+
+// Backward compat alias
+export const validNotificationLevels = validNotificationDeliveries;
 
 /** Reusable model field — accepts model IDs and aliases, transforms to canonical ID */
 export const modelField = z
@@ -17,8 +21,17 @@ export const modelField = z
 /** Reusable effort field */
 export const effortField = z.enum(validEfforts).optional();
 
-/** Reusable notification level field */
-export const notificationField = z.enum(validNotificationLevels).optional();
+/** Reusable notification delivery field (silent/notify/push) */
+export const notificationField = z.enum(validNotificationDeliveries).optional();
+
+/** Reusable notification severity field (info/low/medium/high/critical) */
+export const notificationLevelField = z.enum(validNotificationSeverities).optional();
+
+/** Reusable notifyUsers field — array of email addresses or ["all"] */
+export const notifyUsersField = z.array(z.string().min(1)).optional();
+
+/** Reusable pushMessage field */
+export const pushMessageField = z.boolean().optional();
 
 /** Frontmatter schema for prompt-override files (task-prompt.md, workflow-prompt.md) */
 export const promptOverrideFrontmatterSchema = z.object({

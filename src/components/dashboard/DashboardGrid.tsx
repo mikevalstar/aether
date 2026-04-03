@@ -14,6 +14,7 @@ import { CalendarWidget } from "#/components/calendar/CalendarWidget";
 import { DayDetailPanel } from "#/components/calendar/DayDetailPanel";
 import { NextEventCard } from "#/components/calendar/NextEventCard";
 import { ActivityDigest } from "#/components/dashboard/ActivityDigest";
+import { NotificationWidget } from "#/components/dashboard/NotificationWidget";
 import { RecentChats } from "#/components/dashboard/RecentChats";
 import { UsageStat } from "#/components/dashboard/UsageStat";
 import { Button } from "#/components/ui/button";
@@ -84,6 +85,7 @@ export function DashboardGrid({
     ids.push("usage-stat");
     if (hasCalendar) ids.push("next-event");
     if (boardColumn) ids.push("board-column");
+    ids.push("notifications");
     ids.push("recent-chats");
     ids.push("activity-digest");
 
@@ -229,6 +231,8 @@ export function DashboardGrid({
         return <NextEventCard events={calendarEvents} />;
       case "board-column":
         return boardColumn ? <DashboardBoardColumn column={boardColumn} /> : null;
+      case "notifications":
+        return <NotificationWidget notifications={dashboardData.notifications} />;
       case "recent-chats":
         return <RecentChats threads={dashboardData.recentThreads} />;
       case "activity-digest":

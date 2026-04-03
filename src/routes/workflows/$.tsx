@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, Workflow } from "lucide-react";
+import { z } from "zod";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { WorkflowForm } from "#/components/workflows/WorkflowForm";
@@ -7,7 +8,12 @@ import { WorkflowRunHistory } from "#/components/workflows/WorkflowRunHistory";
 import { getSession } from "#/lib/auth.functions";
 import { getWorkflowDetail } from "#/lib/workflow.functions";
 
+const workflowSearchSchema = z.object({
+  highlight: z.string().optional(),
+});
+
 export const Route = createFileRoute("/workflows/$")({
+  validateSearch: workflowSearchSchema,
   beforeLoad: async () => {
     const session = await getSession();
     if (!session) {
@@ -24,6 +30,7 @@ export const Route = createFileRoute("/workflows/$")({
 
 function WorkflowDetailPage() {
   const data = Route.useLoaderData();
+  const { highlight } = Route.useSearch();
 
   return (
     <main className="relative overflow-hidden">
@@ -69,7 +76,7 @@ function WorkflowDetailPage() {
 
           <div>
             <h2 className="text-lg font-semibold mb-4">Run History</h2>
-            <WorkflowRunHistory runs={data.runs} />
+            <WorkflowRunHistory runs={data.runs} highlightId={highlight} />
           </div>
         </div>
       </div>

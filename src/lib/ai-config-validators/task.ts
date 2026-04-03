@@ -5,9 +5,13 @@ import {
   formatFrontmatterErrors,
   modelField,
   notificationField,
+  notificationLevelField,
+  notifyUsersField,
+  pushMessageField,
   validEfforts,
   validModelIds,
-  validNotificationLevels,
+  validNotificationDeliveries,
+  validNotificationSeverities,
 } from "./shared";
 import type { AiConfigValidator } from "./types";
 
@@ -31,6 +35,9 @@ export const taskFrontmatterSchema = z.object({
     }, "Must be a valid IANA timezone (e.g. America/Toronto)")
     .optional(),
   notification: notificationField,
+  notificationLevel: notificationLevelField,
+  notifyUsers: notifyUsersField,
+  pushMessage: pushMessageField,
 });
 
 function isValidCron(expr: string): boolean {
@@ -59,7 +66,10 @@ export const taskValidator: AiConfigValidator = {
     "- `endDate` — ISO 8601 date after which the task stops",
     "- `maxTokens` — positive integer output token limit",
     "- `timezone` — IANA timezone (e.g. America/Toronto). Defaults to server timezone",
-    `- \`notification\` — one of: ${validNotificationLevels.join(", ")} (default: notify)`,
+    `- \`notification\` — delivery: one of: ${validNotificationDeliveries.join(", ")} (default: notify)`,
+    `- \`notificationLevel\` — severity: one of: ${validNotificationSeverities.join(", ")} (default: info)`,
+    '- `notifyUsers` — array of email addresses to notify, or ["all"] (default: all)',
+    "- `pushMessage` — boolean, force push notification (default: false)",
     "",
     "**Body:** The prompt sent to the AI. Must be non-empty.",
   ].join("\n"),

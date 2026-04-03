@@ -203,6 +203,9 @@ export async function parseWorkflowFile(filePath: string): Promise<WorkflowConfi
       effort: data.effort,
       maxTokens: data.maxTokens,
       notification: data.notification ?? "notify",
+      notificationLevel: data.notificationLevel ?? "info",
+      notifyUsers: data.notifyUsers ?? ["all"],
+      pushMessage: data.pushMessage ?? false,
       fields: data.fields.map((field) => ({
         ...field,
         options: field.options?.map(String),

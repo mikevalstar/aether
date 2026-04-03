@@ -28,10 +28,28 @@ export type DashboardUsage = {
   weekEvents: number;
 };
 
+export type DashboardNotification = {
+  id: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  level: string;
+  category: string | null;
+  read: boolean;
+  createdAt: string;
+};
+
+export type DashboardNotificationSummary = {
+  items: DashboardNotification[];
+  counts: Record<string, number>;
+  unreadTotal: number;
+};
+
 export type DashboardData = {
   recentThreads: DashboardThread[];
   recentActivity: DashboardActivity[];
   usage: DashboardUsage;
+  notifications: DashboardNotificationSummary;
 };
 
 export const getDashboardData = createServerFn({ method: "GET" }).handler(async (): Promise<DashboardData> => {
@@ -41,7 +59,7 @@ export const getDashboardData = createServerFn({ method: "GET" }).handler(async 
   const todayStart = dayjs().startOf("day").toDate();
   const weekStart = dayjs().subtract(7, "day").startOf("day").toDate();
 
-  const [threads, activity, todayUsage, weekUsage] = await Promise.all([
+  const [threads, activity, todayUsage, weekUsage, recentNotifications, unreadNotificationCounts] = await Promise.all([
     prisma.chatThread.findMany({
       where: { userId, type: "chat" },
       orderBy: { updatedAt: "desc" },
@@ -60,6 +78,16 @@ export const getDashboardData = createServerFn({ method: "GET" }).handler(async 
     prisma.chatUsageEvent.aggregate({
       where: { userId, createdAt: { gte: weekStart } },
       _sum: { estimatedCostUsd: true },
+      _count: true,
+    }),
+    prisma.notification.findMany({
+      where: { userId, archived: false },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+    }),
+    prisma.notification.groupBy({
+      by: ["level"],
+      where: { userId, read: false, archived: false },
       _count: true,
     }),
   ]);
@@ -87,6 +115,20 @@ export const getDashboardData = createServerFn({ method: "GET" }).handler(async 
       todayEvents: todayUsage._count,
       weekCostUsd: weekUsage._sum.estimatedCostUsd ?? 0,
       weekEvents: weekUsage._count,
+    },
+    notifications: {
+      items: recentNotifications.map((n) => ({
+        id: n.id,
+        title: n.title,
+        body: n.body,
+        link: n.link,
+        level: n.level,
+        category: n.category,
+        read: n.read,
+        createdAt: n.createdAt.toISOString(),
+      })),
+      counts: Object.fromEntries(unreadNotificationCounts.map((g) => [g.level, g._count])),
+      unreadTotal: unreadNotificationCounts.reduce((sum, g) => sum + g._count, 0),
     },
   };
 });

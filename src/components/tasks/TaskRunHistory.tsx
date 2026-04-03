@@ -7,6 +7,7 @@ import { convertTaskToChat, deleteTaskRun } from "#/lib/task.functions";
 export function TaskRunHistory({
   task,
   runs,
+  highlightId,
 }: {
   task: {
     filename: string;
@@ -19,6 +20,7 @@ export function TaskRunHistory({
     fileExists: boolean;
   };
   runs: TaskRunItem[];
+  highlightId?: string;
 }) {
   let cronHuman: string;
   try {
@@ -50,7 +52,13 @@ export function TaskRunHistory({
         </div>
       </div>
 
-      <RunHistoryTable runs={runs} onDelete={deleteTaskRun} onConvertToChat={convertTaskToChat} emptyLabel="task" />
+      <RunHistoryTable
+        runs={runs}
+        onDelete={deleteTaskRun}
+        onConvertToChat={convertTaskToChat}
+        emptyLabel="task"
+        highlightId={highlightId}
+      />
     </div>
   );
 }

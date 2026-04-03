@@ -1,7 +1,7 @@
 import { prisma } from "#/db";
 import { readWorkflowPromptConfig } from "#/lib/ai-config";
 import { executePrompt, resolveEffort, resolveModel } from "#/lib/executor-shared";
-import type { NotificationLevel } from "#/lib/notify";
+import type { NotificationDelivery, NotificationSeverity } from "#/lib/notify";
 import { interpolatePrompt } from "#/lib/prompt-utils";
 
 export type WorkflowField = {
@@ -20,7 +20,10 @@ export type WorkflowConfig = {
   model?: string;
   effort?: string;
   maxTokens?: number;
-  notification: NotificationLevel;
+  notification: NotificationDelivery;
+  notificationLevel: NotificationSeverity;
+  notifyUsers: string[];
+  pushMessage: boolean;
   fields: WorkflowField[];
   body: string;
 };
@@ -63,7 +66,9 @@ export async function executeWorkflow(
     userTimezone,
     maxTokens: config.maxTokens,
     notification: config.notification,
-    notificationLink: "/workflows",
+    notificationLevel: config.notificationLevel,
+    notifyUsers: config.notifyUsers,
+    pushMessage: config.pushMessage,
     extraMetadata: { formValues },
     onSuccessOps: ({ threadId }) => [
       prisma.workflow.update({

@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import {
   Activity,
   BarChart3,
+  Bell,
   BookOpen,
   CheckSquare,
   CircuitBoard,
@@ -40,6 +41,7 @@ const PAGES = [
   { label: "Workflows", route: "/workflows", icon: GitBranch },
   { label: "Board", route: "/board", icon: Columns3 },
   { label: "Obsidian", route: "/o", icon: BookOpen },
+  { label: "Notifications", route: "/notifications", icon: Bell },
   { label: "Activity", route: "/activity", icon: Activity },
   { label: "Usage", route: "/usage", icon: BarChart3 },
   { label: "Logs", route: "/logs", icon: ScrollText },

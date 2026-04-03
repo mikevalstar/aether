@@ -4,6 +4,7 @@ import type { ChatModel } from "#/lib/chat-models";
 export type UserPreferences = {
   obsidianTemplatesFolder?: string;
   pushoverUserKey?: string;
+  pushNotificationMinLevel?: "info" | "low" | "medium" | "high" | "critical";
   calendarFeeds?: CalendarFeed[];
   kanbanFile?: string;
   dashboardBoardColumn?: string;

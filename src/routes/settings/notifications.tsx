@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { testPushoverNotification } from "#/lib/notifications.functions";
 import { updateUserPreferences } from "#/lib/preferences.functions";
@@ -13,10 +14,19 @@ export const Route = createFileRoute("/settings/notifications")({
   component: NotificationsSection,
 });
 
+const PUSH_LEVEL_OPTIONS = [
+  { value: "info", label: "Info — push for all notifications" },
+  { value: "low", label: "Low — push for low and above" },
+  { value: "medium", label: "Medium — push for medium and above" },
+  { value: "high", label: "High — push for high and above" },
+  { value: "critical", label: "Critical — push only for critical (default)" },
+] as const;
+
 function NotificationsSection() {
   const data = settingsRoute.useLoaderData();
 
   const [pushoverKey, setPushoverKey] = useState(data.preferences.pushoverUserKey || "");
+  const [pushMinLevel, setPushMinLevel] = useState<string>(data.preferences.pushNotificationMinLevel || "critical");
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
 
@@ -25,11 +35,14 @@ function NotificationsSection() {
     setIsSaving(true);
     try {
       await updateUserPreferences({
-        data: { pushoverUserKey: pushoverKey.trim() || undefined },
+        data: {
+          pushoverUserKey: pushoverKey.trim() || undefined,
+          pushNotificationMinLevel: pushMinLevel as "info" | "low" | "medium" | "high" | "critical",
+        },
       });
-      toast.success("Pushover settings saved");
+      toast.success("Notification settings saved");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save Pushover settings");
+      toast.error(err instanceof Error ? err.message : "Failed to save notification settings");
     } finally {
       setIsSaving(false);
     }
@@ -74,6 +87,26 @@ function NotificationsSection() {
               pushover.net
             </a>
             . Leave blank to disable phone push notifications.
+          </p>
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="pref-push-min-level">Minimum Level for Push</Label>
+          <Select value={pushMinLevel} onValueChange={setPushMinLevel}>
+            <SelectTrigger id="pref-push-min-level" className="w-full max-w-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PUSH_LEVEL_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Notifications at or above this level will automatically push to your phone. Tasks and workflows can also force
+            push regardless of this setting.
           </p>
         </div>
 
