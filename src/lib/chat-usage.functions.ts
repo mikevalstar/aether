@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import { buildUsageDateRange, getChatModelLabel, normalizeUsageSearch, type UsageSearchInput } from "#/lib/chat-usage";
+import { buildUsageDateRange, getChatModelLabel, normalizeUsageSearch } from "#/lib/chat-usage";
 
 const usageSearchInputSchema = z
   .object({
@@ -77,7 +77,7 @@ export type ChatUsageStatsResult = {
 };
 
 export const getChatUsageStats = createServerFn({ method: "GET" })
-  .inputValidator((data) => usageSearchInputSchema.parse(data) as UsageSearchInput)
+  .inputValidator((data) => usageSearchInputSchema.parse(data))
   .handler(async ({ data }): Promise<ChatUsageStatsResult> => {
     const session = await ensureSession();
     const search = normalizeUsageSearch(data);

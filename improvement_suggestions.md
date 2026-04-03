@@ -323,7 +323,7 @@ Same "not found" concept expressed differently:
 
 ---
 
-### 4.4 Unnecessary `as` Casts After Zod Parse
+### ~~4.4 Unnecessary `as` Casts After Zod Parse~~ ✅ DONE
 
 `src/lib/chat-usage.functions.ts:80`:
 ```typescript
