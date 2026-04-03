@@ -213,12 +213,17 @@ function UsagePage() {
             >
               <div className="grid gap-2">
                 {data.recentEvents.map((event) => (
-                  <div key={event.id} className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+                  <div
+                    key={event.id}
+                    className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
+                  >
                     <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3 text-[var(--ink-soft)]">
                         <span className="shrink-0">{formatDateTime(event.createdAt)}</span>
                         <span className="shrink-0 text-[var(--ink)]">{event.modelLabel}</span>
-                        <Badge variant="outline" className="shrink-0">{getTaskTypeLabel(event.taskType)}</Badge>
+                        <Badge variant="outline" className="shrink-0">
+                          {getTaskTypeLabel(event.taskType)}
+                        </Badge>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
                         <Tooltip>
