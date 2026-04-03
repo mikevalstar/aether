@@ -37,7 +37,8 @@ function LoginPage() {
     try {
       const result = await authClient.signIn.email({ email, password });
       if (result.error) setError(result.error.message || "Sign in failed");
-    } catch {
+    } catch (err) {
+      console.error("Login failed:", err);
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);

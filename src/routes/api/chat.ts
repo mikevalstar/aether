@@ -65,7 +65,8 @@ async function generateChatTitle(userMessage: string): Promise<TitleGenerationRe
       model: titleModel,
       usage,
     };
-  } catch {
+  } catch (err) {
+    logger.error({ err }, "Failed to generate chat title");
     return {
       title: userMessage.length <= 72 ? userMessage : `${userMessage.slice(0, 69).trimEnd()}...`,
       model: "claude-haiku-4-5",
