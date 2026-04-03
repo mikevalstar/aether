@@ -40,7 +40,9 @@ export async function executeWorkflow(
   }
 
   // Resolve model and effort
-  const userVars = { userName: user.name, userEmail: user.email };
+  const userTimezone = user.preferences ? (JSON.parse(user.preferences) as { timezone?: string }).timezone : undefined;
+
+  const userVars = { userName: user.name, userEmail: user.email, timezone: userTimezone };
   const workflowPromptConfig = await readWorkflowPromptConfig(userVars);
   const model = resolveModel(config.model, workflowPromptConfig.model);
   const effort = resolveEffort(config.effort, workflowPromptConfig.effort);
@@ -51,8 +53,6 @@ export async function executeWorkflow(
     const value = formValues[field.name]?.trim() || "not entered";
     workflowBody = workflowBody.replace(new RegExp(`\\{\\{${field.name}\\}\\}`, "g"), value);
   }
-
-  const userTimezone = user.preferences ? (JSON.parse(user.preferences) as { timezone?: string }).timezone : undefined;
 
   return executePrompt({
     type: "workflow",

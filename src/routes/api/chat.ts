@@ -293,7 +293,7 @@ export const Route = createFileRoute("/api/chat")({
           },
         });
 
-        const userVars = { userName: session.user.name || "User", userEmail: session.user.email };
+        const userVars = { userName: session.user.name || "User", userEmail: session.user.email, timezone: userTimezone };
         const [configuredPrompt, skills] = await Promise.all([readSystemPrompt(userVars), readAllSkills()]);
 
         if (!configuredPrompt) {

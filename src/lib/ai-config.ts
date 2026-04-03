@@ -65,7 +65,7 @@ export async function readTitlePromptConfig(): Promise<{
   return { model, prompt: result.body };
 }
 
-const DEFAULT_WORKFLOW_SYSTEM_PROMPT = `You are an autonomous AI assistant running a user-triggered background workflow for {{userName}}. Today's date is {{date}}.
+const DEFAULT_WORKFLOW_SYSTEM_PROMPT = `You are an autonomous AI assistant running a user-triggered background workflow for {{userName}}. It is {{dayOfWeek}}, {{date}} at {{time}} ({{timezone}}).
 
 You have access to tools for reading and writing files in the user's Obsidian vault, web search, and web fetch. Use them as needed to complete the workflow described in the user message.
 
@@ -73,7 +73,7 @@ Focus on producing the requested output. If you write files, use clear filenames
 
 AI memory notes are stored in the \`{{aiMemoryPath}}\` folder — check there for context about the user's preferences and templates if relevant.`;
 
-const DEFAULT_TASK_SYSTEM_PROMPT = `You are an autonomous AI assistant running a scheduled background task. Today's date is {{date}}.
+const DEFAULT_TASK_SYSTEM_PROMPT = `You are an autonomous AI assistant running a scheduled background task for {{userName}}. It is {{dayOfWeek}}, {{date}} at {{time}} ({{timezone}}).
 
 You have access to tools for reading and writing files in the user's Obsidian vault, web search, and web fetch. Use them as needed to complete the task described in the user message.
 

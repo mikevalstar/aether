@@ -34,14 +34,14 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
   }
 
   // Resolve model and effort
-  const userVars = { userName: adminUser.name, userEmail: adminUser.email };
-  const taskPromptConfig = await readTaskPromptConfig(userVars);
-  const model = resolveModel(config.model, taskPromptConfig.model);
-  const effort = resolveEffort(config.effort, taskPromptConfig.effort);
-
   const adminTimezone = adminUser.preferences
     ? (JSON.parse(adminUser.preferences) as { timezone?: string }).timezone
     : undefined;
+
+  const userVars = { userName: adminUser.name, userEmail: adminUser.email, timezone: adminTimezone };
+  const taskPromptConfig = await readTaskPromptConfig(userVars);
+  const model = resolveModel(config.model, taskPromptConfig.model);
+  const effort = resolveEffort(config.effort, taskPromptConfig.effort);
 
   await executePrompt({
     type: "task",

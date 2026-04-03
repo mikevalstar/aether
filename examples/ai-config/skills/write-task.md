@@ -73,6 +73,9 @@ These are substituted automatically at execution time:
 | Placeholder | Value |
 |-------------|-------|
 | `{{date}}` | Today's date in ISO format (e.g., `2026-03-20`) |
+| `{{time}}` | Current time (e.g., `2:35 PM`) in the user's timezone |
+| `{{dayOfWeek}}` | Current day of the week (e.g., `Thursday`) |
+| `{{timezone}}` | The user's IANA timezone (e.g., `America/Toronto`) |
 | `{{userName}}` | The user's display name |
 | `{{aiMemoryPath}}` | Path to the AI memory folder in the Obsidian vault |
 
