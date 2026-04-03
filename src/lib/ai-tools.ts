@@ -23,6 +23,7 @@ import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
 import { createSendNotification } from "#/lib/tools/send-notification";
+import { listModels } from "#/lib/tools/list-models";
 import { getPluginTools } from "#/plugins/index.server";
 
 const anthropic = createAnthropic();
@@ -108,6 +109,7 @@ export function createAiTools(
     ...boardTools,
     send_notification: createSendNotification(userId),
     calendar_events: createCalendarEvents(userId, timezone),
+    list_models: listModels,
     ...pluginTools,
   };
 }
@@ -132,6 +134,8 @@ export function getToolCategories(): Record<string, { category: string; conditio
     obsidian_write: { category: "Obsidian" },
     obsidian_edit: { category: "Obsidian" },
     obsidian_ai_notes_list: { category: "Obsidian" },
+    // System
+    list_models: { category: "System" },
     // Memory
     ai_memory: { category: "Memory" },
     // Board

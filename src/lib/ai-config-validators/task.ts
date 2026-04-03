@@ -1,6 +1,6 @@
 import { Cron } from "croner";
 import { z } from "zod";
-import { CHAT_MODELS } from "#/lib/chat-models";
+import { CHAT_MODELS, resolveModelId } from "#/lib/chat-models";
 import type { AiConfigValidator } from "./types";
 
 const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
@@ -10,7 +10,11 @@ const validNotificationLevels = ["silent", "notify", "push"] as const;
 export const taskFrontmatterSchema = z.object({
   title: z.string().min(1, "title is required"),
   cron: z.string().min(1, "cron expression is required"),
-  model: z.enum(validModelIds).optional(),
+  model: z
+    .string()
+    .refine((v) => resolveModelId(v) !== undefined, "Must be a valid model ID or alias")
+    .transform((v) => resolveModelId(v)!)
+    .optional(),
   effort: z.enum(validEfforts).optional(),
   enabled: z.boolean().optional(),
   endDate: z.string().optional(),
@@ -49,7 +53,7 @@ export const taskValidator: AiConfigValidator = {
     "- `cron` — 5-field cron expression (min hour dom mon dow)",
     "",
     "**Optional frontmatter:**",
-    `- \`model\` — one of: ${validModelIds.join(", ")}`,
+    `- \`model\` — one of: ${validModelIds.join(", ")} (aliases also accepted)`,
     `- \`effort\` — one of: ${validEfforts.join(", ")}`,
     "- `enabled` — boolean (default true)",
     "- `endDate` — ISO 8601 date after which the task stops",
