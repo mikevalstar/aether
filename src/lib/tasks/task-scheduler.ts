@@ -8,12 +8,7 @@ import { startupTimer } from "#/lib/startup-timer";
 import { startSystemTasks, stopSystemTasks } from "#/lib/system-tasks";
 import { executeTask, type TaskConfig } from "#/lib/tasks/task-executor";
 import { getTasksDir, type LoadedTaskConfig, loadTaskConfigs, parseTaskFile } from "#/lib/tasks/task-loader";
-import {
-  findSchedulerAdminUser,
-  getExistingTaskRows,
-  markMissingTaskRows,
-  upsertTaskRow,
-} from "#/lib/tasks/task-sync";
+import { findSchedulerAdminUser, getExistingTaskRows, markMissingTaskRows, upsertTaskRow } from "#/lib/tasks/task-sync";
 
 // ── Types ────────────────────────────────────────────────────────────
 

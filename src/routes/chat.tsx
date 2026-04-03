@@ -12,7 +12,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "#/components/ui/drawer";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
-import { CHAT_MODELS, type ChatEffort, type ChatThreadSummary, DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL } from "#/lib/chat/chat";
+import {
+  CHAT_MODELS,
+  type ChatEffort,
+  type ChatThreadSummary,
+  DEFAULT_CHAT_EFFORT,
+  DEFAULT_CHAT_MODEL,
+} from "#/lib/chat/chat";
 import {
   createChatThread,
   deleteChatThread,

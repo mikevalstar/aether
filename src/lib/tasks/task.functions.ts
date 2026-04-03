@@ -7,8 +7,8 @@ import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
-import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/tasks/task-scheduler";
 import { getTasksDir } from "#/lib/tasks/task-loader";
+import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/tasks/task-scheduler";
 
 export type TaskListItem = {
   id: string;
