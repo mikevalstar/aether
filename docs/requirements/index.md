@@ -54,6 +54,7 @@ Future ideas and things to build, but we don't have enough detail to write requi
 - Webhook Receiver — authenticated inbound webhook endpoint that triggers AI workflows. Enables external integrations (GitHub push → summarize changes, Sentry alert → investigate) without building per-platform adapters.
 - Conversation Branching — extend existing branch navigation into explicit fork/branch workflows. Explore multiple approaches in parallel from a single conversation point. Leverage the web UI advantage over messaging-app-based assistants.
 - Important Files list - this might just be config
+- Tools to access previous chats ... maybe a job to create and manage memories? (dreams)
 
 # Larger Initiatives
 
