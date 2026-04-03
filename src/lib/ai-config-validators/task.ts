@@ -1,21 +1,21 @@
 import { Cron } from "croner";
 import { z } from "zod";
-import { CHAT_MODELS, resolveModelId } from "#/lib/chat-models";
 import type { AiConfigValidator } from "./types";
-
-const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
-const validEfforts = ["low", "medium", "high"] as const;
-const validNotificationLevels = ["silent", "notify", "push"] as const;
+import {
+  effortField,
+  formatFrontmatterErrors,
+  modelField,
+  notificationField,
+  validEfforts,
+  validModelIds,
+  validNotificationLevels,
+} from "./shared";
 
 export const taskFrontmatterSchema = z.object({
   title: z.string().min(1, "title is required"),
   cron: z.string().min(1, "cron expression is required"),
-  model: z
-    .string()
-    .refine((v) => resolveModelId(v) !== undefined, "Must be a valid model ID or alias")
-    .transform((v) => resolveModelId(v)!)
-    .optional(),
-  effort: z.enum(validEfforts).optional(),
+  model: modelField,
+  effort: effortField,
   enabled: z.boolean().optional(),
   endDate: z.string().optional(),
   maxTokens: z.number().int().positive().optional(),
@@ -30,7 +30,7 @@ export const taskFrontmatterSchema = z.object({
       }
     }, "Must be a valid IANA timezone (e.g. America/Toronto)")
     .optional(),
-  notification: z.enum(validNotificationLevels).optional(),
+  notification: notificationField,
 });
 
 function isValidCron(expr: string): boolean {
@@ -64,15 +64,10 @@ export const taskValidator: AiConfigValidator = {
     "**Body:** The prompt sent to the AI. Must be non-empty.",
   ].join("\n"),
   validate(frontmatter: Record<string, unknown>, body: string) {
-    const errors: string[] = [];
-
     const fmResult = taskFrontmatterSchema.safeParse(frontmatter);
-    if (!fmResult.success) {
-      for (const issue of fmResult.error.issues) {
-        const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
-        errors.push(`Frontmatter — ${path}${issue.message}`);
-      }
-    } else {
+    const errors = formatFrontmatterErrors(fmResult);
+
+    if (fmResult.success) {
       if (!isValidCron(fmResult.data.cron)) {
         errors.push("Frontmatter — cron: Invalid cron expression. Use 5-field format: min hour dom mon dow");
       }

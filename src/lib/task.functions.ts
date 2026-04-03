@@ -1,22 +1,14 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
 import { logger } from "#/lib/logger";
 import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/task-scheduler";
+import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
 import { getTasksDir } from "#/lib/task-scheduler/task-loader";
-
-const filenameInputSchema = z.object({
-  filename: z.string().trim().min(1, "Filename is required"),
-});
-
-const threadIdInputSchema = z.object({
-  threadId: z.string().trim().min(1, "Thread ID is required"),
-});
 
 export type TaskListItem = {
   id: string;

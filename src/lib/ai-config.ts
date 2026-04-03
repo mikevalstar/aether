@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { type AiConfigReadResult, parseAndValidateAiConfig } from "#/lib/ai-config.shared";
-import { formatIsoDate } from "#/lib/date";
+import { type PromptVars, interpolatePrompt } from "#/lib/prompt-utils";
 
 export type { AiConfigReadResult } from "#/lib/ai-config.shared";
 export { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
@@ -39,17 +39,12 @@ export async function readAiConfig(filename: string): Promise<AiConfigReadResult
  * Read the system prompt config and return the interpolated prompt.
  * Returns null if the file is missing or invalid — caller should fall back to hardcoded.
  */
-export async function readSystemPrompt(userName: string): Promise<string | null> {
+export async function readSystemPrompt(vars: PromptVars): Promise<string | null> {
   const result = await readAiConfig("system-prompt.md");
 
   if (!result || !result.validation.isValid) return null;
 
-  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
-
-  return result.body
-    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-    .replace(/\{\{userName\}\}/g, userName)
-    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
+  return interpolatePrompt(result.body, vars);
 }
 
 /**
@@ -88,28 +83,19 @@ Be thorough but concise. Focus on producing useful output. If you write files, u
  * Read the task prompt config and return model, effort, and interpolated prompt.
  * Falls back to a hardcoded default if the file is missing or invalid.
  */
-export async function readTaskPromptConfig(userName: string): Promise<{ model?: string; effort?: string; prompt: string }> {
+export async function readTaskPromptConfig(vars: PromptVars): Promise<{ model?: string; effort?: string; prompt: string }> {
   const result = await readAiConfig("task-prompt.md");
-
-  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
 
   if (!result || !result.validation.isValid) {
     return {
-      prompt: DEFAULT_TASK_SYSTEM_PROMPT.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-        .replace(/\{\{userName\}\}/g, userName)
-        .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath),
+      prompt: interpolatePrompt(DEFAULT_TASK_SYSTEM_PROMPT, vars),
     };
   }
 
   const model = typeof result.frontmatter.model === "string" ? result.frontmatter.model : undefined;
   const effort = typeof result.frontmatter.effort === "string" ? result.frontmatter.effort : undefined;
 
-  const prompt = result.body
-    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-    .replace(/\{\{userName\}\}/g, userName)
-    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
-
-  return { model, effort, prompt };
+  return { model, effort, prompt: interpolatePrompt(result.body, vars) };
 }
 
 /**
@@ -117,27 +103,18 @@ export async function readTaskPromptConfig(userName: string): Promise<{ model?: 
  * Falls back to a hardcoded default if the file is missing or invalid.
  */
 export async function readWorkflowPromptConfig(
-  userName: string,
+  vars: PromptVars,
 ): Promise<{ model?: string; effort?: string; prompt: string }> {
   const result = await readAiConfig("workflow-prompt.md");
 
-  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
-
   if (!result || !result.validation.isValid) {
     return {
-      prompt: DEFAULT_WORKFLOW_SYSTEM_PROMPT.replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-        .replace(/\{\{userName\}\}/g, userName)
-        .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath),
+      prompt: interpolatePrompt(DEFAULT_WORKFLOW_SYSTEM_PROMPT, vars),
     };
   }
 
   const model = typeof result.frontmatter.model === "string" ? result.frontmatter.model : undefined;
   const effort = typeof result.frontmatter.effort === "string" ? result.frontmatter.effort : undefined;
 
-  const prompt = result.body
-    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-    .replace(/\{\{userName\}\}/g, userName)
-    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
-
-  return { model, effort, prompt };
+  return { model, effort, prompt: interpolatePrompt(result.body, vars) };
 }

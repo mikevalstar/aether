@@ -13,8 +13,8 @@ import {
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
 import { CHAT_MODELS } from "#/lib/chat-models";
-import { formatIsoDate } from "#/lib/date";
 import { logger } from "#/lib/logger";
+import { interpolatePrompt } from "#/lib/prompt-utils";
 import { type NotificationLevel, notify } from "#/lib/notify";
 
 export type WorkflowField = {
@@ -52,7 +52,8 @@ export async function executeWorkflow(
   }
 
   // Resolve model and effort
-  const workflowPromptConfig = await readWorkflowPromptConfig(user.name);
+  const userVars = { userName: user.name, userEmail: user.email };
+  const workflowPromptConfig = await readWorkflowPromptConfig(userVars);
   const model = resolveModel(config.model, workflowPromptConfig.model);
   const effort = resolveEffort(config.effort, workflowPromptConfig.effort);
   const modelDef = CHAT_MODELS.find((m) => m.id === model);
@@ -74,11 +75,7 @@ export async function executeWorkflow(
   const systemPrompt = workflowPromptConfig.prompt;
 
   // Substitute placeholders in the workflow body
-  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
-  let workflowBody = config.body
-    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-    .replace(/\{\{userName\}\}/g, user.name)
-    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
+  let workflowBody = interpolatePrompt(config.body, userVars);
 
   // Substitute form field values
   for (const field of config.fields) {

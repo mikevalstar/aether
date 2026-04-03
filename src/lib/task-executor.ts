@@ -13,8 +13,8 @@ import {
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat";
 import { CHAT_MODELS } from "#/lib/chat-models";
-import { formatIsoDate } from "#/lib/date";
 import { logger } from "#/lib/logger";
+import { interpolatePrompt } from "#/lib/prompt-utils";
 import { type NotificationLevel, notify } from "#/lib/notify";
 
 export type TaskConfig = {
@@ -45,7 +45,8 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
   }
 
   // Resolve model and effort
-  const taskPromptConfig = await readTaskPromptConfig(adminUser.name);
+  const userVars = { userName: adminUser.name, userEmail: adminUser.email };
+  const taskPromptConfig = await readTaskPromptConfig(userVars);
   const model = resolveModel(config.model, taskPromptConfig.model);
   const effort = resolveEffort(config.effort, taskPromptConfig.effort);
   const modelDef = CHAT_MODELS.find((m) => m.id === model);
@@ -67,11 +68,7 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
   const systemPrompt = taskPromptConfig.prompt;
 
   // Substitute placeholders in the task body
-  const aiMemoryPath = process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory";
-  const taskBody = config.body
-    .replace(/\{\{date\}\}/g, formatIsoDate(new Date()))
-    .replace(/\{\{userName\}\}/g, adminUser.name)
-    .replace(/\{\{aiMemoryPath\}\}/g, aiMemoryPath);
+  const taskBody = interpolatePrompt(config.body, userVars);
 
   const adminTimezone = adminUser.preferences
     ? (JSON.parse(adminUser.preferences) as { timezone?: string }).timezone

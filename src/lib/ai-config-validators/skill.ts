@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { AiConfigValidator } from "./types";
+import { validateFrontmatterAndBody } from "./shared";
 
 export const skillFrontmatterSchema = z.object({
   name: z.string().min(1, "name is required"),
@@ -25,20 +26,6 @@ export const skillValidator: AiConfigValidator = {
     "**Body:** Instructions for the AI. Must be non-empty.",
   ].join("\n"),
   validate(frontmatter: Record<string, unknown>, body: string) {
-    const errors: string[] = [];
-
-    const fmResult = skillFrontmatterSchema.safeParse(frontmatter);
-    if (!fmResult.success) {
-      for (const issue of fmResult.error.issues) {
-        const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
-        errors.push(`Frontmatter — ${path}${issue.message}`);
-      }
-    }
-
-    if (!body || body.trim().length === 0) {
-      errors.push("Skill body cannot be empty");
-    }
-
-    return { isValid: errors.length === 0, errors };
+    return validateFrontmatterAndBody(skillFrontmatterSchema, frontmatter, body, "Skill body").result;
   },
 };

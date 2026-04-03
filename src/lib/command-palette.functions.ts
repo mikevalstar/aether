@@ -1,15 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { toObsidianRoutePath } from "#/lib/obsidian";
 import { searchVault } from "#/lib/obsidian/vault-index";
-
-const queryInputSchema = z
-  .object({
-    query: z.string(),
-  })
-  .strict();
+import { queryInputSchema } from "#/lib/shared-schemas";
 
 export type CommandPaletteWorkflow = {
   filename: string;

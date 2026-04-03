@@ -10,15 +10,8 @@ import { logger } from "#/lib/logger";
 import { toObsidianRoutePath } from "#/lib/obsidian";
 import type { WorkflowField } from "#/lib/workflow-executor";
 import { executeWorkflow } from "#/lib/workflow-executor";
+import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
 import { getWorkflowConfig, getWorkflowsDir } from "#/lib/workflow-watcher";
-
-const filenameInputSchema = z.object({
-  filename: z.string().trim().min(1, "Filename is required"),
-});
-
-const threadIdInputSchema = z.object({
-  threadId: z.string().trim().min(1, "Thread ID is required"),
-});
 
 const workflowRunInputSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),

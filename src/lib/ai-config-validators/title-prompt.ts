@@ -1,8 +1,6 @@
 import { z } from "zod";
-import { CHAT_MODELS } from "#/lib/chat-models";
 import type { AiConfigValidator } from "./types";
-
-const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];
+import { formatFrontmatterErrors, validModelIds } from "./shared";
 
 const frontmatterSchema = z.object({
   model: z.enum(validModelIds, {
@@ -24,15 +22,8 @@ export const titlePromptValidator: AiConfigValidator = {
     "**Body:** The prompt text sent to the model. Should instruct it to generate a short title from the user's first message.",
   ].join("\n"),
   validate(frontmatter: Record<string, unknown>, body: string) {
-    const errors: string[] = [];
-
     const frontmatterResult = frontmatterSchema.safeParse(frontmatter);
-    if (!frontmatterResult.success) {
-      for (const issue of frontmatterResult.error.issues) {
-        const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
-        errors.push(`Frontmatter — ${path}${issue.message}`);
-      }
-    }
+    const errors = formatFrontmatterErrors(frontmatterResult);
 
     const bodyResult = bodySchema.safeParse(body);
     if (!bodyResult.success) {
