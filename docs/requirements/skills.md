@@ -2,7 +2,7 @@
 title: AI Skills
 status: done
 owner: self
-last_updated: 2026-03-22
+last_updated: 2026-04-02
 canonical_file: docs/requirements/skills.md
 ---
 
@@ -81,6 +81,7 @@ Available Skills:
 <Skills>
 - write-workflow.md: Use this skill when the user asks to create or modify a workflow
 - write-skill.md: Use this skill when the user asks to create, modify, or understand how to write an AI skill file
+- write-task.md: Use this skill when the user asks to create, modify, or schedule a periodic/recurring task
 </Skills>
 ```
 
@@ -117,7 +118,7 @@ Returns the skill's markdown body so the AI can follow the instructions for the 
 | System prompt injection | done | `buildSkillsPromptSection()` in `src/lib/skills.ts` appends skills summary section to system prompt. Wired in `src/routes/api/chat.ts`. |
 | `load_skill` tool | done | `createLoadSkill()` factory in `src/lib/tools/load-skill.ts`. Registered in chat endpoint when skills exist. |
 | Validator integration | done | `skillValidator` registered in `src/lib/ai-config-validators/index.ts` with `filename: "skills/"` (directory prefix matching). |
-| Example skills | done | Two seed examples in `examples/ai-config/skills/`: `write-workflow.md` and `write-skill.md`. |
+| Example skills | done | Three seed examples in `examples/ai-config/skills/`: `write-workflow.md`, `write-skill.md`, and `write-task.md`. |
 | Seed/pull support | done | Both `scripts/ai-config-seed.ts` and `scripts/ai-config-pull.ts` use recursive directory copying that naturally handles the `skills/` subfolder. No skill-specific code was needed. |
 
 ## Sub-features
@@ -131,6 +132,7 @@ Returns the skill's markdown body so the AI can follow the instructions for the 
 | Skill validator (config validation) | done | `skillValidator` in `src/lib/ai-config-validators/skill.ts` validates skill files for config validation feedback. | Inline |
 | Example: write-workflow skill | done | Example skill in `examples/ai-config/skills/write-workflow.md` demonstrating the format with a comprehensive workflow-writing guide. | Inline |
 | Example: write-skill skill | done | Example skill in `examples/ai-config/skills/write-skill.md` demonstrating how to write skill files themselves (self-referential). | Inline |
+| Example: write-task skill | done | Example skill in `examples/ai-config/skills/write-task.md` teaching the AI how to create and configure scheduled task files. | Inline |
 | Seed script update | done | `ai-config-seed.ts` recursively copies `skills/` folder (generic recursive copy, no skill-specific code). | Inline |
 | Pull script update | done | `ai-config-pull.ts` recursively copies `skills/` folder back (generic recursive copy, no skill-specific code). | Inline |
 | Invalid skill handling | done | Invalid skills are excluded from the summary list. A warning is logged via pino with the filename and validation errors. | Inline |
@@ -189,7 +191,7 @@ Both scripts use generic recursive directory copying (`copyDir` / `pullDir`) tha
 | 4. `load_skill` tool | done | Created `createLoadSkill()` factory in `src/lib/tools/load-skill.ts`. |
 | 5. Chat endpoint integration | done | Wired skills into system prompt and tools in `src/routes/api/chat.ts`. |
 | 6. Config validation | done | Registered `skillValidator` in `src/lib/ai-config-validators/index.ts` with directory prefix matching (`"skills/"`). |
-| 7. Example skills | done | Two examples in `examples/ai-config/skills/`: `write-workflow.md` and `write-skill.md`. |
+| 7. Example skills | done | Three examples in `examples/ai-config/skills/`: `write-workflow.md`, `write-skill.md`, and `write-task.md`. |
 | 8. Seed/pull scripts | done | Already handled by existing recursive copy logic — no changes needed. |
 
 ## Open Questions
@@ -198,6 +200,7 @@ None currently.
 
 ## Change Log
 
+- 2026-04-02: Added third example skill `write-task.md` for creating/scheduling periodic tasks.
 - 2026-03-22: Updated all statuses to done. Documented actual file locations, implementation details, and the second example skill (`write-skill.md`).
 - 2026-03-20: Simplified to flat single-file model — skills are individual `.md` files in `skills/` instead of subfolders with `SKILL.md`. Dropped Agent Skills standard requirement. Frontmatter uses `name` (human-readable) and `description`.
 - 2026-03-15: Created initial requirements for AI skills with two-phase loading, Agent Skills standard format, validation, and chat integration.
