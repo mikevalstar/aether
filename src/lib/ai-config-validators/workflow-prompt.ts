@@ -1,10 +1,5 @@
+import { promptOverrideFrontmatterSchema, validateFrontmatterAndBody, validEfforts, validModelIds } from "./shared";
 import type { AiConfigValidator } from "./types";
-import {
-  promptOverrideFrontmatterSchema,
-  validateFrontmatterAndBody,
-  validEfforts,
-  validModelIds,
-} from "./shared";
 
 export const workflowPromptValidator: AiConfigValidator = {
   filename: "workflow-prompt.md",
@@ -19,11 +14,7 @@ export const workflowPromptValidator: AiConfigValidator = {
     "**Body:** The system prompt template. Must be non-empty.",
   ].join("\n"),
   validate(frontmatter: Record<string, unknown>, body: string) {
-    return validateFrontmatterAndBody(
-      promptOverrideFrontmatterSchema,
-      frontmatter,
-      body,
-      "Workflow system prompt body",
-    ).result;
+    return validateFrontmatterAndBody(promptOverrideFrontmatterSchema, frontmatter, body, "Workflow system prompt body")
+      .result;
   },
 };

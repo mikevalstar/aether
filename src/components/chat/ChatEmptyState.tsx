@@ -5,7 +5,7 @@ import { MentionPopover } from "#/components/mentions/MentionPopover";
 import { Button } from "#/components/ui/button";
 import { Textarea } from "#/components/ui/textarea";
 import { useMentionAutocomplete } from "#/hooks/useMentionAutocomplete";
-import { type ChatEffort, type ChatModel } from "#/lib/chat";
+import type { ChatEffort, ChatModel } from "#/lib/chat";
 
 export interface ChatEmptyStateProps {
   model: ChatModel;

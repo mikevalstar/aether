@@ -1,10 +1,5 @@
+import { promptOverrideFrontmatterSchema, validateFrontmatterAndBody, validEfforts, validModelIds } from "./shared";
 import type { AiConfigValidator } from "./types";
-import {
-  promptOverrideFrontmatterSchema,
-  validateFrontmatterAndBody,
-  validEfforts,
-  validModelIds,
-} from "./shared";
 
 export const taskPromptValidator: AiConfigValidator = {
   filename: "task-prompt.md",
@@ -19,11 +14,6 @@ export const taskPromptValidator: AiConfigValidator = {
     "**Body:** The system prompt template. Must be non-empty.",
   ].join("\n"),
   validate(frontmatter: Record<string, unknown>, body: string) {
-    return validateFrontmatterAndBody(
-      promptOverrideFrontmatterSchema,
-      frontmatter,
-      body,
-      "Task system prompt body",
-    ).result;
+    return validateFrontmatterAndBody(promptOverrideFrontmatterSchema, frontmatter, body, "Task system prompt body").result;
   },
 };

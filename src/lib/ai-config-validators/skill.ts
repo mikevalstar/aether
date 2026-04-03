@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { AiConfigValidator } from "./types";
 import { validateFrontmatterAndBody } from "./shared";
+import type { AiConfigValidator } from "./types";
 
 export const skillFrontmatterSchema = z.object({
   name: z.string().min(1, "name is required"),

@@ -23,11 +23,7 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
         </TableHeader>
         <TableBody>
           {items.map((item) => (
-            <TableRow
-              key={item.id}
-              className="cursor-pointer"
-              onClick={() => onItemClick(item.id)}
-            >
+            <TableRow key={item.id} className="cursor-pointer" onClick={() => onItemClick(item.id)}>
               <TableCell className="text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <Clock className="size-3.5" />
@@ -43,9 +39,7 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
                   <span className="ml-2 font-mono text-xs text-muted-foreground">{item.fileChangeDetail.filePath}</span>
                 )}
               </TableCell>
-              <TableCell>
-                {item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}
-              </TableCell>
+              <TableCell>{item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}</TableCell>
             </TableRow>
           ))}
         </TableBody>

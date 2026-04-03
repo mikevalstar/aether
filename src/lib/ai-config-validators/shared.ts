@@ -30,7 +30,10 @@ export const promptOverrideFrontmatterSchema = z.object({
  * Format Zod validation errors into an array of human-readable strings.
  * Prefixes each message with "Frontmatter — " and the field path.
  */
-export function formatFrontmatterErrors(result: { success: boolean; error?: { issues: Array<{ path: PropertyKey[]; message: string }> } }): string[] {
+export function formatFrontmatterErrors(result: {
+  success: boolean;
+  error?: { issues: Array<{ path: PropertyKey[]; message: string }> };
+}): string[] {
   if (result.success || !result.error) return [];
   return result.error.issues.map((issue) => {
     const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";

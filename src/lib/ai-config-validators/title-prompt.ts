@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { AiConfigValidator } from "./types";
 import { formatFrontmatterErrors, validModelIds } from "./shared";
+import type { AiConfigValidator } from "./types";
 
 const frontmatterSchema = z.object({
   model: z.enum(validModelIds, {

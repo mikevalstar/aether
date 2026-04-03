@@ -1,6 +1,5 @@
 import { Cron } from "croner";
 import { z } from "zod";
-import type { AiConfigValidator } from "./types";
 import {
   effortField,
   formatFrontmatterErrors,
@@ -10,6 +9,7 @@ import {
   validModelIds,
   validNotificationLevels,
 } from "./shared";
+import type { AiConfigValidator } from "./types";
 
 export const taskFrontmatterSchema = z.object({
   title: z.string().min(1, "title is required"),

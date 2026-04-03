@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { AiConfigValidator } from "./types";
 import {
   effortField,
   formatFrontmatterErrors,
@@ -10,6 +9,7 @@ import {
   validModelIds,
   validNotificationLevels,
 } from "./shared";
+import type { AiConfigValidator } from "./types";
 
 export const workflowFieldSchema = z.object({
   name: z.string().min(1, "field name is required"),

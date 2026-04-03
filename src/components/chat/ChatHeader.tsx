@@ -42,7 +42,6 @@ export function ChatHeader({
   onDelete,
   onExport,
 }: ChatHeaderProps) {
-
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(title);
   const [mobileExpanded, setMobileExpanded] = useState(false);

@@ -1,6 +1,6 @@
 import cronstrue from "cronstrue";
-import { Badge } from "#/components/ui/badge";
 import { RunHistoryTable } from "#/components/shared/RunHistoryTable";
+import { Badge } from "#/components/ui/badge";
 import type { TaskRunItem } from "#/lib/task.functions";
 import { convertTaskToChat, deleteTaskRun } from "#/lib/task.functions";
 
@@ -50,12 +50,7 @@ export function TaskRunHistory({
         </div>
       </div>
 
-      <RunHistoryTable
-        runs={runs}
-        onDelete={deleteTaskRun}
-        onConvertToChat={convertTaskToChat}
-        emptyLabel="task"
-      />
+      <RunHistoryTable runs={runs} onDelete={deleteTaskRun} onConvertToChat={convertTaskToChat} emptyLabel="task" />
     </div>
   );
 }
