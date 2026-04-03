@@ -1,5 +1,5 @@
 import { prisma } from "#/db";
-import { readWorkflowPromptConfig } from "#/lib/ai-config";
+import { readWorkflowPromptConfig } from "#/lib/ai-config/ai-config";
 import { executePrompt, resolveEffort, resolveModel } from "#/lib/executor-shared";
 import type { NotificationDelivery, NotificationSeverity } from "#/lib/notify";
 import { interpolatePrompt } from "#/lib/prompt-utils";

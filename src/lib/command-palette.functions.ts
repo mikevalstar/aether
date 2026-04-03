@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import { toObsidianRoutePath } from "#/lib/obsidian";
+import { toObsidianRoutePath } from "#/lib/obsidian/obsidian";
 import { searchVault } from "#/lib/obsidian/vault-index";
 import { queryInputSchema } from "#/lib/shared-schemas";
 

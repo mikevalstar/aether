@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
-import { getValidatorForFile } from "#/lib/ai-config-validators";
+import { parseAndValidateAiConfig } from "./ai-config.shared";
+import { getValidatorForFile } from "./validators";
 import { ensureSession } from "#/lib/auth.functions";
 import { filenameInputSchema } from "#/lib/shared-schemas";
 

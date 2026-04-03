@@ -13,7 +13,7 @@ import {
   type ObsidianTreeNode,
   type ObsidianViewerData,
   toObsidianRoutePath,
-} from "#/lib/obsidian";
+} from "#/lib/obsidian/obsidian";
 import { getAllIndexedNotes, searchVault } from "#/lib/obsidian/vault-index";
 import { parsePreferences } from "#/lib/preferences";
 
@@ -294,7 +294,7 @@ export type ObsidianTemplate = {
   filename: string;
 };
 
-const TEMPLATES_DIR = path.join(import.meta.dirname, "obsidian", "templates");
+const TEMPLATES_DIR = path.join(import.meta.dirname, "templates");
 
 async function readTemplatesFromDir(dir: string): Promise<ObsidianTemplate[]> {
   let entries: import("node:fs").Dirent[];

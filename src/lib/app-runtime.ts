@@ -1,6 +1,6 @@
 import { logger } from "#/lib/logger";
-import { closeScheduler, initScheduler } from "#/lib/task-scheduler";
-import { closeWorkflowWatcher, initWorkflowWatcher } from "#/lib/workflow-watcher";
+import { closeScheduler, initScheduler } from "#/lib/tasks/task-scheduler";
+import { closeWorkflowWatcher, initWorkflowWatcher } from "#/lib/workflows/workflow-watcher";
 
 type AppRuntimeState = {
   startPromise: Promise<void> | null;

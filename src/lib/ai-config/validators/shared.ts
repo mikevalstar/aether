@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CHAT_MODELS, resolveModelId } from "#/lib/chat-models";
+import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
 import type { AiConfigValidationResult } from "./types";
 
 export const validModelIds = CHAT_MODELS.map((m) => m.id) as [string, ...string[]];

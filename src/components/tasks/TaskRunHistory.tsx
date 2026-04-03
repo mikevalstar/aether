@@ -1,8 +1,8 @@
 import cronstrue from "cronstrue";
 import { RunHistoryTable } from "#/components/shared/RunHistoryTable";
 import { Badge } from "#/components/ui/badge";
-import type { TaskRunItem } from "#/lib/task.functions";
-import { convertTaskToChat, deleteTaskRun } from "#/lib/task.functions";
+import type { TaskRunItem } from "#/lib/tasks/task.functions";
+import { convertTaskToChat, deleteTaskRun } from "#/lib/tasks/task.functions";
 
 export function TaskRunHistory({
   task,

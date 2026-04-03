@@ -1,9 +1,9 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { taskFrontmatterSchema, taskValidator } from "#/lib/ai-config-validators/task";
+import { taskFrontmatterSchema, taskValidator } from "#/lib/ai-config/validators/task";
 import { logger } from "#/lib/logger";
-import type { TaskConfig } from "#/lib/task-executor";
+import type { TaskConfig } from "#/lib/tasks/task-executor";
 
 export type LoadedTaskConfig = {
   filename: string;

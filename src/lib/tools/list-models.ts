@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { CHAT_MODELS } from "#/lib/chat-models";
+import { CHAT_MODELS } from "#/lib/chat/chat-models";
 
 export const listModels = tool({
   description:

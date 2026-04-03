@@ -5,13 +5,13 @@ import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
-import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
+import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
-import { toObsidianRoutePath } from "#/lib/obsidian";
+import { toObsidianRoutePath } from "#/lib/obsidian/obsidian";
 import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
-import type { WorkflowField } from "#/lib/workflow-executor";
-import { executeWorkflow } from "#/lib/workflow-executor";
-import { getWorkflowConfig, getWorkflowsDir } from "#/lib/workflow-watcher";
+import type { WorkflowField } from "#/lib/workflows/workflow-executor";
+import { executeWorkflow } from "#/lib/workflows/workflow-executor";
+import { getWorkflowConfig, getWorkflowsDir } from "#/lib/workflows/workflow-watcher";
 
 const workflowRunInputSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),

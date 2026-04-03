@@ -1,5 +1,5 @@
 import { prisma } from "#/db";
-import type { TaskConfig } from "#/lib/task-executor";
+import type { TaskConfig } from "#/lib/tasks/task-executor";
 
 export async function findSchedulerAdminUser() {
   return prisma.user.findFirst({

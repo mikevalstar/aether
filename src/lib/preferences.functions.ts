@@ -4,9 +4,9 @@ import { z } from "zod";
 import { prisma } from "#/db";
 import { auth } from "#/lib/auth";
 import { ensureSession } from "#/lib/auth.functions";
-import { CHAT_MODELS, type ChatModel } from "#/lib/chat-models";
+import { CHAT_MODELS, type ChatModel } from "#/lib/chat/chat-models";
 import { searchVault } from "#/lib/obsidian/vault-index";
-import { listObsidianFolders } from "#/lib/obsidian.functions";
+import { listObsidianFolders } from "#/lib/obsidian/obsidian.functions";
 import { parsePreferences, serializePreferences } from "#/lib/preferences";
 import { queryInputSchema } from "#/lib/shared-schemas";
 

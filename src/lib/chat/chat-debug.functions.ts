@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
 import { createAiTools, getToolCategories } from "#/lib/ai-tools";
 import { ensureSession } from "#/lib/auth.functions";
-import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatModel, DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL } from "#/lib/chat-models";
+import { CHAT_EFFORT_LEVELS, CHAT_MODELS, type ChatModel, DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL } from "#/lib/chat/chat-models";
 import { parsePreferences } from "#/lib/preferences";
 import { readAllSkills, type SkillSummary } from "#/lib/skills";
 import { getAllPluginTools, getRegisteredPlugins } from "#/plugins/index.server";

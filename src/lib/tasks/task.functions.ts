@@ -4,11 +4,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
-import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat-models";
+import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
-import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/task-scheduler";
-import { getTasksDir } from "#/lib/task-scheduler/task-loader";
+import { getScheduledTasks, triggerTask as schedulerTriggerTask } from "#/lib/tasks/task-scheduler";
+import { getTasksDir } from "#/lib/tasks/task-loader";
 
 export type TaskListItem = {
   id: string;

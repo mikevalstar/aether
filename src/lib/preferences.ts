@@ -1,5 +1,5 @@
 import type { CalendarFeed } from "#/lib/calendar/types";
-import type { ChatModel } from "#/lib/chat-models";
+import type { ChatModel } from "#/lib/chat/chat-models";
 
 export type UserPreferences = {
   obsidianTemplatesFolder?: string;

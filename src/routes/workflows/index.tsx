@@ -4,7 +4,7 @@ import { PageHeader } from "#/components/PageHeader";
 import { WorkflowCard } from "#/components/workflows/WorkflowCard";
 import { WorkflowEmptyState } from "#/components/workflows/WorkflowEmptyState";
 import { getSession } from "#/lib/auth.functions";
-import { getWorkflowsPageData } from "#/lib/workflow.functions";
+import { getWorkflowsPageData } from "#/lib/workflows/workflow.functions";
 
 export const Route = createFileRoute("/workflows/")({
   beforeLoad: async () => {

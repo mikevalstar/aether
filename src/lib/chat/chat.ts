@@ -1,5 +1,5 @@
 import type { LanguageModelUsage, UIMessage } from "ai";
-import { CHAT_MODELS, type ChatEffort, type ChatModel } from "#/lib/chat-models";
+import { CHAT_MODELS, type ChatEffort, type ChatModel } from "#/lib/chat/chat-models";
 
 export {
   CHAT_EFFORT_LEVELS,
@@ -11,7 +11,7 @@ export {
   EFFORT_LABELS,
   isChatEffort,
   resolveModelId,
-} from "#/lib/chat-models";
+} from "#/lib/chat/chat-models";
 
 export const ANTHROPIC_PRICING_SOURCE_URL = "https://docs.anthropic.com/en/docs/about-claude/models/overview";
 

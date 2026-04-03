@@ -3,8 +3,8 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import { resolveModelId } from "#/lib/chat";
-import { buildUsageDateRange, getChatModelLabel, normalizeUsageSearch } from "#/lib/chat-usage";
+import { resolveModelId } from "#/lib/chat/chat";
+import { buildUsageDateRange, getChatModelLabel, normalizeUsageSearch } from "#/lib/chat/chat-usage";
 
 const usageSearchInputSchema = z
   .object({

@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { parseAndValidateAiConfig } from "#/lib/ai-config.shared";
+import { parseAndValidateAiConfig } from "#/lib/ai-config/ai-config.shared";
 import { logger } from "#/lib/logger";
 
 export type SkillSummary = {

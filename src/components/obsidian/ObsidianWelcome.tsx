@@ -1,6 +1,6 @@
 import { BookOpenIcon, FileTextIcon, FolderIcon } from "lucide-react";
 import { EmptyState } from "#/components/EmptyState";
-import type { ObsidianTreeNode } from "#/lib/obsidian";
+import type { ObsidianTreeNode } from "#/lib/obsidian/obsidian";
 
 type ObsidianWelcomeProps = {
   tree: ObsidianTreeNode[];

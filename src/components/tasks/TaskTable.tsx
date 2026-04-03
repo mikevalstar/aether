@@ -8,8 +8,8 @@ import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
-import type { TaskListItem } from "#/lib/task.functions";
-import { triggerTaskRun } from "#/lib/task.functions";
+import type { TaskListItem } from "#/lib/tasks/task.functions";
+import { triggerTaskRun } from "#/lib/tasks/task.functions";
 
 function formatCron(cron: string): string {
   try {

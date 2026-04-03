@@ -6,7 +6,7 @@ import { SectionLabel } from "#/components/ui/section-label";
 import { WorkflowForm } from "#/components/workflows/WorkflowForm";
 import { WorkflowRunHistory } from "#/components/workflows/WorkflowRunHistory";
 import { getSession } from "#/lib/auth.functions";
-import { getWorkflowDetail } from "#/lib/workflow.functions";
+import { getWorkflowDetail } from "#/lib/workflows/workflow.functions";
 
 const workflowSearchSchema = z.object({
   highlight: z.string().optional(),

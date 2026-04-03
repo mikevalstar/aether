@@ -19,7 +19,7 @@ import {
   isChatEffort,
   parseStoredMessages,
   resolveModelId,
-} from "#/lib/chat";
+} from "#/lib/chat/chat";
 import { logger } from "#/lib/logger";
 import { parsePreferences } from "#/lib/preferences";
 import { threadIdInputSchema } from "#/lib/shared-schemas";

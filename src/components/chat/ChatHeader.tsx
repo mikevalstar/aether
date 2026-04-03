@@ -2,8 +2,8 @@ import { ChevronDownIcon, FileDownIcon, MenuIcon, PencilIcon, Trash2Icon } from 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ModelEffortSelector } from "#/components/chat/ModelEffortSelector";
 import { Button } from "#/components/ui/button";
-import type { ChatEffort, ChatModel } from "#/lib/chat";
-import { CHAT_MODELS } from "#/lib/chat";
+import type { ChatEffort, ChatModel } from "#/lib/chat/chat";
+import { CHAT_MODELS } from "#/lib/chat/chat";
 
 export interface ChatHeaderProps {
   title: string;

@@ -12,7 +12,7 @@ import {
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
-import { getObsidianHref, type ObsidianTreeNode } from "#/lib/obsidian";
+import { getObsidianHref, type ObsidianTreeNode } from "#/lib/obsidian/obsidian";
 import { cn } from "#/lib/utils";
 import { NewFileDialog } from "./NewFileDialog";
 

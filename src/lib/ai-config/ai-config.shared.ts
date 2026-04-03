@@ -1,5 +1,5 @@
 import matter from "gray-matter";
-import { type AiConfigValidationResult, type AiConfigValidator, getValidatorForFile } from "#/lib/ai-config-validators";
+import { type AiConfigValidationResult, type AiConfigValidator, getValidatorForFile } from "./validators";
 
 export type AiConfigReadResult = {
   frontmatter: Record<string, unknown>;
