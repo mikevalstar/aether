@@ -1,3 +1,4 @@
+import { type JSONValue, search as jmespath } from "@metrichor/jmespath";
 import { tool } from "ai";
 import { z } from "zod";
 import { logger } from "#/lib/logger";
@@ -17,6 +18,25 @@ import {
   searchNewSeries,
 } from "./lib/sonarr-client";
 
+/** Apply an optional JMESPath filter to an array of results. Returns the original array on invalid expressions. */
+function applyFilter(items: Record<string, unknown>[], filter?: string): { items: unknown; filtered: boolean } {
+  if (!filter) return { items, filtered: false };
+  try {
+    const result = jmespath(items as unknown as JSONValue, filter);
+    return { items: Array.isArray(result) ? result : [result], filtered: true };
+  } catch (err) {
+    logger.warn({ err, filter }, "Sonarr: invalid JMESPath filter, returning unfiltered results");
+    return { items, filtered: false };
+  }
+}
+
+const filterParam = z
+  .string()
+  .optional()
+  .describe(
+    'Optional JMESPath expression to filter/transform results. Examples: "[?monitored]", "[?status==\'continuing\']", "[?percentComplete < `100`].{title: title, pct: percentComplete}"',
+  );
+
 export const sonarrServer: AetherPluginServer = {
   systemPrompt: `You have access to Sonarr tools for managing TV show downloads. Use these tools when the user asks about TV shows, episodes, downloads, or their media library:
 - sonarr_list_series: List all tracked TV series with status
@@ -30,7 +50,13 @@ export const sonarrServer: AetherPluginServer = {
 - sonarr_search_episodes: Trigger a download search for specific episodes
 
 For adding series: always use sonarr_search_new first to find the tvdbId, then confirm with the user before calling sonarr_add_series.
-For episode searches: confirm with the user before triggering sonarr_search_episodes as it will actively search indexers.`,
+For episode searches: confirm with the user before triggering sonarr_search_episodes as it will actively search indexers.
+
+List tools (list_series, upcoming, queue, history, wanted, search_new) support an optional \`filter\` parameter — a JMESPath expression to filter or reshape results. Examples:
+- \`[?monitored]\` — only monitored series
+- \`[?status=='continuing']\` — only continuing series
+- \`[?percentComplete < \\\`100\\\`].{title: title, pct: percentComplete}\` — incomplete series with selected fields
+- \`[?hasFile == \\\`false\\\`]\` — episodes not yet downloaded`,
 
   createTools(ctx) {
     async function getSonarrOptions(): Promise<SonarrOptions> {
@@ -46,18 +72,19 @@ For episode searches: confirm with the user before triggering sonarr_search_epis
     return {
       list_series: tool({
         description: "List all TV series in Sonarr with their monitoring status, episode counts, and completion percentage.",
-        inputSchema: z.object({}),
-        execute: async () => {
-          logger.info({ userId: ctx.userId }, "Sonarr tool: list_series invoked");
+        inputSchema: z.object({ filter: filterParam }),
+        execute: async ({ filter }) => {
+          logger.info({ filter, userId: ctx.userId }, "Sonarr tool: list_series invoked");
           try {
             const opts = await getSonarrOptions();
             const series = await listSeries(opts);
+            const { items, filtered } = applyFilter(series, filter);
             await ctx.logActivity({
               type: "sonarr_query",
-              summary: `Listed ${series.length} series`,
-              metadata: { count: series.length },
+              summary: `Listed ${series.length} series${filtered ? " (filtered)" : ""}`,
+              metadata: { count: series.length, filtered },
             });
-            return { series, count: series.length };
+            return { series: items, totalCount: series.length, filtered };
           } catch (err) {
             logger.error({ err, userId: ctx.userId }, "Sonarr tool: list_series failed");
             return { error: err instanceof Error ? err.message : "Failed to list series" };
@@ -101,18 +128,20 @@ For episode searches: confirm with the user before triggering sonarr_search_epis
         description: "Get upcoming episodes airing soon from the Sonarr calendar.",
         inputSchema: z.object({
           days: z.number().min(1).max(30).optional().describe("Days to look ahead (default 7)"),
+          filter: filterParam,
         }),
-        execute: async ({ days }) => {
-          logger.info({ days, userId: ctx.userId }, "Sonarr tool: upcoming invoked");
+        execute: async ({ days, filter }) => {
+          logger.info({ days, filter, userId: ctx.userId }, "Sonarr tool: upcoming invoked");
           try {
             const opts = await getSonarrOptions();
             const episodes = await getUpcoming(opts, days ?? 7);
+            const { items, filtered } = applyFilter(episodes, filter);
             await ctx.logActivity({
               type: "sonarr_query",
-              summary: `Checked upcoming — ${episodes.length} episodes in next ${days ?? 7} days`,
-              metadata: { count: episodes.length, days: days ?? 7 },
+              summary: `Checked upcoming — ${episodes.length} episodes in next ${days ?? 7} days${filtered ? " (filtered)" : ""}`,
+              metadata: { count: episodes.length, days: days ?? 7, filtered },
             });
-            return { episodes, count: episodes.length };
+            return { episodes: items, totalCount: episodes.length, filtered };
           } catch (err) {
             logger.error({ err, userId: ctx.userId }, "Sonarr tool: upcoming failed");
             return { error: err instanceof Error ? err.message : "Failed to get upcoming episodes" };
@@ -122,19 +151,20 @@ For episode searches: confirm with the user before triggering sonarr_search_epis
 
       queue: tool({
         description: "Check the current download queue — what's being downloaded or waiting to download right now.",
-        inputSchema: z.object({}),
-        execute: async () => {
-          logger.info({ userId: ctx.userId }, "Sonarr tool: queue invoked");
+        inputSchema: z.object({ filter: filterParam }),
+        execute: async ({ filter }) => {
+          logger.info({ filter, userId: ctx.userId }, "Sonarr tool: queue invoked");
           try {
             const opts = await getSonarrOptions();
             const items = await getQueue(opts);
+            if (items.length === 0) return { message: "Download queue is empty — nothing downloading.", items: [] };
+            const { items: filtered, filtered: didFilter } = applyFilter(items, filter);
             await ctx.logActivity({
               type: "sonarr_query",
-              summary: `Checked queue — ${items.length} items`,
-              metadata: { count: items.length },
+              summary: `Checked queue — ${items.length} items${didFilter ? " (filtered)" : ""}`,
+              metadata: { count: items.length, filtered: didFilter },
             });
-            if (items.length === 0) return { message: "Download queue is empty — nothing downloading.", items: [] };
-            return { items, count: items.length };
+            return { items: filtered, totalCount: items.length, filtered: didFilter };
           } catch (err) {
             logger.error({ err, userId: ctx.userId }, "Sonarr tool: queue failed");
             return { error: err instanceof Error ? err.message : "Failed to get queue" };
@@ -146,18 +176,20 @@ For episode searches: confirm with the user before triggering sonarr_search_epis
         description: "Get recent download/import history from Sonarr.",
         inputSchema: z.object({
           limit: z.number().min(1).max(50).optional().describe("Number of history items (default 20)"),
+          filter: filterParam,
         }),
-        execute: async ({ limit }) => {
-          logger.info({ limit, userId: ctx.userId }, "Sonarr tool: history invoked");
+        execute: async ({ limit, filter }) => {
+          logger.info({ limit, filter, userId: ctx.userId }, "Sonarr tool: history invoked");
           try {
             const opts = await getSonarrOptions();
             const items = await getHistory(opts, limit ?? 20);
+            const { items: filtered, filtered: didFilter } = applyFilter(items, filter);
             await ctx.logActivity({
               type: "sonarr_query",
-              summary: `Checked history — ${items.length} events`,
-              metadata: { count: items.length },
+              summary: `Checked history — ${items.length} events${didFilter ? " (filtered)" : ""}`,
+              metadata: { count: items.length, filtered: didFilter },
             });
-            return { items, count: items.length };
+            return { items: filtered, totalCount: items.length, filtered: didFilter };
           } catch (err) {
             logger.error({ err, userId: ctx.userId }, "Sonarr tool: history failed");
             return { error: err instanceof Error ? err.message : "Failed to get history" };
@@ -169,18 +201,20 @@ For episode searches: confirm with the user before triggering sonarr_search_epis
         description: "List missing/wanted episodes — episodes that have aired but haven't been downloaded yet.",
         inputSchema: z.object({
           limit: z.number().min(1).max(50).optional().describe("Number of wanted episodes (default 20)"),
+          filter: filterParam,
         }),
-        execute: async ({ limit }) => {
-          logger.info({ limit, userId: ctx.userId }, "Sonarr tool: wanted invoked");
+        execute: async ({ limit, filter }) => {
+          logger.info({ limit, filter, userId: ctx.userId }, "Sonarr tool: wanted invoked");
           try {
             const opts = await getSonarrOptions();
             const episodes = await getWantedMissing(opts, limit ?? 20);
+            const { items, filtered } = applyFilter(episodes, filter);
             await ctx.logActivity({
               type: "sonarr_query",
-              summary: `Checked wanted — ${episodes.length} missing episodes`,
-              metadata: { count: episodes.length },
+              summary: `Checked wanted — ${episodes.length} missing episodes${filtered ? " (filtered)" : ""}`,
+              metadata: { count: episodes.length, filtered },
             });
-            return { episodes, count: episodes.length };
+            return { episodes: items, totalCount: episodes.length, filtered };
           } catch (err) {
             logger.error({ err, userId: ctx.userId }, "Sonarr tool: wanted failed");
             return { error: err instanceof Error ? err.message : "Failed to get wanted episodes" };
@@ -193,18 +227,20 @@ For episode searches: confirm with the user before triggering sonarr_search_epis
           "Search for a TV series to potentially add to Sonarr. Searches online databases (TVDB), not your local library. Returns results with tvdbId needed for adding.",
         inputSchema: z.object({
           term: z.string().describe("Search term — TV show title"),
+          filter: filterParam,
         }),
-        execute: async ({ term }) => {
-          logger.info({ term, userId: ctx.userId }, "Sonarr tool: search_new invoked");
+        execute: async ({ term, filter }) => {
+          logger.info({ term, filter, userId: ctx.userId }, "Sonarr tool: search_new invoked");
           try {
             const opts = await getSonarrOptions();
             const results = await searchNewSeries(opts, term);
+            const { items, filtered } = applyFilter(results, filter);
             await ctx.logActivity({
               type: "sonarr_query",
-              summary: `Searched for "${term}" — ${results.length} results`,
-              metadata: { term, count: results.length },
+              summary: `Searched for "${term}" — ${results.length} results${filtered ? " (filtered)" : ""}`,
+              metadata: { term, count: results.length, filtered },
             });
-            return { results, count: results.length };
+            return { results: items, totalCount: results.length, filtered };
           } catch (err) {
             logger.error({ err, term, userId: ctx.userId }, "Sonarr tool: search_new failed");
             return { error: err instanceof Error ? err.message : "Failed to search series" };
