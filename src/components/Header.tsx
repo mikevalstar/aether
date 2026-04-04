@@ -116,7 +116,7 @@ export default function Header({ serverSession }: HeaderProps) {
   // Prefer client session (reactive) once available, fall back to server session for SSR
   const session = clientSession ?? serverSession;
   const isAuthed = !!session?.user;
-  const isImpersonating = !!(session as { session?: { impersonatedBy?: string } })?.session?.impersonatedBy;
+  const isImpersonating = !!session?.session?.impersonatedBy;
   const routerPath = routerState.location.pathname;
   const isChatRoute = routerPath.startsWith("/chat");
 
