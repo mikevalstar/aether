@@ -126,7 +126,7 @@ function ActivityPage() {
       highlight="log"
       description="Track all file changes made by AI tools and manual edits."
     >
-      <section className="mb-4 flex gap-2">
+      <section className="mb-4 flex flex-wrap gap-2">
         {getTypeFilters().map((filter) => (
           <Button
             key={filter.value}
