@@ -46,6 +46,13 @@ const sonarrConnectionOptionsSchema = z
   })
   .passthrough();
 
+const radarrConnectionOptionsSchema = z
+  .object({
+    base_url: z.string().trim().min(1).default("http://localhost:7878"),
+    api_key: z.string().default(""),
+  })
+  .passthrough();
+
 const apiBalancesConnectionOptionsSchema = z
   .object({
     openrouter_enabled: z.coerce.boolean().default(false),
@@ -179,6 +186,12 @@ export const testPluginConnection = createServerFn({ method: "POST" })
     if (data.pluginId === "sonarr") {
       const { testConnection } = await import("#/plugins/sonarr/lib/sonarr-client");
       const options = sonarrConnectionOptionsSchema.parse(data.options);
+      return await testConnection({ base_url: options.base_url, api_key: options.api_key });
+    }
+
+    if (data.pluginId === "radarr") {
+      const { testConnection } = await import("#/plugins/radarr/lib/radarr-client");
+      const options = radarrConnectionOptionsSchema.parse(data.options);
       return await testConnection({ base_url: options.base_url, api_key: options.api_key });
     }
 

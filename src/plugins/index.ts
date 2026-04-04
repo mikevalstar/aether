@@ -1,11 +1,12 @@
 import type { UserPreferences } from "#/lib/preferences";
 import { apiBalancesPlugin } from "./api_balances";
 import { imapPlugin } from "./imap_email";
+import { radarrPlugin } from "./radarr";
 import { sonarrPlugin } from "./sonarr";
 import type { AetherPlugin, PluginActivityType } from "./types";
 
 /** All registered plugins (client-safe — no server imports). */
-export const plugins: AetherPlugin[] = [imapPlugin, apiBalancesPlugin, sonarrPlugin];
+export const plugins: AetherPlugin[] = [imapPlugin, apiBalancesPlugin, sonarrPlugin, radarrPlugin];
 
 export function getPlugin(id: string): AetherPlugin | undefined {
   return plugins.find((p) => p.meta.id === id);
