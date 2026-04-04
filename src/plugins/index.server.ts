@@ -4,11 +4,12 @@ import type { UserPreferences } from "#/lib/preferences";
 import { apiBalancesPluginFull } from "./api_balances/index.server";
 import { imapPluginFull } from "./imap_email/index.server";
 import { createPluginContext } from "./plugin-context";
+import { radarrPluginFull } from "./radarr/index.server";
 import { sonarrPluginFull } from "./sonarr/index.server";
 import type { AetherPlugin } from "./types";
 
 /** All registered plugins with full server capabilities. */
-const serverPlugins: AetherPlugin[] = [imapPluginFull, apiBalancesPluginFull, sonarrPluginFull];
+const serverPlugins: AetherPlugin[] = [imapPluginFull, apiBalancesPluginFull, sonarrPluginFull, radarrPluginFull];
 
 function getServerPlugin(id: string): AetherPlugin | undefined {
   return serverPlugins.find((p) => p.meta.id === id);
