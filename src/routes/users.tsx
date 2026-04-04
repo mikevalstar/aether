@@ -17,6 +17,7 @@ import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
+import { authClient } from "#/lib/auth-client";
 import { formatDate } from "#/lib/date";
 import {
   createManagedUser,
@@ -200,7 +201,8 @@ function UsersPage() {
                     <span className="font-medium text-foreground">Created:</span> {formatDate(user.createdAt)}
                   </p>
                 </div>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-end gap-1">
+                  {user.id !== currentUser.id && <ImpersonateButton userId={user.id} userName={user.name} />}
                   {user.id !== currentUser.id && <RemoveUserButton userId={user.id} userName={user.name} />}
                 </div>
               </article>
@@ -209,6 +211,58 @@ function UsersPage() {
         </section>
       </section>
     </main>
+  );
+}
+
+function ImpersonateButton({ userId, userName }: { userId: string; userName: string }) {
+  const router = useRouter();
+  const [isImpersonating, setIsImpersonating] = useState(false);
+
+  const handleImpersonate = async () => {
+    setIsImpersonating(true);
+    try {
+      const { error } = await authClient.admin.impersonateUser({ userId });
+      if (error) {
+        toast.error("Failed to impersonate", {
+          description: error.message ?? "Something went wrong",
+        });
+        return;
+      }
+      toast.success(`Now impersonating ${userName}`);
+      await router.invalidate();
+      await router.navigate({ to: "/dashboard" });
+    } catch (err) {
+      toast.error("Failed to impersonate", {
+        description: err instanceof Error ? err.message : "Something went wrong",
+      });
+    } finally {
+      setIsImpersonating(false);
+    }
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="text-teal hover:text-teal">
+          Impersonate
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Impersonate {userName}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You will be logged in as {userName} and see the app from their perspective. You can stop impersonating at any
+            time from the banner at the top of the page.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleImpersonate} disabled={isImpersonating}>
+            {isImpersonating ? "Switching..." : "Impersonate"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
