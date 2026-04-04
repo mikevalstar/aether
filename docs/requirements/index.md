@@ -1,6 +1,6 @@
 ---
 title: Requirements Index
-last_updated: 2026-03-22
+last_updated: 2026-04-04
 canonical_file: docs/requirements/index.md
 ---
 
@@ -30,6 +30,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Plugin System](plugins.md) | done | Standardized plugin interface with dual-file registration, AI tools, settings, health checks, test connection, dashboard widgets, and command palette. | [plugins](plugins.md) | 2026-03-22 |
 | [Plugin — Email (IMAP)](plugin-imap.md) | done | IMAP email plugin with six AI tools (list, read, search, folders, move, archive), dashboard inbox widget, and Proton Mail Bridge support. | [plugin-imap](plugin-imap.md) | 2026-03-28 |
 | [Plugin — API Balances](plugin-api-balances.md) | done | Dashboard widget + AI tool showing credit balances for OpenRouter, OpenAI, Kilo Code. Per-service config with test connection and 10-min cache. | [plugin-api-balances](plugin-api-balances.md) | 2026-03-22 |
+| [Plugin — Sonarr](plugin-sonarr.md) | todo | Sonarr TV show management via AI tools (9 tools: list/get series, upcoming, queue, history, wanted, search/add, trigger search). Settings + health check, no dashboard. Phase 1 of *arr stack. | [plugin-sonarr](plugin-sonarr.md) | 2026-04-04 |
 | [Triggers](triggers.md) | draft | Event-driven AI prompts fired by file changes or plugin events. Config-as-markdown in `triggers/` folder, `{{details}}` placeholder, concurrent execution. | [triggers](triggers.md) | 2026-03-22 |
 | [OpenRouter Model Browser](openrouter-models.md) | todo | Browse OpenRouter model catalog from chat settings, see pricing, enable/disable models for use in chat. | [openrouter-models](openrouter-models.md) | 2026-03-28 |
 
