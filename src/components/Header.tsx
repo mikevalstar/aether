@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
@@ -8,6 +8,7 @@ import {
   ChevronDown,
   CircuitBoard,
   Columns3,
+  Eye,
   FileText,
   GitBranch,
   LayoutDashboard,
@@ -74,7 +75,10 @@ const systemLinks: NavLink[] = [
 const publicLinks: NavLink[] = [{ to: "/", label: "Home", icon: LayoutDashboard, auth: false }];
 
 interface HeaderProps {
-  serverSession?: { user: { name: string | null; email: string; image?: string | null; role?: string | null } } | null;
+  serverSession?: {
+    user: { name: string | null; email: string; image?: string | null; role?: string | null };
+    session?: { impersonatedBy?: string | null };
+  } | null;
 }
 
 export default function Header({ serverSession }: HeaderProps) {
@@ -107,9 +111,12 @@ export default function Header({ serverSession }: HeaderProps) {
     return () => document.removeEventListener("pointerdown", handler);
   }, [chatHeaderExpanded]);
 
+  const router = useRouter();
+
   // Prefer client session (reactive) once available, fall back to server session for SSR
   const session = clientSession ?? serverSession;
   const isAuthed = !!session?.user;
+  const isImpersonating = !!session?.session?.impersonatedBy;
   const routerPath = routerState.location.pathname;
   const isChatRoute = routerPath.startsWith("/chat");
 
@@ -124,6 +131,9 @@ export default function Header({ serverSession }: HeaderProps) {
       className={`sticky top-0 z-50 bg-[var(--header-bg)] backdrop-blur-sm pt-[env(safe-area-inset-top)] ${isChatRoute ? "border-b-0 lg:border-b lg:border-border" : "border-b border-border"}`}
       data-chat-route={isChatRoute || undefined}
     >
+      {/* Impersonation banner */}
+      {isImpersonating && <ImpersonationBanner userName={session?.user.name} router={router} />}
+
       {/* Mobile chat: collapsed accent bar */}
       {isChatRoute && (
         <button
@@ -396,5 +406,43 @@ export default function Header({ serverSession }: HeaderProps) {
         </SheetContent>
       </Sheet>
     </header>
+  );
+}
+
+function ImpersonationBanner({
+  userName,
+  router,
+}: {
+  userName: string | null | undefined;
+  router: ReturnType<typeof useRouter>;
+}) {
+  const [isStopping, setIsStopping] = useState(false);
+
+  const handleStop = async () => {
+    setIsStopping(true);
+    try {
+      await authClient.admin.stopImpersonating();
+      await router.invalidate();
+      await router.navigate({ to: "/users" });
+    } catch {
+      setIsStopping(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-3 bg-amber-500 px-4 py-1.5 text-xs font-medium text-amber-950">
+      <Eye className="size-3.5" />
+      <span>
+        Impersonating <strong>{userName ?? "user"}</strong>
+      </span>
+      <button
+        type="button"
+        onClick={handleStop}
+        disabled={isStopping}
+        className="rounded bg-amber-950/20 px-2 py-0.5 font-semibold transition-colors hover:bg-amber-950/30 disabled:opacity-50"
+      >
+        {isStopping ? "Stopping..." : "Stop impersonating"}
+      </button>
+    </div>
   );
 }

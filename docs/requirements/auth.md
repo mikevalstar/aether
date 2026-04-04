@@ -28,6 +28,7 @@ canonical_file: docs/requirements/auth.md
 | Route protection | done | Unauthenticated users are redirected away from protected pages and blocked from protected API behavior. All protected routes use a consistent server-first `beforeLoad` redirect pattern. |
 | Admin-managed access | done | Only admins can create new accounts and assign `user` or `admin` roles via the Better Auth admin plugin. |
 | Password lifecycle | in-progress | Temporary-password tracking exists and users can rotate passwords, but temporary-password enforcement is advisory rather than mandatory. |
+| Admin impersonation | done | Admins can impersonate other users to see the app from their perspective, with a visible banner and one-click exit. |
 | Profile settings | done | Users can update their display name and timezone from the settings page. |
 
 ## Sub-features
@@ -41,6 +42,7 @@ canonical_file: docs/requirements/auth.md
 | Admin user management | done | `/users` lets admins create accounts, set roles, and view invitation metadata. | Inline |
 | Password settings | in-progress | `/settings/password` supports self-service password changes and clears `mustChangePassword` after success. | Inline |
 | Profile settings | done | `/settings/profile` lets users update their name and timezone preference. | Inline |
+| Admin impersonation | done | Admins can impersonate users from `/users` and a banner shows during impersonation with a stop button. | Inline |
 | Sign out | done | Sign out is available from the user avatar dropdown and mobile nav via `authClient.signOut()`. | Inline |
 
 ## Detail
@@ -65,6 +67,12 @@ canonical_file: docs/requirements/auth.md
 - Dependencies: `src/lib/user-management.functions.ts`, `src/routes/users.tsx`, `src/components/Header.tsx`, `prisma/schema.prisma`.
 - Follow-up: Decide whether non-admin users should be blocked from even seeing admin route URLs via route-level redirects instead of error-only loaders.
 
+### Admin user impersonation
+
+- Requirement: Admins must be able to impersonate other users to see the application from their perspective, with clear visual indication and easy exit.
+- Notes: Uses Better Auth admin plugin's built-in `impersonateUser` / `stopImpersonating` API. The `/users` page shows an "Impersonate" button next to each user (excluding the current admin). A confirmation dialog explains the action before proceeding. When impersonating, an amber banner appears at the top of every page showing the impersonated user's name and a "Stop impersonating" button. Stopping returns the admin to the `/users` page. The session's `impersonatedBy` field is used to detect active impersonation. By default, admins cannot impersonate other admins (Better Auth security restriction).
+- Dependencies: `src/routes/users.tsx`, `src/components/Header.tsx`, `src/lib/auth-client.ts` (adminClient plugin).
+
 ### Password change flow
 
 - Requirement: Users must be able to replace temporary credentials and rotate their own passwords without admin involvement.
@@ -87,5 +95,6 @@ canonical_file: docs/requirements/auth.md
 
 ## Change Log
 
+- 2026-04-04: Added admin user impersonation feature using Better Auth admin plugin's built-in impersonateUser/stopImpersonating API.
 - 2026-03-22: Updated to reflect current state: documented Better Auth admin plugin usage, consistent server-first `beforeLoad` route protection across all protected routes, root-level session hydration for SSR, profile settings sub-feature, sign out sub-feature, expanded list of protected routes, preferences field on User model, toast notifications for success feedback, and trustedOrigins configuration.
 - 2026-03-14: Created the initial auth requirements doc from the current implementation and added the requirements index.
