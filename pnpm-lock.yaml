@@ -38,6 +38,9 @@ importers:
       '@libsql/client':
         specifier: ^0.17.2
         version: 0.17.2
+      '@metrichor/jmespath':
+        specifier: ^0.3.1
+        version: 0.3.1
       '@mozilla/readability':
         specifier: ^0.6.0
         version: 0.6.0
@@ -212,6 +215,9 @@ importers:
       tailwindcss:
         specifier: ^4.2.2
         version: 4.2.2
+      tsarr:
+        specifier: ^2.4.12
+        version: 2.4.12
       turndown:
         specifier: ^7.2.2
         version: 7.2.2
@@ -1204,6 +1210,10 @@ packages:
     peerDependencies:
       '@types/react': '>=16'
       react: '>=16'
+
+  '@metrichor/jmespath@0.3.1':
+    resolution: {integrity: sha512-X/S90FG+VlEWGNEptEpZ15QN7h9aRhdOZm3yjE4lHItig8lSpJbmYDqAPo3iKc4CjUGfUSv4z+VhKrFw6iHBMg==}
+    engines: {node: '>=10.0.0'}
 
   '@mixmark-io/domino@2.2.0':
     resolution: {integrity: sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==}
@@ -5427,6 +5437,11 @@ packages:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
 
+  tsarr@2.4.12:
+    resolution: {integrity: sha512-nCXLAepmxXYYjxbcYwSvRYk4VueFDCYZ2L2hqL8JFje2h+oZkXHhZh3ckRfvf8MbTVlD/BHxetA5mX8E2VOjDg==}
+    engines: {node: '>=18.20.8'}
+    hasBin: true
+
   tsconfig-paths@4.2.0:
     resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
     engines: {node: '>=6'}
@@ -6615,6 +6630,8 @@ snapshots:
       '@types/mdx': 2.0.13
       '@types/react': 19.2.14
       react: 19.2.4
+
+  '@metrichor/jmespath@0.3.1': {}
 
   '@mixmark-io/domino@2.2.0': {}
 
@@ -11333,6 +11350,11 @@ snapshots:
   trough@2.2.0: {}
 
   ts-dedent@2.2.0: {}
+
+  tsarr@2.4.12:
+    dependencies:
+      citty: 0.2.1
+      consola: 3.4.2
 
   tsconfig-paths@4.2.0:
     dependencies:

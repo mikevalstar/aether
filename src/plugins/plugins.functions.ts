@@ -39,6 +39,13 @@ const imapConnectionOptionsSchema = z
   })
   .passthrough();
 
+const sonarrConnectionOptionsSchema = z
+  .object({
+    base_url: z.string().trim().min(1).default("http://localhost:8989"),
+    api_key: z.string().default(""),
+  })
+  .passthrough();
+
 const apiBalancesConnectionOptionsSchema = z
   .object({
     openrouter_enabled: z.coerce.boolean().default(false),
@@ -167,6 +174,12 @@ export const testPluginConnection = createServerFn({ method: "POST" })
       const { testApiBalancesConnection } = await import("#/plugins/api_balances/lib/test-connection");
       const options = apiBalancesConnectionOptionsSchema.parse(data.options);
       return await testApiBalancesConnection(options);
+    }
+
+    if (data.pluginId === "sonarr") {
+      const { testConnection } = await import("#/plugins/sonarr/lib/sonarr-client");
+      const options = sonarrConnectionOptionsSchema.parse(data.options);
+      return await testConnection({ base_url: options.base_url, api_key: options.api_key });
     }
 
     return { success: false, message: "No test available for this plugin" };
