@@ -79,6 +79,56 @@ export async function findSeriesByTitle(opts: SonarrOptions, query: string) {
   return allSeries.filter((s) => s.title?.toLowerCase().includes(lower));
 }
 
+// ─── Episodes ───
+
+export async function listEpisodes(opts: SonarrOptions, seriesId: number, seasonNumber?: number) {
+  const client = createClient(opts);
+  const result = await client.getEpisodes(seriesId);
+  const episodes = unwrap(result);
+  const filtered = seasonNumber != null ? (episodes ?? []).filter((e) => e.seasonNumber === seasonNumber) : (episodes ?? []);
+  return filtered.map((e) => ({
+    id: e.id,
+    seriesId: e.seriesId,
+    seasonNumber: e.seasonNumber,
+    episodeNumber: e.episodeNumber,
+    title: e.title,
+    airDateUtc: e.airDateUtc,
+    overview: e.overview,
+    hasFile: e.hasFile,
+    monitored: e.monitored,
+    episodeFileId: e.episodeFileId,
+    episodeFile: e.episodeFile
+      ? {
+          id: e.episodeFile.id,
+          relativePath: e.episodeFile.relativePath,
+          size: e.episodeFile.size,
+          quality: e.episodeFile.quality?.quality?.name,
+          dateAdded: e.episodeFile.dateAdded,
+        }
+      : null,
+  }));
+}
+
+// ─── Episode File Deletion (direct API — not in tsarr high-level client) ───
+
+async function sonarrFetch(opts: SonarrOptions, path: string, init?: RequestInit) {
+  const url = `${opts.base_url.replace(/\/+$/, "")}${path}`;
+  const res = await fetch(url, {
+    ...init,
+    headers: { "X-Api-Key": opts.api_key, ...init?.headers },
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Sonarr API ${res.status}: ${body || res.statusText}`);
+  }
+  return res;
+}
+
+export async function deleteEpisodeFile(opts: SonarrOptions, episodeFileId: number) {
+  await sonarrFetch(opts, `/api/v3/episodefile/${episodeFileId}`, { method: "DELETE" });
+  return { deleted: true, episodeFileId };
+}
+
 // ─── Calendar ───
 
 export async function getUpcoming(opts: SonarrOptions, days: number) {
@@ -227,8 +277,17 @@ export async function addNewSeries(
 
 // ─── Command (episode search) ───
 
-export async function searchEpisodes(opts: SonarrOptions, seriesId: number, seasonNumber?: number) {
+export async function searchEpisodes(opts: SonarrOptions, seriesId: number, seasonNumber?: number, episodeIds?: number[]) {
   const client = createClient(opts);
+
+  if (episodeIds?.length) {
+    const result = await client.runCommand({
+      name: "EpisodeSearch",
+      episodeIds,
+    } as any);
+    unwrap(result);
+    return { triggered: true, type: "episode", seriesId, episodeIds };
+  }
 
   if (seasonNumber != null) {
     const result = await client.runCommand({

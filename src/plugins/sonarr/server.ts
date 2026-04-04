@@ -5,6 +5,7 @@ import { logger } from "#/lib/logger";
 import type { AetherPluginServer } from "../types";
 import {
   addNewSeries,
+  deleteEpisodeFile,
   findSeriesByTitle,
   getHistory,
   getQueue,
@@ -12,6 +13,7 @@ import {
   getSystemStatus,
   getUpcoming,
   getWantedMissing,
+  listEpisodes,
   listSeries,
   type SonarrOptions,
   searchEpisodes,
@@ -47,10 +49,13 @@ export const sonarrServer: AetherPluginServer = {
 - sonarr_wanted: List missing episodes that need downloading
 - sonarr_search_new: Search for new TV series to add
 - sonarr_add_series: Add a new series (always search first and confirm with user)
-- sonarr_search_episodes: Trigger a download search for specific episodes
+- sonarr_list_episodes: List episodes for a series (with optional season filter), includes file info
+- sonarr_delete_episode_file: Delete an episode's file from disk (by episodeFileId from list_episodes)
+- sonarr_search_episodes: Trigger a download search for specific episodes, a season, or a whole series
 
 For adding series: always use sonarr_search_new first to find the tvdbId, then confirm with the user before calling sonarr_add_series.
 For episode searches: confirm with the user before triggering sonarr_search_episodes as it will actively search indexers.
+For re-downloading: use sonarr_list_episodes to find the episodeFileId, sonarr_delete_episode_file to remove it, then sonarr_search_episodes with the episode ID to grab a new copy.
 
 List tools (list_series, upcoming, queue, history, wanted, search_new) support an optional \`filter\` parameter — a JMESPath expression to filter or reshape results. Examples:
 - \`[?monitored]\` — only monitored series
@@ -120,6 +125,57 @@ List tools (list_series, upcoming, queue, history, wanted, search_new) support a
           } catch (err) {
             logger.error({ err, query, userId: ctx.userId }, "Sonarr tool: get_series failed");
             return { error: err instanceof Error ? err.message : "Failed to get series" };
+          }
+        },
+      }),
+
+      list_episodes: tool({
+        description:
+          "List episodes for a TV series, with optional season filter. Includes file info (episodeFileId, quality, size) needed for delete/re-download workflows.",
+        inputSchema: z.object({
+          seriesId: z.number().describe("Sonarr series ID (from list_series or get_series)"),
+          seasonNumber: z.number().optional().describe("Filter to a specific season number"),
+          filter: filterParam,
+        }),
+        execute: async ({ seriesId, seasonNumber, filter }) => {
+          logger.info({ seriesId, seasonNumber, filter, userId: ctx.userId }, "Sonarr tool: list_episodes invoked");
+          try {
+            const opts = await getSonarrOptions();
+            const episodes = await listEpisodes(opts, seriesId, seasonNumber);
+            const { items, filtered } = applyFilter(episodes, filter);
+            await ctx.logActivity({
+              type: "sonarr_query",
+              summary: `Listed ${episodes.length} episodes for series ${seriesId}${seasonNumber != null ? ` S${String(seasonNumber).padStart(2, "0")}` : ""}${filtered ? " (filtered)" : ""}`,
+              metadata: { seriesId, seasonNumber, count: episodes.length, filtered },
+            });
+            return { episodes: items, totalCount: episodes.length, filtered };
+          } catch (err) {
+            logger.error({ err, seriesId, seasonNumber, userId: ctx.userId }, "Sonarr tool: list_episodes failed");
+            return { error: err instanceof Error ? err.message : "Failed to list episodes" };
+          }
+        },
+      }),
+
+      delete_episode_file: tool({
+        description:
+          "Delete an episode's file from disk. Use list_episodes first to get the episodeFileId. This removes the file permanently — confirm with the user before calling.",
+        inputSchema: z.object({
+          episodeFileId: z.number().describe("Episode file ID (from list_episodes episodeFile.id)"),
+        }),
+        execute: async ({ episodeFileId }) => {
+          logger.info({ episodeFileId, userId: ctx.userId }, "Sonarr tool: delete_episode_file invoked");
+          try {
+            const opts = await getSonarrOptions();
+            const result = await deleteEpisodeFile(opts, episodeFileId);
+            await ctx.logActivity({
+              type: "sonarr_action",
+              summary: `Deleted episode file ${episodeFileId}`,
+              metadata: { episodeFileId },
+            });
+            return { success: true, ...result };
+          } catch (err) {
+            logger.error({ err, episodeFileId, userId: ctx.userId }, "Sonarr tool: delete_episode_file failed");
+            return { error: err instanceof Error ? err.message : "Failed to delete episode file" };
           }
         },
       }),
@@ -286,24 +342,31 @@ List tools (list_series, upcoming, queue, history, wanted, search_new) support a
 
       search_episodes: tool({
         description:
-          "Trigger a manual search for episodes on indexers. Can search all missing episodes for a series, or a specific season. Confirm with user before triggering.",
+          "Trigger a manual search for episodes on indexers. Can target specific episodes (by ID), a season, or a whole series. Confirm with user before triggering.",
         inputSchema: z.object({
           seriesId: z.number().describe("Sonarr series ID (from list_series or get_series)"),
-          seasonNumber: z.number().optional().describe("Season number — omit to search all missing episodes"),
+          seasonNumber: z.number().optional().describe("Season number — search all episodes in this season"),
+          episodeIds: z
+            .array(z.number())
+            .optional()
+            .describe("Specific episode IDs to search (from list_episodes). Takes priority over seasonNumber."),
         }),
-        execute: async ({ seriesId, seasonNumber }) => {
-          logger.info({ seriesId, seasonNumber, userId: ctx.userId }, "Sonarr tool: search_episodes invoked");
+        execute: async ({ seriesId, seasonNumber, episodeIds }) => {
+          logger.info({ seriesId, seasonNumber, episodeIds, userId: ctx.userId }, "Sonarr tool: search_episodes invoked");
           try {
             const opts = await getSonarrOptions();
-            const result = await searchEpisodes(opts, seriesId, seasonNumber);
+            const result = await searchEpisodes(opts, seriesId, seasonNumber, episodeIds);
             await ctx.logActivity({
               type: "sonarr_action",
-              summary: `Triggered ${result.type} search for series ${seriesId}${seasonNumber != null ? ` season ${seasonNumber}` : ""}`,
-              metadata: { seriesId, seasonNumber, type: result.type },
+              summary: `Triggered ${result.type} search for series ${seriesId}${seasonNumber != null ? ` season ${seasonNumber}` : ""}${episodeIds?.length ? ` (${episodeIds.length} episodes)` : ""}`,
+              metadata: { seriesId, seasonNumber, episodeIds, type: result.type },
             });
             return { success: true, ...result };
           } catch (err) {
-            logger.error({ err, seriesId, seasonNumber, userId: ctx.userId }, "Sonarr tool: search_episodes failed");
+            logger.error(
+              { err, seriesId, seasonNumber, episodeIds, userId: ctx.userId },
+              "Sonarr tool: search_episodes failed",
+            );
             return { error: err instanceof Error ? err.message : "Failed to trigger episode search" };
           }
         },
