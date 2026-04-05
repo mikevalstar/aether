@@ -281,28 +281,21 @@ export async function searchEpisodes(opts: SonarrOptions, seriesId: number, seas
   const client = createClient(opts);
 
   if (episodeIds?.length) {
-    const result = await client.runCommand({
-      name: "EpisodeSearch",
-      episodeIds,
-    } as any);
+    // biome-ignore lint/suspicious/noExplicitAny: tsarr CommandResource doesn't type command-specific fields
+    const result = await client.runCommand({ name: "EpisodeSearch", episodeIds } as any);
     unwrap(result);
     return { triggered: true, type: "episode", seriesId, episodeIds };
   }
 
   if (seasonNumber != null) {
-    const result = await client.runCommand({
-      name: "SeasonSearch",
-      seriesId,
-      seasonNumber,
-    } as any);
+    // biome-ignore lint/suspicious/noExplicitAny: tsarr CommandResource doesn't type command-specific fields
+    const result = await client.runCommand({ name: "SeasonSearch", seriesId, seasonNumber } as any);
     unwrap(result);
     return { triggered: true, type: "season", seriesId, seasonNumber };
   }
 
-  const result = await client.runCommand({
-    name: "SeriesSearch",
-    seriesId,
-  } as any);
+  // biome-ignore lint/suspicious/noExplicitAny: tsarr CommandResource doesn't type command-specific fields
+  const result = await client.runCommand({ name: "SeriesSearch", seriesId } as any);
   unwrap(result);
   return { triggered: true, type: "series", seriesId };
 }
