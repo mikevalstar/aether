@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import cronstrue from "cronstrue";
-import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Play } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Pencil, Play } from "lucide-react";
 import { useState } from "react";
 import { formatRelativeTime } from "#/components/activity/format-relative-time";
 import { Badge } from "#/components/ui/badge";
@@ -70,6 +70,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
             <TableHead>Last Run</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="w-[80px]" />
+            <TableHead className="w-[50px]" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -133,6 +134,20 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
                     <Button variant="ghost" size="sm" disabled={isRunning} onClick={() => void handleRunNow(item.filename)}>
                       {isRunning ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
                     </Button>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {item.fileExists && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to="/tasks/editor/$" params={{ _splat: item.filename }}>
+                            <Pencil className="size-4" />
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit task</TooltipContent>
+                    </Tooltip>
                   )}
                 </TableCell>
               </TableRow>
