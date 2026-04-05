@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { AlertCircle, CheckCircle2, FileX, FormInput } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileX, FormInput, Pencil } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import type { WorkflowListItem } from "#/lib/workflows/workflow.functions";
@@ -55,7 +55,19 @@ export function WorkflowCard({ item }: { item: WorkflowListItem }) {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-2">
             <CardTitle className="text-base">{item.title}</CardTitle>
-            <StatusBadge status={item.lastRunStatus} />
+            <div className="flex items-center gap-1.5">
+              <Link
+                to="/workflows/editor/$"
+                params={{ _splat: item.filename }}
+                search={{ configure: false }}
+                className="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={(e) => e.stopPropagation()}
+                title="Edit workflow"
+              >
+                <Pencil className="size-3.5" />
+              </Link>
+              <StatusBadge status={item.lastRunStatus} />
+            </div>
           </div>
           {item.description && <CardDescription className="line-clamp-3 text-xs">{item.description}</CardDescription>}
         </CardHeader>

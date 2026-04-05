@@ -1,6 +1,6 @@
 ---
 title: Workflow Editor
-status: todo
+status: done
 owner: Mike
 last_updated: 2026-04-05
 canonical_file: docs/requirements/workflow-editor.md
@@ -83,15 +83,15 @@ Each `fields` entry:
 
 | Sub-feature | Phase | Status | Summary |
 | --- | --- | --- | --- |
-| Workflow frontmatter display | 1 | todo | Sectioned read-only frontmatter view with tooltips |
-| Edit button on `/workflows` cards | 1 | todo | Link from workflow cards to `/workflows/editor/$filename` |
-| Editor routes | 1 | todo | `/workflows/editor` and `/workflows/editor/$filename` using ConfigEditorShell |
-| Storybook stories | 1 | todo | Stories for workflow-specific components |
-| Frontmatter edit modal | 2 | todo | Tabbed modal for AI Config, Notifications, and Fields |
-| Fields array editor | 2 | todo | Add/remove/reorder form field definitions with validation |
-| New workflow dialog | 3 | todo | Title + filename → create file with defaults → auto-open configure |
+| Workflow frontmatter display | 1 | done | Sectioned read-only frontmatter view with tooltips |
+| Edit button on `/workflows` cards | 1 | done | Link from workflow cards to `/workflows/editor/$filename` |
+| Editor routes | 1 | done | `/workflows/editor` and `/workflows/editor/$filename` using ConfigEditorShell |
+| Storybook stories | 1 | done | Stories for WorkflowFrontmatterDisplay and FieldsArrayEditor |
+| Frontmatter edit modal | 2 | done | Tabbed modal for AI Config, Notifications, and Fields |
+| Fields array editor | 2 | done | Reusable component with add/remove/reorder, bidirectional placeholder validation |
+| New workflow dialog | 3 | done | Title + filename → create file with defaults → auto-open configure |
 
-## Phase 1 — Editor + Frontmatter Display
+## Phase 1 — Editor + Frontmatter Display (done)
 
 ### Editor Routes
 
@@ -122,7 +122,7 @@ Frontmatter rendered in grouped sections with "Configure" buttons (wired to moda
 - Links to `/workflows/editor/$filename`
 - "Workflow Editor" added to `CommandPalette.tsx` PAGES array
 
-## Phase 2 — Frontmatter Edit Modal
+## Phase 2 — Frontmatter Edit Modal (done)
 
 ### Modal Structure
 
@@ -170,7 +170,7 @@ The unique piece — an editor for the `fields` array in the Form Fields tab:
   - Bidirectional placeholder validation: warn if a field name doesn't appear as `{{name}}` in the body, and warn if a `{{placeholder}}` in the body has no matching field
 - At least one field is required
 
-## Phase 3 — New Workflow Dialog
+## Phase 3 — New Workflow Dialog (done)
 
 ### Flow
 
@@ -204,3 +204,4 @@ None — all questions resolved.
 ## Change Log
 
 - 2026-04-05: Initial requirements document created — three phases defined, mirrors task editor pattern
+- 2026-04-05: All three phases implemented. FieldsArrayEditor built as standalone reusable component with storybook.
