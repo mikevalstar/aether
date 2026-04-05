@@ -122,7 +122,7 @@ File-based routing lives in `src/routes/`. TanStack Router auto-generates `src/r
 
 Server functions are created with `createServerFn()`. API routes use a `server` property in route definitions. Data loading uses loaders in route files.
 
-**When adding a new route:** Update the `PAGES` array in `src/components/CommandPalette.tsx` so the new page appears in the `Cmd+K` command palette.
+**When adding a new route:** Update the `PAGES` array in `src/components/CommandPalette.tsx` so the new page appears in the `Cmd+K` command palette. Plugin pages are auto-registered via `PluginPage[]` in the plugin client.
 
 **Routes:**
 - `/` — Home page
@@ -138,6 +138,8 @@ Server functions are created with `createServerFn()`. API routes use a `server` 
 - `/o/` — Obsidian library browser
 - `/requirements/` — Requirements viewer
 - `/about` — About page
+- `/p/$pluginId` — Plugin pages (e.g., `/p/board` for kanban board)
+- `/p/$pluginId/$pageId` — Plugin sub-pages
 - `/api/auth/$` — Better Auth endpoints
 - `/api/chat` — POST streaming chat endpoint
 

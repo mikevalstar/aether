@@ -5,13 +5,10 @@ import { DashboardGrid } from "#/components/dashboard/DashboardGrid";
 import { Spinner } from "#/components/ui/spinner";
 import { getSession } from "#/lib/auth.functions";
 import { authClient } from "#/lib/auth-client";
-import { getBoardData } from "#/lib/board/board.functions";
-import type { KanbanColumn } from "#/lib/board/kanban-parser";
 import { getAllCalendarEvents } from "#/lib/calendar/calendar.functions";
 import { loadDashboardLayout } from "#/lib/dashboard/layout-persistence";
 import { getDashboardData } from "#/lib/dashboard.functions";
 import { getCurrentHour } from "#/lib/date";
-import { getDashboardBoardColumn } from "#/lib/preferences.functions";
 import { loadDashboardPluginWidgets, type PluginWidgetInfo } from "#/plugins/dashboard.functions";
 
 export const Route = createFileRoute("/dashboard")({
@@ -22,22 +19,21 @@ export const Route = createFileRoute("/dashboard")({
     }
   },
   loader: async () => {
-    const [calendarEvents, boardColumn, dashboardData, pluginWidgets, savedLayouts] = await Promise.all([
+    const [calendarEvents, dashboardData, pluginWidgets, savedLayouts] = await Promise.all([
       getAllCalendarEvents().catch(() => []),
-      loadDashboardBoardColumn(),
       getDashboardData(),
       loadDashboardPluginWidgets().catch(() => [] as PluginWidgetInfo[]),
       loadDashboardLayout().catch(() => null),
     ]);
     const greeting = getGreeting();
-    return { calendarEvents, greeting, boardColumn, dashboardData, pluginWidgets, savedLayouts };
+    return { calendarEvents, greeting, dashboardData, pluginWidgets, savedLayouts };
   },
   component: DashboardPage,
 });
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const { calendarEvents, greeting, boardColumn, dashboardData, pluginWidgets, savedLayouts } = Route.useLoaderData();
+  const { calendarEvents, greeting, dashboardData, pluginWidgets, savedLayouts } = Route.useLoaderData();
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
@@ -78,28 +74,12 @@ function DashboardPage() {
       {/* Masonry grid layout */}
       <DashboardGrid
         calendarEvents={calendarEvents}
-        boardColumn={boardColumn}
         dashboardData={dashboardData}
         pluginWidgets={pluginWidgets}
         savedLayouts={savedLayouts}
       />
     </main>
   );
-}
-
-async function loadDashboardBoardColumn(): Promise<KanbanColumn | null> {
-  try {
-    const columnName = await getDashboardBoardColumn();
-    if (!columnName) return null;
-
-    const board = await getBoardData();
-    if (!board.configured) return null;
-
-    return board.columns.find((c) => c.name === columnName) ?? null;
-  } catch (err) {
-    console.error("Failed to load dashboard board column:", err);
-    return null;
-  }
 }
 
 function getGreeting(): string {

@@ -32,11 +32,6 @@ const BUILTIN_DEFAULTS: Record<string, DefaultWidgetLayout> = {
     sm: { i: "next-event", x: 1, y: 28, w: 1, h: 12 },
     xs: { i: "next-event", x: 0, y: 48, w: 1, h: 12 },
   },
-  "board-column": {
-    lg: { i: "board-column", x: 3, y: 17, w: 1, h: 16 },
-    sm: { i: "board-column", x: 0, y: 40, w: 1, h: 16 },
-    xs: { i: "board-column", x: 0, y: 60, w: 1, h: 16 },
-  },
   "recent-chats": {
     lg: { i: "recent-chats", x: 3, y: 33, w: 1, h: 18 },
     sm: { i: "recent-chats", x: 1, y: 40, w: 1, h: 18 },

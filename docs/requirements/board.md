@@ -2,7 +2,7 @@
 title: Board (Kanban)
 status: done
 owner: self
-last_updated: 2026-03-22
+last_updated: 2026-04-05
 canonical_file: docs/requirements/board.md
 ---
 
@@ -11,8 +11,8 @@ canonical_file: docs/requirements/board.md
 ## Purpose
 
 - Problem: No way to manage tasks/to-dos inside Aether. Task lists live in Obsidian kanban files but aren't surfaced in the dashboard.
-- Outcome: A `/board` page that reads an Obsidian Kanban-format Markdown file and renders a full interactive kanban board with add/remove/move. AI can also query and modify tasks via dedicated tools.
-- Notes: The board operates directly on the Obsidian Markdown file — no database models. The file format follows the Obsidian Kanban plugin conventions.
+- Outcome: A kanban board plugin (`board`) that reads an Obsidian Kanban-format Markdown file and renders a full interactive kanban board with add/remove/move. AI can also query and modify tasks via dedicated tools.
+- Notes: The board operates directly on the Obsidian Markdown file — no database models. The file format follows the Obsidian Kanban plugin conventions. As of 2026-04-05, the board is implemented as a plugin using the Aether plugin system, with its page accessible at `/p/board`.
 
 ## File Format
 
@@ -27,25 +27,26 @@ The kanban file is standard Markdown with Obsidian Kanban plugin conventions:
 ## Configuration
 
 - **User preference**: `kanbanFile` field in the `UserPreferences` JSON on the User model.
-- **Dashboard column preference**: `dashboardBoardColumn` field in `UserPreferences` — selects which column to show as a read-only widget on the dashboard.
-- Configured at `/settings/board` (under the Obsidian section in settings nav) using a searchable combobox (vault file picker via fuzzy search, filtering to `.md` files). The dashboard column is configured with a select dropdown on the same page.
-- When no file is configured, `/board` shows an empty state directing the user to settings.
+- **Dashboard column preference**: `dashboardColumn` field in the board plugin's options (stored in `UserPreferences.pluginOptions.board`) — selects which column to show as a read-only widget on the dashboard.
+- Configured at `/settings/plugins/board` (via the plugin settings system) using a searchable combobox (vault file picker via fuzzy search, filtering to `.md` files). The dashboard column is configured with a select dropdown on the same page.
+- When no file is configured, `/p/board` shows an empty state directing the user to plugin settings.
 
 ## Major Requirements
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Board page | done | `/board` route showing kanban columns parsed from the configured Obsidian Markdown file. |
+| Board page | done | `/p/board` plugin page showing kanban columns parsed from the configured Obsidian Markdown file. |
 | Dynamic columns | done | Columns derived from `##` headings in the file. Order matches file order. |
 | Add task | done | Add a new task to any column. |
 | Remove task | done | Delete a task from any column. |
 | Move task | done | Move a task between columns (change status) and reorder within a column. |
-| File picker setting | done | Searchable combobox in `/settings/board` to select the kanban file from the Obsidian vault. |
-| Dashboard column setting | done | Select dropdown in `/settings/board` to choose a column to display as a read-only dashboard widget. |
-| Dashboard widget | done | Read-only widget on the dashboard showing tasks from the configured column, with a link to the full board. |
+| File picker setting | done | Searchable combobox in `/settings/plugins/board` to select the kanban file from the Obsidian vault. |
+| Dashboard column setting | done | Select dropdown in `/settings/plugins/board` to choose a column to display as a read-only dashboard widget. |
+| Dashboard widget | done | Plugin widget on the dashboard showing tasks from the configured column, with a link to the full board. |
 | AI tools | done | Dedicated tools for the AI to list columns, list tasks, add tasks, and update/move tasks. |
-| Command palette | done | Add "Board" to the `PAGES` array in `CommandPalette.tsx`. |
-| Header nav | done | Add "Board" link to authenticated header navigation. |
+| Command palette | done | Board page auto-registered in CommandPalette via plugin pages system. |
+| Header nav | done | Board page appears in the "Plugins" dropdown in the header navigation. |
+| Plugin system | done | Board implemented as an Aether plugin (`board`) with pages, widget, settings, and commands. |
 | Activity logging | done | All board file changes (manual and AI) are logged via `logFileChange` with a `changeSource` field (`"manual"` or `"ai"`). |
 
 ## Sub-features

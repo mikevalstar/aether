@@ -7,7 +7,6 @@ import {
   BookOpen,
   CheckSquare,
   CircuitBoard,
-  Columns3,
   FileText,
   GitBranch,
   LayoutDashboard,
@@ -34,13 +33,12 @@ import { themeModeAtom } from "#/lib/theme";
 import { plugins } from "#/plugins";
 import type { PluginCommand } from "#/plugins/types";
 
-const PAGES = [
+const STATIC_PAGES = [
   { label: "Dashboard", route: "/dashboard", icon: LayoutDashboard },
   { label: "Chat", route: "/chat", icon: MessageSquare },
   { label: "Tasks", route: "/tasks", icon: CheckSquare },
   { label: "Task Editor", route: "/tasks/editor", icon: CheckSquare },
   { label: "Workflows", route: "/workflows", icon: GitBranch },
-  { label: "Board", route: "/board", icon: Columns3 },
   { label: "Obsidian", route: "/o", icon: BookOpen },
   { label: "Notifications", route: "/notifications", icon: Bell },
   { label: "Activity", route: "/activity", icon: Activity },
@@ -52,6 +50,19 @@ const PAGES = [
   { label: "Plugins", route: "/settings/plugins", icon: Puzzle },
   { label: "Users", route: "/users", icon: Users },
 ] as const;
+
+// Build PAGES array including plugin pages
+const pluginPages = plugins
+  .filter((p) => p.client?.pages?.length)
+  .flatMap((p) =>
+    (p.client?.pages ?? []).map((page) => ({
+      label: page.label,
+      route: `/p/${p.meta.id}${(p.client?.pages?.length ?? 0) > 1 ? `/${page.id}` : ""}`,
+      icon: page.icon ?? p.meta.icon,
+    })),
+  );
+
+const PAGES = [...STATIC_PAGES, ...pluginPages];
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
