@@ -38,6 +38,7 @@ const PAGES = [
   { label: "Dashboard", route: "/dashboard", icon: LayoutDashboard },
   { label: "Chat", route: "/chat", icon: MessageSquare },
   { label: "Tasks", route: "/tasks", icon: CheckSquare },
+  { label: "Task Editor", route: "/tasks/editor", icon: CheckSquare },
   { label: "Workflows", route: "/workflows", icon: GitBranch },
   { label: "Board", route: "/board", icon: Columns3 },
   { label: "Obsidian", route: "/o", icon: BookOpen },

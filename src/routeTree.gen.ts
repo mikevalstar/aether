@@ -42,7 +42,9 @@ import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as TasksEditorIndexRouteImport } from './routes/tasks/editor/index'
 import { Route as SettingsPluginsIndexRouteImport } from './routes/settings/plugins/index'
+import { Route as TasksEditorSplatRouteImport } from './routes/tasks/editor/$'
 import { Route as SettingsPluginsPluginIdRouteImport } from './routes/settings/plugins/$pluginId'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
@@ -213,10 +215,20 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TasksEditorIndexRoute = TasksEditorIndexRouteImport.update({
+  id: '/tasks/editor/',
+  path: '/tasks/editor/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsPluginsIndexRoute = SettingsPluginsIndexRouteImport.update({
   id: '/plugins/',
   path: '/plugins/',
   getParentRoute: () => SettingsRouteRoute,
+} as any)
+const TasksEditorSplatRoute = TasksEditorSplatRouteImport.update({
+  id: '/tasks/editor/$',
+  path: '/tasks/editor/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsPluginsPluginIdRoute = SettingsPluginsPluginIdRouteImport.update({
   id: '/plugins/$pluginId',
@@ -277,7 +289,9 @@ export interface FileRoutesByFullPath {
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
+  '/tasks/editor/$': typeof TasksEditorSplatRoute
   '/settings/plugins/': typeof SettingsPluginsIndexRoute
+  '/tasks/editor/': typeof TasksEditorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -316,7 +330,9 @@ export interface FileRoutesByTo {
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
+  '/tasks/editor/$': typeof TasksEditorSplatRoute
   '/settings/plugins': typeof SettingsPluginsIndexRoute
+  '/tasks/editor': typeof TasksEditorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -357,7 +373,9 @@ export interface FileRoutesById {
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
+  '/tasks/editor/$': typeof TasksEditorSplatRoute
   '/settings/plugins/': typeof SettingsPluginsIndexRoute
+  '/tasks/editor/': typeof TasksEditorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -399,7 +417,9 @@ export interface FileRouteTypes {
     | '/demo/form/address'
     | '/demo/form/simple'
     | '/settings/plugins/$pluginId'
+    | '/tasks/editor/$'
     | '/settings/plugins/'
+    | '/tasks/editor/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -438,7 +458,9 @@ export interface FileRouteTypes {
     | '/demo/form/address'
     | '/demo/form/simple'
     | '/settings/plugins/$pluginId'
+    | '/tasks/editor/$'
     | '/settings/plugins'
+    | '/tasks/editor'
   id:
     | '__root__'
     | '/'
@@ -478,7 +500,9 @@ export interface FileRouteTypes {
     | '/demo/form/address'
     | '/demo/form/simple'
     | '/settings/plugins/$pluginId'
+    | '/tasks/editor/$'
     | '/settings/plugins/'
+    | '/tasks/editor/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -510,6 +534,8 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
+  TasksEditorSplatRoute: typeof TasksEditorSplatRoute
+  TasksEditorIndexRoute: typeof TasksEditorIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -745,12 +771,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tasks/editor/': {
+      id: '/tasks/editor/'
+      path: '/tasks/editor'
+      fullPath: '/tasks/editor/'
+      preLoaderRoute: typeof TasksEditorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/plugins/': {
       id: '/settings/plugins/'
       path: '/plugins'
       fullPath: '/settings/plugins/'
       preLoaderRoute: typeof SettingsPluginsIndexRouteImport
       parentRoute: typeof SettingsRouteRoute
+    }
+    '/tasks/editor/$': {
+      id: '/tasks/editor/$'
+      path: '/tasks/editor/$'
+      fullPath: '/tasks/editor/$'
+      preLoaderRoute: typeof TasksEditorSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/settings/plugins/$pluginId': {
       id: '/settings/plugins/$pluginId'
@@ -842,6 +882,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,
+  TasksEditorSplatRoute: TasksEditorSplatRoute,
+  TasksEditorIndexRoute: TasksEditorIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
