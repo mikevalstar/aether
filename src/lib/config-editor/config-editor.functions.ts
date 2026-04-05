@@ -39,7 +39,9 @@ function normalizeFrontmatter(data: Record<string, unknown>): Record<string, str
     } else if (value instanceof Date) {
       result[key] = value.toISOString().slice(0, 10);
     } else if (Array.isArray(value)) {
-      result[key] = value.map((v) => String(v));
+      // Preserve arrays of objects (e.g. workflow fields) as-is; stringify primitives
+      const hasObjects = value.some((v) => typeof v === "object" && v !== null && !Array.isArray(v));
+      result[key] = hasObjects ? value : value.map((v) => String(v));
     } else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
       result[key] = value;
     } else {
