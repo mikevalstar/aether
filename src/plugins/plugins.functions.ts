@@ -89,6 +89,15 @@ export const getPluginsPageData = createServerFn({ method: "GET" }).handler(asyn
   };
 });
 
+export const getEnabledPluginIds = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await ensureSession();
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { preferences: true },
+  });
+  return parsePreferences(user?.preferences).enabledPlugins ?? [];
+});
+
 export const togglePlugin = createServerFn({ method: "POST" })
   .inputValidator((data) => togglePluginInputSchema.parse(data))
   .handler(async ({ data }) => {

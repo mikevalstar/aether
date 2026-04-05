@@ -33,6 +33,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "#/components/ui/sheet";
 import { authClient } from "#/lib/auth-client";
 import { plugins } from "#/plugins";
+import { getEnabledPluginIds } from "#/plugins/plugins.functions";
 import NotificationBell from "./NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 
@@ -123,10 +124,17 @@ export default function Header({ serverSession }: HeaderProps) {
   // Check if any system link is currently active
   const systemIsActive = systemLinks.some((link) => routerPath.startsWith(link.to));
 
+  // Fetch enabled plugin IDs
+  const [enabledPluginIds, setEnabledPluginIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!isAuthed) return;
+    getEnabledPluginIds().then(setEnabledPluginIds).catch(() => setEnabledPluginIds([]));
+  }, [isAuthed]);
+
   // Build plugin page links from enabled plugins that define pages
   const pluginPageLinks = useMemo(() => {
     return plugins
-      .filter((p) => p.client?.pages?.length)
+      .filter((p) => p.client?.pages?.length && enabledPluginIds.includes(p.meta.id))
       .flatMap((p) =>
         (p.client?.pages ?? []).map((page) => ({
           to: `/p/${p.meta.id}${(p.client?.pages?.length ?? 0) > 1 ? `/${page.id}` : ""}`,
@@ -135,7 +143,7 @@ export default function Header({ serverSession }: HeaderProps) {
           pluginId: p.meta.id,
         })),
       );
-  }, []);
+  }, [enabledPluginIds]);
 
   const pluginsIsActive = pluginPageLinks.some((link) => routerPath.startsWith(link.to));
 
