@@ -41,8 +41,10 @@ import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as WorkflowsEditorIndexRouteImport } from './routes/workflows/editor/index'
 import { Route as TasksEditorIndexRouteImport } from './routes/tasks/editor/index'
 import { Route as SettingsPluginsIndexRouteImport } from './routes/settings/plugins/index'
+import { Route as WorkflowsEditorSplatRouteImport } from './routes/workflows/editor/$'
 import { Route as TasksEditorSplatRouteImport } from './routes/tasks/editor/$'
 import { Route as SettingsPluginsPluginIdRouteImport } from './routes/settings/plugins/$pluginId'
 import { Route as PPluginIdPageIdRouteImport } from './routes/p/$pluginId/$pageId'
@@ -210,6 +212,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkflowsEditorIndexRoute = WorkflowsEditorIndexRouteImport.update({
+  id: '/workflows/editor/',
+  path: '/workflows/editor/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TasksEditorIndexRoute = TasksEditorIndexRouteImport.update({
   id: '/tasks/editor/',
   path: '/tasks/editor/',
@@ -219,6 +226,11 @@ const SettingsPluginsIndexRoute = SettingsPluginsIndexRouteImport.update({
   id: '/plugins/',
   path: '/plugins/',
   getParentRoute: () => SettingsRouteRoute,
+} as any)
+const WorkflowsEditorSplatRoute = WorkflowsEditorSplatRouteImport.update({
+  id: '/workflows/editor/$',
+  path: '/workflows/editor/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TasksEditorSplatRoute = TasksEditorSplatRouteImport.update({
   id: '/tasks/editor/$',
@@ -290,8 +302,10 @@ export interface FileRoutesByFullPath {
   '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
+  '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
   '/settings/plugins/': typeof SettingsPluginsIndexRoute
   '/tasks/editor/': typeof TasksEditorIndexRoute
+  '/workflows/editor/': typeof WorkflowsEditorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -331,8 +345,10 @@ export interface FileRoutesByTo {
   '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
+  '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
   '/settings/plugins': typeof SettingsPluginsIndexRoute
   '/tasks/editor': typeof TasksEditorIndexRoute
+  '/workflows/editor': typeof WorkflowsEditorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -374,8 +390,10 @@ export interface FileRoutesById {
   '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
+  '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
   '/settings/plugins/': typeof SettingsPluginsIndexRoute
   '/tasks/editor/': typeof TasksEditorIndexRoute
+  '/workflows/editor/': typeof WorkflowsEditorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -418,8 +436,10 @@ export interface FileRouteTypes {
     | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
+    | '/workflows/editor/$'
     | '/settings/plugins/'
     | '/tasks/editor/'
+    | '/workflows/editor/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -459,8 +479,10 @@ export interface FileRouteTypes {
     | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
+    | '/workflows/editor/$'
     | '/settings/plugins'
     | '/tasks/editor'
+    | '/workflows/editor'
   id:
     | '__root__'
     | '/'
@@ -501,8 +523,10 @@ export interface FileRouteTypes {
     | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
+    | '/workflows/editor/$'
     | '/settings/plugins/'
     | '/tasks/editor/'
+    | '/workflows/editor/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -535,7 +559,9 @@ export interface RootRouteChildren {
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
   TasksEditorSplatRoute: typeof TasksEditorSplatRoute
+  WorkflowsEditorSplatRoute: typeof WorkflowsEditorSplatRoute
   TasksEditorIndexRoute: typeof TasksEditorIndexRoute
+  WorkflowsEditorIndexRoute: typeof WorkflowsEditorIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -764,6 +790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workflows/editor/': {
+      id: '/workflows/editor/'
+      path: '/workflows/editor'
+      fullPath: '/workflows/editor/'
+      preLoaderRoute: typeof WorkflowsEditorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tasks/editor/': {
       id: '/tasks/editor/'
       path: '/tasks/editor'
@@ -777,6 +810,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/plugins/'
       preLoaderRoute: typeof SettingsPluginsIndexRouteImport
       parentRoute: typeof SettingsRouteRoute
+    }
+    '/workflows/editor/$': {
+      id: '/workflows/editor/$'
+      path: '/workflows/editor/$'
+      fullPath: '/workflows/editor/$'
+      preLoaderRoute: typeof WorkflowsEditorSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/tasks/editor/$': {
       id: '/tasks/editor/$'
@@ -893,8 +933,20 @@ const rootRouteChildren: RootRouteChildren = {
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,
   TasksEditorSplatRoute: TasksEditorSplatRoute,
+  WorkflowsEditorSplatRoute: WorkflowsEditorSplatRoute,
   TasksEditorIndexRoute: TasksEditorIndexRoute,
+  WorkflowsEditorIndexRoute: WorkflowsEditorIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -39,6 +39,8 @@ const STATIC_PAGES = [
   { label: "Tasks", route: "/tasks", icon: CheckSquare },
   { label: "Task Editor", route: "/tasks/editor", icon: CheckSquare },
   { label: "Workflows", route: "/workflows", icon: GitBranch },
+  { label: "Workflow Editor", route: "/workflows/editor", icon: GitBranch },
+  { label: "Board", route: "/board", icon: Columns3 },
   { label: "Obsidian", route: "/o", icon: BookOpen },
   { label: "Notifications", route: "/notifications", icon: Bell },
   { label: "Activity", route: "/activity", icon: Activity },
