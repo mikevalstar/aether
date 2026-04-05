@@ -2,7 +2,7 @@
 title: Plugin System
 status: done
 owner: Mike
-last_updated: 2026-03-22
+last_updated: 2026-04-05
 canonical_file: docs/requirements/plugins.md
 ---
 
@@ -31,7 +31,9 @@ canonical_file: docs/requirements/plugins.md
 | AI tools integration | done | Plugins can supply tools that are merged into `createAiTools()` |
 | Activity items | done | Plugins can log typed activity items via a provided context |
 | Dashboard widgets | done | Plugins can supply dashboard widget components |
-| Command palette | done | Plugins can register pages/actions in the command palette |
+| Plugin pages | done | Plugins can define pages rendered at `/p/$pluginId` and `/p/$pluginId/$pageId` |
+| Command palette | done | Plugins can register pages/actions in the command palette; plugin pages are auto-registered |
+| Nav integration | done | Plugins with pages appear in a "Plugins" dropdown in the header nav |
 | Plugin options storage | done | Plugin-specific options stored in user preferences JSON |
 | Test connection | done | Per-plugin settings page offers a "Test Connection" button for plugins with health checks |
 
@@ -172,6 +174,16 @@ type PluginWidget = {
   }>;
 };
 
+/** Plugin page — rendered at /p/{pluginId} or /p/{pluginId}/{pageId} */
+type PluginPage = {
+  /** Human-readable id used in the URL */
+  id: string;
+  label: string;
+  icon?: LucideIcon;
+  /** The React component rendered for this page */
+  component: ComponentType;
+};
+
 /** Client-side plugin definition */
 type AetherPluginClient = {
   /** Custom settings component — rendered below the auto-generated options form (optional) */
@@ -185,6 +197,9 @@ type AetherPluginClient = {
 
   /** Command palette entries (optional) */
   commands?: PluginCommand[];
+
+  /** Pages rendered at /p/{pluginId} and /p/{pluginId}/{pageId} (optional) */
+  pages?: PluginPage[];
 };
 
 // ─── Combined plugin definition ───
@@ -262,6 +277,9 @@ import { apiBalancesPlugin } from "./api_balances";
 export const plugins: AetherPlugin[] = [
   imapPlugin,
   apiBalancesPlugin,
+  sonarrPlugin,
+  radarrPlugin,
+  boardPlugin,
 ];
 
 // Lookup helpers (client-safe)
@@ -307,13 +325,16 @@ type UserPreferences = {
 | System prompt integration | done | Plugin system prompts injected into `/api/chat` so AI knows about plugin tools | Inline |
 | Activity integration | done | `logActivity` in PluginContext creates `ActivityLog` with plugin-prefixed type; declared activity types for filter chips | Inline |
 | Dashboard integration | done | Dashboard loader calls plugin `loadWidgetData()`, passes data + context to widget components | Inline |
-| Command palette integration | done | CommandPalette queries all registered plugins for commands | Inline |
+| Command palette integration | done | CommandPalette queries all registered plugins for commands; plugin pages auto-registered | Inline |
+| Plugin page routing | done | Catch-all routes `/p/$pluginId` and `/p/$pluginId/$pageId` render plugin-defined page components | Inline |
+| Nav plugins dropdown | done | Header nav shows "Plugins" dropdown listing pages from plugins that define pages | Inline |
 | Settings nav update | done | Add "Plugins" section to settings sidebar | Inline |
 | Plugin health check | done | Status indicator on plugins settings page for plugins with external connections | Inline |
 | Plugin client context factory | done | `plugin-client-context.ts` creates stub `PluginClientContext` for widget rendering | Inline |
 | Dashboard plugin loader | done | `dashboard.functions.ts` server function loads widget data + metadata for dashboard route | Inline |
 | IMAP plugin (first plugin) | done | Proton Mail IMAP integration as first plugin | `docs/requirements/plugin-imap.md` |
 | API Balances plugin | done | Balance/credit dashboard widget for OpenRouter, OpenAI, Kilo Code | `docs/requirements/plugin-api-balances.md` |
+| Board plugin | done | Kanban board with page, dashboard widget, settings | `docs/requirements/board.md` |
 
 ## Detail
 
@@ -363,10 +384,20 @@ type UserPreferences = {
 - Widgets rendered via `DashboardGrid` in a responsive layout, after built-in widgets
 - Widget sizes support four options: `"quarter"`, `"half"`, `"three-quarter"`, `"full"`
 
+### Plugin Pages
+
+- Plugins can define pages via `client.pages[]` — each page has an `id`, `label`, optional `icon`, and a React `component`
+- Pages are rendered at `/p/$pluginId` (first/default page) or `/p/$pluginId/$pageId` (specific page)
+- Catch-all route files at `src/routes/p/$pluginId.tsx` and `src/routes/p/$pluginId/$pageId.tsx` look up the plugin and render the page component
+- Plugin pages auto-register in the CommandPalette and appear in the Header's "Plugins" dropdown
+- The "Plugins" dropdown only appears in the nav when at least one plugin defines pages
+- Example: The board plugin defines a page at `/p/board` for the kanban board
+
 ### Command Palette Integration
 
 - `CommandPalette` iterates over all registered plugins for commands (not filtered by enabled state)
 - Plugin commands appear in a "Plugins" group in the palette
+- Plugin pages are auto-registered as navigable pages (not in the "Plugins" commands group, but in the main "Pages" group)
 - Commands can be routes (navigate) or actions (execute callback)
 
 ### Plugin Health Check
@@ -424,6 +455,13 @@ src/plugins/
     server.ts             # AetherPluginServer (tools, systemPrompt, loader, health)
     client.tsx            # AetherPluginClient (widgets, commands)
     lib/                  # Balance fetchers, cache, types, test connection
+  board/
+    index.ts              # Client-safe AetherPlugin export
+    index.server.ts       # Full AetherPlugin export (includes server definition)
+    meta.ts               # PluginMeta, optionFields
+    server.ts             # AetherPluginServer (widget data loader)
+    client.tsx            # AetherPluginClient (pages, widgets, commands)
+    settings.tsx          # Board settings component (kanban file picker, dashboard column)
 ```
 
 ## Open Questions
@@ -445,3 +483,4 @@ None currently — all resolved.
 - 2026-03-21: Marked all requirements and sub-features as done. Full plugin system implemented with registry, settings pages, AI tool integration, system prompt injection, activity logging, dashboard widgets, command palette, health checks. Two plugins shipped: IMAP Email and API Balances.
 - 2026-03-22: Added `aiConfigFolder` and `aiMemoryFolder` strings to PluginContext so plugins know which Obsidian folders to use for AI config and memory.
 - 2026-03-22: Updated docs to match actual implementation: added `hasHealthCheck` to PluginMeta, expanded widget sizes to quarter/half/three-quarter/full, fixed PluginOptionField.default type, documented dual index.ts/index.server.ts pattern per plugin and registry, added test connection feature, documented plugin-client-context.ts and dashboard.functions.ts, corrected command palette and activity filter behavior (all plugins, not just enabled), added api_balances file structure.
+- 2026-04-05: Added PluginPage type for plugin-defined pages. Added plugin page routing (`/p/$pluginId`, `/p/$pluginId/$pageId`), nav "Plugins" dropdown, auto-registration of plugin pages in CommandPalette. Added board plugin (kanban board converted from standalone route to plugin). Updated registry examples and file structure.
