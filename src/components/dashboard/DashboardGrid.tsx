@@ -54,12 +54,7 @@ function serializeLayouts(
   return serializable;
 }
 
-export function DashboardGrid({
-  calendarEvents,
-  dashboardData,
-  pluginWidgets,
-  savedLayouts,
-}: DashboardGridProps) {
+export function DashboardGrid({ calendarEvents, dashboardData, pluginWidgets, savedLayouts }: DashboardGridProps) {
   const { width, containerRef, mounted } = useContainerWidth();
   const hasCalendar = calendarEvents.length > 0;
 

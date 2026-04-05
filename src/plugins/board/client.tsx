@@ -1,5 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { ArrowRight, Columns3, Settings } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { BoardView } from "#/components/board/BoardView";
@@ -159,7 +158,11 @@ function BoardColumnWidget({
           <h3 className="text-sm font-bold tracking-tight text-foreground">{dashboardColumn.name}</h3>
           <span className="text-xs text-muted-foreground">({dashboardColumn.tasks.length})</span>
         </div>
-        <Link to="/p/$pluginId" params={{ pluginId: "board" }} className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--teal)] no-underline">
+        <Link
+          to="/p/$pluginId"
+          params={{ pluginId: "board" }}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--teal)] no-underline"
+        >
           Board
           <ArrowRight className="size-3" />
         </Link>

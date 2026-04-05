@@ -31,13 +31,7 @@ const moveBoardTaskInputSchema = z
 // --- Server functions (safe to import from route/client code) ---
 
 export const getBoardData = createServerFn({ method: "GET" })
-  .inputValidator(
-    (data: unknown) =>
-      z
-        .object({ filePath: z.string().optional() })
-        .optional()
-        .parse(data) ?? {},
-  )
+  .inputValidator((data: unknown) => z.object({ filePath: z.string().optional() }).optional().parse(data) ?? {})
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const relativePath = data?.filePath || (await resolveKanbanPath(session.user.id));

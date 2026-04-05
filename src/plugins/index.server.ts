@@ -10,7 +10,13 @@ import { sonarrPluginFull } from "./sonarr/index.server";
 import type { AetherPlugin } from "./types";
 
 /** All registered plugins with full server capabilities. */
-const serverPlugins: AetherPlugin[] = [imapPluginFull, apiBalancesPluginFull, sonarrPluginFull, radarrPluginFull, boardPluginFull];
+const serverPlugins: AetherPlugin[] = [
+  imapPluginFull,
+  apiBalancesPluginFull,
+  sonarrPluginFull,
+  radarrPluginFull,
+  boardPluginFull,
+];
 
 function getServerPlugin(id: string): AetherPlugin | undefined {
   return serverPlugins.find((p) => p.meta.id === id);

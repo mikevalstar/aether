@@ -128,7 +128,9 @@ export default function Header({ serverSession }: HeaderProps) {
   const [enabledPluginIds, setEnabledPluginIds] = useState<string[]>([]);
   useEffect(() => {
     if (!isAuthed) return;
-    getEnabledPluginIds().then(setEnabledPluginIds).catch(() => setEnabledPluginIds([]));
+    getEnabledPluginIds()
+      .then(setEnabledPluginIds)
+      .catch(() => setEnabledPluginIds([]));
   }, [isAuthed]);
 
   // Build plugin page links from enabled plugins that define pages

@@ -1,5 +1,5 @@
-import { logger } from "#/lib/logger";
 import { readKanbanBoard, resolveKanbanPath } from "#/lib/board/board.server";
+import { logger } from "#/lib/logger";
 import type { AetherPluginServer } from "../types";
 
 export const boardServer: AetherPluginServer = {
@@ -14,13 +14,11 @@ export const boardServer: AetherPluginServer = {
       const opts = await ctx.getOptions<{ dashboardColumn?: string }>();
       const dashboardColumn = opts.dashboardColumn ?? null;
 
-      const column = dashboardColumn ? board.columns.find((c) => c.name === dashboardColumn) ?? null : null;
+      const column = dashboardColumn ? (board.columns.find((c) => c.name === dashboardColumn) ?? null) : null;
 
       return {
         configured: true,
-        dashboardColumn: column
-          ? { name: column.name, tasks: column.tasks }
-          : null,
+        dashboardColumn: column ? { name: column.name, tasks: column.tasks } : null,
       };
     } catch (err) {
       logger.error({ err }, "Failed to load board widget data");
