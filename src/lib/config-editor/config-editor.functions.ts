@@ -4,11 +4,13 @@ import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
 import { z } from "zod";
 import type { ConfigEditorData, ScopedTreeNode } from "#/components/config-editor/types";
+import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 import { logger } from "#/lib/logger";
 import type { ObsidianDocument } from "#/lib/obsidian/obsidian";
 import { OBSIDIAN_AI_CONFIG, OBSIDIAN_DIR, toObsidianRoutePath } from "#/lib/obsidian/obsidian";
+import { parsePreferences } from "#/lib/preferences";
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -132,7 +134,7 @@ const configEditorInputSchema = z
 export const getConfigEditorData = createServerFn({ method: "GET" })
   .inputValidator((data) => configEditorInputSchema.parse(data))
   .handler(async ({ data }): Promise<ConfigEditorData> => {
-    await ensureSession();
+    const session = await ensureSession();
 
     const scopedDir = getScopedDir(data.subfolder);
     if (!scopedDir) {
@@ -143,6 +145,13 @@ export const getConfigEditorData = createServerFn({ method: "GET" })
         configured: false,
       };
     }
+
+    // Fetch user timezone preference
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { preferences: true },
+    });
+    const prefs = parsePreferences(user?.preferences);
 
     const relativeBase = getScopedRelativeBase(data.subfolder);
     const { tree, documents } = await buildScopedTree(scopedDir, relativeBase);
@@ -160,6 +169,7 @@ export const getConfigEditorData = createServerFn({ method: "GET" })
       document,
       requestedFilename: data.filename ?? "",
       configured: true,
+      userTimezone: prefs.timezone,
     };
   });
 
@@ -208,6 +218,66 @@ export const toggleFrontmatterField = createServerFn({ method: "POST" })
         newContent,
         changeSource: "manual",
         summary: `Toggle ${data.field} → ${data.value}`,
+      });
+    } catch (err) {
+      logger.error({ err }, "Activity log failed");
+    }
+
+    return { success: true };
+  });
+
+const updateFrontmatterSchema = z
+  .object({
+    relativePath: z.string(),
+    fields: z.record(z.string(), z.unknown()),
+  })
+  .strict();
+
+export const updateFrontmatterFields = createServerFn({ method: "POST" })
+  .inputValidator((data) => updateFrontmatterSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+
+    const obsidianRoot = OBSIDIAN_DIR;
+    if (!obsidianRoot) throw new Error("Obsidian vault not configured");
+
+    const normalized = data.relativePath.replace(/\\/g, "/").trim();
+    if (!normalized || normalized.includes("..") || normalized.startsWith("/")) {
+      throw new Error("Invalid file path");
+    }
+
+    const absolutePath = path.join(obsidianRoot, normalized);
+    const resolvedPath = path.resolve(absolutePath);
+    const resolvedRoot = path.resolve(obsidianRoot);
+
+    if (!resolvedPath.startsWith(resolvedRoot)) {
+      throw new Error("Path traversal detected");
+    }
+
+    const originalContent = await fs.readFile(absolutePath, "utf8");
+    const parsed = matter(originalContent);
+
+    // Merge fields into frontmatter, removing keys set to null/undefined
+    for (const [key, value] of Object.entries(data.fields)) {
+      if (value === null || value === undefined) {
+        delete parsed.data[key];
+      } else {
+        parsed.data[key] = value;
+      }
+    }
+
+    const newContent = matter.stringify(parsed.content, parsed.data);
+    await fs.writeFile(absolutePath, newContent, "utf8");
+
+    try {
+      const changedKeys = Object.keys(data.fields).join(", ");
+      await logFileChange({
+        userId: session.user.id,
+        filePath: normalized,
+        originalContent,
+        newContent,
+        changeSource: "manual",
+        summary: `Update frontmatter: ${changedKeys}`,
       });
     } catch (err) {
       logger.error({ err }, "Activity log failed");

@@ -24,6 +24,8 @@ export type ConfigEditorData = {
   document: ObsidianDocument | null;
   requestedFilename: string;
   configured: boolean;
+  /** User's preferred timezone from settings, if set */
+  userTimezone?: string;
 };
 
 /** Props for the reusable editor shell. */
@@ -36,7 +38,7 @@ export type ConfigEditorShellProps = {
   /** Base route for building links (e.g. "/tasks/editor") */
   basePath: string;
   /** Render the frontmatter display area above the markdown editor */
-  renderFrontmatter?: (document: ObsidianDocument, onRefresh: () => void) => React.ReactNode;
+  renderFrontmatter?: (document: ObsidianDocument, onRefresh: () => void, data: ConfigEditorData) => React.ReactNode;
   /** Called after a successful save */
   onSaved?: () => void;
 };

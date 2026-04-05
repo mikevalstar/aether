@@ -71,6 +71,7 @@ export function ConfigEditorShell({
           {data.document ? (
             <EditorPane
               key={data.document.relativePath}
+              data={data}
               document={data.document}
               renderFrontmatter={renderFrontmatter}
               onSaved={() => {
@@ -90,11 +91,16 @@ export function ConfigEditorShell({
 // ─── Editor Pane ────────────────────────────────────────────────────────
 
 function EditorPane(props: {
+  data: import("./types").ConfigEditorData;
   document: ObsidianDocument;
-  renderFrontmatter?: (document: ObsidianDocument, onRefresh: () => void) => React.ReactNode;
+  renderFrontmatter?: (
+    document: ObsidianDocument,
+    onRefresh: () => void,
+    data: import("./types").ConfigEditorData,
+  ) => React.ReactNode;
   onSaved: () => void;
 }) {
-  const { document, renderFrontmatter, onSaved } = props;
+  const { data, document, renderFrontmatter, onSaved } = props;
   const [editing, setEditing] = useState(false);
   const [content, setContent] = useState(document.rawContent);
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -225,7 +231,7 @@ function EditorPane(props: {
       )}
 
       {/* Frontmatter display */}
-      {renderFrontmatter?.(document, handleRefresh)}
+      {renderFrontmatter?.(document, handleRefresh, data)}
 
       {/* Markdown body — view or edit */}
       {editing ? (
