@@ -19,7 +19,7 @@ function BoardPage() {
 
   // Load board data on mount
   useEffect(() => {
-    getBoardData()
+    getBoardData({ data: {} })
       .then((data) => {
         setConfigured(data.configured);
         setColumns(data.columns);
@@ -202,7 +202,7 @@ function BoardColumnWidget({
 const boardColumnWidget: PluginWidget = {
   id: "board-column",
   label: "Board Column",
-  size: "half",
+  size: "quarter",
   component: BoardColumnWidget,
 };
 

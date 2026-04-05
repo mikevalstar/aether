@@ -7,6 +7,7 @@ import {
   BookOpen,
   CheckSquare,
   CircuitBoard,
+  Columns3,
   FileText,
   GitBranch,
   LayoutDashboard,

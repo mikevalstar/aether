@@ -33,7 +33,7 @@ export function BoardSettingsComponent({
       setColumns([]);
       return;
     }
-    getBoardData()
+    getBoardData({ data: { filePath: kanbanFile } })
       .then((result) => {
         if (result.configured) {
           setColumns(result.columns);
