@@ -19,6 +19,7 @@ import {
 import { toast } from "#/components/ui/sonner";
 import { Switch } from "#/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
+import { UserPicker } from "#/components/ui/user-picker";
 import { CHAT_MODELS, EFFORT_LABELS, resolveModelId } from "#/lib/chat/chat-models";
 import { updateFrontmatterFields } from "#/lib/config-editor/config-editor.functions";
 import { TIMEZONE_GROUPS } from "#/lib/config-editor/timezones";
@@ -45,7 +46,7 @@ type FormState = {
   maxTokens: string;
   notification: boolean;
   notificationLevel: string;
-  notifyUsers: string;
+  notifyUsers: string[];
   pushMessage: boolean;
 };
 
@@ -60,7 +61,7 @@ function extractFormState(fm: ObsidianDocument["frontmatter"]): FormState {
     maxTokens: typeof fm.maxTokens === "number" ? String(fm.maxTokens) : "",
     notification: fm.notification !== false && fm.notification !== "silent",
     notificationLevel: typeof fm.notificationLevel === "string" ? fm.notificationLevel : "info",
-    notifyUsers: Array.isArray(fm.notifyUsers) ? fm.notifyUsers.join(", ") : "all",
+    notifyUsers: Array.isArray(fm.notifyUsers) ? fm.notifyUsers : ["all"],
     pushMessage: fm.pushMessage === true,
   };
 }
@@ -73,10 +74,7 @@ function formToFields(form: FormState): Record<string, unknown> {
     effort: form.effort,
     notification: form.notification ? "notify" : "silent",
     notificationLevel: form.notificationLevel,
-    notifyUsers: form.notifyUsers
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
+    notifyUsers: form.notifyUsers,
     pushMessage: form.pushMessage,
   };
 
@@ -301,13 +299,7 @@ export function TaskFrontmatterModal({
 
                 <div className="space-y-1.5">
                   <Label className="text-xs">Notify Users</Label>
-                  <Input
-                    value={form.notifyUsers}
-                    onChange={(e) => update("notifyUsers", e.target.value)}
-                    placeholder="all"
-                    className="text-sm"
-                  />
-                  <p className="text-[11px] text-[var(--ink-soft)]">Comma-separated user list, or "all" for everyone.</p>
+                  <UserPicker value={form.notifyUsers} onChange={(v) => update("notifyUsers", v)} />
                 </div>
 
                 <div className="flex items-center justify-between">
