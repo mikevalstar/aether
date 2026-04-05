@@ -29,6 +29,7 @@ export function ConfigEditorShell({
   basePath,
   renderFrontmatter,
   onSaved,
+  headerAction,
 }: ConfigEditorShellProps) {
   const router = useRouter();
 
@@ -64,6 +65,7 @@ export function ConfigEditorShell({
             icon={navIcon}
             basePath={basePath}
             getHref={getHref}
+            headerAction={headerAction}
           />
         </aside>
 

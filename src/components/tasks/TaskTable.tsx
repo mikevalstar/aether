@@ -141,7 +141,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button variant="ghost" size="sm" asChild>
-                          <Link to="/tasks/editor/$" params={{ _splat: item.filename }}>
+                          <Link to="/tasks/editor/$" params={{ _splat: item.filename }} search={{ configure: false }}>
                             <Pencil className="size-4" />
                           </Link>
                         </Button>

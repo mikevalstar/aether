@@ -1,6 +1,6 @@
 import cronstrue from "cronstrue";
 import { BellIcon, BotIcon, CalendarClockIcon, HelpCircle, Settings2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
@@ -15,6 +15,8 @@ type TaskFrontmatterDisplayProps = {
   document: ObsidianDocument;
   onRefresh: () => void;
   userTimezone?: string;
+  /** Auto-open the configure modal on mount (e.g. after creating a new task) */
+  autoOpenModal?: boolean;
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────
@@ -94,11 +96,19 @@ function Section({
 
 // ─── Main Component ─────────────────────────────────────────────────────
 
-export function TaskFrontmatterDisplay({ document, onRefresh, userTimezone }: TaskFrontmatterDisplayProps) {
+export function TaskFrontmatterDisplay({ document, onRefresh, userTimezone, autoOpenModal }: TaskFrontmatterDisplayProps) {
   const fm = document.frontmatter;
   const [toggling, setToggling] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<string>("schedule");
+
+  // Auto-open modal on mount (e.g. after new task creation)
+  useEffect(() => {
+    if (autoOpenModal) {
+      setModalTab("schedule");
+      setModalOpen(true);
+    }
+  }, [autoOpenModal]);
 
   const enabled = fm.enabled !== false;
   const cron = typeof fm.cron === "string" ? fm.cron : "";

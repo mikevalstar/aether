@@ -285,3 +285,70 @@ export const updateFrontmatterFields = createServerFn({ method: "POST" })
 
     return { success: true };
   });
+
+const createConfigFileSchema = z
+  .object({
+    subfolder: z.string(),
+    title: z.string().min(1),
+    filename: z.string().min(1),
+    defaultFrontmatter: z.record(z.string(), z.unknown()),
+  })
+  .strict();
+
+export const createConfigFile = createServerFn({ method: "POST" })
+  .inputValidator((data) => createConfigFileSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+
+    const obsidianRoot = OBSIDIAN_DIR;
+    if (!obsidianRoot) throw new Error("Obsidian vault not configured");
+
+    const scopedDir = getScopedDir(data.subfolder);
+    if (!scopedDir) throw new Error("Config folder not configured");
+
+    let filename = data.filename.trim();
+    if (!filename.toLowerCase().endsWith(".md")) filename += ".md";
+    if (filename.includes("..") || filename.includes("/")) {
+      throw new Error("Invalid filename");
+    }
+
+    const relativeBase = getScopedRelativeBase(data.subfolder);
+    const relativePath = path.posix.join(relativeBase, filename);
+    const absolutePath = path.join(obsidianRoot, relativePath);
+    const resolvedPath = path.resolve(absolutePath);
+    const resolvedRoot = path.resolve(obsidianRoot);
+
+    if (!resolvedPath.startsWith(resolvedRoot)) {
+      throw new Error("Path traversal detected");
+    }
+
+    try {
+      await fs.access(absolutePath);
+      throw new Error("A file with that name already exists");
+    } catch (err) {
+      if (err instanceof Error && err.message.includes("already exists")) {
+        throw err;
+      }
+    }
+
+    await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+
+    const frontmatter = { title: data.title, ...data.defaultFrontmatter };
+    const content = matter.stringify("\n", frontmatter);
+    await fs.writeFile(absolutePath, content, "utf8");
+
+    try {
+      await logFileChange({
+        userId: session.user.id,
+        filePath: relativePath,
+        originalContent: null,
+        newContent: content,
+        changeSource: "manual",
+        summary: `Create ${data.subfolder} file: ${filename}`,
+      });
+    } catch (err) {
+      logger.error({ err }, "Activity log failed");
+    }
+
+    return { success: true, filename };
+  });

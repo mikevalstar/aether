@@ -41,6 +41,8 @@ export type ConfigEditorShellProps = {
   renderFrontmatter?: (document: ObsidianDocument, onRefresh: () => void, data: ConfigEditorData) => React.ReactNode;
   /** Called after a successful save */
   onSaved?: () => void;
+  /** Optional action element in the nav header (e.g. "New Task" button) */
+  headerAction?: React.ReactNode;
 };
 
 /** Convert full ObsidianTreeNode[] to simplified ScopedTreeNode[] */
