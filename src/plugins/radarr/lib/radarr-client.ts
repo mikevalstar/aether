@@ -259,10 +259,8 @@ export async function addNewMovie(
 
 export async function searchMovie(opts: RadarrOptions, movieIds: number[]) {
   const client = createClient(opts);
-  const result = await client.runCommand({
-    name: "MoviesSearch",
-    movieIds,
-  } as any);
+  // biome-ignore lint/suspicious/noExplicitAny: tsarr CommandResource doesn't type command-specific fields like movieIds
+  const result = await client.runCommand({ name: "MoviesSearch", movieIds } as any);
   unwrap(result);
   return { triggered: true, movieIds };
 }

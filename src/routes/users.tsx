@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { EyeIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -16,6 +17,8 @@ import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import { getSession } from "#/lib/auth.functions";
 import { authClient } from "#/lib/auth-client";
 import { formatDate } from "#/lib/date";
@@ -174,40 +177,40 @@ function UsersPage() {
             </p>
           </div>
 
-          <div className="divide-y divide-border">
-            {users.map((user) => (
-              <article
-                key={user.id}
-                className="grid gap-3 px-6 py-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_auto] sm:items-center"
-              >
-                <div>
-                  <p className="font-semibold">{user.name}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  <p>
-                    <span className="font-medium text-foreground">Role:</span> {user.role === "admin" ? "Admin" : "Member"}
-                  </p>
-                  <p className="mt-1">
-                    <span className="font-medium text-foreground">Password:</span>{" "}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Password</TableHead>
+                <TableHead>Invited by</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead className="w-[80px]" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <p className="font-semibold">{user.name}</p>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </TableCell>
+                  <TableCell className="text-sm">{user.role === "admin" ? "Admin" : "Member"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
                     {user.mustChangePassword ? "Needs reset" : "Updated by user"}
-                  </p>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  <p>
-                    <span className="font-medium text-foreground">Invited by:</span> {user.invitedBy?.name ?? "Bootstrap"}
-                  </p>
-                  <p className="mt-1">
-                    <span className="font-medium text-foreground">Created:</span> {formatDate(user.createdAt)}
-                  </p>
-                </div>
-                <div className="flex items-center justify-end gap-1">
-                  {user.id !== currentUser.id && <ImpersonateButton userId={user.id} userName={user.name} />}
-                  {user.id !== currentUser.id && <RemoveUserButton userId={user.id} userName={user.name} />}
-                </div>
-              </article>
-            ))}
-          </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{user.invitedBy?.name ?? "Bootstrap"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{formatDate(user.createdAt)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                      {user.id !== currentUser.id && <ImpersonateButton userId={user.id} userName={user.name} />}
+                      {user.id !== currentUser.id && <RemoveUserButton userId={user.id} userName={user.name} />}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </section>
       </section>
     </main>
@@ -242,11 +245,17 @@ function ImpersonateButton({ userId, userName }: { userId: string; userName: str
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-teal hover:text-teal">
-          Impersonate
-        </Button>
-      </AlertDialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8 text-teal hover:text-teal">
+              <EyeIcon className="size-4" />
+              <span className="sr-only">Impersonate {userName}</span>
+            </Button>
+          </AlertDialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Impersonate</TooltipContent>
+      </Tooltip>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Impersonate {userName}?</AlertDialogTitle>
@@ -289,11 +298,17 @@ function RemoveUserButton({ userId, userName }: { userId: string; userName: stri
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-          Remove
-        </Button>
-      </AlertDialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive">
+              <Trash2 className="size-4" />
+              <span className="sr-only">Remove {userName}</span>
+            </Button>
+          </AlertDialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Remove</TooltipContent>
+      </Tooltip>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Remove {userName}?</AlertDialogTitle>
