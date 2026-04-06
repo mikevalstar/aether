@@ -151,6 +151,13 @@ function PluginSettingsPage() {
               <span>{testResult.message}</span>
             </div>
           )}
+
+          {data.options.lastTriggerCheckAt && (
+            <div className="mt-2 rounded-md border border-[var(--line)] bg-[var(--surface-alt)] px-3 py-2 text-xs text-muted-foreground">
+              <span className="font-medium">Last trigger check:</span>{" "}
+              {new Date(data.options.lastTriggerCheckAt as string).toLocaleString()}
+            </div>
+          )}
         </form>
       )}
 

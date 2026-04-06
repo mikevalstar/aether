@@ -1,5 +1,6 @@
 import { logger } from "#/lib/logger";
 import { closeScheduler, initScheduler } from "#/lib/tasks/task-scheduler";
+import { closeTriggerWatcher, initTriggerWatcher } from "#/lib/triggers/trigger-watcher";
 import { closeWorkflowWatcher, initWorkflowWatcher } from "#/lib/workflows/workflow-watcher";
 
 type AppRuntimeState = {
@@ -28,7 +29,7 @@ export function ensureAppRuntimeStarted(): Promise<void> {
 
   logger.info("Starting app runtime bootstrap");
 
-  state.startPromise = Promise.all([initWorkflowWatcher(), initScheduler()])
+  state.startPromise = Promise.all([initWorkflowWatcher(), initTriggerWatcher(), initScheduler()])
     .then(() => {
       logger.info("App runtime bootstrap complete");
     })
@@ -45,7 +46,7 @@ export async function closeAppRuntime(): Promise<void> {
   const state = getAppRuntimeState();
   state.startPromise = null;
 
-  await Promise.allSettled([closeScheduler(), closeWorkflowWatcher()]);
+  await Promise.allSettled([closeScheduler(), closeWorkflowWatcher(), closeTriggerWatcher()]);
 }
 
 function unregisterCleanup(): void {

@@ -1,7 +1,8 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { logger } from "#/lib/logger";
-import type { AetherPluginServer } from "../types";
+import { setUserPluginOptions } from "#/lib/preferences.server";
+import type { AetherPluginServer, PluginContext } from "../types";
 import {
   archiveEmail,
   getUnreadCount,
@@ -213,6 +214,14 @@ Always use list_inbox or search_emails first to get UIDs before reading, moving,
     }
   },
 
+  scheduledTasks: [
+    {
+      name: "poll-new-emails",
+      cron: "*/5 * * * *", // every 5 minutes
+      handler: pollNewEmails,
+    },
+  ],
+
   async checkHealth(ctx) {
     logger.debug({ userId: ctx.userId }, "IMAP: health check");
     const opts = await ctx.getOptions<Partial<ImapOptions>>();
@@ -236,3 +245,86 @@ Always use list_inbox or search_emails first to get UIDs before reading, moving,
     }
   },
 };
+
+// ── Email polling for triggers ──────────────────────────────────────
+
+type ImapOptionsWithTriggers = Partial<ImapOptions> & {
+  enableTriggers?: boolean;
+  lastTriggerCheckAt?: string;
+};
+
+async function pollNewEmails(ctx: PluginContext): Promise<void> {
+  const opts = await ctx.getOptions<ImapOptionsWithTriggers>();
+
+  // Skip if triggers disabled or not configured
+  if (!opts.enableTriggers) return;
+  if (!opts.username || !opts.password) {
+    logger.debug("IMAP poll: skipping — not configured");
+    return;
+  }
+
+  const options: ImapOptions = {
+    host: opts.host ?? "127.0.0.1",
+    port: opts.port ?? 1143,
+    username: opts.username,
+    password: opts.password,
+    tls: opts.tls ?? false,
+  };
+
+  const lastCheckAt = opts.lastTriggerCheckAt ? new Date(opts.lastTriggerCheckAt) : null;
+  const now = new Date();
+
+  logger.info({ lastCheckAt: lastCheckAt?.toISOString(), userId: ctx.userId }, "IMAP: polling for new emails");
+
+  try {
+    // Fetch recent emails — get enough to cover the 5-min window
+    const emails = await listInbox(options, 50);
+
+    // Filter to emails newer than last check
+    const newEmails = lastCheckAt
+      ? emails.filter((e) => e.date && new Date(e.date) > lastCheckAt)
+      : // First run: only trigger on unread emails from the last hour to avoid a flood
+        emails.filter((e) => {
+          const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+          return e.unread && e.date && new Date(e.date) > oneHourAgo;
+        });
+
+    if (newEmails.length === 0) {
+      logger.debug("IMAP poll: no new emails");
+    } else {
+      logger.info({ newEmailCount: newEmails.length }, "IMAP poll: found new emails — reading and firing triggers");
+
+      for (const envelope of newEmails) {
+        try {
+          // Read full email content for the trigger payload
+          const fullEmail = await readEmail(options, envelope.uid);
+
+          ctx.fireTrigger("new_email", {
+            uid: fullEmail.uid,
+            subject: fullEmail.subject,
+            from: fullEmail.from,
+            to: fullEmail.to,
+            date: fullEmail.date,
+            body: fullEmail.textBody,
+            messageId: envelope.messageId,
+          });
+
+          logger.info(
+            { uid: envelope.uid, subject: envelope.subject, from: envelope.from },
+            "IMAP poll: trigger fired for new email",
+          );
+        } catch (err) {
+          logger.error({ err, uid: envelope.uid }, "IMAP poll: failed to read email for trigger");
+        }
+      }
+    }
+
+    // Update last checked timestamp
+    await setUserPluginOptions(ctx.userId, "imap_email", {
+      ...opts,
+      lastTriggerCheckAt: now.toISOString(),
+    });
+  } catch (err) {
+    logger.error({ err, userId: ctx.userId }, "IMAP poll: failed to poll for new emails");
+  }
+}

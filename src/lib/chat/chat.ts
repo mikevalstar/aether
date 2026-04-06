@@ -22,7 +22,7 @@ export type ChatUsageTotals = {
   estimatedCostUsd: number;
 };
 
-export type ChatTaskType = "chat" | "title" | "task" | "workflow";
+export type ChatTaskType = "chat" | "title" | "task" | "workflow" | "trigger";
 
 export type ChatUsageEntry = ChatUsageTotals & {
   id: string;

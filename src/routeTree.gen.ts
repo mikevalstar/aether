@@ -22,11 +22,14 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
+import { Route as TriggersIndexRouteImport } from './routes/triggers/index'
 import { Route as TasksIndexRouteImport } from './routes/tasks/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
 import { Route as OIndexRouteImport } from './routes/o/index'
 import { Route as WorkflowsSplatRouteImport } from './routes/workflows/$'
+import { Route as TriggersWebhooksRouteImport } from './routes/triggers/webhooks'
+import { Route as TriggersSplatRouteImport } from './routes/triggers/$'
 import { Route as TasksSplatRouteImport } from './routes/tasks/$'
 import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
 import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
@@ -42,15 +45,18 @@ import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-displa
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as WorkflowsEditorIndexRouteImport } from './routes/workflows/editor/index'
+import { Route as TriggersEditorIndexRouteImport } from './routes/triggers/editor/index'
 import { Route as TasksEditorIndexRouteImport } from './routes/tasks/editor/index'
 import { Route as SettingsPluginsIndexRouteImport } from './routes/settings/plugins/index'
 import { Route as WorkflowsEditorSplatRouteImport } from './routes/workflows/editor/$'
+import { Route as TriggersEditorSplatRouteImport } from './routes/triggers/editor/$'
 import { Route as TasksEditorSplatRouteImport } from './routes/tasks/editor/$'
 import { Route as SettingsPluginsPluginIdRouteImport } from './routes/settings/plugins/$pluginId'
 import { Route as PPluginIdPageIdRouteImport } from './routes/p/$pluginId/$pageId'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiTriggersWebhookApiKeyRouteImport } from './routes/api/triggers/webhook/$apiKey'
 
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
@@ -117,6 +123,11 @@ const WorkflowsIndexRoute = WorkflowsIndexRouteImport.update({
   path: '/workflows/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TriggersIndexRoute = TriggersIndexRouteImport.update({
+  id: '/triggers/',
+  path: '/triggers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
@@ -140,6 +151,16 @@ const OIndexRoute = OIndexRouteImport.update({
 const WorkflowsSplatRoute = WorkflowsSplatRouteImport.update({
   id: '/workflows/$',
   path: '/workflows/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersWebhooksRoute = TriggersWebhooksRouteImport.update({
+  id: '/triggers/webhooks',
+  path: '/triggers/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersSplatRoute = TriggersSplatRouteImport.update({
+  id: '/triggers/$',
+  path: '/triggers/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TasksSplatRoute = TasksSplatRouteImport.update({
@@ -217,6 +238,11 @@ const WorkflowsEditorIndexRoute = WorkflowsEditorIndexRouteImport.update({
   path: '/workflows/editor/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TriggersEditorIndexRoute = TriggersEditorIndexRouteImport.update({
+  id: '/triggers/editor/',
+  path: '/triggers/editor/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TasksEditorIndexRoute = TasksEditorIndexRouteImport.update({
   id: '/tasks/editor/',
   path: '/tasks/editor/',
@@ -230,6 +256,11 @@ const SettingsPluginsIndexRoute = SettingsPluginsIndexRouteImport.update({
 const WorkflowsEditorSplatRoute = WorkflowsEditorSplatRouteImport.update({
   id: '/workflows/editor/$',
   path: '/workflows/editor/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersEditorSplatRoute = TriggersEditorSplatRouteImport.update({
+  id: '/triggers/editor/$',
+  path: '/triggers/editor/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TasksEditorSplatRoute = TasksEditorSplatRouteImport.update({
@@ -262,6 +293,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTriggersWebhookApiKeyRoute =
+  ApiTriggersWebhookApiKeyRouteImport.update({
+    id: '/api/triggers/webhook/$apiKey',
+    path: '/api/triggers/webhook/$apiKey',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -290,11 +327,14 @@ export interface FileRoutesByFullPath {
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/tasks/$': typeof TasksSplatRoute
+  '/triggers/$': typeof TriggersSplatRoute
+  '/triggers/webhooks': typeof TriggersWebhooksRoute
   '/workflows/$': typeof WorkflowsSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/tasks/': typeof TasksIndexRoute
+  '/triggers/': typeof TriggersIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -302,10 +342,13 @@ export interface FileRoutesByFullPath {
   '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
+  '/triggers/editor/$': typeof TriggersEditorSplatRoute
   '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
   '/settings/plugins/': typeof SettingsPluginsIndexRoute
   '/tasks/editor/': typeof TasksEditorIndexRoute
+  '/triggers/editor/': typeof TriggersEditorIndexRoute
   '/workflows/editor/': typeof WorkflowsEditorIndexRoute
+  '/api/triggers/webhook/$apiKey': typeof ApiTriggersWebhookApiKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -333,11 +376,14 @@ export interface FileRoutesByTo {
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/tasks/$': typeof TasksSplatRoute
+  '/triggers/$': typeof TriggersSplatRoute
+  '/triggers/webhooks': typeof TriggersWebhooksRoute
   '/workflows/$': typeof WorkflowsSplatRoute
   '/o': typeof OIndexRoute
   '/requirements': typeof RequirementsIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/tasks': typeof TasksIndexRoute
+  '/triggers': typeof TriggersIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -345,10 +391,13 @@ export interface FileRoutesByTo {
   '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
+  '/triggers/editor/$': typeof TriggersEditorSplatRoute
   '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
   '/settings/plugins': typeof SettingsPluginsIndexRoute
   '/tasks/editor': typeof TasksEditorIndexRoute
+  '/triggers/editor': typeof TriggersEditorIndexRoute
   '/workflows/editor': typeof WorkflowsEditorIndexRoute
+  '/api/triggers/webhook/$apiKey': typeof ApiTriggersWebhookApiKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -378,11 +427,14 @@ export interface FileRoutesById {
   '/settings/password': typeof SettingsPasswordRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/tasks/$': typeof TasksSplatRoute
+  '/triggers/$': typeof TriggersSplatRoute
+  '/triggers/webhooks': typeof TriggersWebhooksRoute
   '/workflows/$': typeof WorkflowsSplatRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/tasks/': typeof TasksIndexRoute
+  '/triggers/': typeof TriggersIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -390,10 +442,13 @@ export interface FileRoutesById {
   '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
+  '/triggers/editor/$': typeof TriggersEditorSplatRoute
   '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
   '/settings/plugins/': typeof SettingsPluginsIndexRoute
   '/tasks/editor/': typeof TasksEditorIndexRoute
+  '/triggers/editor/': typeof TriggersEditorIndexRoute
   '/workflows/editor/': typeof WorkflowsEditorIndexRoute
+  '/api/triggers/webhook/$apiKey': typeof ApiTriggersWebhookApiKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -424,11 +479,14 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/settings/profile'
     | '/tasks/$'
+    | '/triggers/$'
+    | '/triggers/webhooks'
     | '/workflows/$'
     | '/o/'
     | '/requirements/'
     | '/settings/'
     | '/tasks/'
+    | '/triggers/'
     | '/workflows/'
     | '/api/auth/$'
     | '/demo/form/address'
@@ -436,10 +494,13 @@ export interface FileRouteTypes {
     | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
+    | '/triggers/editor/$'
     | '/workflows/editor/$'
     | '/settings/plugins/'
     | '/tasks/editor/'
+    | '/triggers/editor/'
     | '/workflows/editor/'
+    | '/api/triggers/webhook/$apiKey'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -467,11 +528,14 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/settings/profile'
     | '/tasks/$'
+    | '/triggers/$'
+    | '/triggers/webhooks'
     | '/workflows/$'
     | '/o'
     | '/requirements'
     | '/settings'
     | '/tasks'
+    | '/triggers'
     | '/workflows'
     | '/api/auth/$'
     | '/demo/form/address'
@@ -479,10 +543,13 @@ export interface FileRouteTypes {
     | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
+    | '/triggers/editor/$'
     | '/workflows/editor/$'
     | '/settings/plugins'
     | '/tasks/editor'
+    | '/triggers/editor'
     | '/workflows/editor'
+    | '/api/triggers/webhook/$apiKey'
   id:
     | '__root__'
     | '/'
@@ -511,11 +578,14 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/settings/profile'
     | '/tasks/$'
+    | '/triggers/$'
+    | '/triggers/webhooks'
     | '/workflows/$'
     | '/o/'
     | '/requirements/'
     | '/settings/'
     | '/tasks/'
+    | '/triggers/'
     | '/workflows/'
     | '/api/auth/$'
     | '/demo/form/address'
@@ -523,10 +593,13 @@ export interface FileRouteTypes {
     | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
+    | '/triggers/editor/$'
     | '/workflows/editor/$'
     | '/settings/plugins/'
     | '/tasks/editor/'
+    | '/triggers/editor/'
     | '/workflows/editor/'
+    | '/api/triggers/webhook/$apiKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -550,18 +623,24 @@ export interface RootRouteChildren {
   PPluginIdRoute: typeof PPluginIdRouteWithChildren
   RequirementsSplatRoute: typeof RequirementsSplatRoute
   TasksSplatRoute: typeof TasksSplatRoute
+  TriggersSplatRoute: typeof TriggersSplatRoute
+  TriggersWebhooksRoute: typeof TriggersWebhooksRoute
   WorkflowsSplatRoute: typeof WorkflowsSplatRoute
   OIndexRoute: typeof OIndexRoute
   RequirementsIndexRoute: typeof RequirementsIndexRoute
   TasksIndexRoute: typeof TasksIndexRoute
+  TriggersIndexRoute: typeof TriggersIndexRoute
   WorkflowsIndexRoute: typeof WorkflowsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
   TasksEditorSplatRoute: typeof TasksEditorSplatRoute
+  TriggersEditorSplatRoute: typeof TriggersEditorSplatRoute
   WorkflowsEditorSplatRoute: typeof WorkflowsEditorSplatRoute
   TasksEditorIndexRoute: typeof TasksEditorIndexRoute
+  TriggersEditorIndexRoute: typeof TriggersEditorIndexRoute
   WorkflowsEditorIndexRoute: typeof WorkflowsEditorIndexRoute
+  ApiTriggersWebhookApiKeyRoute: typeof ApiTriggersWebhookApiKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -657,6 +736,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/triggers/': {
+      id: '/triggers/'
+      path: '/triggers'
+      fullPath: '/triggers/'
+      preLoaderRoute: typeof TriggersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tasks/': {
       id: '/tasks/'
       path: '/tasks'
@@ -690,6 +776,20 @@ declare module '@tanstack/react-router' {
       path: '/workflows/$'
       fullPath: '/workflows/$'
       preLoaderRoute: typeof WorkflowsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/webhooks': {
+      id: '/triggers/webhooks'
+      path: '/triggers/webhooks'
+      fullPath: '/triggers/webhooks'
+      preLoaderRoute: typeof TriggersWebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/$': {
+      id: '/triggers/$'
+      path: '/triggers/$'
+      fullPath: '/triggers/$'
+      preLoaderRoute: typeof TriggersSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tasks/$': {
@@ -797,6 +897,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsEditorIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/triggers/editor/': {
+      id: '/triggers/editor/'
+      path: '/triggers/editor'
+      fullPath: '/triggers/editor/'
+      preLoaderRoute: typeof TriggersEditorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tasks/editor/': {
       id: '/tasks/editor/'
       path: '/tasks/editor'
@@ -816,6 +923,13 @@ declare module '@tanstack/react-router' {
       path: '/workflows/editor/$'
       fullPath: '/workflows/editor/$'
       preLoaderRoute: typeof WorkflowsEditorSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/editor/$': {
+      id: '/triggers/editor/$'
+      path: '/triggers/editor/$'
+      fullPath: '/triggers/editor/$'
+      preLoaderRoute: typeof TriggersEditorSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tasks/editor/$': {
@@ -858,6 +972,13 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/triggers/webhook/$apiKey': {
+      id: '/api/triggers/webhook/$apiKey'
+      path: '/api/triggers/webhook/$apiKey'
+      fullPath: '/api/triggers/webhook/$apiKey'
+      preLoaderRoute: typeof ApiTriggersWebhookApiKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -924,18 +1045,24 @@ const rootRouteChildren: RootRouteChildren = {
   PPluginIdRoute: PPluginIdRouteWithChildren,
   RequirementsSplatRoute: RequirementsSplatRoute,
   TasksSplatRoute: TasksSplatRoute,
+  TriggersSplatRoute: TriggersSplatRoute,
+  TriggersWebhooksRoute: TriggersWebhooksRoute,
   WorkflowsSplatRoute: WorkflowsSplatRoute,
   OIndexRoute: OIndexRoute,
   RequirementsIndexRoute: RequirementsIndexRoute,
   TasksIndexRoute: TasksIndexRoute,
+  TriggersIndexRoute: TriggersIndexRoute,
   WorkflowsIndexRoute: WorkflowsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,
   TasksEditorSplatRoute: TasksEditorSplatRoute,
+  TriggersEditorSplatRoute: TriggersEditorSplatRoute,
   WorkflowsEditorSplatRoute: WorkflowsEditorSplatRoute,
   TasksEditorIndexRoute: TasksEditorIndexRoute,
+  TriggersEditorIndexRoute: TriggersEditorIndexRoute,
   WorkflowsEditorIndexRoute: WorkflowsEditorIndexRoute,
+  ApiTriggersWebhookApiKeyRoute: ApiTriggersWebhookApiKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

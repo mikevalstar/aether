@@ -38,6 +38,8 @@ model User {
   activityLogs    ActivityLog[]
   tasks           Task[]
   workflows       Workflow[]
+  triggers        Trigger[]
+  webhooks        Webhook[]
   notifications   Notification[]
 }
 
@@ -95,6 +97,7 @@ model ChatThread {
   availableToolsJson String?
   sourceTaskFile     String?
   sourceWorkflowFile String?
+  sourceTriggerFile  String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   userId         String
@@ -188,6 +191,44 @@ model Workflow {
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, filename])
+}
+
+model Trigger {
+  id             String    @id @default(cuid())
+  filename       String    @unique
+  title          String
+  type           String                     // e.g. "github", "imap_email:new_email"
+  pattern        String?                    // JMESPath expression
+  model          String    @default("claude-haiku-4-5")
+  effort         String    @default("low")
+  enabled        Boolean   @default(true)
+  maxTokens      Int?
+  lastFiredAt    DateTime?
+  lastRunStatus  String?                    // "success" | "error"
+  lastThreadId   String?
+  fileExists     Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([userId, filename])
+}
+
+model Webhook {
+  id             String    @id @default(cuid())
+  name           String                     // human-readable label, e.g. "GitHub"
+  type           String                     // event type string, e.g. "github"
+  apiKey         String    @unique          // random key used in URL
+  lastReceivedAt DateTime?                  // last time a POST was received
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([apiKey])
 }
 
 model Notification {

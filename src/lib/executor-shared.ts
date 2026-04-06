@@ -14,10 +14,15 @@ import {
 import { CHAT_MODELS } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
+import { getUserPreferences } from "#/lib/preferences.server";
+
+function typeLabel(type: ExecutionContext["type"]): string {
+  return type === "task" ? "Task" : type === "workflow" ? "Workflow" : "Trigger";
+}
 
 export type ExecutionContext = {
-  /** "task" or "workflow" */
-  type: "task" | "workflow";
+  /** Execution type */
+  type: "task" | "workflow" | "trigger";
   /** The source filename (e.g. "tasks/daily-summary.md") */
   filename: string;
   /** Display title */
@@ -71,12 +76,17 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
       title: ctx.title,
       model: ctx.model,
       effort: ctx.effort,
-      ...(ctx.type === "task" ? { sourceTaskFile: ctx.filename } : { sourceWorkflowFile: ctx.filename }),
+      ...(ctx.type === "task"
+        ? { sourceTaskFile: ctx.filename }
+        : ctx.type === "workflow"
+          ? { sourceWorkflowFile: ctx.filename }
+          : { sourceTriggerFile: ctx.filename }),
       userId: ctx.userId,
     },
   });
 
-  const tools = createAiTools(ctx.model, ctx.userId, threadId, ctx.userTimezone);
+  const prefs = await getUserPreferences(ctx.userId);
+  const tools = createAiTools(ctx.model, ctx.userId, threadId, ctx.userTimezone, prefs);
   const toolNames = Object.keys(tools);
 
   try {
@@ -142,10 +152,14 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
       }),
       prisma.activityLog.create({
         data: {
-          type: ctx.type === "task" ? "cron_task" : "workflow",
+          type: ctx.type === "task" ? "cron_task" : ctx.type,
           summary: `Ran ${ctx.type}: ${ctx.title}`,
           metadata: JSON.stringify({
-            ...(ctx.type === "task" ? { taskFile: ctx.filename } : { workflowFile: ctx.filename }),
+            ...(ctx.type === "task"
+              ? { taskFile: ctx.filename }
+              : ctx.type === "workflow"
+                ? { workflowFile: ctx.filename }
+                : { triggerFile: ctx.filename }),
             chatThreadId: threadId,
             model: ctx.model,
             inputTokens: usage.inputTokens,
@@ -171,7 +185,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
         costUsd: estimatedCost,
         durationMs,
       },
-      `${ctx.type === "task" ? "Task" : "Workflow"} completed successfully`,
+      `${typeLabel(ctx.type)} completed successfully`,
     );
 
     if (ctx.notification !== "silent") {
@@ -183,10 +197,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     const durationMs = Date.now() - startTime;
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
 
-    logger.error(
-      { [ctx.type]: ctx.filename, err, durationMs },
-      `${ctx.type === "task" ? "Task" : "Workflow"} execution failed`,
-    );
+    logger.error({ [ctx.type]: ctx.filename, err, durationMs }, `${typeLabel(ctx.type)} execution failed`);
 
     await prisma.$transaction([
       prisma.chatThread.update({
@@ -196,19 +207,21 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
             {
               id: `msg_${crypto.randomUUID()}`,
               role: "assistant",
-              parts: [
-                { type: "text", text: `${ctx.type === "task" ? "Task" : "Workflow"} execution failed: ${errorMessage}` },
-              ],
+              parts: [{ type: "text", text: `${typeLabel(ctx.type)} execution failed: ${errorMessage}` }],
             },
           ]),
         },
       }),
       prisma.activityLog.create({
         data: {
-          type: ctx.type === "task" ? "cron_task" : "workflow",
-          summary: `${ctx.type === "task" ? "Task" : "Workflow"} failed: ${ctx.title}`,
+          type: ctx.type === "task" ? "cron_task" : ctx.type,
+          summary: `${typeLabel(ctx.type)} failed: ${ctx.title}`,
           metadata: JSON.stringify({
-            ...(ctx.type === "task" ? { taskFile: ctx.filename } : { workflowFile: ctx.filename }),
+            ...(ctx.type === "task"
+              ? { taskFile: ctx.filename }
+              : ctx.type === "workflow"
+                ? { workflowFile: ctx.filename }
+                : { triggerFile: ctx.filename }),
             chatThreadId: threadId,
             error: errorMessage,
             durationMs,
@@ -238,15 +251,15 @@ async function sendExecutionNotification(
   success: boolean,
   errorMessage?: string,
 ): Promise<void> {
-  const label = ctx.type === "task" ? "Task" : "Workflow";
+  const label = typeLabel(ctx.type);
   const title = success ? `${label} completed: ${ctx.title}` : `${label} failed: ${ctx.title}`;
   const level = success ? ctx.notificationLevel : "error";
   const category = ctx.type;
   const source = ctx.filename;
   const forcePush = !success || ctx.pushMessage || ctx.notification === "push";
 
-  // Link to the specific task/workflow page with the run highlighted
-  const basePath = ctx.type === "task" ? "/tasks" : "/workflows";
+  // Link to the specific run page with the run highlighted
+  const basePath = ctx.type === "task" ? "/tasks" : ctx.type === "workflow" ? "/workflows" : "/triggers";
   const link = `${basePath}/${encodeURIComponent(ctx.filename)}?highlight=${encodeURIComponent(threadId)}`;
 
   const notificationParams = {

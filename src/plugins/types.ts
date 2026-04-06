@@ -42,6 +42,30 @@ export type PluginOptionField = {
   options?: { label: string; value: string }[];
 };
 
+// ─── Trigger types ───
+
+export type PluginTriggerType = {
+  /** Trigger type key — will be namespaced as {pluginId}:{type} */
+  type: string;
+  /** Display label, e.g., "New Email Received" */
+  label: string;
+  /** Description of what this trigger fires on — shown in unconfigured triggers UI */
+  description: string;
+  /** Markdown instructions: what {{details}} looks like, tips for writing prompts */
+  instructions?: string;
+};
+
+// ─── Scheduled task types ───
+
+export type PluginScheduledTask = {
+  /** Unique name for the task (will be prefixed as plugin:{pluginId}:{name}) */
+  name: string;
+  /** Cron expression (5-field) */
+  cron: string;
+  /** Handler called on each tick — receives plugin context */
+  handler: (ctx: PluginContext) => Promise<void>;
+};
+
 // ─── Server-side types ───
 
 export type ObsidianPluginContext = {
@@ -63,6 +87,8 @@ export type PluginContext = {
   getOptions: <T = Record<string, unknown>>() => Promise<T>;
   obsidian: ObsidianPluginContext;
   logActivity: (params: PluginActivityParams) => Promise<void>;
+  /** Fire a trigger event — dispatches to all matching trigger configs. Type is auto-prefixed with pluginId. */
+  fireTrigger: (type: string, payload: Record<string, unknown>) => void;
 };
 
 export type AetherPluginServer = {
@@ -72,6 +98,8 @@ export type AetherPluginServer = {
   checkHealth?: (ctx: PluginContext) => Promise<PluginHealthStatus>;
   onEnable?: (ctx: PluginContext) => Promise<void>;
   onDisable?: (ctx: PluginContext) => Promise<void>;
+  /** Recurring scheduled tasks this plugin needs (e.g., polling for new data) */
+  scheduledTasks?: PluginScheduledTask[];
 };
 
 // ─── Client-side types ───
@@ -130,6 +158,8 @@ export type AetherPlugin = {
   meta: PluginMeta;
   optionFields?: PluginOptionField[];
   activityTypes?: PluginActivityType[];
+  /** Trigger event types this plugin can fire */
+  triggerTypes?: PluginTriggerType[];
   server?: AetherPluginServer;
   client?: AetherPluginClient;
 };
