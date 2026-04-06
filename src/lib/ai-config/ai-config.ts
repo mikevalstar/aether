@@ -66,6 +66,14 @@ export async function readTitlePromptConfig(): Promise<{
   return { model, prompt: result.body };
 }
 
+const DEFAULT_TRIGGER_SYSTEM_PROMPT = `You are an autonomous AI assistant responding to an event trigger for {{userName}}. It is {{dayOfWeek}}, {{date}} at {{time}} ({{timezone}}).
+
+You are running unattended in response to an external event. The event details are provided in the user prompt. Analyze the payload carefully before acting.
+
+You have access to tools for reading and writing files in the user's Obsidian vault, web search, and web fetch. Use them as needed. AI memory notes are stored in the \`{{aiMemoryPath}}\` folder — check there for context about the user's preferences when relevant.
+
+Keep output concise and actionable. Focus on what the user needs to know or what action needs to be taken.`;
+
 const DEFAULT_WORKFLOW_SYSTEM_PROMPT = `You are an autonomous AI assistant running a user-triggered background workflow for {{userName}}. It is {{dayOfWeek}}, {{date}} at {{time}} ({{timezone}}).
 
 You have access to tools for reading and writing files in the user's Obsidian vault, web search, and web fetch. Use them as needed to complete the workflow described in the user message.
@@ -111,6 +119,27 @@ export async function readWorkflowPromptConfig(
   if (!result?.validation.isValid) {
     return {
       prompt: interpolatePrompt(DEFAULT_WORKFLOW_SYSTEM_PROMPT, vars),
+    };
+  }
+
+  const model = typeof result.frontmatter.model === "string" ? result.frontmatter.model : undefined;
+  const effort = typeof result.frontmatter.effort === "string" ? result.frontmatter.effort : undefined;
+
+  return { model, effort, prompt: interpolatePrompt(result.body, vars) };
+}
+
+/**
+ * Read the trigger prompt config and return model, effort, and interpolated prompt.
+ * Falls back to a hardcoded default if the file is missing or invalid.
+ */
+export async function readTriggerPromptConfig(
+  vars: PromptVars,
+): Promise<{ model?: string; effort?: string; prompt: string }> {
+  const result = await readAiConfig("trigger-prompt.md");
+
+  if (!result?.validation.isValid) {
+    return {
+      prompt: interpolatePrompt(DEFAULT_TRIGGER_SYSTEM_PROMPT, vars),
     };
   }
 

@@ -25,18 +25,18 @@ canonical_file: docs/requirements/triggers.md
 | Area | Status | Requirement |
 | --- | --- | --- |
 | Trigger file format | done | Markdown files in `triggers/` with `title`, `type`, `model`, `effort`, `enabled`, optional `pattern`, `maxTokens`, notification fields in frontmatter; body is prompt template with `{{details}}` placeholder |
-| Trigger system prompt | todo | `trigger-prompt.md` AI config file — shared system prompt for all trigger executions |
+| Trigger system prompt | done | `trigger-prompt.md` AI config file — shared system prompt for all trigger executions |
 | Zod validator | done | Validators for trigger files and trigger-prompt; validates base fields + type existence |
 | Trigger watcher | done | Chokidar watcher on `triggers/` config folder for dynamic add/remove/update, syncs to `Trigger` DB table |
-| Trigger executor | todo | Execute trigger prompt via shared `executePrompt()` harness with full tool access, agent loop, background (non-streaming) |
-| Event dispatcher | todo | Match fired events to trigger configs by `type`, evaluate JMESPath `pattern` against JSON payload, execute each match |
+| Trigger executor | done | Execute trigger prompt via shared `executePrompt()` harness with full tool access, agent loop, background (non-streaming) |
+| Event dispatcher | done | Match fired events to trigger configs by `type`, evaluate JMESPath `pattern` against JSON payload, execute each match |
 | Webhook system | done | `Webhook` DB table for API key management; API endpoint at `/api/triggers/webhook/{apiKey}` accepting JSON POST; webhook management UI at `/triggers/webhooks` |
 | Plugin integration | todo | Extend `AetherPlugin` with `triggerTypes` array; extend `PluginContext` with `fireTrigger()` method |
 | Database — Trigger table | done | `Trigger` table tracking each trigger file's metadata and last fired info |
 | Database — Webhook table | done | `Webhook` table for API keys with name, type, key, timestamps |
 | Database — ChatThread type | done | Store trigger runs in `ChatThread` with `type: "trigger"`, `sourceTriggerFile` |
-| Usage tracking | todo | Track token usage per trigger run via `ChatUsageEvent` with `taskType: "trigger"` |
-| Activity logging | todo | Log trigger executions as `ActivityLog` entries with `type: "trigger"` |
+| Usage tracking | done | Track token usage per trigger run via `ChatUsageEvent` with `taskType: "trigger"` |
+| Activity logging | done | Log trigger executions as `ActivityLog` entries with `type: "trigger"` |
 | UI — Trigger list | done | Page at `/triggers` showing all trigger configs with type, enabled/disabled, last fired time |
 | UI — Trigger editor | done | Config editor at `/triggers/editor` using `ConfigEditorShell` pattern (same as tasks/workflows) |
 | UI — Run history | done | View past runs for a trigger at `/triggers/:filename` (same pattern as tasks) |
@@ -50,10 +50,10 @@ canonical_file: docs/requirements/triggers.md
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
 | Trigger file format & validation | done | Frontmatter schema + zod validator for `triggers/*.md` | [Detail](#trigger-file-format--validation) |
-| Trigger system prompt config | todo | `trigger-prompt.md` AI config file for trigger system prompt | [Detail](#trigger-system-prompt-config) |
+| Trigger system prompt config | done | `trigger-prompt.md` AI config file for trigger system prompt | [Detail](#trigger-system-prompt-config) |
 | Trigger watcher | done | Singleton with chokidar watcher, DB sync, in-memory config map | [Detail](#trigger-watcher) |
-| Event dispatcher | todo | Match events to trigger configs by type, JMESPath pattern filter, execute | [Detail](#event-dispatcher) |
-| Trigger executor | todo | Event -> prompt assembly -> `executePrompt()` -> store result | [Detail](#trigger-executor) |
+| Event dispatcher | done | Match events to trigger configs by type, JMESPath pattern filter, execute | [Detail](#event-dispatcher) |
+| Trigger executor | done | Event -> prompt assembly -> `executePrompt()` -> store result | [Detail](#trigger-executor) |
 | Webhook system | todo | API key management, HTTP endpoint, management UI | [Detail](#webhook-system) |
 | Plugin trigger types | todo | Extend plugin interface with `triggerTypes` declaration and `fireTrigger()` context method | [Detail](#plugin-trigger-types) |
 | Schema migration | done | `Trigger` + `Webhook` tables, `ChatThread.sourceTriggerFile` | [Detail](#schema-migration) |
@@ -420,10 +420,10 @@ src/plugins/
 | --- | --- | --- |
 | 1. Schema migration | done | `Trigger` + `Webhook` models, `sourceTriggerFile` on `ChatThread` |
 | 2. Trigger file format + validator | done | Zod schema in `ai-config/validators/trigger.ts` + `trigger-prompt.ts`, registered in validator index |
-| 3. Trigger system prompt | todo | `trigger-prompt.md` config file, example, config reader with fallback |
+| 3. Trigger system prompt | done | `trigger-prompt.md` config file, example, `readTriggerPromptConfig()` with hardcoded fallback |
 | 4. Trigger watcher | done | Singleton with chokidar on `triggers/`, DB sync, in-memory config Map. Wired into `app-runtime.ts` |
-| 5. Event dispatcher | todo | `fireTrigger(type, payload)` function with JMESPath pattern matching |
-| 6. Trigger executor | todo | Extend `ExecutionContext` type, wire dispatcher to `executePrompt()`, store results |
+| 5. Event dispatcher | done | `fireTrigger(type, payload)` function with JMESPath pattern matching via `@metrichor/jmespath` |
+| 6. Trigger executor | done | Extended `ExecutionContext` type with `"trigger"`, wired to `executePrompt()` with trigger-prompt system prompt |
 | 7. Webhook endpoint | done | API route at `/api/triggers/webhook/$apiKey`, key lookup, JSON validation, fire-and-forget dispatch (dispatcher TODO) |
 | 8. Webhook management | done | Webhook DB model, server functions for CRUD, create/revoke/regenerate keys |
 | 9. Plugin integration | todo | Add `triggerTypes` to `AetherPlugin`, `fireTrigger()` to `PluginContext`, wire to dispatcher |
@@ -442,3 +442,4 @@ src/plugins/
 - 2026-04-06: Implementation started. Completed: Trigger DB model + schema migration, trigger/trigger-prompt validators, nav integration (Header + CommandPalette), trigger list page, run history page, config editor with frontmatter display/modal, new trigger dialog, server functions for list/history/delete/convert.
 - 2026-04-06: Webhook system implemented. Webhook DB model, API endpoint at `/api/triggers/webhook/$apiKey` (fire-and-forget, JSON-only), webhook management UI at `/triggers/webhooks` with create/revoke/regenerate. Dispatch call stubbed pending trigger watcher/dispatcher implementation.
 - 2026-04-06: Trigger watcher implemented. Singleton with chokidar on `triggers/`, DB sync, in-memory config Map. Wired into `app-runtime.ts` for startup/shutdown. Triggers list page calls `ensureAppRuntimeStarted()` before querying.
+- 2026-04-06: Event dispatcher + trigger executor implemented. `fireTrigger()` matches by type, evaluates JMESPath patterns via `@metrichor/jmespath`, spawns fire-and-forget execution. Executor loads `trigger-prompt.md` system prompt (with fallback), substitutes `{{details}}`, calls `executePrompt()`. Extended `ExecutionContext` with `"trigger"` type, `ChatTaskType` with `"trigger"`. Webhook endpoint wired to dispatcher. Watcher uses `globalThis` for HMR survival. End-to-end tested: webhook POST → dispatcher → Haiku execution → ChatThread stored.

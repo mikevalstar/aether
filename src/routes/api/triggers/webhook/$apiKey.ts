@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { prisma } from "#/db";
+import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { logger } from "#/lib/logger";
+import { fireTrigger } from "#/lib/triggers/trigger-dispatcher";
 
 export const Route = createFileRoute("/api/triggers/webhook/$apiKey")({
   server: {
@@ -48,11 +50,14 @@ export const Route = createFileRoute("/api/triggers/webhook/$apiKey")({
           })
           .catch((err) => logger.error({ err, webhookId: webhook.id }, "Failed to update webhook lastReceivedAt"));
 
-        // TODO: Wire to trigger dispatcher once built
-        // fireTrigger(webhook.type, payload);
+        // Ensure trigger watcher is initialized before dispatching
+        await ensureAppRuntimeStarted();
+
+        // Dispatch to matching triggers (fire-and-forget)
+        fireTrigger(webhook.type, payload);
         logger.info(
           { webhookId: webhook.id, webhookName: webhook.name, type: webhook.type, payloadKeys: Object.keys(payload) },
-          "Webhook received — trigger dispatch pending",
+          "Webhook received — dispatching to triggers",
         );
 
         return new Response(JSON.stringify({ ok: true }), {

@@ -26,45 +26,72 @@ export type TriggerConfig = {
 };
 
 // ── State ───────────────────────────────────────────────────────────
+// Store state on globalThis so it survives Vite HMR module replacement.
 
-const triggers = new Map<string, TriggerConfig>();
-let watcher: ReturnType<typeof chokidar.watch> | null = null;
-let initPromise: Promise<void> | null = null;
+type TriggerWatcherState = {
+  triggers: Map<string, TriggerConfig>;
+  watcher: ReturnType<typeof chokidar.watch> | null;
+  initPromise: Promise<void> | null;
+};
+
+declare global {
+  var __aetherTriggerWatcherState: TriggerWatcherState | undefined;
+}
+
+globalThis.__aetherTriggerWatcherState ??= {
+  triggers: new Map(),
+  watcher: null,
+  initPromise: null,
+};
+
+function getState(): TriggerWatcherState {
+  return globalThis.__aetherTriggerWatcherState!;
+}
 
 // ── Public API ──────────────────────────────────────────────────────
 
 export function initTriggerWatcher(): Promise<void> {
-  if (initPromise) return initPromise;
+  const state = getState();
+  // If already initialized and has configs (or watcher running), return the existing promise.
+  // If initPromise resolved but map is empty and no watcher, force re-init (HMR recovery).
+  if (state.initPromise) {
+    if (state.watcher || state.triggers.size > 0) return state.initPromise;
+    // Stale resolved promise — reset and re-init
+    logger.info("Trigger watcher re-initializing (HMR recovery)");
+    state.initPromise = null;
+  }
 
   logger.info("Initializing trigger watcher");
 
-  initPromise = doInit();
-  return initPromise;
+  state.initPromise = doInit();
+  return state.initPromise;
 }
 
 export function getTriggerConfigs(): Map<string, TriggerConfig> {
-  return triggers;
+  return getState().triggers;
 }
 
 export function getTriggerConfig(filename: string): TriggerConfig | undefined {
-  return triggers.get(filename);
+  return getState().triggers.get(filename);
 }
 
 export async function closeTriggerWatcher(): Promise<void> {
-  triggers.clear();
+  const state = getState();
+  state.triggers.clear();
 
-  if (watcher) {
-    await watcher.close();
-    watcher = null;
+  if (state.watcher) {
+    await state.watcher.close();
+    state.watcher = null;
   }
 
-  initPromise = null;
+  state.initPromise = null;
 }
 
 // ── Init ────────────────────────────────────────────────────────────
 
 async function doInit(): Promise<void> {
   const done = startupTimer("trigger watcher");
+  const state = getState();
   const triggersDir = getTriggersDir();
   if (!triggersDir) {
     done.skip("no AI config dir configured");
@@ -104,18 +131,27 @@ async function doInit(): Promise<void> {
   });
   const foundFiles = new Set<string>();
 
+  logger.info({ files: files.filter((f) => f.endsWith(".md")), triggersDir }, "Trigger watcher scanning files");
+
   for (const file of files) {
     if (!file.endsWith(".md")) continue;
     const filePath = path.join(triggersDir, file);
 
     const stat = await fs.stat(filePath).catch(() => null);
-    if (!stat?.isFile()) continue;
+    if (!stat?.isFile()) {
+      logger.warn({ file: filePath }, "Trigger file stat failed or not a file");
+      continue;
+    }
 
     const config = await parseTriggerFile(filePath);
-    if (!config) continue;
+    if (!config) {
+      logger.warn({ file: filePath }, "Trigger file parse returned null");
+      continue;
+    }
 
     foundFiles.add(file);
-    triggers.set(file, config);
+    state.triggers.set(file, config);
+    logger.info({ trigger: file, type: config.type, enabled: config.enabled }, "Trigger loaded");
 
     await upsertTriggerRow(file, config, adminUser.id);
   }
@@ -131,7 +167,7 @@ async function doInit(): Promise<void> {
   }
 
   // Start file watcher
-  watcher = chokidar.watch(triggersDir, {
+  state.watcher = chokidar.watch(triggersDir, {
     ignored: (filePath, stats) => {
       if (stats?.isFile() && !filePath.endsWith(".md")) return true;
       return false;
@@ -140,7 +176,7 @@ async function doInit(): Promise<void> {
     ignoreInitial: true,
   });
 
-  watcher
+  state.watcher
     .on("add", (filePath: string) => void handleFileAddOrChange(filePath))
     .on("change", (filePath: string) => void handleFileAddOrChange(filePath))
     .on("unlink", (filePath: string) => void handleFileDelete(filePath))
@@ -148,7 +184,7 @@ async function doInit(): Promise<void> {
       logger.error({ err }, "Trigger watcher error");
     });
 
-  const count = triggers.size;
+  const count = state.triggers.size;
   done({ count, dir: triggersDir });
 }
 
@@ -167,7 +203,7 @@ async function handleFileAddOrChange(filePath: string): Promise<void> {
   });
   if (!adminUser) return;
 
-  triggers.set(filename, config);
+  getState().triggers.set(filename, config);
   await upsertTriggerRow(filename, config, adminUser.id);
 
   logger.info({ trigger: filename }, "Trigger updated");
@@ -176,7 +212,7 @@ async function handleFileAddOrChange(filePath: string): Promise<void> {
 async function handleFileDelete(filePath: string): Promise<void> {
   const filename = path.basename(filePath);
 
-  triggers.delete(filename);
+  getState().triggers.delete(filename);
 
   try {
     await prisma.trigger.update({
