@@ -3,7 +3,7 @@ import path from "node:path";
 import { prisma } from "#/db";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { resolveNotePath, searchVault } from "#/lib/obsidian/vault-index";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPluginOptions } from "#/lib/preferences.server";
 import type { ObsidianPluginContext, PluginActivityParams, PluginContext } from "./types";
 
 function createObsidianPluginContext(): ObsidianPluginContext {
@@ -88,12 +88,7 @@ export function createPluginContext(pluginId: string, userId: string, threadId?:
     aiMemoryFolder: process.env.OBSIDIAN_AI_MEMORY ?? "ai-memory",
 
     async getOptions<T = Record<string, unknown>>(): Promise<T> {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { preferences: true },
-      });
-      const prefs = parsePreferences(user?.preferences);
-      return (prefs.pluginOptions?.[pluginId] ?? {}) as T;
+      return (await getUserPluginOptions<T & Record<string, unknown>>(userId, pluginId)) as T;
     },
 
     obsidian: createObsidianPluginContext(),

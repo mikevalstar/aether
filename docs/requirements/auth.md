@@ -83,8 +83,8 @@ canonical_file: docs/requirements/auth.md
 ### Profile settings
 
 - Requirement: Users must be able to update their display name and timezone preference.
-- Notes: `/settings/profile` shows the user's name (editable), email (read-only, displayed as disabled), and timezone (selectable from `Intl.supportedValuesOf("timeZone")`). The `User` model includes a `preferences` JSON field (`String @default("{}")`) for storing user preferences like timezone. Updates use `updateUserProfile` and `updateUserPreferences` server functions from `src/lib/preferences.functions.ts`.
-- Dependencies: `src/routes/settings/profile.tsx`, `src/lib/preferences.functions.ts`, `prisma/schema.prisma`.
+- Notes: `/settings/profile` shows the user's name (editable), email (read-only, displayed as disabled), and timezone (selectable from `Intl.supportedValuesOf("timeZone")`). The `User` model includes a `preferences` JSON field (`String @default("{}")`) for storing user preferences like timezone. Updates use `updateUserProfile` and `updateUserPreferences` server functions from `src/lib/preferences.functions.ts`, with JSON preference reads/writes delegated to the shared store in `src/lib/preferences.server.ts`.
+- Dependencies: `src/routes/settings/profile.tsx`, `src/lib/preferences.functions.ts`, `src/lib/preferences.server.ts`, `prisma/schema.prisma`.
 
 ## Open Questions
 

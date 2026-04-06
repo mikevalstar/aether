@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreferences } from "#/lib/preferences.server";
 import { getEnabledPlugins } from "#/plugins";
 
 export type PluginWidgetInfo = {
@@ -21,11 +20,7 @@ export type PluginWidgetInfo = {
 export const loadDashboardPluginWidgets = createServerFn({ method: "GET" }).handler(
   async (): Promise<PluginWidgetInfo[]> => {
     const session = await ensureSession();
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { preferences: true },
-    });
-    const prefs = parsePreferences(user?.preferences);
+    const prefs = await getUserPreferences(session.user.id);
     const enabled = getEnabledPlugins(prefs);
     const pluginsWithWidgets = enabled.filter((p) => p.client?.widgets?.length);
 

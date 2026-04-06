@@ -2,7 +2,7 @@
 title: User Preferences
 status: done
 owner: self
-last_updated: 2026-03-22
+last_updated: 2026-04-05
 canonical_file: docs/requirements/user-preferences.md
 ---
 
@@ -12,7 +12,7 @@ canonical_file: docs/requirements/user-preferences.md
 
 - Problem: Users have no way to update their profile, configure application-level settings, or manage integrations like Obsidian, calendar feeds, and push notifications.
 - Outcome: A centralized settings area with a sidebar-navigated multi-page layout where users can manage their profile, chat defaults, notifications, calendar feeds, Obsidian integration, and plugins.
-- Notes: Preferences are stored as a JSON column on the User model for flexibility.
+- Notes: Preferences are stored as a JSON column on the User model for flexibility, with a shared server-side preference store used by route loaders, server functions, jobs, and plugins.
 
 ## Current Reality
 
@@ -60,6 +60,7 @@ canonical_file: docs/requirements/user-preferences.md
 - Desktop: a 48-width sidebar with icon + label nav items, grouped by section (general, Obsidian, plugins) with dividers.
 - Mobile: a horizontal scrollable strip of pill-style nav links.
 - The layout loader calls `getPreferencesPageData()` which fetches user data, preferences, and Obsidian folders. Child routes access this via `getRouteApi("/settings").useLoaderData()`.
+- Settings-facing server functions in `src/lib/preferences.functions.ts` are thin wrappers over the shared server-only store in `src/lib/preferences.server.ts`.
 - Nav items: Profile, Chat, Notifications, Calendar, Password (always visible); Obsidian, Board (visible when vault is configured); Plugins (always visible).
 
 ### Profile editing
@@ -125,8 +126,11 @@ canonical_file: docs/requirements/user-preferences.md
 
 - Added `preferences String @default("{}")` column to the User model.
 - `UserPreferences` type in `src/lib/preferences.ts` defines the shape, including: `obsidianTemplatesFolder`, `obsidianChatExportFolder`, `pushoverUserKey`, `calendarFeeds`, `kanbanFile`, `timezone`, `defaultChatModel`, `enabledPlugins`, `pluginOptions`, `dashboardLayouts`.
-- `parsePreferences()` and `serializePreferences()` handle JSON parsing/serialization.
-- `updateUserPreferences` server function merges partial updates to avoid clobbering.
+- `userPreferencesSchema` and `userPreferencesPatchSchema` in `src/lib/preferences.ts` are the shared validation contract for preference storage and partial updates.
+- `parsePreferences()` and `serializePreferences()` handle JSON parsing/serialization and normalize invalid stored values to `{}`.
+- `src/lib/preferences.server.ts` is the single server-side read/write layer for the JSON blob. It exposes generic helpers such as `getUserPreferences`, `getUserPreference`, `patchUserPreferences`, `setUserPreference`, `getUserTimezone`, `getUserPluginOptions`, `setUserPluginOptions`, and `setUserPluginEnabled`.
+- `src/lib/preferences.functions.ts` keeps route-facing server functions for settings pages, but delegates preference reads/writes to the shared store instead of querying Prisma directly.
+- Runtime consumers such as chat, notifications, calendar sync, tasks, workflows, Obsidian template resolution, dashboard layout persistence, and plugin settings now read/write preferences through the shared server store rather than duplicating parse/merge logic.
 
 ## Implementation
 
@@ -134,7 +138,7 @@ canonical_file: docs/requirements/user-preferences.md
 | --- | --- | --- |
 | 1. Schema | done | Added `preferences` JSON column to User model in `prisma/schema.prisma`. |
 | 2. Types | done | Created `src/lib/preferences.ts` with `UserPreferences` type and helpers. |
-| 3. Server functions | done | Created `src/lib/preferences.functions.ts` with get/update/search functions. |
+| 3. Shared server store | done | Added `src/lib/preferences.server.ts` as the single server-side read/write layer and kept `src/lib/preferences.functions.ts` as thin settings wrappers. |
 | 4. Settings layout | done | Created `src/routes/settings/route.tsx` with sidebar nav layout and `src/routes/settings/index.tsx` redirecting to profile. |
 | 5. Profile page | done | Created `src/routes/settings/profile.tsx` with name, email, and timezone fields. |
 | 6. Chat page | done | Created `src/routes/settings/chat.tsx` with default model selection. |
@@ -153,5 +157,6 @@ canonical_file: docs/requirements/user-preferences.md
 
 ## Change Log
 
+- 2026-04-05: Refactored preference access behind a shared server-side store (`src/lib/preferences.server.ts`). Moved validation into `src/lib/preferences.ts`, kept settings server functions as thin wrappers, removed duplicated Prisma parse/merge logic across chat, notifications, calendar, tasks, workflows, Obsidian, dashboard persistence, and plugin settings.
 - 2026-03-22: Major rewrite — settings area restructured from single preferences page to multi-page layout with sidebar navigation. Added chat settings (default model), notifications (Pushover), calendar feeds, board/Kanban file picker, plugins management, and timezone selector on profile. Obsidian chat export folder now implemented. Updated all implementation steps and sub-features to reflect current state.
 - 2026-03-15: Created user preferences feature with profile editing and Obsidian templates folder selection.

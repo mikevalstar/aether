@@ -1,6 +1,6 @@
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreferences } from "#/lib/preferences.server";
 import { sendPushover } from "#/lib/pushover";
 
 /** Notification severity levels — controls importance and visibility */
@@ -62,20 +62,20 @@ export async function notify({
 }: NotifyParams) {
   // Determine if push should be sent based on user preferences
   let shouldPush = pushToPhone;
+  let prefs = {} as Awaited<ReturnType<typeof getUserPreferences>>;
+
+  if (pushToPhone || level !== "info") {
+    try {
+      prefs = await getUserPreferences(userId);
+    } catch (err) {
+      logger.warn({ err }, "Failed to load user notification preferences");
+    }
+  }
 
   if (!shouldPush && level !== "info") {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { preferences: true },
-      });
-      const prefs = parsePreferences(user?.preferences);
-      const minLevel = prefs.pushNotificationMinLevel ?? "critical";
-      if (isNotificationSeverity(minLevel) && severityMeetsThreshold(level, minLevel)) {
-        shouldPush = true;
-      }
-    } catch (err) {
-      logger.warn({ err }, "Failed to check push notification preferences");
+    const minLevel = prefs.pushNotificationMinLevel ?? "critical";
+    if (isNotificationSeverity(minLevel) && severityMeetsThreshold(level, minLevel)) {
+      shouldPush = true;
     }
   }
 
@@ -94,12 +94,6 @@ export async function notify({
 
   if (shouldPush) {
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { preferences: true },
-      });
-
-      const prefs = parsePreferences(user?.preferences);
       if (prefs.pushoverUserKey) {
         const appUrl = process.env.APP_URL || "http://localhost:3000";
         const pushed = await sendPushover({

@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { prisma } from "#/db";
 import { createAiTools, getToolCategories } from "#/lib/ai-tools";
 import { ensureSession } from "#/lib/auth.functions";
 import {
@@ -10,7 +9,7 @@ import {
   DEFAULT_CHAT_MODEL,
 } from "#/lib/chat/chat-models";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreferences } from "#/lib/preferences.server";
 import { readAllSkills, type SkillSummary } from "#/lib/skills";
 import { getAllPluginTools, getRegisteredPlugins } from "#/plugins/index.server";
 
@@ -107,11 +106,7 @@ export const getChatDebugData = createServerFn({ method: "GET" }).handler(async 
   const session = await ensureSession();
 
   // Load user preferences for default model + to pass to createAiTools
-  const userRecord = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { preferences: true },
-  });
-  const prefs = parsePreferences(userRecord?.preferences);
+  const prefs = await getUserPreferences(session.user.id);
   const userDefaultModel: ChatModel = prefs.defaultChatModel ?? DEFAULT_CHAT_MODEL;
 
   // Build the core tool set using Sonnet (widest: code_execution + latest web tools)

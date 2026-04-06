@@ -2,6 +2,7 @@ import { prisma } from "#/db";
 import { readWorkflowPromptConfig } from "#/lib/ai-config/ai-config";
 import { executePrompt, resolveEffort, resolveModel } from "#/lib/executor-shared";
 import type { NotificationDelivery, NotificationSeverity } from "#/lib/notify";
+import { getUserTimezone } from "#/lib/preferences.server";
 import { interpolatePrompt } from "#/lib/prompt-utils";
 
 export type WorkflowField = {
@@ -34,13 +35,20 @@ export async function executeWorkflow(
   formValues: Record<string, string>,
   userId: string,
 ): Promise<{ threadId: string; success: boolean }> {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  });
   if (!user) {
     throw new Error("User not found");
   }
 
   // Resolve model and effort
-  const userTimezone = user.preferences ? (JSON.parse(user.preferences) as { timezone?: string }).timezone : undefined;
+  const userTimezone = await getUserTimezone(user.id);
 
   const userVars = { userName: user.name, userEmail: user.email, timezone: userTimezone };
   const workflowPromptConfig = await readWorkflowPromptConfig(userVars);

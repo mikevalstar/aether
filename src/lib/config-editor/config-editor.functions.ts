@@ -4,13 +4,12 @@ import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
 import { z } from "zod";
 import type { ConfigEditorData, ScopedTreeNode } from "#/components/config-editor/types";
-import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 import { logger } from "#/lib/logger";
 import type { ObsidianDocument } from "#/lib/obsidian/obsidian";
 import { OBSIDIAN_AI_CONFIG, OBSIDIAN_DIR, toObsidianRoutePath } from "#/lib/obsidian/obsidian";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserTimezone } from "#/lib/preferences.server";
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -148,13 +147,6 @@ export const getConfigEditorData = createServerFn({ method: "GET" })
       };
     }
 
-    // Fetch user timezone preference
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { preferences: true },
-    });
-    const prefs = parsePreferences(user?.preferences);
-
     const relativeBase = getScopedRelativeBase(data.subfolder);
     const { tree, documents } = await buildScopedTree(scopedDir, relativeBase);
 
@@ -171,7 +163,7 @@ export const getConfigEditorData = createServerFn({ method: "GET" })
       document,
       requestedFilename: data.filename ?? "",
       configured: true,
-      userTimezone: prefs.timezone,
+      userTimezone: await getUserTimezone(session.user.id),
     };
   });
 

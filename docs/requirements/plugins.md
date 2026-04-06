@@ -351,12 +351,12 @@ type UserPreferences = {
 - Route: `/settings/plugins/$pluginId`
 - Auto-generates form fields from `optionFields` schema (text inputs, toggles, selects, password fields)
 - Renders plugin's `SettingsComponent` below the auto-form if provided
-- Save button calls `updateUserPreferences` to persist under `pluginOptions[pluginId]`
+- Save button calls plugin settings server functions that persist under `pluginOptions[pluginId]` via the shared user preference store in `src/lib/preferences.server.ts`
 - Plugins with `hasHealthCheck` get a "Test Connection" button next to Save that calls `testPluginConnection` with the current (unsaved) form values and shows inline success/failure feedback
 
 ### AI Tools Integration
 
-- `createAiTools()` receives user preferences, calls `getPluginTools()` from the server registry
+- `createAiTools()` receives user preferences from the shared preference store, then calls `getPluginTools()` from the server registry
 - Each plugin's tools are prefixed with plugin id: `{pluginId}_{toolName}` to avoid collisions (e.g., `imap_email_list_inbox`)
 - Only enabled plugins contribute tools
 - Plugin IDs must use underscore_case to keep tool names consistent (no mixed dashes/underscores)

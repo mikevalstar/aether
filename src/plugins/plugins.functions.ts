@@ -1,8 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import { parsePreferences, serializePreferences } from "#/lib/preferences";
+import {
+  getUserPluginOptions,
+  getUserPreference,
+  getUserPreferences,
+  setUserPluginEnabled,
+  setUserPluginOptions,
+} from "#/lib/preferences.server";
 import { getPlugin, plugins } from "#/plugins";
 
 const pluginIdSchema = z
@@ -66,11 +71,7 @@ const apiBalancesConnectionOptionsSchema = z
 
 export const getPluginsPageData = createServerFn({ method: "GET" }).handler(async () => {
   const session = await ensureSession();
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { preferences: true },
-  });
-  const prefs = parsePreferences(user?.preferences);
+  const prefs = await getUserPreferences(session.user.id);
   const enabledPlugins = prefs.enabledPlugins ?? [];
   const pluginOptions = prefs.pluginOptions ?? {};
 
@@ -91,32 +92,14 @@ export const getPluginsPageData = createServerFn({ method: "GET" }).handler(asyn
 
 export const getEnabledPluginIds = createServerFn({ method: "GET" }).handler(async () => {
   const session = await ensureSession();
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { preferences: true },
-  });
-  return parsePreferences(user?.preferences).enabledPlugins ?? [];
+  return (await getUserPreference(session.user.id, "enabledPlugins")) ?? [];
 });
 
 export const togglePlugin = createServerFn({ method: "POST" })
   .inputValidator((data) => togglePluginInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { preferences: true },
-    });
-    const prefs = parsePreferences(user?.preferences);
-    const current = prefs.enabledPlugins ?? [];
-
-    const updated = data.enabled ? [...new Set([...current, data.pluginId])] : current.filter((id) => id !== data.pluginId);
-
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        preferences: serializePreferences({ ...prefs, enabledPlugins: updated }),
-      },
-    });
+    await setUserPluginEnabled(session.user.id, data.pluginId, data.enabled);
 
     return { success: true };
   });
@@ -125,19 +108,7 @@ export const savePluginOptions = createServerFn({ method: "POST" })
   .inputValidator((data) => pluginOptionsInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { preferences: true },
-    });
-    const prefs = parsePreferences(user?.preferences);
-    const pluginOptions = { ...prefs.pluginOptions, [data.pluginId]: data.options };
-
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        preferences: serializePreferences({ ...prefs, pluginOptions }),
-      },
-    });
+    await setUserPluginOptions(session.user.id, data.pluginId, data.options);
 
     return { success: true };
   });
@@ -146,15 +117,11 @@ export const getPluginOptions = createServerFn({ method: "GET" })
   .inputValidator((data) => pluginIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { preferences: true },
-    });
-    const prefs = parsePreferences(user?.preferences);
+    const prefs = await getUserPreferences(session.user.id);
     const plugin = getPlugin(data.pluginId);
 
     return {
-      options: prefs.pluginOptions?.[data.pluginId] ?? {},
+      options: await getUserPluginOptions(session.user.id, data.pluginId),
       optionFields: plugin?.optionFields ?? [],
       pluginName: plugin?.meta.name ?? data.pluginId,
       enabled: (prefs.enabledPlugins ?? []).includes(data.pluginId),
