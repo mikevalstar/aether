@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreference } from "#/lib/preferences.server";
 import { getAllCachedEvents, queryEvents, writeFeedCache } from "./cache";
 import { fetchAndParseIcal } from "./ical-parser";
 import type { CalendarEvent } from "./types";
@@ -52,14 +51,7 @@ export type FeedSyncResult = {
 
 export const syncCalendarFeedsNow = createServerFn({ method: "POST" }).handler(async (): Promise<FeedSyncResult[]> => {
   const session = await ensureSession();
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { preferences: true },
-  });
-
-  const prefs = parsePreferences(user?.preferences);
-  const feeds = prefs.calendarFeeds;
+  const feeds = await getUserPreference(session.user.id, "calendarFeeds");
   if (!feeds || feeds.length === 0) return [];
 
   const results: FeedSyncResult[] = [];

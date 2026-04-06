@@ -4,20 +4,14 @@
  */
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { type KanbanBoard, parseKanbanFile, serializeKanbanBoard } from "#/lib/board/kanban-parser";
 import { logger } from "#/lib/logger";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreference } from "#/lib/preferences.server";
 
 export async function resolveKanbanPath(userId: string): Promise<string | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { preferences: true },
-  });
-  const prefs = parsePreferences(user?.preferences);
-  return prefs.kanbanFile || null;
+  return (await getUserPreference(userId, "kanbanFile")) ?? null;
 }
 
 export function getAbsolutePath(relativePath: string): string {

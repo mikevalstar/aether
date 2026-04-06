@@ -34,7 +34,7 @@ import {
 } from "#/lib/chat/chat";
 import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreferences } from "#/lib/preferences.server";
 import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
 import { createLoadSkill } from "#/lib/tools/load-skill";
 import { getPluginSystemPrompts } from "#/plugins/index.server";
@@ -192,11 +192,7 @@ export const Route = createFileRoute("/api/chat")({
         const model = body.model ?? DEFAULT_CHAT_MODEL;
         const effort = body.effort ?? DEFAULT_CHAT_EFFORT;
         const modelDef = CHAT_MODELS.find((m) => m.id === model);
-        const userRecord = await prisma.user.findUnique({
-          where: { id: session.user.id },
-          select: { preferences: true },
-        });
-        const userPrefs = parsePreferences(userRecord?.preferences);
+        const userPrefs = await getUserPreferences(session.user.id);
         const userTimezone = userPrefs.timezone;
         const tools = createAiTools(model, session.user.id, thread.id, userTimezone, userPrefs);
         let currentTotals: ChatUsageTotals = {

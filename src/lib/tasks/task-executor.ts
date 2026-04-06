@@ -3,6 +3,7 @@ import { readTaskPromptConfig } from "#/lib/ai-config/ai-config";
 import { executePrompt, resolveEffort, resolveModel } from "#/lib/executor-shared";
 import { logger } from "#/lib/logger";
 import type { NotificationDelivery, NotificationSeverity } from "#/lib/notify";
+import { getUserTimezone } from "#/lib/preferences.server";
 import { interpolatePrompt } from "#/lib/prompt-utils";
 
 export type TaskConfig = {
@@ -26,6 +27,11 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
   const adminUser = await prisma.user.findFirst({
     where: { role: "admin" },
     orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
   });
 
   if (!adminUser) {
@@ -34,9 +40,7 @@ export async function executeTask(filename: string, config: TaskConfig): Promise
   }
 
   // Resolve model and effort
-  const adminTimezone = adminUser.preferences
-    ? (JSON.parse(adminUser.preferences) as { timezone?: string }).timezone
-    : undefined;
+  const adminTimezone = await getUserTimezone(adminUser.id);
 
   const userVars = { userName: adminUser.name, userEmail: adminUser.email, timezone: adminTimezone };
   const taskPromptConfig = await readTaskPromptConfig(userVars);

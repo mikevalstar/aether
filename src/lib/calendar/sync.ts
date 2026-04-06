@@ -1,6 +1,6 @@
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreference } from "#/lib/preferences.server";
 import { getLastSyncTime, writeFeedCache } from "./cache";
 import { fetchAndParseIcal } from "./ical-parser";
 import type { CalendarFeed } from "./types";
@@ -12,7 +12,7 @@ import type { CalendarFeed } from "./types";
 export async function syncCalendarFeeds(): Promise<void> {
   // Get all users' calendar feeds from preferences
   const users = await prisma.user.findMany({
-    select: { id: true, preferences: true },
+    select: { id: true },
   });
 
   let totalSynced = 0;
@@ -20,8 +20,7 @@ export async function syncCalendarFeeds(): Promise<void> {
   let skippedNotDue = 0;
 
   for (const user of users) {
-    const prefs = parsePreferences(user.preferences);
-    const feeds = prefs.calendarFeeds;
+    const feeds = await getUserPreference(user.id, "calendarFeeds");
     if (!feeds || feeds.length === 0) continue;
 
     for (const feed of feeds) {

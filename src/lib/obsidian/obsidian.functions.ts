@@ -3,7 +3,6 @@ import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
 import { z } from "zod";
-import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
 import { logger } from "#/lib/logger";
@@ -18,7 +17,7 @@ import {
   toObsidianRoutePath,
 } from "#/lib/obsidian/obsidian";
 import { getAllIndexedNotes, searchVault } from "#/lib/obsidian/vault-index";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreference } from "#/lib/preferences.server";
 
 type DiscoveredDocument = ObsidianDocument;
 
@@ -306,16 +305,11 @@ async function readTemplatesFromDir(dir: string): Promise<ObsidianTemplate[]> {
 
 export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(async (): Promise<ObsidianTemplate[]> => {
   const session = await ensureSession();
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { preferences: true },
-  });
-  const prefs = parsePreferences(user?.preferences);
+  const templatesFolder = await getUserPreference(session.user.id, "obsidianTemplatesFolder");
   const obsidianRoot = OBSIDIAN_DIR;
 
-  if (prefs.obsidianTemplatesFolder && obsidianRoot) {
-    const vaultDir = path.join(obsidianRoot, prefs.obsidianTemplatesFolder);
+  if (templatesFolder && obsidianRoot) {
+    const vaultDir = path.join(obsidianRoot, templatesFolder);
     const resolved = path.resolve(vaultDir);
     if (resolved.startsWith(path.resolve(obsidianRoot))) {
       const templates = await readTemplatesFromDir(vaultDir);
@@ -371,17 +365,13 @@ export const createObsidianFile = createServerFn({ method: "POST" })
     // Load template content or use blank
     let content: string;
     if (data.templateFilename) {
-      const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { preferences: true },
-      });
-      const prefs = parsePreferences(user?.preferences);
+      const templatesFolder = await getUserPreference(session.user.id, "obsidianTemplatesFolder");
 
       let templatePath: string;
       let templateBaseDir: string;
 
-      if (prefs.obsidianTemplatesFolder && obsidianRoot) {
-        const vaultTemplatesDir = path.join(obsidianRoot, prefs.obsidianTemplatesFolder);
+      if (templatesFolder && obsidianRoot) {
+        const vaultTemplatesDir = path.join(obsidianRoot, templatesFolder);
         const candidatePath = path.join(vaultTemplatesDir, data.templateFilename);
         const resolvedCandidate = path.resolve(candidatePath);
         if (

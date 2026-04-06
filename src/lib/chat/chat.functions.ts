@@ -22,7 +22,7 @@ import {
 } from "#/lib/chat/chat";
 import { logger } from "#/lib/logger";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
-import { parsePreferences } from "#/lib/preferences";
+import { getUserPreference } from "#/lib/preferences.server";
 import { threadIdInputSchema } from "#/lib/shared-schemas";
 
 const chatModelIds = CHAT_MODELS.map((model) => model.id) as [ChatModel, ...ChatModel[]];
@@ -95,19 +95,15 @@ export const getChatPageData = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
-    const [threadRecords, user] = await Promise.all([
+    const [threadRecords, defaultChatModel] = await Promise.all([
       prisma.chatThread.findMany({
         where: { userId: session.user.id, type: "chat" },
         orderBy: { updatedAt: "desc" },
         take: 500,
       }),
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { preferences: true },
-      }),
+      getUserPreference(session.user.id, "defaultChatModel"),
     ]);
 
-    const preferences = parsePreferences(user?.preferences);
     const threads = threadRecords.map(mapThreadSummary);
     const selectedThreadRecord = data.threadId
       ? (threadRecords.find((thread) => thread.id === data.threadId) ?? null)
@@ -119,7 +115,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
       selectedThread: selectedThreadRecord ? mapThreadSummary(selectedThreadRecord) : null,
       messagesJson: selectedThreadRecord?.messagesJson ?? "[]",
       usageHistoryJson: selectedThreadRecord?.usageHistoryJson ?? "[]",
-      defaultChatModel: preferences.defaultChatModel ?? DEFAULT_CHAT_MODEL,
+      defaultChatModel: defaultChatModel ?? DEFAULT_CHAT_MODEL,
     };
   });
 
@@ -294,22 +290,18 @@ export const exportChatThreadToObsidian = createServerFn({ method: "POST" })
       throw new Error("Obsidian vault not configured");
     }
 
-    const [thread, user] = await Promise.all([
+    const [thread, exportFolder] = await Promise.all([
       prisma.chatThread.findFirst({
         where: { id: data.threadId, userId: session.user.id },
       }),
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { preferences: true },
-      }),
+      getUserPreference(session.user.id, "obsidianChatExportFolder"),
     ]);
 
     if (!thread) {
       throw new Error("Thread not found");
     }
 
-    const prefs = parsePreferences(user?.preferences);
-    const folderTemplate = prefs.obsidianChatExportFolder || DEFAULT_CHAT_EXPORT_FOLDER;
+    const folderTemplate = exportFolder || DEFAULT_CHAT_EXPORT_FOLDER;
     const folder = resolveExportFolder(folderTemplate);
     const filename = `${thread.id}.md`;
     const relativePath = folder ? `${folder}/${filename}` : filename;
