@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { prisma } from "#/db";
+import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
 import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
@@ -41,6 +42,7 @@ export type TriggerRunItem = {
 };
 
 export const getTriggersPageData = createServerFn({ method: "GET" }).handler(async () => {
+  await ensureAppRuntimeStarted();
   await ensureSession();
 
   const triggerRows = await prisma.trigger.findMany({
