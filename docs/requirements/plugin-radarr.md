@@ -1,8 +1,8 @@
 ---
 title: Plugin — Radarr
-status: todo
+status: done
 owner: Mike
-last_updated: 2026-04-04
+last_updated: 2026-04-06
 canonical_file: docs/requirements/plugin-radarr.md
 ---
 
@@ -29,32 +29,32 @@ canonical_file: docs/requirements/plugin-radarr.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Plugin skeleton | todo | `src/plugins/radarr/` following the dual-export pattern |
-| Configuration | todo | API key + base URL settings with test connection |
-| AI tools | todo | 10 tools for querying and managing movies, calendar, queue, history, wanted |
-| System prompt | todo | AI instructions for when and how to use Radarr tools |
-| Health check | todo | Validate API key and connectivity via Radarr system/status endpoint |
+| Plugin skeleton | done | `src/plugins/radarr/` following the dual-export pattern |
+| Configuration | done | API key + base URL settings with test connection |
+| AI tools | done | 10 tools for querying and managing movies, calendar, queue, history, wanted |
+| System prompt | done | AI instructions for when and how to use Radarr tools |
+| Health check | done | Validate API key and connectivity via Radarr system/status endpoint |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary |
 | --- | --- | --- |
-| Plugin meta & options | todo | Plugin ID `radarr`, config fields for API key and URL |
-| Radarr client wrapper | todo | Thin wrapper around `tsarr` RadarrClient with typed helpers |
-| `radarr_list_movies` tool | todo | List all movies with status, file info, JMESPath filter |
-| `radarr_get_movie` tool | todo | Get detailed movie info by title or ID, includes movieFile info |
-| `radarr_upcoming` tool | todo | Calendar of upcoming releases (cinema/digital/physical), JMESPath filter |
-| `radarr_queue` tool | todo | Current download queue with progress, JMESPath filter |
-| `radarr_history` tool | todo | Recent download/import history, JMESPath filter |
-| `radarr_wanted` tool | todo | Missing/wanted movies not yet downloaded, JMESPath filter |
-| `radarr_search_new` tool | todo | Search TMDB for new movies to add, JMESPath filter |
-| `radarr_add_movie` tool | todo | Add a movie by tmdbId |
-| `radarr_delete_movie_file` tool | todo | Delete a movie file from disk |
-| `radarr_search_movie` tool | todo | Trigger indexer search for specific movies |
-| System prompt | todo | Prompt snippet describing tools and usage |
-| Health check | todo | Connection + auth validation via system status |
-| Test connection | todo | Settings page test button |
-| Command palette entry | todo | "Radarr Settings" command |
+| Plugin meta & options | done | Plugin ID `radarr`, config fields for API key and URL |
+| Radarr client wrapper | done | Thin wrapper around `tsarr` RadarrClient with typed helpers |
+| `radarr_list_movies` tool | done | List all movies with status, file info, JMESPath filter |
+| `radarr_get_movie` tool | done | Get detailed movie info by title or ID, includes movieFile info |
+| `radarr_upcoming` tool | done | Calendar of upcoming releases (cinema/digital/physical), JMESPath filter |
+| `radarr_queue` tool | done | Current download queue with progress, JMESPath filter |
+| `radarr_history` tool | done | Recent download/import history, JMESPath filter |
+| `radarr_wanted` tool | done | Missing/wanted movies not yet downloaded, JMESPath filter |
+| `radarr_search_new` tool | done | Search TMDB for new movies to add, JMESPath filter |
+| `radarr_add_movie` tool | done | Add a movie by tmdbId |
+| `radarr_delete_movie_file` tool | done | Delete a movie file from disk |
+| `radarr_search_movie` tool | done | Trigger indexer search for specific movies |
+| System prompt | done | Prompt snippet describing tools and usage |
+| Health check | done | Connection + auth validation via system status |
+| Test connection | done | Settings page test button |
+| Command palette entry | done | "Radarr Settings" command |
 
 ## Detail
 
@@ -112,3 +112,4 @@ None — follows established patterns from Sonarr plugin.
 ## Change Log
 
 - 2026-04-04: Initial requirements. 10 AI tools with JMESPath filtering, settings, health check.
+- 2026-04-06: Marked complete — all requirements fully implemented.

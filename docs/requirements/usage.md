@@ -1,8 +1,8 @@
 ---
 title: Usage
-status: in-progress
+status: done
 owner: self
-last_updated: 2026-04-02
+last_updated: 2026-04-06
 canonical_file: docs/requirements/usage.md
 ---
 

@@ -34,8 +34,8 @@ canonical_file: docs/requirements/chat.md
 | Export to Obsidian | done | Users can export any chat thread as a Markdown file to a configurable Obsidian vault folder with YAML frontmatter metadata. |
 | Tool ecosystem | done | The AI has access to web search, Obsidian vault tools, kanban board tools, calendar, notifications, AI memory, skills, and plugin-provided tools. |
 | @-mention autocomplete | done | Users can type `@` in the composer to search and insert Obsidian file references. |
-| Context compaction | planned | Long conversations should be compacted to reduce token usage and stay within context limits. |
-| User-added OpenRouter models | planned | Users can browse and enable additional OpenRouter models from `/settings/chat`. See [OpenRouter Model Browser](openrouter-models.md). |
+| Context compaction | todo | Long conversations should be compacted to reduce token usage and stay within context limits. |
+| User-added OpenRouter models | todo | Users can browse and enable additional OpenRouter models from `/settings/chat`. See [OpenRouter Model Browser](openrouter-models.md). |
 | Attachments | in-progress | The composer and transcript support attachments in the UI, but product rules for storage and model handling are not yet explicitly defined. |
 
 ## Sub-features
@@ -58,7 +58,7 @@ canonical_file: docs/requirements/chat.md
 | Skills system | done | Skills are loaded from Obsidian config and injected into the system prompt; the AI can load full skill instructions via the `load_skill` tool. | Inline |
 | Plugin tools | done | Enabled plugins can contribute additional tools and system prompt sections to the chat. | Inline |
 | Export to Obsidian | done | Users can export any chat thread as a Markdown file into their Obsidian vault with frontmatter metadata. | Inline |
-| Context compaction | planned | Automatically compact long conversations at 50k input tokens using Anthropic's server-side compaction. | Inline |
+| Context compaction | todo | Automatically compact long conversations at 50k input tokens using Anthropic's server-side compaction. | Inline |
 | Attachment UI | in-progress | Users can add, preview, and remove attachments in the composer and view them on sent user messages. | Inline |
 
 ## Detail

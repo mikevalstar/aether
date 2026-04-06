@@ -2,7 +2,7 @@
 title: Task Editor
 status: in-progress
 owner: Mike
-last_updated: 2026-04-05
+last_updated: 2026-04-06
 canonical_file: docs/requirements/task-editor.md
 ---
 

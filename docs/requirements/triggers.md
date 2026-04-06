@@ -43,7 +43,7 @@ canonical_file: docs/requirements/triggers.md
 | UI — Webhook management | done | Page at `/triggers/webhooks` for creating, viewing, revoking, and regenerating webhook API keys |
 | UI — Unconfigured triggers | todo | Section on trigger editor showing plugin trigger types that have no matching trigger config |
 | Nav integration | done | Add Triggers to header nav `primaryLinks` and command palette `STATIC_PAGES` array |
-| Seed/pull CLI | todo | Extend `ai-config:seed` and `ai-config:pull` to include example trigger files and trigger-prompt |
+| Seed/pull CLI | done | Extend `ai-config:seed` and `ai-config:pull` to include example trigger files and trigger-prompt |
 
 ## Sub-features
 
@@ -54,11 +54,11 @@ canonical_file: docs/requirements/triggers.md
 | Trigger watcher | done | Singleton with chokidar watcher, DB sync, in-memory config map | [Detail](#trigger-watcher) |
 | Event dispatcher | done | Match events to trigger configs by type, JMESPath pattern filter, execute | [Detail](#event-dispatcher) |
 | Trigger executor | done | Event -> prompt assembly -> `executePrompt()` -> store result | [Detail](#trigger-executor) |
-| Webhook system | todo | API key management, HTTP endpoint, management UI | [Detail](#webhook-system) |
+| Webhook system | done | API key management, HTTP endpoint, management UI | [Detail](#webhook-system) |
 | Plugin trigger types | done | `triggerTypes` on `AetherPlugin`, `fireTrigger()` on `PluginContext`, `scheduledTasks` on `AetherPluginServer`, IMAP `new_email` trigger with polling | [Detail](#plugin-trigger-types) |
 | Schema migration | done | `Trigger` + `Webhook` tables, `ChatThread.sourceTriggerFile` | [Detail](#schema-migration) |
 | Trigger management UI | done | List, history, editor, webhook management | [Detail](#trigger-management-ui) |
-| CLI tooling | todo | Seed examples, pull config | Inline |
+| CLI tooling | done | Seed examples, pull config | Inline |
 
 ## Detail
 
@@ -444,7 +444,7 @@ src/plugins/
 | 12. UI — Webhook management page | done | `/triggers/webhooks` with table, create/revoke/regenerate dialogs |
 | 13. UI — Unconfigured triggers | todo | Query plugin trigger types, diff against configs, render missing section on editor page |
 | 14. Nav integration | done | Added to header `primaryLinks` and command palette `STATIC_PAGES` with Zap icon |
-| 15. CLI updates | todo | Seed/pull for triggers folder + trigger-prompt |
+| 15. CLI updates | done | Seed/pull for triggers folder + trigger-prompt |
 
 ## Change Log
 

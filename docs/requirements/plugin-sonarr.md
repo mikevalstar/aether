@@ -1,6 +1,6 @@
 ---
 title: Plugin — Sonarr
-status: todo
+status: done
 owner: Mike
 last_updated: 2026-04-04
 canonical_file: docs/requirements/plugin-sonarr.md
@@ -16,7 +16,7 @@ canonical_file: docs/requirements/plugin-sonarr.md
 
 ## Current Reality
 
-- Current behavior: No media management integration exists.
+- Current behavior: Sonarr plugin is fully implemented with 11 AI tools (list_series, get_series, list_episodes, delete_episode_file, upcoming, queue, history, wanted, search_new, add_series, search_episodes). Uses `tsarr` SDK for Sonarr API access.
 - Constraints: Sonarr runs as a separate service (local or remote) with its own API. Requires API key and base URL. All access is via REST API — no webhooks or push from Sonarr into Aether in this phase.
 - Non-goals: Dashboard widgets, dedicated pages/routes, Sonarr webhook receiver, direct torrent/NZB client management, quality profile editing, indexer configuration.
 
@@ -29,31 +29,34 @@ canonical_file: docs/requirements/plugin-sonarr.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Plugin skeleton | todo | `src/plugins/sonarr/` following the dual-export pattern |
-| Configuration | todo | API key + base URL settings with test connection |
-| AI tools | todo | Tools for querying and managing series, episodes, calendar, queue, history, wanted |
-| System prompt | todo | AI instructions for when and how to use Sonarr tools |
-| Health check | todo | Validate API key and connectivity via Sonarr system/status endpoint |
+| Plugin skeleton | done | `src/plugins/sonarr/` following the dual-export pattern |
+| Configuration | done | API key + base URL settings with test connection |
+| AI tools | done | Tools for querying and managing series, episodes, calendar, queue, history, wanted |
+| System prompt | done | AI instructions for when and how to use Sonarr tools |
+| Health check | done | Validate API key and connectivity via Sonarr system/status endpoint |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Plugin meta & options | todo | Plugin ID `sonarr`, config fields for API key and URL | Inline |
-| Sonarr client wrapper | todo | Thin wrapper around `tsarr` Sonarr client initialized from plugin options | Inline |
-| `sonarr_list_series` tool | todo | List all monitored series with status summary | Inline |
-| `sonarr_get_series` tool | todo | Get detailed info for a specific series by name or ID | Inline |
-| `sonarr_upcoming` tool | todo | Calendar of upcoming episodes in a date range | Inline |
-| `sonarr_queue` tool | todo | Current download queue with progress | Inline |
-| `sonarr_history` tool | todo | Recent download/import history | Inline |
-| `sonarr_wanted` tool | todo | Missing/wanted episodes (cutoff unmet or not downloaded) | Inline |
-| `sonarr_search_new` tool | todo | Search for new series to potentially add | Inline |
-| `sonarr_add_series` tool | todo | Add a new series to Sonarr | Inline |
-| `sonarr_search_episodes` tool | todo | Trigger a manual search for specific episodes or a full series | Inline |
-| System prompt | todo | Prompt snippet describing available tools and usage guidance | Inline |
-| Health check | todo | Connection + auth validation via system status endpoint | Inline |
-| Test connection | todo | Settings page test button using system status endpoint | Inline |
-| Command palette entry | todo | "Sonarr Settings" command linking to plugin settings | Inline |
+| Plugin meta & options | done | Plugin ID `sonarr`, config fields for API key and URL | Inline |
+| Sonarr client wrapper | done | Thin wrapper around `tsarr` Sonarr client initialized from plugin options | Inline |
+| `sonarr_list_series` tool | done | List all monitored series with status summary | Inline |
+| `sonarr_get_series` tool | done | Get detailed info for a specific series by name or ID | Inline |
+| `sonarr_upcoming` tool | done | Calendar of upcoming episodes in a date range | Inline |
+| `sonarr_queue` tool | done | Current download queue with progress | Inline |
+| `sonarr_history` tool | done | Recent download/import history | Inline |
+| `sonarr_wanted` tool | done | Missing/wanted episodes (cutoff unmet or not downloaded) | Inline |
+| `sonarr_search_new` tool | done | Search for new series to potentially add | Inline |
+| `sonarr_add_series` tool | done | Add a new series to Sonarr | Inline |
+| `sonarr_search_episodes` tool | done | Trigger a manual search for specific episodes or a full series | Inline |
+| `sonarr_list_episodes` tool | done | List episodes for a series (bonus, not in original spec) | Inline |
+| `sonarr_delete_episode_file` tool | done | Delete episode file from disk (bonus, not in original spec) | Inline |
+| System prompt | done | Prompt snippet describing available tools and usage guidance | Inline |
+| Health check | done | Connection + auth validation via system status endpoint | Inline |
+| Test connection | done | Settings page test button using system status endpoint | Inline |
+| Command palette entry | done | "Sonarr Settings" command linking to plugin settings | Inline |
+| JMESPath filtering | done | Optional filter parameter on list tools for filtering/reshaping results (bonus) | Inline |
 
 ## Detail
 
@@ -61,7 +64,7 @@ canonical_file: docs/requirements/plugin-sonarr.md
 
 - Plugin ID: `sonarr`
 - Name: "Sonarr"
-- Description: "TV show download management via Sonarr"
+- Description: "TV show download management via Sonarr — search, monitor, and manage your series library via AI."
 - Icon: `Tv` (lucide-react)
 - Version: `0.1.0`
 - `hasHealthCheck: true`
@@ -155,23 +158,41 @@ All tools prefixed with `sonarr_` (plugin ID prefix). Tools are designed to give
 - Logs activity: `sonarr_action`
 - Notes: This triggers Sonarr's indexer search — results appear in the queue. The AI should confirm with the user before triggering searches, especially for full series.
 
+#### `sonarr_list_episodes` (bonus)
+
+- Description: List episodes for a TV series with optional season filter. Includes file info needed for delete/re-download workflows.
+- Parameters: `seriesId` (required, number), `seasonNumber` (optional, number), `filter` (optional, JMESPath)
+- Returns: Array of episodes with file info (`episodeFileId`, quality, size, dateAdded)
+- Logs activity: `sonarr_query`
+
+#### `sonarr_delete_episode_file` (bonus)
+
+- Description: Delete an episode's file from disk. Requires `episodeFileId` from `list_episodes`.
+- Parameters: `episodeFileId` (required, number)
+- Returns: Confirmation of deletion
+- Logs activity: `sonarr_action`
+- Notes: Permanently removes the file. AI should confirm with user before calling.
+
 ### System Prompt
 
 ```
 You have access to Sonarr tools for managing TV show downloads. Use these tools when the user asks about TV shows, episodes, downloads, or their media library:
 
-- `sonarr_list_series`: List all tracked TV series with status
-- `sonarr_get_series`: Get detailed info about a specific series
-- `sonarr_upcoming`: Check what episodes are airing soon
-- `sonarr_queue`: See what's currently downloading
-- `sonarr_history`: View recent download history
-- `sonarr_wanted`: List missing episodes that need downloading
-- `sonarr_search_new`: Search for new TV series to add
-- `sonarr_add_series`: Add a new series (always search first and confirm with user)
-- `sonarr_search_episodes`: Trigger a download search for specific episodes
+- sonarr_list_series: List all tracked TV series with status
+- sonarr_get_series: Get detailed info about a specific series
+- sonarr_upcoming: Check what episodes are airing soon
+- sonarr_queue: See what's currently downloading
+- sonarr_history: View recent download history
+- sonarr_wanted: List missing episodes that need downloading
+- sonarr_search_new: Search for new TV series to add
+- sonarr_add_series: Add a new series (always search first and confirm with user)
+- sonarr_list_episodes: List episodes for a series (with optional season filter), includes file info
+- sonarr_delete_episode_file: Delete an episode's file from disk (by episodeFileId from list_episodes)
+- sonarr_search_episodes: Trigger a download search for specific episodes
 
-For adding series: always use `sonarr_search_new` first to find the tvdbId, then confirm with the user before calling `sonarr_add_series`.
-For episode searches: confirm with the user before triggering `sonarr_search_episodes` as it will actively search indexers.
+For adding series: always use sonarr_search_new first to find the tvdbId, then confirm with the user before calling sonarr_add_series.
+For episode searches: confirm with the user before triggering sonarr_search_episodes as it will actively search indexers.
+For re-downloading: use sonarr_list_episodes to find the episodeFileId, sonarr_delete_episode_file to remove it, then sonarr_search_episodes with the episode ID to grab a new copy.
 ```
 
 ### Health Check
@@ -223,3 +244,4 @@ src/plugins/sonarr/
 ## Change Log
 
 - 2026-04-04: Initial requirements drafted. Phase 1 scoped to Sonarr only with 9 AI tools, settings, health check, no dashboard/pages.
+- 2026-04-06: Updated status to "done". All 11 AI tools implemented (list_series, get_series, list_episodes, delete_episode_file, upcoming, queue, history, wanted, search_new, add_series, search_episodes). Includes JMESPath filtering on list tools as bonus feature.
