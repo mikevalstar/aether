@@ -7,8 +7,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "dev:tunnel": "concurrently \"vite dev --port 3000 --host\" \"cloudflared tunnel run aether-test\"",
-    "tunnel": "cloudflared tunnel run aether-test",
+    "start": "vite build && vite preview",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",

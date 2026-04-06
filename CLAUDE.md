@@ -37,6 +37,7 @@ tail -50 logs/vite.log
 
 ```bash
 pnpm dev          # Start dev server on port 3000
+pnpm start        # Production build + serve
 pnpm build        # Production build
 pnpm test         # Run tests with Vitest
 pnpm lint         # Biome lint
@@ -56,7 +57,6 @@ pnpm db:seed      # Seed the database
 pnpm create:first-admin  # Create first admin user
 pnpm ai-config:seed      # Seed AI config
 pnpm ai-config:pull      # Pull AI config
-pnpm dev:tunnel           # Dev server + Cloudflare tunnel
 ```
 
 **Run a single test:**
