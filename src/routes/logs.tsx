@@ -383,13 +383,11 @@ function PollShrinkBar({ duration }: { duration: number }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const anim = el.animate(
-      [
-        { transform: "scaleX(1)" },
-        { transform: "scaleX(0)" },
-      ],
-      { duration, easing: "linear", fill: "forwards" },
-    );
+    const anim = el.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], {
+      duration,
+      easing: "linear",
+      fill: "forwards",
+    });
     return () => anim.cancel();
   }, [duration]);
   return (
