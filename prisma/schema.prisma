@@ -39,6 +39,7 @@ model User {
   tasks           Task[]
   workflows       Workflow[]
   triggers        Trigger[]
+  webhooks        Webhook[]
   notifications   Notification[]
 }
 
@@ -213,6 +214,21 @@ model Trigger {
 
   @@index([userId, type])
   @@index([userId, filename])
+}
+
+model Webhook {
+  id             String    @id @default(cuid())
+  name           String                     // human-readable label, e.g. "GitHub"
+  type           String                     // event type string, e.g. "github"
+  apiKey         String    @unique          // random key used in URL
+  lastReceivedAt DateTime?                  // last time a POST was received
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([apiKey])
 }
 
 model Notification {

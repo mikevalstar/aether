@@ -30,17 +30,17 @@ canonical_file: docs/requirements/triggers.md
 | Trigger watcher | todo | Chokidar watcher on `triggers/` config folder for dynamic add/remove/update, syncs to `Trigger` DB table |
 | Trigger executor | todo | Execute trigger prompt via shared `executePrompt()` harness with full tool access, agent loop, background (non-streaming) |
 | Event dispatcher | todo | Match fired events to trigger configs by `type`, evaluate JMESPath `pattern` against JSON payload, execute each match |
-| Webhook system | todo | `Webhook` DB table for API key management; API endpoint at `/api/triggers/webhook/{apiKey}` accepting JSON POST; webhook management UI at `/triggers/webhooks` |
+| Webhook system | done | `Webhook` DB table for API key management; API endpoint at `/api/triggers/webhook/{apiKey}` accepting JSON POST; webhook management UI at `/triggers/webhooks` |
 | Plugin integration | todo | Extend `AetherPlugin` with `triggerTypes` array; extend `PluginContext` with `fireTrigger()` method |
 | Database — Trigger table | done | `Trigger` table tracking each trigger file's metadata and last fired info |
-| Database — Webhook table | todo | `Webhook` table for API keys with name, type, key, timestamps |
+| Database — Webhook table | done | `Webhook` table for API keys with name, type, key, timestamps |
 | Database — ChatThread type | done | Store trigger runs in `ChatThread` with `type: "trigger"`, `sourceTriggerFile` |
 | Usage tracking | todo | Track token usage per trigger run via `ChatUsageEvent` with `taskType: "trigger"` |
 | Activity logging | todo | Log trigger executions as `ActivityLog` entries with `type: "trigger"` |
 | UI — Trigger list | done | Page at `/triggers` showing all trigger configs with type, enabled/disabled, last fired time |
 | UI — Trigger editor | done | Config editor at `/triggers/editor` using `ConfigEditorShell` pattern (same as tasks/workflows) |
 | UI — Run history | done | View past runs for a trigger at `/triggers/:filename` (same pattern as tasks) |
-| UI — Webhook management | todo | Page at `/triggers/webhooks` for creating, viewing, revoking, and regenerating webhook API keys |
+| UI — Webhook management | done | Page at `/triggers/webhooks` for creating, viewing, revoking, and regenerating webhook API keys |
 | UI — Unconfigured triggers | todo | Section on trigger editor showing plugin trigger types that have no matching trigger config |
 | Nav integration | done | Add Triggers to header nav `primaryLinks` and command palette `STATIC_PAGES` array |
 | Seed/pull CLI | todo | Extend `ai-config:seed` and `ai-config:pull` to include example trigger files and trigger-prompt |
@@ -56,8 +56,8 @@ canonical_file: docs/requirements/triggers.md
 | Trigger executor | todo | Event -> prompt assembly -> `executePrompt()` -> store result | [Detail](#trigger-executor) |
 | Webhook system | todo | API key management, HTTP endpoint, management UI | [Detail](#webhook-system) |
 | Plugin trigger types | todo | Extend plugin interface with `triggerTypes` declaration and `fireTrigger()` context method | [Detail](#plugin-trigger-types) |
-| Schema migration | partial | `Trigger` table + `ChatThread.sourceTriggerFile` done; `Webhook` table pending | [Detail](#schema-migration) |
-| Trigger management UI | partial | List, history, editor done; webhook management pending | [Detail](#trigger-management-ui) |
+| Schema migration | done | `Trigger` + `Webhook` tables, `ChatThread.sourceTriggerFile` | [Detail](#schema-migration) |
+| Trigger management UI | done | List, history, editor, webhook management | [Detail](#trigger-management-ui) |
 | CLI tooling | todo | Seed examples, pull config | Inline |
 
 ## Detail
@@ -418,18 +418,18 @@ src/plugins/
 
 | Step | Status | Plan |
 | --- | --- | --- |
-| 1. Schema migration | done | New `Trigger` model (no Webhook yet), add `sourceTriggerFile` to `ChatThread`, extend type values |
+| 1. Schema migration | done | `Trigger` + `Webhook` models, `sourceTriggerFile` on `ChatThread` |
 | 2. Trigger file format + validator | done | Zod schema in `ai-config/validators/trigger.ts` + `trigger-prompt.ts`, registered in validator index |
 | 3. Trigger system prompt | todo | `trigger-prompt.md` config file, example, config reader with fallback |
 | 4. Trigger watcher | todo | Singleton with chokidar on `triggers/`, DB sync, in-memory config Map |
 | 5. Event dispatcher | todo | `fireTrigger(type, payload)` function with JMESPath pattern matching |
 | 6. Trigger executor | todo | Extend `ExecutionContext` type, wire dispatcher to `executePrompt()`, store results |
-| 7. Webhook endpoint | todo | API route at `/api/triggers/webhook/$apiKey`, key lookup, JSON validation, fire-and-forget dispatch |
-| 8. Webhook management | todo | Webhook DB model, server functions for CRUD, create/revoke/regenerate keys |
+| 7. Webhook endpoint | done | API route at `/api/triggers/webhook/$apiKey`, key lookup, JSON validation, fire-and-forget dispatch (dispatcher TODO) |
+| 8. Webhook management | done | Webhook DB model, server functions for CRUD, create/revoke/regenerate keys |
 | 9. Plugin integration | todo | Add `triggerTypes` to `AetherPlugin`, `fireTrigger()` to `PluginContext`, wire to dispatcher |
 | 10. UI — Trigger list + history | done | `/triggers` list page, `/triggers/$filename` run history, server functions |
 | 11. UI — Trigger editor | done | `/triggers/editor` with `ConfigEditorShell`, frontmatter display + modal, new trigger dialog |
-| 12. UI — Webhook management page | todo | `/triggers/webhooks` with table, create/revoke/regenerate dialogs |
+| 12. UI — Webhook management page | done | `/triggers/webhooks` with table, create/revoke/regenerate dialogs |
 | 13. UI — Unconfigured triggers | todo | Query plugin trigger types, diff against configs, render missing section on editor page |
 | 14. Nav integration | done | Added to header `primaryLinks` and command palette `STATIC_PAGES` with Zap icon |
 | 15. CLI updates | todo | Seed/pull for triggers folder + trigger-prompt |
@@ -440,3 +440,4 @@ src/plugins/
 - 2026-03-21: Added custom frontmatter fields, instructions markdown, two-phase validation.
 - 2026-04-06: Major rewrite. Replaced file_change trigger with webhook-first approach. Added Webhook DB model and management UI. Switched pattern matching from glob to JMESPath on JSON payloads. Simplified trigger file format (removed custom frontmatter fields — pattern handles filtering). Added webhook API endpoint (fire-and-forget). Plugin integration retained with `triggerTypes` + `fireTrigger()`. Trigger editor mirrors task/workflow editor pattern. HMAC verification and rate limiting deferred to future versions.
 - 2026-04-06: Implementation started. Completed: Trigger DB model + schema migration, trigger/trigger-prompt validators, nav integration (Header + CommandPalette), trigger list page, run history page, config editor with frontmatter display/modal, new trigger dialog, server functions for list/history/delete/convert.
+- 2026-04-06: Webhook system implemented. Webhook DB model, API endpoint at `/api/triggers/webhook/$apiKey` (fire-and-forget, JSON-only), webhook management UI at `/triggers/webhooks` with create/revoke/regenerate. Dispatch call stubbed pending trigger watcher/dispatcher implementation.

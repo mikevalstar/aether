@@ -20,6 +20,7 @@ import {
   Settings,
   Sun,
   Users,
+  Webhook,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -44,6 +45,7 @@ const STATIC_PAGES = [
   { label: "Workflow Editor", route: "/workflows/editor", icon: GitBranch },
   { label: "Triggers", route: "/triggers", icon: Zap },
   { label: "Trigger Editor", route: "/triggers/editor", icon: Zap },
+  { label: "Webhooks", route: "/triggers/webhooks", icon: Webhook },
   { label: "Board", route: "/board", icon: Columns3 },
   { label: "Obsidian", route: "/o", icon: BookOpen },
   { label: "Notifications", route: "/notifications", icon: Bell },

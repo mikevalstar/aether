@@ -1,4 +1,6 @@
+import crypto from "node:crypto";
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
@@ -159,4 +161,108 @@ export const convertTriggerToChat = createServerFn({ method: "POST" })
     });
 
     return { success: true, threadId: data.threadId };
+  });
+
+// ── Webhook Management ──────────────────────────────────────────────
+
+export type WebhookListItem = {
+  id: string;
+  name: string;
+  type: string;
+  apiKey: string;
+  lastReceivedAt: string | null;
+  createdAt: string;
+};
+
+const createWebhookSchema = z
+  .object({
+    name: z.string().trim().min(1, "Name is required"),
+    type: z.string().trim().min(1, "Type is required"),
+  })
+  .strict();
+
+const webhookIdSchema = z
+  .object({
+    id: z.string().trim().min(1, "ID is required"),
+  })
+  .strict();
+
+export const getWebhooksPageData = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await ensureSession();
+
+  const rows = await prisma.webhook.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const items: WebhookListItem[] = rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    apiKey: row.apiKey,
+    lastReceivedAt: row.lastReceivedAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+  }));
+
+  return { items };
+});
+
+export const createWebhook = createServerFn({ method: "POST" })
+  .inputValidator((data) => createWebhookSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+
+    const apiKey = crypto.randomUUID();
+
+    const webhook = await prisma.webhook.create({
+      data: {
+        name: data.name,
+        type: data.type,
+        apiKey,
+        userId: session.user.id,
+      },
+    });
+
+    return {
+      id: webhook.id,
+      name: webhook.name,
+      type: webhook.type,
+      apiKey: webhook.apiKey,
+    };
+  });
+
+export const regenerateWebhookKey = createServerFn({ method: "POST" })
+  .inputValidator((data) => webhookIdSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+
+    const webhook = await prisma.webhook.findFirst({
+      where: { id: data.id, userId: session.user.id },
+    });
+
+    if (!webhook) throw new Error("Webhook not found");
+
+    const newApiKey = crypto.randomUUID();
+
+    await prisma.webhook.update({
+      where: { id: data.id },
+      data: { apiKey: newApiKey },
+    });
+
+    return { apiKey: newApiKey };
+  });
+
+export const deleteWebhook = createServerFn({ method: "POST" })
+  .inputValidator((data) => webhookIdSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+
+    const webhook = await prisma.webhook.findFirst({
+      where: { id: data.id, userId: session.user.id },
+    });
+
+    if (!webhook) throw new Error("Webhook not found");
+
+    await prisma.webhook.delete({ where: { id: data.id } });
+    return { success: true };
   });
