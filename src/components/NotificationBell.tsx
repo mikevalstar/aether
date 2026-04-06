@@ -40,7 +40,8 @@ const LEVEL_DOT_COLORS: Record<string, string> = {
 };
 
 export default function NotificationBell() {
-  const { unreadCount, setOnNew, poll } = useNotifications(true);
+  const { notifications, setOnNew, poll } = useNotifications(true);
+  const unreadCount = notifications.filter((n) => BELL_VISIBLE_LEVELS.has(n.level)).length;
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState<RecentNotification[]>([]);
   const [loading, setLoading] = useState(false);
