@@ -157,13 +157,10 @@ async function readLogDay({
   query: string;
   level: "all" | LogLevel;
 }) {
-  const startIndex = (page - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
   const queryNeedle = query.toLowerCase();
   const matchedLevelCounts = emptyLevelCounts();
-  const entries: LogViewerEntry[] = [];
+  const matched: LogViewerEntry[] = [];
   let totalEntries = 0;
-  let totalMatched = 0;
 
   for (const filePath of files) {
     const fileName = path.basename(filePath);
@@ -187,14 +184,16 @@ async function readLogDay({
         continue;
       }
 
-      totalMatched += 1;
       matchedLevelCounts[logLevel] += 1;
-
-      if (totalMatched > startIndex && totalMatched <= endIndex) {
-        entries.push(createLogViewerEntry(rawRecord, fileName, line, logLevel));
-      }
+      matched.push(createLogViewerEntry(rawRecord, fileName, line, logLevel));
     }
   }
+
+  // Newest first
+  matched.reverse();
+  const totalMatched = matched.length;
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const entries = matched.slice(startIndex, startIndex + PAGE_SIZE);
 
   return {
     entries,
