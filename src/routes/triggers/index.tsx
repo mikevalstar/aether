@@ -1,8 +1,9 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Zap } from "lucide-react";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { Webhook, Zap } from "lucide-react";
 import { PageHeader } from "#/components/PageHeader";
 import { TriggerEmptyState } from "#/components/triggers/TriggerEmptyState";
 import { TriggerTable } from "#/components/triggers/TriggerTable";
+import { Button } from "#/components/ui/button";
 import { getSession } from "#/lib/auth.functions";
 import { getTriggersPageData } from "#/lib/triggers/trigger.functions";
 
@@ -29,6 +30,14 @@ function TriggersPage() {
       title="Event"
       highlight="triggers"
       description="Event-driven AI triggers that run in response to webhooks and plugin events."
+      action={
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/triggers/webhooks">
+            <Webhook className="mr-1.5 size-3.5" />
+            Webhooks
+          </Link>
+        </Button>
+      }
     >
       {data.items.length === 0 ? <TriggerEmptyState /> : <TriggerTable items={data.items} />}
     </PageHeader>
