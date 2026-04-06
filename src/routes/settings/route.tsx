@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
-import { Bell, BookOpen, Calendar, Columns3, KeyRound, MessageSquare, Puzzle, User } from "lucide-react";
+import { Bell, BookOpen, Calendar, KeyRound, MessageSquare, Puzzle, User } from "lucide-react";
 import { getSession } from "#/lib/auth.functions";
 import { getPreferencesPageData } from "#/lib/preferences.functions";
 
@@ -11,10 +11,7 @@ const NAV_ITEMS = [
   { to: "/settings/password", label: "Password", icon: KeyRound },
 ] as const;
 
-const OBSIDIAN_NAV_ITEMS = [
-  { to: "/settings/obsidian", label: "Obsidian", icon: BookOpen },
-  { to: "/settings/board", label: "Board", icon: Columns3 },
-] as const;
+const OBSIDIAN_NAV_ITEMS = [{ to: "/settings/obsidian", label: "Obsidian", icon: BookOpen }] as const;
 
 const PLUGIN_NAV_ITEMS = [{ to: "/settings/plugins", label: "Plugins", icon: Puzzle }] as const;
 

@@ -17,7 +17,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ChatDebugRouteImport } from './routes/chat-debug'
 import { Route as ChatRouteImport } from './routes/chat'
-import { Route as BoardRouteImport } from './routes/board'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as SettingsRouteRouteImport } from './routes/settings/route'
@@ -35,8 +34,8 @@ import { Route as SettingsObsidianRouteImport } from './routes/settings/obsidian
 import { Route as SettingsNotificationsRouteImport } from './routes/settings/notifications'
 import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsCalendarRouteImport } from './routes/settings/calendar'
-import { Route as SettingsBoardRouteImport } from './routes/settings/board'
 import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
+import { Route as PPluginIdRouteImport } from './routes/p/$pluginId'
 import { Route as OSplatRouteImport } from './routes/o/$'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
@@ -48,6 +47,7 @@ import { Route as SettingsPluginsIndexRouteImport } from './routes/settings/plug
 import { Route as WorkflowsEditorSplatRouteImport } from './routes/workflows/editor/$'
 import { Route as TasksEditorSplatRouteImport } from './routes/tasks/editor/$'
 import { Route as SettingsPluginsPluginIdRouteImport } from './routes/settings/plugins/$pluginId'
+import { Route as PPluginIdPageIdRouteImport } from './routes/p/$pluginId/$pageId'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -90,11 +90,6 @@ const ChatDebugRoute = ChatDebugRouteImport.update({
 const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BoardRoute = BoardRouteImport.update({
-  id: '/board',
-  path: '/board',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActivityRoute = ActivityRouteImport.update({
@@ -182,14 +177,14 @@ const SettingsCalendarRoute = SettingsCalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
-const SettingsBoardRoute = SettingsBoardRouteImport.update({
-  id: '/board',
-  path: '/board',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
 const RequirementsSplatRoute = RequirementsSplatRouteImport.update({
   id: '/requirements/$',
   path: '/requirements/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PPluginIdRoute = PPluginIdRouteImport.update({
+  id: '/p/$pluginId',
+  path: '/p/$pluginId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OSplatRoute = OSplatRouteImport.update({
@@ -247,6 +242,11 @@ const SettingsPluginsPluginIdRoute = SettingsPluginsPluginIdRouteImport.update({
   path: '/plugins/$pluginId',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
+const PPluginIdPageIdRoute = PPluginIdPageIdRouteImport.update({
+  id: '/$pageId',
+  path: '/$pageId',
+  getParentRoute: () => PPluginIdRoute,
+} as any)
 const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
   id: '/demo/form/simple',
   path: '/demo/form/simple',
@@ -268,7 +268,6 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
-  '/board': typeof BoardRoute
   '/chat': typeof ChatRoute
   '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
@@ -282,8 +281,8 @@ export interface FileRoutesByFullPath {
   '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
+  '/p/$pluginId': typeof PPluginIdRouteWithChildren
   '/requirements/$': typeof RequirementsSplatRoute
-  '/settings/board': typeof SettingsBoardRoute
   '/settings/calendar': typeof SettingsCalendarRoute
   '/settings/chat': typeof SettingsChatRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
@@ -300,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
   '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
@@ -311,7 +311,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
-  '/board': typeof BoardRoute
   '/chat': typeof ChatRoute
   '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
@@ -325,8 +324,8 @@ export interface FileRoutesByTo {
   '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
+  '/p/$pluginId': typeof PPluginIdRouteWithChildren
   '/requirements/$': typeof RequirementsSplatRoute
-  '/settings/board': typeof SettingsBoardRoute
   '/settings/calendar': typeof SettingsCalendarRoute
   '/settings/chat': typeof SettingsChatRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
@@ -343,6 +342,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
   '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
@@ -356,7 +356,6 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
-  '/board': typeof BoardRoute
   '/chat': typeof ChatRoute
   '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
@@ -370,8 +369,8 @@ export interface FileRoutesById {
   '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/o/$': typeof OSplatRoute
+  '/p/$pluginId': typeof PPluginIdRouteWithChildren
   '/requirements/$': typeof RequirementsSplatRoute
-  '/settings/board': typeof SettingsBoardRoute
   '/settings/calendar': typeof SettingsCalendarRoute
   '/settings/chat': typeof SettingsChatRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
@@ -388,6 +387,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/p/$pluginId/$pageId': typeof PPluginIdPageIdRoute
   '/settings/plugins/$pluginId': typeof SettingsPluginsPluginIdRoute
   '/tasks/editor/$': typeof TasksEditorSplatRoute
   '/workflows/editor/$': typeof WorkflowsEditorSplatRoute
@@ -402,7 +402,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/about'
     | '/activity'
-    | '/board'
     | '/chat'
     | '/chat-debug'
     | '/dashboard'
@@ -416,8 +415,8 @@ export interface FileRouteTypes {
     | '/demo/error-display'
     | '/demo/prisma'
     | '/o/$'
+    | '/p/$pluginId'
     | '/requirements/$'
-    | '/settings/board'
     | '/settings/calendar'
     | '/settings/chat'
     | '/settings/notifications'
@@ -434,6 +433,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
     | '/workflows/editor/$'
@@ -445,7 +445,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/activity'
-    | '/board'
     | '/chat'
     | '/chat-debug'
     | '/dashboard'
@@ -459,8 +458,8 @@ export interface FileRouteTypes {
     | '/demo/error-display'
     | '/demo/prisma'
     | '/o/$'
+    | '/p/$pluginId'
     | '/requirements/$'
-    | '/settings/board'
     | '/settings/calendar'
     | '/settings/chat'
     | '/settings/notifications'
@@ -477,6 +476,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
     | '/workflows/editor/$'
@@ -489,7 +489,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/about'
     | '/activity'
-    | '/board'
     | '/chat'
     | '/chat-debug'
     | '/dashboard'
@@ -503,8 +502,8 @@ export interface FileRouteTypes {
     | '/demo/error-display'
     | '/demo/prisma'
     | '/o/$'
+    | '/p/$pluginId'
     | '/requirements/$'
-    | '/settings/board'
     | '/settings/calendar'
     | '/settings/chat'
     | '/settings/notifications'
@@ -521,6 +520,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/p/$pluginId/$pageId'
     | '/settings/plugins/$pluginId'
     | '/tasks/editor/$'
     | '/workflows/editor/$'
@@ -534,7 +534,6 @@ export interface RootRouteChildren {
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ActivityRoute: typeof ActivityRoute
-  BoardRoute: typeof BoardRoute
   ChatRoute: typeof ChatRoute
   ChatDebugRoute: typeof ChatDebugRoute
   DashboardRoute: typeof DashboardRoute
@@ -548,6 +547,7 @@ export interface RootRouteChildren {
   DemoErrorDisplayRoute: typeof DemoErrorDisplayRoute
   DemoPrismaRoute: typeof DemoPrismaRoute
   OSplatRoute: typeof OSplatRoute
+  PPluginIdRoute: typeof PPluginIdRouteWithChildren
   RequirementsSplatRoute: typeof RequirementsSplatRoute
   TasksSplatRoute: typeof TasksSplatRoute
   WorkflowsSplatRoute: typeof WorkflowsSplatRoute
@@ -620,13 +620,6 @@ declare module '@tanstack/react-router' {
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof ChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/board': {
-      id: '/board'
-      path: '/board'
-      fullPath: '/board'
-      preLoaderRoute: typeof BoardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/activity': {
@@ -748,18 +741,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsCalendarRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
-    '/settings/board': {
-      id: '/settings/board'
-      path: '/board'
-      fullPath: '/settings/board'
-      preLoaderRoute: typeof SettingsBoardRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
     '/requirements/$': {
       id: '/requirements/$'
       path: '/requirements/$'
       fullPath: '/requirements/$'
       preLoaderRoute: typeof RequirementsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$pluginId': {
+      id: '/p/$pluginId'
+      path: '/p/$pluginId'
+      fullPath: '/p/$pluginId'
+      preLoaderRoute: typeof PPluginIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/o/$': {
@@ -839,6 +832,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsPluginsPluginIdRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/p/$pluginId/$pageId': {
+      id: '/p/$pluginId/$pageId'
+      path: '/$pageId'
+      fullPath: '/p/$pluginId/$pageId'
+      preLoaderRoute: typeof PPluginIdPageIdRouteImport
+      parentRoute: typeof PPluginIdRoute
+    }
     '/demo/form/simple': {
       id: '/demo/form/simple'
       path: '/demo/form/simple'
@@ -864,7 +864,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface SettingsRouteRouteChildren {
-  SettingsBoardRoute: typeof SettingsBoardRoute
   SettingsCalendarRoute: typeof SettingsCalendarRoute
   SettingsChatRoute: typeof SettingsChatRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
@@ -877,7 +876,6 @@ interface SettingsRouteRouteChildren {
 }
 
 const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
-  SettingsBoardRoute: SettingsBoardRoute,
   SettingsCalendarRoute: SettingsCalendarRoute,
   SettingsChatRoute: SettingsChatRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
@@ -893,12 +891,23 @@ const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
   SettingsRouteRouteChildren,
 )
 
+interface PPluginIdRouteChildren {
+  PPluginIdPageIdRoute: typeof PPluginIdPageIdRoute
+}
+
+const PPluginIdRouteChildren: PPluginIdRouteChildren = {
+  PPluginIdPageIdRoute: PPluginIdPageIdRoute,
+}
+
+const PPluginIdRouteWithChildren = PPluginIdRoute._addFileChildren(
+  PPluginIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ActivityRoute: ActivityRoute,
-  BoardRoute: BoardRoute,
   ChatRoute: ChatRoute,
   ChatDebugRoute: ChatDebugRoute,
   DashboardRoute: DashboardRoute,
@@ -912,6 +921,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoErrorDisplayRoute: DemoErrorDisplayRoute,
   DemoPrismaRoute: DemoPrismaRoute,
   OSplatRoute: OSplatRoute,
+  PPluginIdRoute: PPluginIdRouteWithChildren,
   RequirementsSplatRoute: RequirementsSplatRoute,
   TasksSplatRoute: TasksSplatRoute,
   WorkflowsSplatRoute: WorkflowsSplatRoute,

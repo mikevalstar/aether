@@ -105,6 +105,15 @@ export type PluginWidget = {
   }>;
 };
 
+export type PluginPage = {
+  /** Human-readable id used in the URL: /p/{pluginId}/{pageId} */
+  id: string;
+  label: string;
+  icon?: LucideIcon;
+  /** The React component rendered for this page */
+  component: ComponentType;
+};
+
 export type AetherPluginClient = {
   SettingsComponent?: ComponentType<{
     ctx: PluginClientContext;
@@ -112,6 +121,7 @@ export type AetherPluginClient = {
   }>;
   widgets?: PluginWidget[];
   commands?: PluginCommand[];
+  pages?: PluginPage[];
 };
 
 // ─── Combined plugin definition ───

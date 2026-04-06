@@ -25,7 +25,7 @@ canonical_file: docs/requirements/command-palette.md
 | Area | Status | Requirement |
 | --- | --- | --- |
 | Keyboard shortcut | done | `Cmd+K` (Mac) / `Ctrl+K` (other) opens the palette from anywhere in the app |
-| Page navigation | done | Static list of all major pages (Dashboard, Chat, Tasks, Workflows, Board, Obsidian, Activity, Usage, Logs, Requirements, Settings, Plugins, Users) |
+| Page navigation | done | Static list of major pages plus auto-registered plugin pages (Dashboard, Chat, Tasks, Workflows, Obsidian, Activity, Usage, Logs, Requirements, Settings, Plugins, Users, + plugin pages) |
 | Workflow navigation | done | Lazy-loaded list of workflows from the `Workflow` table, navigates to `/workflows/:filename` |
 | Obsidian document search | done | Lazy-loaded fuzzy search against the vault index, navigates to `/o/:path` |
 | Plugin commands | done | Commands registered by plugins via the plugin system, shown in a "Plugins" group |
@@ -65,7 +65,6 @@ canonical_file: docs/requirements/command-palette.md
 | Chat | `/chat` | `MessageSquare` |
 | Tasks | `/tasks` | `CheckSquare` |
 | Workflows | `/workflows` | `GitBranch` |
-| Board | `/board` | `Columns3` |
 | Obsidian | `/o` | `BookOpen` |
 | Activity | `/activity` | `Activity` |
 | Usage | `/usage` | `BarChart3` |
@@ -75,6 +74,7 @@ canonical_file: docs/requirements/command-palette.md
 | Plugins | `/settings/plugins` | `Puzzle` |
 | Users | `/users` | `Users` |
 
+- Plugin pages are auto-appended to this list from `plugins[].client.pages[]`, with route `/p/{pluginId}` (or `/p/{pluginId}/{pageId}` for multi-page plugins).
 - These are always visible (no fetch needed), filtered by the search input via `cmdk`'s built-in filtering.
 
 ### Workflows group

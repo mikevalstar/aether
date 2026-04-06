@@ -9,7 +9,6 @@ import {
   useContainerWidth,
   verticalCompactor,
 } from "react-grid-layout";
-import { DashboardBoardColumn } from "#/components/board/DashboardBoardColumn";
 import { CalendarWidget } from "#/components/calendar/CalendarWidget";
 import { DayDetailPanel } from "#/components/calendar/DayDetailPanel";
 import { NextEventCard } from "#/components/calendar/NextEventCard";
@@ -18,7 +17,6 @@ import { NotificationWidget } from "#/components/dashboard/NotificationWidget";
 import { RecentChats } from "#/components/dashboard/RecentChats";
 import { UsageStat } from "#/components/dashboard/UsageStat";
 import { Button } from "#/components/ui/button";
-import type { KanbanColumn } from "#/lib/board/kanban-parser";
 import type { CalendarEvent } from "#/lib/calendar/types";
 import { saveDashboardLayout } from "#/lib/dashboard/layout-persistence";
 import { BREAKPOINTS, COLS, getDefaultLayouts, MARGIN, ROW_HEIGHT } from "#/lib/dashboard/widget-registry";
@@ -31,7 +29,6 @@ import "react-grid-layout/css/styles.css";
 
 type DashboardGridProps = {
   calendarEvents: CalendarEvent[];
-  boardColumn: KanbanColumn | null;
   dashboardData: DashboardData;
   pluginWidgets: PluginWidgetInfo[];
   savedLayouts: ResponsiveLayouts | null;
@@ -57,13 +54,7 @@ function serializeLayouts(
   return serializable;
 }
 
-export function DashboardGrid({
-  calendarEvents,
-  boardColumn,
-  dashboardData,
-  pluginWidgets,
-  savedLayouts,
-}: DashboardGridProps) {
+export function DashboardGrid({ calendarEvents, dashboardData, pluginWidgets, savedLayouts }: DashboardGridProps) {
   const { width, containerRef, mounted } = useContainerWidth();
   const hasCalendar = calendarEvents.length > 0;
 
@@ -84,7 +75,6 @@ export function DashboardGrid({
     if (hasCalendar) ids.push("day-detail");
     ids.push("usage-stat");
     if (hasCalendar) ids.push("next-event");
-    if (boardColumn) ids.push("board-column");
     ids.push("notifications");
     ids.push("recent-chats");
     ids.push("activity-digest");
@@ -98,7 +88,7 @@ export function DashboardGrid({
     }
 
     return { activeWidgetIds: ids, pluginSizes: sizes };
-  }, [hasCalendar, boardColumn, pluginWidgets]);
+  }, [hasCalendar, pluginWidgets]);
 
   const defaultLayouts = useMemo(() => getDefaultLayouts(activeWidgetIds, pluginSizes), [activeWidgetIds, pluginSizes]);
 
@@ -229,8 +219,6 @@ export function DashboardGrid({
         return <UsageStat usage={dashboardData.usage} />;
       case "next-event":
         return <NextEventCard events={calendarEvents} />;
-      case "board-column":
-        return boardColumn ? <DashboardBoardColumn column={boardColumn} /> : null;
       case "notifications":
         return <NotificationWidget notifications={dashboardData.notifications} />;
       case "recent-chats":

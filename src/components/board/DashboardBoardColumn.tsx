@@ -17,7 +17,11 @@ export function DashboardBoardColumn({ column }: DashboardBoardColumnProps) {
           <h3 className="text-sm font-bold tracking-tight text-foreground">{column.name}</h3>
           <span className="text-xs text-muted-foreground">({column.tasks.length})</span>
         </div>
-        <Link to="/board" className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--teal)] no-underline">
+        <Link
+          to="/p/$pluginId"
+          params={{ pluginId: "board" }}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--teal)] no-underline"
+        >
           Board
           <ArrowRight className="size-3" />
         </Link>

@@ -7,7 +7,6 @@ import {
   CheckSquare,
   ChevronDown,
   CircuitBoard,
-  Columns3,
   Eye,
   FileText,
   GitBranch,
@@ -15,11 +14,12 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  Puzzle,
   ScrollText,
   Settings,
   Users,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CommandKButton from "#/components/CommandKButton";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
 import { Button } from "#/components/ui/button";
@@ -32,6 +32,8 @@ import {
 } from "#/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "#/components/ui/sheet";
 import { authClient } from "#/lib/auth-client";
+import { plugins } from "#/plugins";
+import { getEnabledPluginIds } from "#/plugins/plugins.functions";
 import NotificationBell from "./NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 
@@ -60,7 +62,6 @@ const primaryLinks: NavLink[] = [
   { to: "/chat", label: "Chat", icon: MessageSquare, auth: true },
   { to: "/tasks", label: "Tasks", icon: CheckSquare, auth: true },
   { to: "/workflows", label: "Workflows", icon: GitBranch, auth: true },
-  { to: "/board", label: "Board", icon: Columns3, auth: true },
   { to: "/o", label: "Obsidian", icon: BookOpen, auth: true },
 ];
 
@@ -123,6 +124,31 @@ export default function Header({ serverSession }: HeaderProps) {
   // Check if any system link is currently active
   const systemIsActive = systemLinks.some((link) => routerPath.startsWith(link.to));
 
+  // Fetch enabled plugin IDs
+  const [enabledPluginIds, setEnabledPluginIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!isAuthed) return;
+    getEnabledPluginIds()
+      .then(setEnabledPluginIds)
+      .catch(() => setEnabledPluginIds([]));
+  }, [isAuthed]);
+
+  // Build plugin page links from enabled plugins that define pages
+  const pluginPageLinks = useMemo(() => {
+    return plugins
+      .filter((p) => p.client?.pages?.length && enabledPluginIds.includes(p.meta.id))
+      .flatMap((p) =>
+        (p.client?.pages ?? []).map((page) => ({
+          to: `/p/${p.meta.id}${(p.client?.pages?.length ?? 0) > 1 ? `/${page.id}` : ""}`,
+          label: page.label,
+          icon: page.icon ?? p.meta.icon,
+          pluginId: p.meta.id,
+        })),
+      );
+  }, [enabledPluginIds]);
+
+  const pluginsIsActive = pluginPageLinks.some((link) => routerPath.startsWith(link.to));
+
   // When logged in: show primary + system links. When not: show public links only.
   const visiblePrimary = isAuthed ? primaryLinks : publicLinks;
 
@@ -179,6 +205,33 @@ export default function Header({ serverSession }: HeaderProps) {
             ))}
           </div>
 
+          {/* Plugins section */}
+          {isAuthed && pluginPageLinks.length > 0 && (
+            <>
+              <div className="mx-4 border-t border-[var(--line)]/60" />
+              <div className="px-3 pt-2 pb-3">
+                <p className="mb-1.5 px-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--ink-dim)]">Plugins</p>
+                <div className="flex flex-wrap gap-1">
+                  {pluginPageLinks.map((link, i) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--ink-soft)] no-underline transition-colors hover:bg-[var(--teal-subtle)] hover:text-[var(--ink)]"
+                      activeProps={{
+                        className:
+                          "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-[var(--teal-subtle)] text-[var(--teal)] no-underline",
+                      }}
+                      style={{ animationDelay: `${(visiblePrimary.length + i) * 30}ms` }}
+                    >
+                      <link.icon className="size-3.5" />
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
           {/* System section */}
           {isAuthed && (
             <>
@@ -195,7 +248,7 @@ export default function Header({ serverSession }: HeaderProps) {
                         className:
                           "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-[var(--teal-subtle)] text-[var(--teal)] no-underline",
                       }}
-                      style={{ animationDelay: `${(visiblePrimary.length + i) * 30}ms` }}
+                      style={{ animationDelay: `${(visiblePrimary.length + pluginPageLinks.length + i) * 30}ms` }}
                     >
                       <link.icon className="size-3.5" />
                       {link.label}
@@ -243,6 +296,29 @@ export default function Header({ serverSession }: HeaderProps) {
               {link.label}
             </Link>
           ))}
+
+          {/* Plugins dropdown — only when authed and plugins have pages */}
+          {isAuthed && pluginPageLinks.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className={`nav-link flex items-center gap-1.5 ${pluginsIsActive ? "is-active" : ""}`}>
+                  <Puzzle className="size-3.5" />
+                  Plugins
+                  <ChevronDown className="size-3 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-44">
+                {pluginPageLinks.map((link) => (
+                  <DropdownMenuItem key={link.to} asChild>
+                    <Link to={link.to} className="flex items-center gap-2 no-underline">
+                      <link.icon className="size-4" />
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* System dropdown — only when authed */}
           {isAuthed && (
@@ -351,6 +427,26 @@ export default function Header({ serverSession }: HeaderProps) {
                 {link.label}
               </Link>
             ))}
+
+            {isAuthed && pluginPageLinks.length > 0 && (
+              <>
+                <div className="my-2 border-t border-border" />
+                <p className="px-4 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Plugins</p>
+                {pluginPageLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className="nav-link-mobile px-4 py-2.5 text-sm font-medium flex items-center gap-2"
+                    activeProps={{
+                      className: "nav-link-mobile is-active px-4 py-2.5 text-sm font-medium flex items-center gap-2",
+                    }}
+                  >
+                    <link.icon className="size-4" />
+                    {link.label}
+                  </Link>
+                ))}
+              </>
+            )}
 
             {isAuthed && (
               <>

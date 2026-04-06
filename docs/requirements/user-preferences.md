@@ -11,13 +11,13 @@ canonical_file: docs/requirements/user-preferences.md
 ## Purpose
 
 - Problem: Users have no way to update their profile, configure application-level settings, or manage integrations like Obsidian, calendar feeds, and push notifications.
-- Outcome: A centralized settings area with a sidebar-navigated multi-page layout where users can manage their profile, chat defaults, notifications, calendar feeds, Obsidian integration, board configuration, and plugins.
+- Outcome: A centralized settings area with a sidebar-navigated multi-page layout where users can manage their profile, chat defaults, notifications, calendar feeds, Obsidian integration, and plugins.
 - Notes: Preferences are stored as a JSON column on the User model for flexibility.
 
 ## Current Reality
 
-- Current behavior: A `/settings/` area with sidebar navigation provides separate pages for Profile, Chat, Notifications, Calendar, Password, Obsidian, Board, and Plugins. The index route redirects to `/settings/profile`.
-- Constraints: Email is display-only (not editable). Obsidian and Board sections only appear when the vault is configured (`OBSIDIAN_DIR`).
+- Current behavior: A `/settings/` area with sidebar navigation provides separate pages for Profile, Chat, Notifications, Calendar, Password, Obsidian, and Plugins. The index route redirects to `/settings/profile`.
+- Constraints: Email is display-only (not editable). Obsidian section only appears when the vault is configured (`OBSIDIAN_DIR`).
 - Non-goals: Image/avatar upload, email change, theme preferences (handled separately via localStorage).
 
 ## Major Requirements
@@ -31,7 +31,7 @@ canonical_file: docs/requirements/user-preferences.md
 | Calendar feeds | done | Users can add, edit, and remove iCal feed URLs for calendar sync, with a manual sync button. |
 | Obsidian templates folder | done | Users can select a vault folder as the template source for new file creation. |
 | Obsidian chat export folder | done | Users can configure a folder path (with date placeholders) where chat exports are saved. |
-| Board settings | done | Users can select an Obsidian Kanban plugin file to power the Board page, and choose a column to display on the dashboard. |
+| Board settings | done | Board settings now managed via the board plugin at `/settings/plugins/board`. |
 | Plugins management | done | Users can enable/disable plugins, access per-plugin settings, and run health checks. |
 | Password change | done | Users can change their password from the settings area. |
 | Preferences storage | done | User preferences stored as JSON in the `preferences` column on the User model. |
@@ -108,11 +108,9 @@ canonical_file: docs/requirements/user-preferences.md
 
 ### Board settings
 
-- A searchable file picker (Combobox using `Command` component) allows selecting a Kanban plugin file from the vault via `searchVaultFiles` server function with debounced search.
-- Once a Kanban file is selected, a column selector appears (populated by `getBoardData()`) to choose which column to show on the dashboard.
-- Stored as `kanbanFile` and `dashboardBoardColumn` in preferences.
-- A `getDashboardBoardColumn` server function is available for the dashboard to read the selected column.
-- Only shown when the Obsidian vault is configured.
+- Board settings are now managed through the board plugin at `/settings/plugins/board`.
+- The kanban file path is stored as `kanbanFile` in `UserPreferences`.
+- The dashboard column selection is stored in `pluginOptions.board.dashboardColumn`.
 
 ### Plugins management
 
@@ -126,7 +124,7 @@ canonical_file: docs/requirements/user-preferences.md
 ### Preferences storage
 
 - Added `preferences String @default("{}")` column to the User model.
-- `UserPreferences` type in `src/lib/preferences.ts` defines the shape, including: `obsidianTemplatesFolder`, `obsidianChatExportFolder`, `pushoverUserKey`, `calendarFeeds`, `kanbanFile`, `dashboardBoardColumn`, `timezone`, `defaultChatModel`, `enabledPlugins`, `pluginOptions`, `dashboardLayouts`.
+- `UserPreferences` type in `src/lib/preferences.ts` defines the shape, including: `obsidianTemplatesFolder`, `obsidianChatExportFolder`, `pushoverUserKey`, `calendarFeeds`, `kanbanFile`, `timezone`, `defaultChatModel`, `enabledPlugins`, `pluginOptions`, `dashboardLayouts`.
 - `parsePreferences()` and `serializePreferences()` handle JSON parsing/serialization.
 - `updateUserPreferences` server function merges partial updates to avoid clobbering.
 
@@ -143,7 +141,7 @@ canonical_file: docs/requirements/user-preferences.md
 | 7. Notifications page | done | Created `src/routes/settings/notifications.tsx` with Pushover user key and test send. |
 | 8. Calendar page | done | Created `src/routes/settings/calendar.tsx` with feed management and manual sync. |
 | 9. Obsidian page | done | Created `src/routes/settings/obsidian.tsx` with templates folder and chat export folder. |
-| 10. Board page | done | Created `src/routes/settings/board.tsx` with Kanban file picker and dashboard column selector. |
+| 10. Board page | done | Board settings moved to board plugin at `/settings/plugins/board`. |
 | 11. Plugins page | done | Created `src/routes/settings/plugins/index.tsx` and `src/routes/settings/plugins/$pluginId.tsx`. |
 | 12. Password page | done | Existing `src/routes/settings/password.tsx` integrated into new layout. |
 | 13. Header nav | done | Updated `src/components/Header.tsx` to link to `/settings/profile`. |

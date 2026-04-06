@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { ensureSession } from "#/lib/auth.functions";
-import { readKanbanBoard, resolveKanbanPath, writeKanbanBoard } from "#/lib/board/board.server";
-import type { KanbanColumn } from "#/lib/board/kanban-parser";
+import { getAbsolutePath, readKanbanBoard, resolveKanbanPath, writeKanbanBoard } from "#/lib/board/board.server";
+import { type KanbanColumn, parseKanbanFile } from "#/lib/board/kanban-parser";
 import { logger } from "#/lib/logger";
 
 const addBoardTaskInputSchema = z
@@ -30,22 +30,27 @@ const moveBoardTaskInputSchema = z
 
 // --- Server functions (safe to import from route/client code) ---
 
-export const getBoardData = createServerFn({ method: "GET" }).handler(async () => {
-  const session = await ensureSession();
-  const relativePath = await resolveKanbanPath(session.user.id);
+export const getBoardData = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => z.object({ filePath: z.string().optional() }).optional().parse(data) ?? {})
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+    const relativePath = data?.filePath || (await resolveKanbanPath(session.user.id));
 
-  if (!relativePath) {
-    return { configured: false, columns: [] as KanbanColumn[] };
-  }
+    if (!relativePath) {
+      return { configured: false, columns: [] as KanbanColumn[] };
+    }
 
-  try {
-    const { board } = await readKanbanBoard(session.user.id);
-    return { configured: true, columns: board.columns };
-  } catch (err) {
-    logger.error({ err }, "Failed to read kanban board");
-    return { configured: false, columns: [] as KanbanColumn[] };
-  }
-});
+    try {
+      const { promises: fs } = await import("node:fs");
+      const absolutePath = getAbsolutePath(relativePath);
+      const rawContent = await fs.readFile(absolutePath, "utf8");
+      const board = parseKanbanFile(rawContent);
+      return { configured: true, columns: board.columns };
+    } catch (err) {
+      logger.error({ err }, "Failed to read kanban board");
+      return { configured: false, columns: [] as KanbanColumn[] };
+    }
+  });
 
 export const addBoardTask = createServerFn({ method: "POST" })
   .inputValidator((data) => addBoardTaskInputSchema.parse(data))
