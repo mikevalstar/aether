@@ -2,7 +2,7 @@
 title: Triggers
 status: draft
 owner: Mike
-last_updated: 2026-03-22
+last_updated: 2026-04-06
 canonical_file: docs/requirements/triggers.md
 ---
 
@@ -10,51 +10,54 @@ canonical_file: docs/requirements/triggers.md
 
 ## Purpose
 
-- Problem: No way to run AI prompts in response to events — file changes in the vault, plugin-detected events (new email, webhook, etc.). Tasks are cron-only; workflows are manual-only. There's a gap for reactive, event-driven AI execution.
-- Outcome: Markdown files in the AI config `triggers/` folder define event-driven prompt templates. When a matching event fires (built-in or from a plugin), the trigger loads its prompt, substitutes event details, and executes via the shared `generateText()` agent loop. Results are stored as `ChatThread` records and viewable in the UI.
-- Notes: Follows the same config-as-markdown pattern as tasks and workflows. Key difference: event-driven (not scheduled or form-triggered). Concurrent execution allowed. Plugins can both declare and fire trigger events.
+- Problem: No way to run AI prompts in response to external events — webhooks, plugin-detected events (new email, etc.). Tasks are cron-only; workflows are manual form-based. There's a gap for reactive, event-driven AI execution.
+- Outcome: Markdown files in the AI config `triggers/` folder define event-driven prompt templates. When a matching event fires (via webhook or plugin), the trigger loads its prompt, substitutes event details via `{{details}}`, and executes via the shared `executePrompt()` agent loop. Results are stored as `ChatThread` records with `type: "trigger"` and viewable in the UI. Webhooks are managed via a dedicated UI page where users generate API keys and URLs.
+- Notes: Follows the same config-as-markdown pattern as tasks and workflows. Key differences: event-driven (not scheduled or form-triggered), incoming events are JSON, pattern matching via JMESPath expressions. Plugins can declare trigger types they fire and use `fireTrigger()` on their context.
 
 ## Current Reality
 
 - Current behavior: No trigger infrastructure exists. The task scheduler and workflow executor provide the execution pipeline, DB patterns, and UI patterns to build on. The plugin system provides the extension point for plugins to declare and fire events.
-- Constraints: Same as tasks/workflows — SQLite, single-process Node, shared AI harness. Chokidar already used for file watching (vault index, tasks, workflows).
-- Non-goals: Not a general event bus or pub/sub system. Not for high-frequency events (debouncing required). Not for user-interactive execution (background only, like workflows).
+- Constraints: Same as tasks/workflows — SQLite, single-process Node, shared AI harness. `executePrompt()` in `executor-shared.ts` handles thread creation, usage tracking, activity logging, and notifications — triggers will extend its `type` union.
+- Non-goals: Not a general event bus or pub/sub system. No Obsidian file change trigger (may revisit later). No HMAC signature verification for webhooks (may explore later). No rate limiting on webhook endpoints (may revisit).
 
 ## Major Requirements
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Trigger file format | todo | Markdown files in `triggers/` with `title`, `source`, `model`, `effort`, `enabled`, optional `filter`, `maxTokens` in frontmatter, plus source-specific custom fields; body is prompt template with `{{details}}` placeholder |
+| Trigger file format | done | Markdown files in `triggers/` with `title`, `type`, `model`, `effort`, `enabled`, optional `pattern`, `maxTokens`, notification fields in frontmatter; body is prompt template with `{{details}}` placeholder |
 | Trigger system prompt | todo | `trigger-prompt.md` AI config file — shared system prompt for all trigger executions |
-| Zod validator | todo | Base validators for trigger files and trigger-prompt; delegates to source-specific validators for custom frontmatter fields |
+| Zod validator | done | Validators for trigger files and trigger-prompt; validates base fields + type existence |
 | Trigger watcher | todo | Chokidar watcher on `triggers/` config folder for dynamic add/remove/update, syncs to `Trigger` DB table |
-| Trigger executor | todo | Execute trigger prompt via shared AI harness with full tool access, agent loop, background (non-streaming) |
-| Event dispatcher | todo | Match fired events to trigger configs by `source`, substitute `{{details}}`, execute each match |
-| Built-in: file_change | todo | Watch Obsidian vault for file create/modify events, fire triggers with matching `source: file_change` |
-| Plugin integration | todo | Extend `AetherPluginServer` with `triggerTypes` and `PluginContext` with `fireTrigger()` |
-| Database — Trigger table | todo | `Trigger` table tracking each trigger file's metadata and last fired info |
-| Database — ChatThread type | todo | Store trigger runs in `ChatThread` with `type: "trigger"`, `sourceTriggerFile` |
+| Trigger executor | todo | Execute trigger prompt via shared `executePrompt()` harness with full tool access, agent loop, background (non-streaming) |
+| Event dispatcher | todo | Match fired events to trigger configs by `type`, evaluate JMESPath `pattern` against JSON payload, execute each match |
+| Webhook system | todo | `Webhook` DB table for API key management; API endpoint at `/api/triggers/webhook/{apiKey}` accepting JSON POST; webhook management UI at `/triggers/webhooks` |
+| Plugin integration | todo | Extend `AetherPlugin` with `triggerTypes` array; extend `PluginContext` with `fireTrigger()` method |
+| Database — Trigger table | done | `Trigger` table tracking each trigger file's metadata and last fired info |
+| Database — Webhook table | todo | `Webhook` table for API keys with name, type, key, timestamps |
+| Database — ChatThread type | done | Store trigger runs in `ChatThread` with `type: "trigger"`, `sourceTriggerFile` |
 | Usage tracking | todo | Track token usage per trigger run via `ChatUsageEvent` with `taskType: "trigger"` |
 | Activity logging | todo | Log trigger executions as `ActivityLog` entries with `type: "trigger"` |
-| UI — Trigger list | todo | Page at `/triggers` showing all trigger configs with source, enabled/disabled, last fired time |
-| UI — Run history | todo | View past runs for a trigger (same pattern as tasks/workflows) |
-| UI — Unconfigured triggers | todo | Section showing plugin trigger types that have no matching trigger config template |
-| Nav integration | todo | Add Triggers to header nav and command palette `PAGES` array |
+| UI — Trigger list | done | Page at `/triggers` showing all trigger configs with type, enabled/disabled, last fired time |
+| UI — Trigger editor | done | Config editor at `/triggers/editor` using `ConfigEditorShell` pattern (same as tasks/workflows) |
+| UI — Run history | done | View past runs for a trigger at `/triggers/:filename` (same pattern as tasks) |
+| UI — Webhook management | todo | Page at `/triggers/webhooks` for creating, viewing, revoking, and regenerating webhook API keys |
+| UI — Unconfigured triggers | todo | Section on trigger editor showing plugin trigger types that have no matching trigger config |
+| Nav integration | done | Add Triggers to header nav `primaryLinks` and command palette `STATIC_PAGES` array |
 | Seed/pull CLI | todo | Extend `ai-config:seed` and `ai-config:pull` to include example trigger files and trigger-prompt |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| Trigger file format & validation | todo | Frontmatter schema + zod validator for `triggers/*.md` | [Detail](#trigger-file-format--validation) |
+| Trigger file format & validation | done | Frontmatter schema + zod validator for `triggers/*.md` | [Detail](#trigger-file-format--validation) |
 | Trigger system prompt config | todo | `trigger-prompt.md` AI config file for trigger system prompt | [Detail](#trigger-system-prompt-config) |
 | Trigger watcher | todo | Singleton with chokidar watcher, DB sync, in-memory config map | [Detail](#trigger-watcher) |
-| Event dispatcher | todo | Match events to trigger configs by source, substitute details, execute | [Detail](#event-dispatcher) |
-| Trigger executor | todo | Event → prompt assembly → background agent loop → store result | [Detail](#trigger-executor) |
-| Built-in: file_change source | todo | Vault file watcher with glob filter and debounce | [Detail](#built-in-file_change-source) |
-| Plugin trigger types | todo | Extend plugin interface with `triggerTypes` declaration, `fireTrigger()` context method, custom frontmatter fields + validation | [Detail](#plugin-trigger-types) |
-| Schema migration | todo | New `Trigger` table, extend `ChatThread.type` to include `"trigger"` | [Detail](#schema-migration) |
-| Trigger management UI | todo | List view + run history + unconfigured triggers at `/triggers` | [Detail](#trigger-management-ui) |
+| Event dispatcher | todo | Match events to trigger configs by type, JMESPath pattern filter, execute | [Detail](#event-dispatcher) |
+| Trigger executor | todo | Event -> prompt assembly -> `executePrompt()` -> store result | [Detail](#trigger-executor) |
+| Webhook system | todo | API key management, HTTP endpoint, management UI | [Detail](#webhook-system) |
+| Plugin trigger types | todo | Extend plugin interface with `triggerTypes` declaration and `fireTrigger()` context method | [Detail](#plugin-trigger-types) |
+| Schema migration | partial | `Trigger` table + `ChatThread.sourceTriggerFile` done; `Webhook` table pending | [Detail](#schema-migration) |
+| Trigger management UI | partial | List, history, editor done; webhook management pending | [Detail](#trigger-management-ui) |
 | CLI tooling | todo | Seed examples, pull config | Inline |
 
 ## Detail
@@ -68,50 +71,55 @@ canonical_file: docs/requirements/triggers.md
 | Field | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `title` | string | yes | — | Human-readable trigger name |
-| `source` | string | yes | — | Event source identifier: `file_change` (built-in) or `{pluginId}:{triggerType}` (plugin) |
-| `model` | string | no | `claude-haiku-4-5` | Model ID override |
+| `type` | string | yes | — | Event type identifier: a webhook type string (e.g. `github`, `stripe`) or a plugin trigger type `{pluginId}:{triggerType}` (e.g. `imap_email:new_email`) |
+| `model` | string | no | `claude-haiku-4-5` | Model ID override (aliases accepted) |
 | `effort` | string | no | `low` | Effort level override |
 | `enabled` | boolean | no | `true` | Set `false` to pause without deleting the file |
 | `maxTokens` | number | no | — | Per-run output token ceiling |
-| `filter` | string | no | — | Source-specific filter (e.g., glob pattern for `file_change`: `daily-notes/*.md`) |
-| *(custom)* | varies | no | — | Additional source-specific fields declared by the trigger source (built-in or plugin). Passed through to the source's validator. |
+| `pattern` | string | no | — | JMESPath expression evaluated against the incoming JSON payload. Trigger fires if the expression returns a truthy value. Omit to match all events of this type. |
+| `notification` | string | no | `notify` | Notification delivery: `silent`, `notify`, or `push` |
+| `notificationLevel` | string | no | `info` | Notification severity: `info`, `low`, `medium`, `high`, `critical` |
+| `notifyUsers` | array | no | `["all"]` | Email addresses to notify, or `["all"]` |
+| `pushMessage` | boolean | no | `false` | Force push notification |
 
-**Body:** The markdown body is the prompt sent to Claude. Supports `{{details}}` as the single template placeholder — the trigger source serializes its event payload into this string. Also supports standard placeholders (`{{date}}`, `{{userName}}`, `{{aiMemoryPath}}`).
+**Body:** The markdown body is the prompt sent to Claude. Supports `{{details}}` as the event payload placeholder — the dispatcher serializes the JSON event payload into this string. Also supports standard placeholders (`{{date}}`, `{{userName}}`, `{{aiMemoryPath}}`).
 
-**Custom frontmatter fields:** Each trigger source (built-in or plugin) can declare additional frontmatter fields beyond the base schema. These fields are:
-- Declared via `frontmatterFields` on `PluginTriggerType` (or on the built-in source definition) — reuses the `PluginOptionField` type for consistency
-- Validated by a source-specific validator function (`validateFrontmatter`) provided by the trigger source
-- Stored as-is in the parsed trigger config and accessible to the source when filtering/matching events
-- Displayed in the Obsidian editor with validation feedback (same pattern as plugin option fields)
+**Pattern matching:** Uses [JMESPath](https://jmespath.org/) expressions against the raw JSON payload. Examples:
+- `contains(repository.full_name, 'my-repo')` — match GitHub events for a specific repo
+- `action == 'opened'` — match only "opened" events
+- `length(commits) > '0'` — match pushes with commits
+- No pattern = match all events of this type
 
-**Example:** An IMAP plugin trigger type `new_email` might declare fields `folder` (select: INBOX/Sent/etc.) and `from_filter` (text: glob pattern for sender). The trigger config file would have:
+**Validator:** New file `src/lib/ai-config/validators/trigger.ts`. Validation rules:
+
+- `title` is non-empty
+- `type` is non-empty string
+- `model` (if present) is a known model ID from `chat-models.ts` (aliases accepted)
+- `effort` (if present) is valid for the chosen model
+- `enabled` (if present) is boolean
+- `maxTokens` (if present) is a positive integer
+- `pattern` (if present) is a non-empty string (JMESPath syntax validation if feasible)
+- Notification fields validated using shared validators from `shared.ts`
+- Body is non-empty and contains `{{details}}`
+
+**Example file:** `examples/ai-config/triggers/github-push.md`
+
 ```yaml
-title: Summarize new client emails
-source: imap_email:new_email
-folder: INBOX
-from_filter: "*@clientcorp.com"
+---
+title: Summarize GitHub pushes
+type: github
+pattern: "ref == 'refs/heads/main'"
+model: claude-haiku-4-5
+effort: low
 enabled: true
+---
+
+A GitHub push event just occurred. Please summarize the changes:
+
+{{details}}
+
+Provide a brief summary of what changed and flag anything that looks risky.
 ```
-
-**Validator:** New file `src/lib/ai-config-validators/trigger.ts`. Two-phase validation:
-
-1. **Base validation** (always runs):
-   - `title` is non-empty
-   - `source` is non-empty string
-   - `model` (if present) is a known model ID from `chat-models.ts`
-   - `effort` (if present) is valid for the chosen model
-   - `enabled` (if present) is boolean
-   - `maxTokens` (if present) is a positive integer
-   - `filter` (if present) is a non-empty string
-   - Body is non-empty and contains `{{details}}`
-
-2. **Source-specific validation** (if source has a validator):
-   - Look up the trigger source (built-in or from enabled plugins)
-   - If the source declares a `validateFrontmatter` function, call it with the extra frontmatter fields
-   - Validation errors from the source validator are merged into the base validation result
-   - If the source is not found (plugin not enabled, unknown source), emit a warning but don't fail — the trigger just won't fire until a matching source exists
-
-**Example file:** `examples/ai-config/triggers/vault-file-changed.md`
 
 ### Trigger system prompt config
 
@@ -136,14 +144,14 @@ enabled: true
 
 **Module:** `src/lib/trigger-watcher.ts`
 
-**Architecture:** Singleton following the same pattern as `task-scheduler.ts` and `workflow-watcher.ts` — chokidar file watching, DB sync, HMR cleanup.
+**Architecture:** Singleton following the same pattern as `task-scheduler.ts` and `workflow-watcher.ts` — chokidar file watching, DB sync, HMR cleanup via `globalThis.__aetherTriggerWatcherState`.
 
 **Lifecycle:**
 1. Read all `triggers/*.md` files from AI config path, parse and validate
 2. Upsert `Trigger` rows in DB with current frontmatter values; mark missing files as `fileExists: false`
 3. Store valid configs in `Map<filename, TriggerConfig>`
 4. Start chokidar watcher on `{obsidianConfigPath}/triggers/`
-5. On file add: parse, validate, upsert row, add to Map, register with dispatcher
+5. On file add: parse, validate, upsert row, add to Map
 6. On file change: re-parse, validate, upsert row, update Map entry
 7. On file delete: remove from Map, set `fileExists: false` in DB
 8. On shutdown/HMR: close watcher, cleanup
@@ -156,118 +164,87 @@ enabled: true
 
 ### Event dispatcher
 
-**Module:** Part of `src/lib/trigger-watcher.ts` or a separate `src/lib/trigger-dispatcher.ts`
+**Module:** `src/lib/trigger-dispatcher.ts`
 
-**Core function:** `fireTrigger(source: string, details: string): void`
+**Core function:** `fireTrigger(type: string, payload: Record<string, unknown>): void`
 
 **Flow:**
-1. Receive event with `source` string and `details` string
+1. Receive event with `type` string and `payload` object (parsed JSON)
 2. Iterate all trigger configs from the watcher's in-memory Map
-3. Filter to configs where `config.source === source` and `config.enabled === true`
-4. For `file_change` triggers, also check `config.filter` against the file path (glob match via micromatch or picomatch)
-5. For each matching trigger: spawn `executeTrigger(config, details)` concurrently (fire-and-forget, no await)
+3. Filter to configs where `config.type === type` and `config.enabled === true`
+4. For configs with a `pattern`: evaluate the JMESPath expression against `payload` — skip if result is falsy
+5. For each matching trigger: spawn `executeTrigger(config, payload)` concurrently (fire-and-forget, no await)
 6. Multiple triggers can match the same event — all execute independently
 
-**Debounce:** The dispatcher itself does not debounce — that's the responsibility of each trigger source (e.g., file_change source debounces before calling `fireTrigger()`).
+**JMESPath library:** Use `@metrichor/jmespath` or similar TypeScript-compatible JMESPath implementation.
+
+**Details serialization:** The `payload` object is serialized to a readable string for the `{{details}}` placeholder. Use `JSON.stringify(payload, null, 2)` — the AI can parse structured JSON effectively.
 
 ### Trigger executor
 
 **Module:** `src/lib/trigger-executor.ts`
 
-**Flow (same pattern as task/workflow executor):**
-1. Create `ChatThread` with `type: "trigger"`, `sourceTriggerFile: filename`, title from config, model from config
+**Flow (mirrors task/workflow executor via `executePrompt()`):**
+1. Build `ExecutionContext` with `type: "trigger"`, filename, title, model, effort from config
 2. Load trigger system prompt from `trigger-prompt.md`, substitute standard placeholders
-3. Substitute `{{details}}` in trigger body with the event details string, plus standard placeholders
-4. Execute agent loop via `generateText()` with full tool access (`createAiTools()`)
-5. On completion: serialize messages to `messagesJson`, update usage fields on thread
-6. Create `ChatUsageEvent` with `taskType: "trigger"`
-7. Create `ActivityLog` with `type: "trigger"` and metadata `{ triggerFile, source, chatThreadId, model, inputTokens, outputTokens, estimatedCostUsd, success }`
-8. Update `Trigger` row: `lastFiredAt`, `lastRunStatus`, `lastThreadId`
-9. On error: store error in thread, log activity with `success: false`, update `Trigger` row with `lastRunStatus: "error"`
+3. Substitute `{{details}}` in trigger body with serialized payload, plus standard placeholders
+4. Call `executePrompt(ctx)` — this handles: ChatThread creation, `generateText()` with full tool access (`createAiTools()`), usage tracking, activity logging, notifications
+5. Use `onSuccessOps` / `onErrorOps` callbacks to update `Trigger` row: `lastFiredAt`, `lastRunStatus`, `lastThreadId`
+
+**ExecutionContext extension:** Add `"trigger"` to the `type` union in `executor-shared.ts`. The `executePrompt()` function needs to handle `sourceTriggerFile` when creating the ChatThread (alongside existing `sourceTaskFile` / `sourceWorkflowFile`).
 
 **Concurrency:** No protection/dedup — concurrent execution allowed. Multiple events can trigger the same config simultaneously.
 
 **User context:** Same as tasks — runs as the first admin user.
 
-### Built-in: file_change source
+### Webhook system
 
-**Source identifier:** `file_change`
+**API endpoint:** `POST /api/triggers/webhook/{apiKey}`
 
-**Watches:** Obsidian vault directory (reuses or extends existing vault chokidar watcher)
+**Flow:**
+1. Look up `Webhook` record by `apiKey` — return 401 if not found or revoked
+2. Validate `Content-Type: application/json` — return 400 if not JSON
+3. Parse request body as JSON — return 400 if invalid
+4. Update `Webhook.lastReceivedAt` timestamp
+5. Call `fireTrigger(webhook.type, parsedBody)` — fire-and-forget
+6. Return `200 OK` immediately with `{ ok: true }`
 
-**Events:** File create and modify (not delete — deletes don't need AI processing)
+**Route file:** `src/routes/api/triggers/webhook/$apiKey.ts`
 
-**Filter:** The trigger config's `filter` field is a glob pattern matched against the file's path relative to the vault root. Examples:
-- `*.md` — any markdown file in vault root
-- `daily-notes/*.md` — only daily notes
-- `Projects/**/*.md` — anything under Projects
-- No filter = all files
+**Webhook management (server functions in `src/lib/trigger.functions.ts`):**
+- `getWebhooks()` — list all webhooks for the current user
+- `createWebhook({ name, type })` — generate a new webhook with a random API key (use `crypto.randomUUID()` or similar)
+- `revokeWebhook({ id })` — soft-delete or hard-delete the webhook
+- `regenerateWebhookKey({ id })` — generate a new API key for an existing webhook
 
-**Debounce:** 2-second debounce per file path to avoid firing on rapid successive saves (e.g., auto-save). Uses a simple `Map<filePath, setTimeout>` — each new event for the same path resets the timer.
+**Webhook URL display:** The UI shows the full URL: `{baseUrl}/api/triggers/webhook/{apiKey}` with a copy button. The base URL is derived from the request or an env var.
 
-**Details payload:** Serialized string containing:
-- File path (relative to vault root)
-- Change type: `created` or `modified`
-- File content (full text of the file after the change)
-
-**Example details string:**
-```
-File: daily-notes/2026-03-21.md
-Change: modified
-Content:
----
-date: 2026-03-21
----
-# Friday March 21
-
-- Met with design team about dashboard redesign
-- Fixed scrolling bug in requirements nav
-```
-
-**Self-trigger prevention:** Ignore file changes that originate from AI tool writes (obsidian_write, obsidian_edit) to prevent infinite loops. Track "AI-written paths" with a short-lived set (clear after debounce window).
+**Security notes:**
+- API key in URL path — sufficient for now
+- Future consideration: HMAC signature verification (e.g. `X-Hub-Signature-256` for GitHub) — not in v1
+- No rate limiting in v1 — revisit if abuse becomes a concern
 
 ### Plugin trigger types
 
-**New types:**
+**New type on `AetherPlugin`:**
 
 ```typescript
 type PluginTriggerType = {
-  type: string;        // e.g., "new_email" — will be prefixed as {pluginId}:{type}
-  label: string;       // display label, e.g., "New Email Received"
-  description: string; // what this trigger fires on, shown in unconfigured triggers UI
-
-  /** Markdown instructions explaining what details this trigger provides, how to write
-   *  effective prompts for it, what the {{details}} payload looks like, etc.
-   *  Displayed in the UI when creating/editing a trigger config for this type. */
-  instructions?: string;
-
-  /** Custom frontmatter fields for this trigger type — reuses PluginOptionField for consistency */
-  frontmatterFields?: PluginOptionField[];
-
-  /** Validate custom frontmatter values; returns array of error strings (empty = valid) */
-  validateFrontmatter?: (fields: Record<string, unknown>) => string[];
-};
-```
-
-**Built-in source definition** (for `file_change`):
-
-```typescript
-type BuiltInTriggerSource = {
-  source: string;      // "file_change"
+  /** Trigger type key — will be namespaced as {pluginId}:{type} */
+  type: string;
+  /** Display label, e.g., "New Email Received" */
   label: string;
+  /** Description of what this trigger fires on — shown in unconfigured triggers UI */
   description: string;
-  instructions?: string;  // markdown guide for writing prompts targeting this source
-  frontmatterFields?: PluginOptionField[];
-  validateFrontmatter?: (fields: Record<string, unknown>) => string[];
+  /** Markdown instructions: what {{details}} looks like, tips for writing prompts */
+  instructions?: string;
 };
 ```
 
-The built-in `file_change` source declares `filter` as a text field with description "Glob pattern for vault file paths". Plugin trigger types follow the same shape via `PluginTriggerType`.
-
-**Extension to `AetherPluginServer`:**
+**Extension to `AetherPlugin`:**
 
 ```typescript
-type AetherPluginServer = {
+type AetherPlugin = {
   // ... existing fields ...
   /** Trigger event types this plugin can fire */
   triggerTypes?: PluginTriggerType[];
@@ -280,17 +257,17 @@ type AetherPluginServer = {
 type PluginContext = {
   // ... existing fields ...
   /** Fire a trigger event — dispatches to all matching trigger configs */
-  fireTrigger: (type: string, details: string) => void;
+  fireTrigger: (type: string, payload: Record<string, unknown>) => void;
 };
 ```
 
 **How it works:**
-1. Plugin declares `triggerTypes` in its server definition (e.g., IMAP plugin declares `{ type: "new_email", label: "New Email Received", description: "Fires when a new unread email is detected" }`)
-2. Plugin calls `ctx.fireTrigger("new_email", "From: alice@example.com\nSubject: Meeting notes\n...")` when the event occurs
-3. The context implementation calls the dispatcher with source `{pluginId}:{type}` (e.g., `imap_email:new_email`)
-4. Dispatcher matches against trigger configs with `source: imap_email:new_email`
+1. Plugin declares `triggerTypes` in its definition (e.g., IMAP plugin declares `{ type: "new_email", label: "New Email Received", description: "Fires when a new unread email is detected" }`)
+2. Plugin calls `ctx.fireTrigger("new_email", { from: "alice@example.com", subject: "Meeting notes", body: "..." })` when the event occurs
+3. The context implementation calls the dispatcher with type `{pluginId}:{type}` (e.g., `imap_email:new_email`)
+4. Dispatcher matches against trigger configs with `type: imap_email:new_email`
 
-**When plugins fire triggers:** Up to each plugin. The IMAP plugin might fire on health check if new unread mail is detected. A future webhook plugin might fire on incoming HTTP POST. The trigger system doesn't prescribe when — it only provides the `fireTrigger()` mechanism.
+**When plugins fire triggers:** Up to each plugin. The IMAP plugin might fire on health check if new unread mail is detected. The trigger system doesn't prescribe when — it only provides the `fireTrigger()` mechanism.
 
 ### Schema migration
 
@@ -299,10 +276,10 @@ type PluginContext = {
 ```prisma
 model Trigger {
   id             String    @id @default(cuid())
-  filename       String    @unique          // e.g. "vault-file-changed.md"
+  filename       String    @unique          // e.g. "github-push.md"
   title          String                     // from frontmatter at last sync
-  source         String                     // e.g. "file_change", "imap_email:new_email"
-  filter         String?                    // source-specific filter (glob, etc.)
+  type           String                     // e.g. "github", "imap_email:new_email"
+  pattern        String?                    // JMESPath expression
   model          String    @default("claude-haiku-4-5")
   effort         String    @default("low")
   enabled        Boolean   @default(true)
@@ -315,8 +292,26 @@ model Trigger {
   updatedAt      DateTime  @updatedAt
   userId         String
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@index([userId, source])
+  @@index([userId, type])
   @@index([userId, filename])
+}
+```
+
+**New `Webhook` model:**
+
+```prisma
+model Webhook {
+  id             String    @id @default(cuid())
+  name           String                     // human-readable label, e.g. "GitHub"
+  type           String                     // event type string, e.g. "github"
+  apiKey         String    @unique          // random key used in URL
+  lastReceivedAt DateTime?                  // last time a POST was received
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([apiKey])
 }
 ```
 
@@ -327,80 +322,121 @@ model Trigger {
 **`ChatUsageEvent` changes:**
 - `taskType` extended with `"trigger"` value. No schema change needed (already a string field).
 
-**Query changes:**
-- Existing chat/task/workflow queries already filter by type — no changes needed
-- New server functions for trigger runs: filter `WHERE type = 'trigger'` with optional `sourceTriggerFile` filter
+**`User` relation:**
+- Add `triggers Trigger[]` and `webhooks Webhook[]` relations to `User` model
 
 ### Trigger management UI
 
-**Route:** `/triggers`
+**Nav:** Add "Triggers" to `primaryLinks` in `Header.tsx` (between Workflows and Obsidian) and to `STATIC_PAGES` in `CommandPalette.tsx`. Icon: `Zap` from lucide-react.
 
-**List view:**
-- Data source: `Trigger` table joined with in-memory config state
-- Columns: title, source (with human-readable label), filter (if set), last fired, last status, enabled/disabled
-- Row actions: view run history, link to edit file in Obsidian editor (`/o/{configPath}/triggers/{filename}`)
+**Route: `/triggers` — Trigger list**
+- Data source: `Trigger` table
+- Columns: title, type (with human-readable label), pattern (truncated if long), last fired, last status, enabled/disabled
+- Row actions: view run history, link to edit file in config editor
 - Visual indicators: disabled triggers (dimmed), deleted files (`fileExists: false` — greyed out)
+- Pattern: mirrors `/tasks` page with `PageHeader` + `TriggerTable` or `TriggerEmptyState`
 
-**Run history view:**
-- Clicking a trigger navigates to `/triggers/:filename`
+**Route: `/triggers/$filename` — Run history**
 - Past runs are `ChatThread` records where `sourceTriggerFile` matches
-- Each run shows: timestamp, source event, model, duration, token usage, estimated cost, status
+- Each run shows: timestamp, model, duration, token usage, estimated cost, status
 - Expandable detail: full prompt (with substituted details), full response (rendered markdown including tool calls/results)
 - Delete button per run
+- Pattern: mirrors `/tasks/$` page
 
-**Unconfigured triggers section:**
-- Displayed below the configured triggers list (or as a separate tab/section)
-- Queries all enabled plugins for `triggerTypes`, then checks if any trigger config file has a matching `source: {pluginId}:{type}`
+**Route: `/triggers/editor` — Config editor**
+- Uses `ConfigEditorShell` with `subfolder: "triggers"`
+- `TriggerFrontmatterDisplay` component shows parsed frontmatter fields
+- "New Trigger" dialog for creating new trigger config files
+- Unconfigured triggers section (see below)
+- Pattern: mirrors `/tasks/editor` page
+
+**Route: `/triggers/webhooks` — Webhook management**
+- List of all webhooks with: name, type, full URL (with copy button), last received timestamp, created date
+- "Create Webhook" dialog: name (text), type (text)
+- Row actions: copy URL, regenerate key (with confirmation), revoke/delete (with confirmation)
+- When a webhook is created, show the full URL prominently so the user can copy it
+
+**Unconfigured triggers section (on editor page):**
+- Queries all enabled plugins for `triggerTypes`, checks if any trigger config file has a matching `type: {pluginId}:{triggerType}`
 - For each unmatched trigger type, shows:
   - Plugin name + icon
   - Trigger type label and description
-  - Rendered `instructions` markdown (if provided) — explains what the trigger does, what the `{{details}}` payload looks like, tips for writing effective prompts
-  - "Create Trigger" button — navigates to Obsidian editor to create a new file in `triggers/` with pre-filled frontmatter (`source: {pluginId}:{type}`, `title: {label}`, `enabled: true`, plus any custom `frontmatterFields` with their defaults) and a placeholder body with `{{details}}`
-- When all plugin trigger types have matching configs, this section is hidden
+  - Rendered `instructions` markdown (if provided)
+  - "Create Trigger" button — creates a new file with pre-filled frontmatter (`type: {pluginId}:{triggerType}`, `title: {label}`, `enabled: true`) and placeholder body with `{{details}}`
+- Hidden when all plugin trigger types have matching configs
 
 ## File Structure
 
 ```
 src/lib/
-  trigger-watcher.ts                    # Watcher + config sync + event dispatcher
-  trigger-executor.ts                   # generateText() execution harness
-  trigger.functions.ts                  # Server functions for UI
-  ai-config-validators/trigger.ts       # Zod validators for trigger files
-  ai-config-validators/trigger-prompt.ts # Zod validator for trigger-prompt.md
+  triggers/
+    trigger.functions.ts                  # Server functions for trigger + webhook UI
+  trigger-watcher.ts                      # Watcher + config sync (same pattern as task-scheduler)
+  trigger-executor.ts                     # Build ExecutionContext, call executePrompt()
+  trigger-dispatcher.ts                   # fireTrigger() — match events to configs, JMESPath filter
+  ai-config/validators/trigger.ts         # Zod validators for trigger files
+  ai-config/validators/trigger-prompt.ts  # Zod validator for trigger-prompt.md
 src/routes/
-  triggers.tsx                          # /triggers list page
-  triggers.$filename.tsx                # /triggers/:filename run history
+  triggers/
+    index.tsx                             # /triggers list page
+    $.tsx                                 # /triggers/:filename run history
+    editor/
+      index.tsx                           # /triggers/editor config editor
+      $.tsx                               # /triggers/editor/:filename config editor (with file selected)
+    webhooks.tsx                          # /triggers/webhooks management page
+  api/triggers/
+    webhook/$apiKey.ts                    # POST webhook endpoint
+src/components/
+  triggers/
+    TriggerTable.tsx                      # Trigger list table
+    TriggerEmptyState.tsx                 # Empty state for trigger list
+    TriggerRunHistory.tsx                 # Run history component
+  config-editor/
+    TriggerFrontmatterDisplay.tsx         # Frontmatter display for editor
+    TriggerFrontmatterModal.tsx           # Configure modal for trigger frontmatter
+    NewTriggerDialog.tsx                  # Dialog for creating new trigger files
+  (future)
+    WebhookTable.tsx                      # Webhook list table
+    CreateWebhookDialog.tsx              # Dialog for creating webhooks
 src/plugins/
-  types.ts                              # Extended with PluginTriggerType, fireTrigger on PluginContext
-  plugin-context.ts                     # fireTrigger() implementation wired to dispatcher
+  types.ts                               # Extended with PluginTriggerType, fireTrigger on PluginContext
 ```
 
 ## Open Questions
 
-*No open questions.*
+- **JMESPath library choice:** Need to evaluate TypeScript-compatible JMESPath libraries for bundle size and correctness. Candidates: `@metrichor/jmespath`, `jmespath` (original), or a lighter alternative.
 
 ## Resolved Questions
 
-- ~~**file_change scope:** Should the watcher cover the entire vault or only specific top-level folders?~~ Resolved: Watch entire vault, use `filter` glob in trigger config to narrow which files actually fire. Simpler architecture, filter handles specificity.
+- ~~**Webhook vs file_change as first trigger source:**~~ Resolved: Webhook first. File change trigger deferred — not needed for v1.
+- ~~**Webhook security model:**~~ Resolved: API key in URL path for v1. HMAC signature verification (e.g. GitHub's `X-Hub-Signature-256`) noted as future exploration.
+- ~~**Pattern matching approach:**~~ Resolved: JMESPath expressions on the raw JSON payload. Omit pattern to match all events of a type.
+- ~~**Webhook response behavior:**~~ Resolved: Fire-and-forget. Return 200 immediately, execute triggers async.
+- ~~**Plugin trigger types:**~~ Resolved: Plugins declare `triggerTypes` array and use `fireTrigger()` on context. Namespaced as `{pluginId}:{type}`.
 
 ## Implementation Plan
 
 | Step | Status | Plan |
 | --- | --- | --- |
-| 1. Schema migration | todo | New `Trigger` model, add `sourceTriggerFile` to `ChatThread`, extend `type` enum |
-| 2. Trigger file format + validator | todo | Zod schema, validator registration, example files |
-| 3. Trigger system prompt | todo | `trigger-prompt.md` config file, validator, example, config reader with fallback |
+| 1. Schema migration | done | New `Trigger` model (no Webhook yet), add `sourceTriggerFile` to `ChatThread`, extend type values |
+| 2. Trigger file format + validator | done | Zod schema in `ai-config/validators/trigger.ts` + `trigger-prompt.ts`, registered in validator index |
+| 3. Trigger system prompt | todo | `trigger-prompt.md` config file, example, config reader with fallback |
 | 4. Trigger watcher | todo | Singleton with chokidar on `triggers/`, DB sync, in-memory config Map |
-| 5. Event dispatcher | todo | `fireTrigger(source, details)` function matching events to configs |
-| 6. Trigger executor | todo | Wire dispatcher to shared AI harness, store results, track usage, log activity |
-| 7. Plugin integration | todo | Add `triggerTypes` to `AetherPluginServer`, `fireTrigger()` to `PluginContext`, wire to dispatcher |
-| 8. Built-in: file_change | todo | Vault file watcher with debounce, glob filter, self-trigger prevention |
-| 9. UI — Trigger list + history | todo | Routes, server functions, list + run history components |
-| 10. UI — Unconfigured triggers | todo | Query plugin trigger types, diff against configs, render missing section |
-| 11. Nav integration | todo | Add to header nav and command palette `PAGES` array |
-| 12. CLI updates | todo | Seed/pull for triggers folder + trigger-prompt |
+| 5. Event dispatcher | todo | `fireTrigger(type, payload)` function with JMESPath pattern matching |
+| 6. Trigger executor | todo | Extend `ExecutionContext` type, wire dispatcher to `executePrompt()`, store results |
+| 7. Webhook endpoint | todo | API route at `/api/triggers/webhook/$apiKey`, key lookup, JSON validation, fire-and-forget dispatch |
+| 8. Webhook management | todo | Webhook DB model, server functions for CRUD, create/revoke/regenerate keys |
+| 9. Plugin integration | todo | Add `triggerTypes` to `AetherPlugin`, `fireTrigger()` to `PluginContext`, wire to dispatcher |
+| 10. UI — Trigger list + history | done | `/triggers` list page, `/triggers/$filename` run history, server functions |
+| 11. UI — Trigger editor | done | `/triggers/editor` with `ConfigEditorShell`, frontmatter display + modal, new trigger dialog |
+| 12. UI — Webhook management page | todo | `/triggers/webhooks` with table, create/revoke/regenerate dialogs |
+| 13. UI — Unconfigured triggers | todo | Query plugin trigger types, diff against configs, render missing section on editor page |
+| 14. Nav integration | done | Added to header `primaryLinks` and command palette `STATIC_PAGES` with Zap icon |
+| 15. CLI updates | todo | Seed/pull for triggers folder + trigger-prompt |
 
 ## Change Log
 
-- 2026-03-21: Initial requirements drafted. Built-in source: file_change. Plugin integration via triggerTypes + fireTrigger(). Single `{{details}}` placeholder for event payloads. Unconfigured triggers UI for missing templates.
-- 2026-03-21: Resolved file_change scope (glob filter). Added custom frontmatter fields: trigger sources (built-in + plugin) can declare `frontmatterFields` (reuses `PluginOptionField`) and `validateFrontmatter` for source-specific config. Two-phase validation in the zod validator. Added `instructions` markdown field to trigger types for authoring guidance. Marked as draft — feature needs more design thought.
+- 2026-03-21: Initial requirements drafted with file_change trigger and plugin integration.
+- 2026-03-21: Added custom frontmatter fields, instructions markdown, two-phase validation.
+- 2026-04-06: Major rewrite. Replaced file_change trigger with webhook-first approach. Added Webhook DB model and management UI. Switched pattern matching from glob to JMESPath on JSON payloads. Simplified trigger file format (removed custom frontmatter fields — pattern handles filtering). Added webhook API endpoint (fire-and-forget). Plugin integration retained with `triggerTypes` + `fireTrigger()`. Trigger editor mirrors task/workflow editor pattern. HMAC verification and rate limiting deferred to future versions.
+- 2026-04-06: Implementation started. Completed: Trigger DB model + schema migration, trigger/trigger-prompt validators, nav integration (Header + CommandPalette), trigger list page, run history page, config editor with frontmatter display/modal, new trigger dialog, server functions for list/history/delete/convert.

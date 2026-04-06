@@ -3,6 +3,8 @@ import { systemPromptValidator } from "./system-prompt";
 import { taskValidator } from "./task";
 import { taskPromptValidator } from "./task-prompt";
 import { titlePromptValidator } from "./title-prompt";
+import { triggerValidator } from "./trigger";
+import { triggerPromptValidator } from "./trigger-prompt";
 import type { AiConfigValidator } from "./types";
 import { workflowValidator } from "./workflow";
 import { workflowPromptValidator } from "./workflow-prompt";
@@ -16,6 +18,8 @@ const validators: AiConfigValidator[] = [
   taskValidator,
   workflowPromptValidator,
   workflowValidator,
+  triggerPromptValidator,
+  triggerValidator,
   skillValidator,
 ];
 

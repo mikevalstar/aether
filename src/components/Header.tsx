@@ -18,6 +18,7 @@ import {
   ScrollText,
   Settings,
   Users,
+  Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CommandKButton from "#/components/CommandKButton";
@@ -62,6 +63,7 @@ const primaryLinks: NavLink[] = [
   { to: "/chat", label: "Chat", icon: MessageSquare, auth: true },
   { to: "/tasks", label: "Tasks", icon: CheckSquare, auth: true },
   { to: "/workflows", label: "Workflows", icon: GitBranch, auth: true },
+  { to: "/triggers", label: "Triggers", icon: Zap, auth: true },
   { to: "/o", label: "Obsidian", icon: BookOpen, auth: true },
 ];
 

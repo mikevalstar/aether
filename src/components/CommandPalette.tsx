@@ -20,6 +20,7 @@ import {
   Settings,
   Sun,
   Users,
+  Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#/components/ui/command";
@@ -41,6 +42,8 @@ const STATIC_PAGES = [
   { label: "Task Editor", route: "/tasks/editor", icon: CheckSquare },
   { label: "Workflows", route: "/workflows", icon: GitBranch },
   { label: "Workflow Editor", route: "/workflows/editor", icon: GitBranch },
+  { label: "Triggers", route: "/triggers", icon: Zap },
+  { label: "Trigger Editor", route: "/triggers/editor", icon: Zap },
   { label: "Board", route: "/board", icon: Columns3 },
   { label: "Obsidian", route: "/o", icon: BookOpen },
   { label: "Notifications", route: "/notifications", icon: Bell },

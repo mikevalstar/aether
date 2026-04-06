@@ -38,6 +38,7 @@ model User {
   activityLogs    ActivityLog[]
   tasks           Task[]
   workflows       Workflow[]
+  triggers        Trigger[]
   notifications   Notification[]
 }
 
@@ -95,6 +96,7 @@ model ChatThread {
   availableToolsJson String?
   sourceTaskFile     String?
   sourceWorkflowFile String?
+  sourceTriggerFile  String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   userId         String
@@ -187,6 +189,29 @@ model Workflow {
   userId         String
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, filename])
+}
+
+model Trigger {
+  id             String    @id @default(cuid())
+  filename       String    @unique
+  title          String
+  type           String                     // e.g. "github", "imap_email:new_email"
+  pattern        String?                    // JMESPath expression
+  model          String    @default("claude-haiku-4-5")
+  effort         String    @default("low")
+  enabled        Boolean   @default(true)
+  maxTokens      Int?
+  lastFiredAt    DateTime?
+  lastRunStatus  String?                    // "success" | "error"
+  lastThreadId   String?
+  fileExists     Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
   @@index([userId, filename])
 }
 
