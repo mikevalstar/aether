@@ -93,6 +93,7 @@ export function TriggerFrontmatterDisplay({ document, onRefresh, autoOpenModal }
   const enabled = fm.enabled !== false;
   const type = typeof fm.type === "string" ? fm.type : "";
   const pattern = typeof fm.pattern === "string" ? fm.pattern : null;
+  const user = typeof fm.user === "string" ? fm.user : null;
   const model = typeof fm.model === "string" ? fm.model : "claude-haiku-4-5";
   const effort = typeof fm.effort === "string" ? fm.effort : "low";
   const maxTokens = typeof fm.maxTokens === "number" ? fm.maxTokens : null;
@@ -141,6 +142,13 @@ export function TriggerFrontmatterDisplay({ document, onRefresh, autoOpenModal }
                 <code className="rounded bg-[var(--surface)] px-1.5 py-0.5 font-mono text-[11px] max-w-[300px] truncate inline-block">
                   {pattern}
                 </code>
+              </Field>
+            )}
+            {user && user !== "all" && (
+              <Field label="User" tooltip="Restricts trigger to events from this user. The trigger runs as this user.">
+                <Badge variant="outline" className="text-[10px]">
+                  {user}
+                </Badge>
               </Field>
             )}
             <div className="flex items-center gap-2">

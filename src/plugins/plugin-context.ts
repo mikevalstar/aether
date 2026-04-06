@@ -108,8 +108,8 @@ export function createPluginContext(pluginId: string, userId: string, threadId?:
 
     fireTrigger(type: string, payload: Record<string, unknown>): void {
       const namespacedType = `${pluginId}:${type}`;
-      logger.info({ pluginId, type: namespacedType }, "Plugin firing trigger");
-      fireTrigger(namespacedType, payload);
+      logger.info({ pluginId, type: namespacedType, userId }, "Plugin firing trigger");
+      fireTrigger(namespacedType, payload, userId);
     },
   };
 }

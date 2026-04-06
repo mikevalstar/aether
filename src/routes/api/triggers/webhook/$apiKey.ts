@@ -53,8 +53,8 @@ export const Route = createFileRoute("/api/triggers/webhook/$apiKey")({
         // Ensure trigger watcher is initialized before dispatching
         await ensureAppRuntimeStarted();
 
-        // Dispatch to matching triggers (fire-and-forget)
-        fireTrigger(webhook.type, payload);
+        // Dispatch to matching triggers as the webhook owner (fire-and-forget)
+        fireTrigger(webhook.type, payload, webhook.userId);
         logger.info(
           { webhookId: webhook.id, webhookName: webhook.name, type: webhook.type, payloadKeys: Object.keys(payload) },
           "Webhook received — dispatching to triggers",

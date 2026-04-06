@@ -1,7 +1,6 @@
 import { generateText, stepCountIs } from "ai";
 import { prisma } from "#/db";
 import { createAiTools, getModel } from "#/lib/ai-tools";
-import { getUserPreferences } from "#/lib/preferences.server";
 import {
   type ChatModel,
   DEFAULT_CHAT_EFFORT,
@@ -15,6 +14,7 @@ import {
 import { CHAT_MODELS } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
+import { getUserPreferences } from "#/lib/preferences.server";
 
 function typeLabel(type: ExecutionContext["type"]): string {
   return type === "task" ? "Task" : type === "workflow" ? "Workflow" : "Trigger";

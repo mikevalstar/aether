@@ -14,6 +14,8 @@ export type TriggerConfig = {
   title: string;
   type: string;
   pattern?: string;
+  /** Restrict to specific user email, or "all" (or undefined = all) */
+  user?: string;
   model?: string;
   effort?: string;
   enabled: boolean;
@@ -253,6 +255,7 @@ export async function parseTriggerFile(filePath: string): Promise<TriggerConfig 
       title: data.title,
       type: data.type,
       pattern: data.pattern,
+      user: data.user,
       model: data.model,
       effort: data.effort,
       enabled: data.enabled !== false,

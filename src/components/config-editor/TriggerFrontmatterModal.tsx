@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#
 import { toast } from "#/components/ui/sonner";
 import { Switch } from "#/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
+import { Textarea } from "#/components/ui/textarea";
 import { UserPicker } from "#/components/ui/user-picker";
 import { CHAT_MODELS, EFFORT_LABELS, resolveModelId } from "#/lib/chat/chat-models";
 import { updateFrontmatterFields } from "#/lib/config-editor/config-editor.functions";
@@ -26,6 +27,7 @@ export type TriggerFrontmatterModalProps = {
 type FormState = {
   type: string;
   pattern: string;
+  user: string;
   enabled: boolean;
   model: string;
   effort: string;
@@ -40,6 +42,7 @@ function extractFormState(fm: ObsidianDocument["frontmatter"]): FormState {
   return {
     type: typeof fm.type === "string" ? fm.type : "",
     pattern: typeof fm.pattern === "string" ? fm.pattern : "",
+    user: typeof fm.user === "string" ? fm.user : "",
     enabled: fm.enabled !== false,
     model: typeof fm.model === "string" ? (resolveModelId(fm.model) ?? fm.model) : "claude-haiku-4-5",
     effort: typeof fm.effort === "string" ? fm.effort : "low",
@@ -64,6 +67,7 @@ function formToFields(form: FormState): Record<string, unknown> {
   };
 
   fields.pattern = form.pattern || null;
+  fields.user = form.user || null;
   fields.maxTokens = form.maxTokens ? Number.parseInt(form.maxTokens, 10) : null;
 
   return fields;
@@ -153,14 +157,30 @@ export function TriggerFrontmatterModal({
 
             <div className="space-y-1.5">
               <Label className="text-xs">Pattern (optional)</Label>
-              <Input
+              <Textarea
                 value={form.pattern}
                 onChange={(e) => update("pattern", e.target.value)}
                 placeholder="JMESPath expression, e.g. action == 'opened'"
-                className="font-mono text-sm"
+                className="font-mono text-sm min-h-[80px]"
+                rows={4}
               />
               <p className="text-[11px] text-[var(--ink-soft)]">
                 JMESPath expression evaluated against the JSON payload. Leave empty to match all events of this type.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">User Scope (optional)</Label>
+              <Input
+                value={form.user}
+                onChange={(e) => update("user", e.target.value)}
+                placeholder='Email address or "all" (default: all)'
+                className="text-sm"
+              />
+              <p className="text-[11px] text-[var(--ink-soft)]">
+                Restrict this trigger to a specific user by email. The trigger will only fire when the firing event (webhook
+                or plugin) belongs to that user, and runs as that user (so it gets their plugin tools and preferences). Leave
+                empty or use "all" for any user.
               </p>
             </div>
 

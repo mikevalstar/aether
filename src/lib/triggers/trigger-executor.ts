@@ -9,26 +9,36 @@ import type { TriggerConfig } from "#/lib/triggers/trigger-watcher";
 /**
  * Execute a trigger: load system prompt, interpolate details into body,
  * and run via the shared executePrompt() harness.
+ *
+ * If `firingUserId` is provided, the trigger runs as that user (so they get
+ * their own plugin tools, preferences, etc.). Otherwise falls back to the first
+ * admin user.
  */
 export async function executeTrigger(
   filename: string,
   config: TriggerConfig,
   payload: Record<string, unknown>,
+  firingUserId?: string,
 ): Promise<void> {
-  // Find first admin user (same as tasks)
-  const adminUser = await prisma.user.findFirst({
-    where: { role: "admin" },
-    orderBy: { createdAt: "asc" },
-    select: { id: true, name: true, email: true },
-  });
+  // Resolve which user to run as
+  const runAsUser = firingUserId
+    ? await prisma.user.findUnique({
+        where: { id: firingUserId },
+        select: { id: true, name: true, email: true },
+      })
+    : await prisma.user.findFirst({
+        where: { role: "admin" },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, name: true, email: true },
+      });
 
-  if (!adminUser) {
-    logger.error("No admin user found for trigger execution");
+  if (!runAsUser) {
+    logger.error({ firingUserId }, "No user found for trigger execution");
     return;
   }
 
-  const adminTimezone = await getUserTimezone(adminUser.id);
-  const userVars = { userName: adminUser.name, userEmail: adminUser.email, timezone: adminTimezone };
+  const userTimezone = await getUserTimezone(runAsUser.id);
+  const userVars = { userName: runAsUser.name, userEmail: runAsUser.email, timezone: userTimezone };
 
   const triggerPromptConfig = await readTriggerPromptConfig(userVars);
   const model = resolveModel(config.model, triggerPromptConfig.model);
@@ -47,8 +57,8 @@ export async function executeTrigger(
     effort,
     systemPrompt: triggerPromptConfig.prompt,
     userPrompt,
-    userId: adminUser.id,
-    userTimezone: adminTimezone,
+    userId: runAsUser.id,
+    userTimezone,
     maxTokens: config.maxTokens,
     notification: config.notification as "silent" | "notify" | "push",
     notificationLevel: config.notificationLevel as "info" | "low" | "medium" | "high" | "critical",

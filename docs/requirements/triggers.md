@@ -402,6 +402,18 @@ src/plugins/
   types.ts                               # Extended with PluginTriggerType, fireTrigger on PluginContext
 ```
 
+## Future Work
+
+- **AI tools for webhook management:** Add AI tools so the assistant can list, create, regenerate, and delete webhooks on behalf of the current user. All operations must be scoped to the calling user (never cross-user). Useful tools:
+  - `list_webhooks` — return the current user's webhooks (name, type, URL, last received)
+  - `create_webhook({ name, type })` — create a new webhook for the current user, return the full URL
+  - `regenerate_webhook_key({ id })` — rotate the API key
+  - `delete_webhook({ id })` — remove a webhook
+  Use case: user asks the AI "set up a webhook for GitHub pushes" and it can create one and tell them the URL to paste into GitHub.
+- **HMAC signature verification** for webhook endpoints (e.g., GitHub's `X-Hub-Signature-256`) — currently webhooks rely on API key in URL only.
+- **Webhook rate limiting** — currently no limits, may revisit if abuse becomes a concern.
+- **Custom JMESPath functions** — register helpers like `lower()` for case-insensitive matching (currently must work around with multi-case patterns).
+
 ## Open Questions
 
 - **JMESPath library choice:** Need to evaluate TypeScript-compatible JMESPath libraries for bundle size and correctness. Candidates: `@metrichor/jmespath`, `jmespath` (original), or a lighter alternative.
@@ -442,5 +454,6 @@ src/plugins/
 - 2026-04-06: Implementation started. Completed: Trigger DB model + schema migration, trigger/trigger-prompt validators, nav integration (Header + CommandPalette), trigger list page, run history page, config editor with frontmatter display/modal, new trigger dialog, server functions for list/history/delete/convert.
 - 2026-04-06: Webhook system implemented. Webhook DB model, API endpoint at `/api/triggers/webhook/$apiKey` (fire-and-forget, JSON-only), webhook management UI at `/triggers/webhooks` with create/revoke/regenerate. Dispatch call stubbed pending trigger watcher/dispatcher implementation.
 - 2026-04-06: Trigger watcher implemented. Singleton with chokidar on `triggers/`, DB sync, in-memory config Map. Wired into `app-runtime.ts` for startup/shutdown. Triggers list page calls `ensureAppRuntimeStarted()` before querying.
+- 2026-04-06: User scoping for triggers. Added optional `user` frontmatter field on trigger configs (email or "all", default all). `fireTrigger()` now takes a `firingUserId` — the dispatcher resolves their email and filters configs by `user`. The executor runs as the firing user instead of always the first admin. Webhook endpoint passes `webhook.userId`. Plugin context `fireTrigger()` passes `ctx.userId`. Pattern field is now a textarea in the configure modal. Trigger files remain admin-owned in shared `triggers/` folder.
 - 2026-04-06: Plugin integration implemented. Added `triggerTypes` to `AetherPlugin`, `fireTrigger()` to `PluginContext` (auto-prefixes with pluginId), `scheduledTasks` to `AetherPluginServer` (registered as cron jobs in system-tasks.ts). IMAP plugin: `new_email` trigger type with instructions, `enableTriggers` option toggle, 5-min polling cron that reads full email content and fires triggers, `lastTriggerCheckAt` timestamp tracking in plugin options. Example trigger for auto-archiving emails with "archive this" in subject.
 - 2026-04-06: Event dispatcher + trigger executor implemented. `fireTrigger()` matches by type, evaluates JMESPath patterns via `@metrichor/jmespath`, spawns fire-and-forget execution. Executor loads `trigger-prompt.md` system prompt (with fallback), substitutes `{{details}}`, calls `executePrompt()`. Extended `ExecutionContext` with `"trigger"` type, `ChatTaskType` with `"trigger"`. Webhook endpoint wired to dispatcher. Watcher uses `globalThis` for HMR survival. End-to-end tested: webhook POST → dispatcher → Haiku execution → ChatThread stored.

@@ -22,6 +22,8 @@ export const triggerFrontmatterSchema = z.object({
   enabled: z.boolean().optional(),
   maxTokens: z.number().int().positive().optional(),
   pattern: z.string().min(1).optional(),
+  /** Restrict trigger to a specific user by email, or "all" for any user. Defaults to "all". */
+  user: z.string().min(1).optional(),
   notification: notificationField,
   notificationLevel: notificationLevelField,
   notifyUsers: notifyUsersField,
@@ -44,6 +46,7 @@ export const triggerValidator: AiConfigValidator = {
     "- `enabled` — boolean (default true)",
     "- `maxTokens` — positive integer output token limit",
     "- `pattern` — JMESPath expression to filter events (omit to match all)",
+    '- `user` — restrict to a specific user by email, or "all" (default: all)',
     `- \`notification\` — delivery: one of: ${validNotificationDeliveries.join(", ")} (default: notify)`,
     `- \`notificationLevel\` — severity: one of: ${validNotificationSeverities.join(", ")} (default: info)`,
     '- `notifyUsers` — array of email addresses to notify, or ["all"] (default: all)',
