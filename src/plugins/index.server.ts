@@ -10,7 +10,7 @@ import { sonarrPluginFull } from "./sonarr/index.server";
 import type { AetherPlugin } from "./types";
 
 /** All registered plugins with full server capabilities. */
-const serverPlugins: AetherPlugin[] = [
+export const serverPlugins: AetherPlugin[] = [
   imapPluginFull,
   apiBalancesPluginFull,
   sonarrPluginFull,

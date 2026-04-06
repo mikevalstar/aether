@@ -1,6 +1,9 @@
 import { Cron } from "croner";
 import { prisma } from "#/db";
 import { logger } from "#/lib/logger";
+import { getUserPreferences } from "#/lib/preferences.server";
+import { createPluginContext } from "#/plugins/plugin-context";
+import type { AetherPlugin } from "#/plugins/types";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -37,7 +40,8 @@ const systemTaskDefs: SystemTask[] = [
 
 const systemJobs: Cron[] = [];
 
-export function startSystemTasks(): void {
+export async function startSystemTasks(): Promise<void> {
+  // Register built-in system tasks
   for (const def of systemTaskDefs) {
     try {
       const job = new Cron(
@@ -63,6 +67,9 @@ export function startSystemTasks(): void {
       logger.error({ systemTask: def.name, err }, "Failed to register system task");
     }
   }
+
+  // Register plugin scheduled tasks
+  await registerPluginScheduledTasks();
 }
 
 export function stopSystemTasks(): void {
@@ -170,4 +177,55 @@ async function cleanupStaleRecords(): Promise<void> {
     },
     `Cleaned up ${parts.join(" and ")}`,
   );
+}
+
+// ── Plugin scheduled tasks ──────────────────────────────────────────
+
+async function registerPluginScheduledTasks(): Promise<void> {
+  const { serverPlugins } = await import("#/plugins/index.server");
+
+  const adminUser = await prisma.user.findFirst({
+    where: { role: "admin" },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!adminUser) {
+    logger.info("No admin user — skipping plugin scheduled tasks");
+    return;
+  }
+
+  const prefs = await getUserPreferences(adminUser.id);
+  const enabledIds = new Set(prefs.enabledPlugins ?? []);
+
+  for (const plugin of serverPlugins as AetherPlugin[]) {
+    if (!enabledIds.has(plugin.meta.id)) continue;
+    if (!plugin.server?.scheduledTasks?.length) continue;
+
+    for (const task of plugin.server.scheduledTasks) {
+      const fullName = `plugin:${plugin.meta.id}:${task.name}`;
+      try {
+        const ctx = createPluginContext(plugin.meta.id, adminUser.id);
+        const job = new Cron(
+          task.cron,
+          {
+            name: fullName,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            protect: true,
+            catch: (err: unknown) => {
+              logger.error({ pluginTask: fullName, err }, "Plugin scheduled task error");
+            },
+            unref: true,
+          },
+          () => {
+            task.handler(ctx).catch((err) => {
+              logger.error({ pluginTask: fullName, err }, "Unhandled plugin scheduled task error");
+            });
+          },
+        );
+        systemJobs.push(job);
+        logger.info({ pluginTask: fullName, cron: task.cron }, "Plugin scheduled task registered");
+      } catch (err) {
+        logger.error({ pluginTask: fullName, err }, "Failed to register plugin scheduled task");
+      }
+    }
+  }
 }

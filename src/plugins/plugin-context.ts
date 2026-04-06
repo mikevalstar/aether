@@ -1,9 +1,11 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { prisma } from "#/db";
+import { logger } from "#/lib/logger";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { resolveNotePath, searchVault } from "#/lib/obsidian/vault-index";
 import { getUserPluginOptions } from "#/lib/preferences.server";
+import { fireTrigger } from "#/lib/triggers/trigger-dispatcher";
 import type { ObsidianPluginContext, PluginActivityParams, PluginContext } from "./types";
 
 function createObsidianPluginContext(): ObsidianPluginContext {
@@ -102,6 +104,12 @@ export function createPluginContext(pluginId: string, userId: string, threadId?:
           userId,
         },
       });
+    },
+
+    fireTrigger(type: string, payload: Record<string, unknown>): void {
+      const namespacedType = `${pluginId}:${type}`;
+      logger.info({ pluginId, type: namespacedType }, "Plugin firing trigger");
+      fireTrigger(namespacedType, payload);
     },
   };
 }

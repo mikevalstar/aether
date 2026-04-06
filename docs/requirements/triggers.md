@@ -31,7 +31,7 @@ canonical_file: docs/requirements/triggers.md
 | Trigger executor | done | Execute trigger prompt via shared `executePrompt()` harness with full tool access, agent loop, background (non-streaming) |
 | Event dispatcher | done | Match fired events to trigger configs by `type`, evaluate JMESPath `pattern` against JSON payload, execute each match |
 | Webhook system | done | `Webhook` DB table for API key management; API endpoint at `/api/triggers/webhook/{apiKey}` accepting JSON POST; webhook management UI at `/triggers/webhooks` |
-| Plugin integration | todo | Extend `AetherPlugin` with `triggerTypes` array; extend `PluginContext` with `fireTrigger()` method |
+| Plugin integration | done | Extend `AetherPlugin` with `triggerTypes` array; extend `PluginContext` with `fireTrigger()` method; `scheduledTasks` on `AetherPluginServer` for recurring plugin crons |
 | Database — Trigger table | done | `Trigger` table tracking each trigger file's metadata and last fired info |
 | Database — Webhook table | done | `Webhook` table for API keys with name, type, key, timestamps |
 | Database — ChatThread type | done | Store trigger runs in `ChatThread` with `type: "trigger"`, `sourceTriggerFile` |
@@ -55,7 +55,7 @@ canonical_file: docs/requirements/triggers.md
 | Event dispatcher | done | Match events to trigger configs by type, JMESPath pattern filter, execute | [Detail](#event-dispatcher) |
 | Trigger executor | done | Event -> prompt assembly -> `executePrompt()` -> store result | [Detail](#trigger-executor) |
 | Webhook system | todo | API key management, HTTP endpoint, management UI | [Detail](#webhook-system) |
-| Plugin trigger types | todo | Extend plugin interface with `triggerTypes` declaration and `fireTrigger()` context method | [Detail](#plugin-trigger-types) |
+| Plugin trigger types | done | `triggerTypes` on `AetherPlugin`, `fireTrigger()` on `PluginContext`, `scheduledTasks` on `AetherPluginServer`, IMAP `new_email` trigger with polling | [Detail](#plugin-trigger-types) |
 | Schema migration | done | `Trigger` + `Webhook` tables, `ChatThread.sourceTriggerFile` | [Detail](#schema-migration) |
 | Trigger management UI | done | List, history, editor, webhook management | [Detail](#trigger-management-ui) |
 | CLI tooling | todo | Seed examples, pull config | Inline |
@@ -426,7 +426,7 @@ src/plugins/
 | 6. Trigger executor | done | Extended `ExecutionContext` type with `"trigger"`, wired to `executePrompt()` with trigger-prompt system prompt |
 | 7. Webhook endpoint | done | API route at `/api/triggers/webhook/$apiKey`, key lookup, JSON validation, fire-and-forget dispatch (dispatcher TODO) |
 | 8. Webhook management | done | Webhook DB model, server functions for CRUD, create/revoke/regenerate keys |
-| 9. Plugin integration | todo | Add `triggerTypes` to `AetherPlugin`, `fireTrigger()` to `PluginContext`, wire to dispatcher |
+| 9. Plugin integration | done | `triggerTypes` on `AetherPlugin`, `fireTrigger()` on `PluginContext`, `scheduledTasks` on `AetherPluginServer`. IMAP plugin: `new_email` trigger type, `enableTriggers` option, 5-min polling cron, `lastTriggerCheckAt` tracking |
 | 10. UI — Trigger list + history | done | `/triggers` list page, `/triggers/$filename` run history, server functions |
 | 11. UI — Trigger editor | done | `/triggers/editor` with `ConfigEditorShell`, frontmatter display + modal, new trigger dialog |
 | 12. UI — Webhook management page | done | `/triggers/webhooks` with table, create/revoke/regenerate dialogs |
@@ -442,4 +442,5 @@ src/plugins/
 - 2026-04-06: Implementation started. Completed: Trigger DB model + schema migration, trigger/trigger-prompt validators, nav integration (Header + CommandPalette), trigger list page, run history page, config editor with frontmatter display/modal, new trigger dialog, server functions for list/history/delete/convert.
 - 2026-04-06: Webhook system implemented. Webhook DB model, API endpoint at `/api/triggers/webhook/$apiKey` (fire-and-forget, JSON-only), webhook management UI at `/triggers/webhooks` with create/revoke/regenerate. Dispatch call stubbed pending trigger watcher/dispatcher implementation.
 - 2026-04-06: Trigger watcher implemented. Singleton with chokidar on `triggers/`, DB sync, in-memory config Map. Wired into `app-runtime.ts` for startup/shutdown. Triggers list page calls `ensureAppRuntimeStarted()` before querying.
+- 2026-04-06: Plugin integration implemented. Added `triggerTypes` to `AetherPlugin`, `fireTrigger()` to `PluginContext` (auto-prefixes with pluginId), `scheduledTasks` to `AetherPluginServer` (registered as cron jobs in system-tasks.ts). IMAP plugin: `new_email` trigger type with instructions, `enableTriggers` option toggle, 5-min polling cron that reads full email content and fires triggers, `lastTriggerCheckAt` timestamp tracking in plugin options. Example trigger for auto-archiving emails with "archive this" in subject.
 - 2026-04-06: Event dispatcher + trigger executor implemented. `fireTrigger()` matches by type, evaluates JMESPath patterns via `@metrichor/jmespath`, spawns fire-and-forget execution. Executor loads `trigger-prompt.md` system prompt (with fallback), substitutes `{{details}}`, calls `executePrompt()`. Extended `ExecutionContext` with `"trigger"` type, `ChatTaskType` with `"trigger"`. Webhook endpoint wired to dispatcher. Watcher uses `globalThis` for HMR survival. End-to-end tested: webhook POST → dispatcher → Haiku execution → ChatThread stored.

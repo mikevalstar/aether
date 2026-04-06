@@ -1,6 +1,7 @@
 import { generateText, stepCountIs } from "ai";
 import { prisma } from "#/db";
 import { createAiTools, getModel } from "#/lib/ai-tools";
+import { getUserPreferences } from "#/lib/preferences.server";
 import {
   type ChatModel,
   DEFAULT_CHAT_EFFORT,
@@ -84,7 +85,8 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     },
   });
 
-  const tools = createAiTools(ctx.model, ctx.userId, threadId, ctx.userTimezone);
+  const prefs = await getUserPreferences(ctx.userId);
+  const tools = createAiTools(ctx.model, ctx.userId, threadId, ctx.userTimezone, prefs);
   const toolNames = Object.keys(tools);
 
   try {
