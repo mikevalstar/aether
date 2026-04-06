@@ -1,7 +1,7 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { CalendarDays, FileSearch, Search, TerminalSquare } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CalendarDays, FileSearch, Pause, Play, Search, TerminalSquare } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { PageHeader } from "#/components/PageHeader";
 import { PaginationControls } from "#/components/PaginationControls";
@@ -48,14 +48,28 @@ export const Route = createFileRoute("/logs")({
   component: LogsPage,
 });
 
+const POLL_INTERVAL_MS = 5000;
+
 function LogsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
+  const router = useRouter();
   const data = Route.useLoaderData() as LogViewerResult;
   const search = Route.useSearch() as z.infer<typeof logsSearchSchema>;
   const activeDay = search.day ?? data.selectedDay;
   const activeLevel = data.filters.level;
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [queryInput, setQueryInput] = useState(data.filters.query);
+  const [autoPoll, setAutoPoll] = useState(true);
+  const [pollCycle, setPollCycle] = useState(0);
+
+  useEffect(() => {
+    if (!autoPoll) return;
+    const id = setInterval(() => {
+      void router.invalidate();
+      setPollCycle((c) => c + 1);
+    }, POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [autoPoll, router]);
   const availableDaySet = new Set(data.availableDays);
   const selectedDate = activeDay ? dayjs(activeDay).toDate() : undefined;
 
@@ -102,9 +116,22 @@ function LogsPage() {
         { color: "var(--coral)", size: "size-[320px]", position: "-left-32 top-80" },
       ]}
       action={
-        <div className="surface-card flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
-          <FileSearch className="size-4 text-[var(--coral)]" />
-          <span>{selectedDayLabel}</span>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setAutoPoll((v) => !v)}
+            className="gap-2"
+            title={autoPoll ? "Pause auto-refresh" : "Resume auto-refresh"}
+          >
+            {autoPoll ? <Pause className="size-4" /> : <Play className="size-4" />}
+            {autoPoll ? "Auto" : "Paused"}
+          </Button>
+          <div className="surface-card flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+            <FileSearch className="size-4 text-[var(--coral)]" />
+            <span>{selectedDayLabel}</span>
+          </div>
         </div>
       }
     >
@@ -241,6 +268,14 @@ function LogsPage() {
           </section>
 
           <section className="surface-card overflow-hidden">
+            <div
+              className="relative w-full overflow-hidden"
+              style={{ height: 3, background: "var(--line)" }}
+              aria-hidden="true"
+              title={autoPoll ? `Refreshing every ${POLL_INTERVAL_MS / 1000}s` : "Auto-refresh paused"}
+            >
+              {autoPoll && <PollShrinkBar key={pollCycle} duration={POLL_INTERVAL_MS} />}
+            </div>
             <div className="flex flex-col gap-2 border-b border-border px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
               <div>
                 Showing {startCount.toLocaleString()}-{endCount.toLocaleString()} of {data.totalMatched.toLocaleString()}{" "}
@@ -340,6 +375,33 @@ function LogsPage() {
         </section>
       )}
     </PageHeader>
+  );
+}
+
+function PollShrinkBar({ duration }: { duration: number }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const anim = el.animate(
+      [
+        { transform: "scaleX(1)" },
+        { transform: "scaleX(0)" },
+      ],
+      { duration, easing: "linear", fill: "forwards" },
+    );
+    return () => anim.cancel();
+  }, [duration]);
+  return (
+    <div
+      ref={ref}
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "var(--teal)",
+        transformOrigin: "center",
+      }}
+    />
   );
 }
 
