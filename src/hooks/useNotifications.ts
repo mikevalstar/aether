@@ -6,6 +6,7 @@ type Notification = {
   title: string;
   body: string | null;
   link: string | null;
+  level: string;
   createdAt: Date;
 };
 

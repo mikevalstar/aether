@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import {
   AlertTriangle,
   Archive,
@@ -136,7 +136,18 @@ function timeAgo(dateStr: string): string {
 
 function NotificationsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
+  const router = useRouter();
   const data = Route.useLoaderData() as NotificationListResult;
+
+  async function handleRowClick(n: NotificationListItem) {
+    if (n.read) return;
+    try {
+      await markNotificationsRead({ data: { ids: [n.id] } });
+      void router.invalidate();
+    } catch {
+      // ignore
+    }
+  }
   const search = Route.useSearch();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -318,7 +329,13 @@ function NotificationsPage() {
           <div className="px-4 py-12 text-center text-sm text-muted-foreground">No notifications found.</div>
         ) : (
           data.items.map((n) => (
-            <NotificationRow key={n.id} notification={n} selected={selected.has(n.id)} onToggle={() => toggleSelect(n.id)} />
+            <NotificationRow
+              key={n.id}
+              notification={n}
+              selected={selected.has(n.id)}
+              onToggle={() => toggleSelect(n.id)}
+              onClick={() => void handleRowClick(n)}
+            />
           ))
         )}
       </div>
@@ -336,10 +353,12 @@ function NotificationRow({
   notification: n,
   selected,
   onToggle,
+  onClick,
 }: {
   notification: NotificationListItem;
   selected: boolean;
   onToggle: () => void;
+  onClick: () => void;
 }) {
   const rowBody = (
     <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -368,11 +387,13 @@ function NotificationRow({
       </div>
 
       {n.link ? (
-        <Link to={n.link} className="no-underline text-inherit flex min-w-0 flex-1">
+        <Link to={n.link} className="no-underline text-inherit flex min-w-0 flex-1" onClick={onClick}>
           {rowBody}
         </Link>
       ) : (
-        rowBody
+        <button type="button" className="flex min-w-0 flex-1 text-left" onClick={onClick}>
+          {rowBody}
+        </button>
       )}
     </div>
   );
