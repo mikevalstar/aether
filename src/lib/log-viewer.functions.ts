@@ -10,9 +10,12 @@ const logViewerInputSchema = z
     day: z.string().trim().optional(),
     query: z.string().trim().optional(),
     level: z.string().trim().optional(),
+    hour: z.coerce.number().int().min(0).max(23).optional(),
     page: z.coerce.number().int().min(1).optional(),
   })
   .strict();
+
+export type HourBucket = { total: number; errors: number };
 
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
 
@@ -34,6 +37,7 @@ export type LogViewerResult = {
   filters: {
     query: string;
     level: "all" | LogLevel;
+    hour: number | null;
   };
   entries: LogViewerEntry[];
   page: number;
@@ -42,6 +46,7 @@ export type LogViewerResult = {
   totalMatched: number;
   totalPages: number;
   matchedLevelCounts: Record<LogLevel, number>;
+  hourlyBuckets: HourBucket[];
 };
 
 const LOG_ROOT = path.resolve(process.cwd(), process.env.LOG_DIR ?? "./logs");
@@ -64,6 +69,7 @@ export const getLogViewerData = createServerFn({ method: "GET" })
     const requestedPage = Math.max(1, data.page ?? 1);
     const requestedLevel = normalizeLevelFilter(data.level);
     const requestedQuery = data.query?.trim() ?? "";
+    const requestedHour = data.hour ?? null;
     const dayFiles = await getDayFiles();
     const availableDays = [...dayFiles.keys()].sort((left, right) => right.localeCompare(left));
     const selectedDay = data.day && dayFiles.has(data.day) ? data.day : availableDays[0];
@@ -75,6 +81,7 @@ export const getLogViewerData = createServerFn({ method: "GET" })
         filters: {
           query: requestedQuery,
           level: requestedLevel,
+          hour: requestedHour,
         },
         entries: [],
         page: 1,
@@ -83,6 +90,7 @@ export const getLogViewerData = createServerFn({ method: "GET" })
         totalMatched: 0,
         totalPages: 0,
         matchedLevelCounts: emptyLevelCounts(),
+        hourlyBuckets: emptyHourlyBuckets(),
       };
     }
 
@@ -91,6 +99,7 @@ export const getLogViewerData = createServerFn({ method: "GET" })
       page: requestedPage,
       query: requestedQuery,
       level: requestedLevel,
+      hour: requestedHour,
     });
 
     return {
@@ -99,6 +108,7 @@ export const getLogViewerData = createServerFn({ method: "GET" })
       filters: {
         query: requestedQuery,
         level: requestedLevel,
+        hour: requestedHour,
       },
       ...result,
     };
@@ -151,14 +161,17 @@ async function readLogDay({
   page,
   query,
   level,
+  hour,
 }: {
   files: string[];
   page: number;
   query: string;
   level: "all" | LogLevel;
+  hour: number | null;
 }) {
   const queryNeedle = query.toLowerCase();
   const matchedLevelCounts = emptyLevelCounts();
+  const hourlyBuckets = emptyHourlyBuckets();
   const matched: LogViewerEntry[] = [];
   let totalEntries = 0;
 
@@ -184,8 +197,21 @@ async function readLogDay({
         continue;
       }
 
+      const entry = createLogViewerEntry(rawRecord, fileName, line, logLevel);
+      const entryHour = new Date(entry.timestamp).getHours();
+      if (entryHour >= 0 && entryHour < 24) {
+        hourlyBuckets[entryHour].total += 1;
+        if (logLevel === "error" || logLevel === "fatal") {
+          hourlyBuckets[entryHour].errors += 1;
+        }
+      }
+
+      if (hour !== null && entryHour !== hour) {
+        continue;
+      }
+
       matchedLevelCounts[logLevel] += 1;
-      matched.push(createLogViewerEntry(rawRecord, fileName, line, logLevel));
+      matched.push(entry);
     }
   }
 
@@ -203,7 +229,12 @@ async function readLogDay({
     totalMatched,
     totalPages: totalMatched === 0 ? 0 : Math.ceil(totalMatched / PAGE_SIZE),
     matchedLevelCounts,
+    hourlyBuckets,
   };
+}
+
+function emptyHourlyBuckets(): HourBucket[] {
+  return Array.from({ length: 24 }, () => ({ total: 0, errors: 0 }));
 }
 
 function createLogViewerEntry(

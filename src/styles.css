@@ -443,3 +443,24 @@ a {
 :where(.aui-md[data-status="running"]) {
   --aui-content: "\25A0";
 }
+
+/* Logs viewer row accents */
+.log-row-error > td:first-child {
+  box-shadow: inset 2px 0 0 var(--destructive);
+}
+.log-row-fresh {
+  animation: log-row-fresh-fade 3s ease-out forwards;
+}
+@keyframes log-row-fresh-fade {
+  0% {
+    background-color: color-mix(in oklch, var(--teal) 18%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .log-row-fresh {
+    animation: none;
+  }
+}

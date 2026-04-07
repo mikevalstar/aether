@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { CalendarDays, Pause, Play, Search, TerminalSquare } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { CalendarDays, Check, Copy, Pause, Play, Search, TerminalSquare, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { PageHeader } from "#/components/PageHeader";
 import { PaginationControls } from "#/components/PaginationControls";
@@ -20,6 +20,7 @@ const logsSearchSchema = z.object({
   day: z.string().optional(),
   query: z.string().optional(),
   level: z.string().optional(),
+  hour: z.coerce.number().int().min(0).max(23).optional(),
   page: z.coerce.number().optional(),
 });
 
@@ -57,11 +58,29 @@ function LogsPage() {
   const search = Route.useSearch() as z.infer<typeof logsSearchSchema>;
   const activeDay = search.day ?? data.selectedDay;
   const activeLevel = data.filters.level;
+  const activeHour = data.filters.hour;
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [queryInput, setQueryInput] = useState(data.filters.query);
   const [autoPoll, setAutoPoll] = useState(true);
   const [pollCycle, setPollCycle] = useState(0);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
+  const seenIdsRef = useRef<Set<string> | null>(null);
+  const isFirstLoadRef = useRef(true);
+
+  // Track which entry IDs are new since the previous render so we can highlight them.
+  const freshIds = useMemo(() => {
+    const currentIds = new Set(data.entries.map((entry) => entry.id));
+    const previous = seenIdsRef.current;
+    const fresh = new Set<string>();
+    if (previous && !isFirstLoadRef.current) {
+      for (const id of currentIds) {
+        if (!previous.has(id)) fresh.add(id);
+      }
+    }
+    seenIdsRef.current = currentIds;
+    isFirstLoadRef.current = false;
+    return fresh;
+  }, [data.entries]);
 
   useEffect(() => {
     if (!autoPoll) return;
@@ -78,12 +97,14 @@ function LogsPage() {
     setQueryInput(data.filters.query);
   }, [data.filters.query]);
 
-  function updateSearch(next: { day?: string; query?: string; level?: string; page?: number }) {
+  function updateSearch(next: { day?: string; query?: string; level?: string; hour?: number | null; page?: number }) {
+    const nextHour = next.hour === undefined ? activeHour : next.hour;
     void navigate({
       search: {
         day: next.day,
         query: next.query?.trim() ? next.query.trim() : undefined,
         level: next.level && next.level !== "all" ? next.level : undefined,
+        hour: nextHour === null || nextHour === undefined ? undefined : nextHour,
         page: next.page && next.page > 1 ? next.page : undefined,
       },
       replace: true,
@@ -118,7 +139,7 @@ function LogsPage() {
           variant="outline"
           size="sm"
           onClick={() => setAutoPoll((v) => !v)}
-          className="w-[110px] gap-2"
+          className="min-w-[130px] gap-2 px-3"
           title={autoPoll ? "Pause auto-refresh" : "Resume auto-refresh"}
         >
           {autoPoll ? <Pause className="size-4" /> : <Play className="size-4" />}
@@ -167,6 +188,7 @@ function LogsPage() {
                       day: nextDay,
                       query: data.filters.query,
                       level: activeLevel,
+                      hour: null,
                       page: 1,
                     });
                   }}
@@ -248,7 +270,12 @@ function LogsPage() {
 
       {hasLogs ? (
         <>
-          <section className="surface-card mt-6 overflow-hidden">
+          <HourSparkline
+            buckets={data.hourlyBuckets}
+            activeHour={activeHour}
+            onSelectHour={(hour) => updateSearch({ day: activeDay, hour, page: 1 })}
+          />
+          <section className="surface-card mt-3 overflow-hidden">
             <div
               className="relative w-full overflow-hidden"
               style={{ height: 3, background: "var(--line)" }}
@@ -279,9 +306,7 @@ function LogsPage() {
                       }
                       title={isActive ? `Clear ${option.label} filter` : `Filter by ${option.label}`}
                       className={`inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-normal transition-colors ${
-                        isActive
-                          ? "border-foreground/40 bg-muted text-foreground"
-                          : "border-border hover:bg-muted/60"
+                        isActive ? "border-foreground/40 bg-muted text-foreground" : "border-border hover:bg-muted/60"
                       }`}
                     >
                       <span className={levelDotClass(option.value)} />
@@ -304,6 +329,8 @@ function LogsPage() {
                 <TableBody>
                   {data.entries.map((entry) => {
                     const isExpanded = expandedIds.has(entry.id);
+                    const isError = entry.level === "error" || entry.level === "fatal";
+                    const isFresh = freshIds.has(entry.id);
                     return (
                       <TableRow
                         key={entry.id}
@@ -318,7 +345,9 @@ function LogsPage() {
                             return next;
                           })
                         }
-                        className="cursor-pointer"
+                        className={`log-row cursor-pointer ${isError ? "log-row-error" : ""} ${
+                          isFresh ? "log-row-fresh" : ""
+                        }`}
                       >
                         <TableCell className="align-top text-xs text-muted-foreground">
                           <div className="font-medium text-foreground">{formatLogTime(entry.timestamp)}</div>
@@ -347,14 +376,7 @@ function LogsPage() {
                             </div>
                           )}
                           {entry.errorMessage && <p className="mt-2 text-sm text-destructive">{entry.errorMessage}</p>}
-                          {isExpanded && (
-                            <pre
-                              onClick={(e) => e.stopPropagation()}
-                              className="mt-3 max-h-72 cursor-text overflow-auto rounded-md border border-border bg-background/80 p-3 text-xs leading-5 text-muted-foreground"
-                            >
-                              {entry.detailsJson}
-                            </pre>
-                          )}
+                          {isExpanded && <JsonBlock json={entry.detailsJson} />}
                         </TableCell>
                       </TableRow>
                     );
@@ -393,6 +415,107 @@ function LogsPage() {
         </section>
       )}
     </PageHeader>
+  );
+}
+
+function HourSparkline({
+  buckets,
+  activeHour,
+  onSelectHour,
+}: {
+  buckets: import("#/lib/log-viewer.functions").HourBucket[];
+  activeHour: number | null;
+  onSelectHour: (hour: number | null) => void;
+}) {
+  const max = Math.max(1, ...buckets.map((b) => b.total));
+  const indexed = buckets.map((b, i) => ({ ...b, hour: i }));
+  return (
+    <section className="surface-card mt-6 px-4 py-3">
+      <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+        <span className="font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Volume by hour</span>
+        {activeHour !== null && (
+          <button
+            type="button"
+            onClick={() => onSelectHour(null)}
+            className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs hover:bg-muted/60"
+          >
+            <X className="size-3" />
+            Filter: {String(activeHour).padStart(2, "0")}:00
+          </button>
+        )}
+      </div>
+      <div className="flex h-12 items-end gap-[2px]">
+        {indexed.map((bucket) => {
+          const hour = bucket.hour;
+          const isActive = activeHour === hour;
+          const isDimmed = activeHour !== null && !isActive;
+          const heightPct = bucket.total === 0 ? 0 : Math.max(6, (bucket.total / max) * 100);
+          const hasErrors = bucket.errors > 0;
+          const label = `${String(hour).padStart(2, "0")}:00 · ${bucket.total.toLocaleString()} ${bucket.total === 1 ? "entry" : "entries"}${bucket.errors > 0 ? ` · ${bucket.errors} error${bucket.errors === 1 ? "" : "s"}` : ""}`;
+          return (
+            <button
+              key={hour}
+              type="button"
+              title={label}
+              aria-label={label}
+              onClick={() => onSelectHour(isActive ? null : hour)}
+              className="group relative flex h-full flex-1 flex-col justify-end"
+            >
+              <div
+                className="w-full rounded-sm transition-all duration-150 group-hover:brightness-110"
+                style={{
+                  height: `${heightPct}%`,
+                  background: hasErrors ? "var(--destructive)" : "var(--teal)",
+                  opacity: bucket.total === 0 ? 0.18 : isDimmed ? 0.3 : isActive ? 1 : 0.75,
+                  outline: isActive ? "1px solid var(--foreground)" : undefined,
+                  outlineOffset: 1,
+                }}
+              />
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+        <span>00</span>
+        <span>06</span>
+        <span>12</span>
+        <span>18</span>
+        <span>23</span>
+      </div>
+    </section>
+  );
+}
+
+function JsonBlock({ json }: { json: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="relative mt-3">
+      <button
+        type="button"
+        onClick={async (e) => {
+          e.stopPropagation();
+          try {
+            await navigator.clipboard.writeText(json);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1500);
+          } catch {
+            // ignore
+          }
+        }}
+        title="Copy JSON"
+        className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-border bg-background/90 px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+      >
+        {copied ? <Check className="size-3 text-[var(--teal)]" /> : <Copy className="size-3" />}
+        {copied ? "Copied" : "Copy"}
+      </button>
+      <pre
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        className="max-h-72 cursor-text overflow-auto rounded-md border border-border bg-background/80 p-3 pr-16 text-xs leading-5 text-muted-foreground"
+      >
+        {json}
+      </pre>
+    </div>
   );
 }
 
