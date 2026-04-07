@@ -146,13 +146,23 @@ export async function getHistory(opts: RadarrOptions, limit: number) {
   const client = createClient(opts);
   const result = await client.getHistory(1, limit, "date", "descending");
   const history = unwrap(result);
-  return (history?.records ?? []).map((h) => ({
-    movieTitle: h.movie?.title,
-    movieId: h.movieId,
-    quality: h.quality?.quality?.name,
-    eventType: h.eventType,
-    date: h.date,
-  }));
+  const records = history?.records ?? [];
+
+  // tsarr's getHistory doesn't populate the embedded movie object — join via listMovies().
+  const movies = await listMovies(opts);
+  const movieById = new Map(movies.map((m) => [m.id, { title: m.title, year: m.year }]));
+
+  return records.map((h) => {
+    const m = h.movieId != null ? movieById.get(h.movieId) : undefined;
+    return {
+      movieId: h.movieId,
+      movieTitle: h.movie?.title ?? m?.title,
+      year: m?.year,
+      quality: h.quality?.quality?.name,
+      eventType: h.eventType,
+      date: h.date,
+    };
+  });
 }
 
 // ─── Wanted / Missing ───

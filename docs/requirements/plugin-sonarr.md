@@ -2,7 +2,7 @@
 title: Plugin — Sonarr
 status: done
 owner: Mike
-last_updated: 2026-04-04
+last_updated: 2026-04-07
 canonical_file: docs/requirements/plugin-sonarr.md
 ---
 
@@ -11,14 +11,14 @@ canonical_file: docs/requirements/plugin-sonarr.md
 ## Purpose
 
 - Problem: No way to check on TV show downloads, upcoming episodes, or manage the Sonarr library without opening the Sonarr web UI separately.
-- Outcome: A Sonarr plugin that gives the AI chat full read access to the Sonarr library — series, episodes, calendar, queue, history, and wanted list — plus the ability to trigger searches and manage series. No dashboard widget or dedicated pages; AI-only integration with plugin settings.
+- Outcome: A Sonarr plugin that gives the AI chat full read access to the Sonarr library — series, episodes, calendar, queue, history, and wanted list — plus the ability to trigger searches and manage series. Phase 2 adds dashboard widgets for upcoming and recent episodes.
 - Notes: Phase 1 of a broader *arr stack integration. Future phases will add Radarr, Lidarr, Readarr, and Prowlarr as sibling plugins sharing the same `tsarr` dependency. Plugin ID uses `sonarr` (not `arr_sonarr`) to keep tool names short; sibling plugins will use `radarr`, `lidarr`, etc.
 
 ## Current Reality
 
 - Current behavior: Sonarr plugin is fully implemented with 11 AI tools (list_series, get_series, list_episodes, delete_episode_file, upcoming, queue, history, wanted, search_new, add_series, search_episodes). Uses `tsarr` SDK for Sonarr API access.
 - Constraints: Sonarr runs as a separate service (local or remote) with its own API. Requires API key and base URL. All access is via REST API — no webhooks or push from Sonarr into Aether in this phase.
-- Non-goals: Dashboard widgets, dedicated pages/routes, Sonarr webhook receiver, direct torrent/NZB client management, quality profile editing, indexer configuration.
+- Non-goals (Phase 1): Dedicated pages/routes, Sonarr webhook receiver, direct torrent/NZB client management, quality profile editing, indexer configuration. (Dashboard widgets added in Phase 2.)
 
 ## Dependency
 
@@ -34,6 +34,7 @@ canonical_file: docs/requirements/plugin-sonarr.md
 | AI tools | done | Tools for querying and managing series, episodes, calendar, queue, history, wanted |
 | System prompt | done | AI instructions for when and how to use Sonarr tools |
 | Health check | done | Validate API key and connectivity via Sonarr system/status endpoint |
+| Dashboard widgets | done | Phase 2 — Upcoming (next 7 days) and Recent (last 10 history events) widgets |
 
 ## Sub-features
 
@@ -222,7 +223,7 @@ src/plugins/sonarr/
   index.server.ts     # Full AetherPlugin export (includes server definition)
   meta.ts             # PluginMeta, optionFields, activityTypes
   server.ts           # AetherPluginServer (tools, systemPrompt, health)
-  client.tsx          # AetherPluginClient (commands only — no widgets)
+  client.tsx          # AetherPluginClient (commands + dashboard widgets)
   lib/
     sonarr-client.ts  # tsarr wrapper with typed helpers
 ```
@@ -232,9 +233,18 @@ src/plugins/sonarr/
 - **Quality profile selection on add**: Should `sonarr_add_series` accept a quality profile name (user-friendly) or ID? Could add a `sonarr_list_profiles` tool to let the AI discover available profiles, but that adds complexity. Starting with "use default" and an optional ID override.
 - **Root folder selection on add**: Sonarr can have multiple root folders. Same question — default to the first/primary root folder and add a tool for listing root folders later if needed.
 
+## Phase 2 — Dashboard Widgets
+
+Two half-width widgets contributed via `AetherPluginClient.widgets`:
+
+- **Sonarr — Upcoming**: Next 7 days from `getCalendar()`. Shows series title, `SxxExx` code, episode title, and air date. Limited to 10 entries.
+- **Sonarr — Recent**: Last 10 history events from `getHistory()`. Shows series title, episode code, event type (grabbed/imported/etc.), and relative timestamp.
+
+Data is loaded server-side via `loadWidgetData(ctx)` in `server.ts` — returns `{ configured, upcoming, recent, error? }`. Both widgets read from the same per-plugin `data` object and gracefully render "not configured" / error states.
+
 ## Future Phases
 
-- **Phase 2 — Radarr**: Same pattern, `src/plugins/radarr/`, `tsarr` Radarr client. Movies instead of series.
+- **Radarr** (Phase 1.5, complete): Same plugin pattern, `src/plugins/radarr/`, `tsarr` Radarr client.
 - **Phase 3 — Lidarr/Readarr**: Music and books. Lower priority.
 - **Phase 4 — Prowlarr**: Indexer management. Likely useful as a shared service that other *arr plugins reference.
 - **Cross-plugin features**: Unified "media" AI tools that span multiple *arr services (e.g., "what's downloading?" checks all queues).
@@ -245,3 +255,4 @@ src/plugins/sonarr/
 
 - 2026-04-04: Initial requirements drafted. Phase 1 scoped to Sonarr only with 9 AI tools, settings, health check, no dashboard/pages.
 - 2026-04-06: Updated status to "done". All 11 AI tools implemented (list_series, get_series, list_episodes, delete_episode_file, upcoming, queue, history, wanted, search_new, add_series, search_episodes). Includes JMESPath filtering on list tools as bonus feature.
+- 2026-04-07: Phase 2 — added two dashboard widgets (Sonarr — Upcoming, Sonarr — Recent) backed by `loadWidgetData()` in `server.ts`.

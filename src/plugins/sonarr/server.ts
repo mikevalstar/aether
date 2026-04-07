@@ -374,6 +374,36 @@ List tools (list_series, upcoming, queue, history, wanted, search_new) support a
     };
   },
 
+  async loadWidgetData(ctx) {
+    logger.debug({ userId: ctx.userId }, "Sonarr: loading widget data");
+    const opts = await ctx.getOptions<Partial<SonarrOptions>>();
+    if (!opts.base_url || !opts.api_key) {
+      return { configured: false, upcoming: [], recent: [] };
+    }
+    const sonarrOpts: SonarrOptions = { base_url: opts.base_url, api_key: opts.api_key };
+    try {
+      const [upcoming, recent] = await Promise.all([getUpcoming(sonarrOpts, 7), getHistory(sonarrOpts, 50)]);
+      // Dedupe by episodeId, keeping the most recent event (records arrive newest-first).
+      const seen = new Set<string>();
+      const recentDeduped: typeof recent = [];
+      for (const h of recent) {
+        const key = `${h.seriesId ?? ""}-${h.episodeId ?? `${h.seasonNumber}-${h.episodeNumber}`}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        recentDeduped.push(h);
+      }
+      return { configured: true, upcoming, recent: recentDeduped };
+    } catch (err) {
+      logger.error({ err, userId: ctx.userId }, "Sonarr: widget data load failed");
+      return {
+        configured: true,
+        error: err instanceof Error ? err.message : "Failed to load Sonarr data",
+        upcoming: [],
+        recent: [],
+      };
+    }
+  },
+
   async checkHealth(ctx) {
     logger.debug({ userId: ctx.userId }, "Sonarr: health check");
     const opts = await ctx.getOptions<Partial<SonarrOptions>>();
