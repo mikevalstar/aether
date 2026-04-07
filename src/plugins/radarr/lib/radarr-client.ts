@@ -90,23 +90,11 @@ export async function findMovieByTitle(opts: RadarrOptions, query: string) {
   return allMovies.filter((m) => m.title?.toLowerCase().includes(lower));
 }
 
-// ─── Movie File Deletion (direct API — not in tsarr high-level client) ───
-
-async function radarrFetch(opts: RadarrOptions, path: string, init?: RequestInit) {
-  const url = `${opts.base_url.replace(/\/+$/, "")}${path}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: { "X-Api-Key": opts.api_key, ...init?.headers },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`Radarr API ${res.status}: ${body || res.statusText}`);
-  }
-  return res;
-}
+// ─── Movie File Deletion ───
 
 export async function deleteMovieFile(opts: RadarrOptions, movieFileId: number) {
-  await radarrFetch(opts, `/api/v3/moviefile/${movieFileId}`, { method: "DELETE" });
+  const client = createClient(opts);
+  unwrap(await client.deleteMovieFile(movieFileId));
   return { deleted: true, movieFileId };
 }
 

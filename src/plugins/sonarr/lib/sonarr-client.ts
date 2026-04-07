@@ -109,23 +109,11 @@ export async function listEpisodes(opts: SonarrOptions, seriesId: number, season
   }));
 }
 
-// ─── Episode File Deletion (direct API — not in tsarr high-level client) ───
-
-async function sonarrFetch(opts: SonarrOptions, path: string, init?: RequestInit) {
-  const url = `${opts.base_url.replace(/\/+$/, "")}${path}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: { "X-Api-Key": opts.api_key, ...init?.headers },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`Sonarr API ${res.status}: ${body || res.statusText}`);
-  }
-  return res;
-}
+// ─── Episode File Deletion ───
 
 export async function deleteEpisodeFile(opts: SonarrOptions, episodeFileId: number) {
-  await sonarrFetch(opts, `/api/v3/episodefile/${episodeFileId}`, { method: "DELETE" });
+  const client = createClient(opts);
+  unwrap(await client.deleteEpisodeFile(episodeFileId));
   return { deleted: true, episodeFileId };
 }
 
