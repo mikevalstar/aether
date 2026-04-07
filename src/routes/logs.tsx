@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { CalendarDays, FileSearch, Pause, Play, Search, TerminalSquare } from "lucide-react";
+import { CalendarDays, Pause, Play, Search, TerminalSquare } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { PageHeader } from "#/components/PageHeader";
@@ -61,6 +61,7 @@ function LogsPage() {
   const [queryInput, setQueryInput] = useState(data.filters.query);
   const [autoPoll, setAutoPoll] = useState(true);
   const [pollCycle, setPollCycle] = useState(0);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     if (!autoPoll) return;
@@ -110,29 +111,19 @@ function LogsPage() {
       label="Logs"
       title="Daily log"
       highlight="viewer"
-      description="Pick a single day, then search and filter structured Pino logs without loading the whole log history at once."
-      glows={[
-        { color: "var(--teal)", size: "size-[520px]", position: "-right-48 -top-48" },
-        { color: "var(--coral)", size: "size-[320px]", position: "-left-32 top-80" },
-      ]}
+      glows={false}
       action={
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAutoPoll((v) => !v)}
-            className="gap-2"
-            title={autoPoll ? "Pause auto-refresh" : "Resume auto-refresh"}
-          >
-            {autoPoll ? <Pause className="size-4" /> : <Play className="size-4" />}
-            {autoPoll ? "Auto" : "Paused"}
-          </Button>
-          <div className="surface-card flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
-            <FileSearch className="size-4 text-[var(--coral)]" />
-            <span>{selectedDayLabel}</span>
-          </div>
-        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setAutoPoll((v) => !v)}
+          className="w-[110px] gap-2"
+          title={autoPoll ? "Pause auto-refresh" : "Resume auto-refresh"}
+        >
+          {autoPoll ? <Pause className="size-4" /> : <Play className="size-4" />}
+          {autoPoll ? "Auto-refresh" : "Paused"}
+        </Button>
       }
     >
       <section className="surface-card mb-6 p-4 sm:p-5">
@@ -257,17 +248,7 @@ function LogsPage() {
 
       {hasLogs ? (
         <>
-          <section className="mb-6 grid gap-3 sm:grid-cols-3">
-            <LogStatCard label="Entries in day" value={data.totalEntries.toLocaleString()} accent="var(--teal)" />
-            <LogStatCard label="Matched filters" value={data.totalMatched.toLocaleString()} accent="var(--coral)" />
-            <LogStatCard
-              label="Errors + fatals"
-              value={(data.matchedLevelCounts.error + data.matchedLevelCounts.fatal).toLocaleString()}
-              accent="var(--destructive)"
-            />
-          </section>
-
-          <section className="surface-card overflow-hidden">
+          <section className="surface-card mt-6 overflow-hidden">
             <div
               className="relative w-full overflow-hidden"
               style={{ height: 3, background: "var(--line)" }}
@@ -282,12 +263,32 @@ function LogsPage() {
                 matched entries.
               </div>
               <div className="flex flex-wrap gap-2">
-                {LEVEL_OPTIONS.filter(isSpecificLevelOption).map((option) => (
-                  <Badge key={option.value} variant="outline" className="gap-2 rounded-md px-2 py-1 font-normal">
-                    <span className={levelDotClass(option.value)} />
-                    {option.label} {data.matchedLevelCounts[option.value].toLocaleString()}
-                  </Badge>
-                ))}
+                {LEVEL_OPTIONS.filter(isSpecificLevelOption).map((option) => {
+                  const isActive = activeLevel === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() =>
+                        updateSearch({
+                          day: activeDay,
+                          query: data.filters.query,
+                          level: isActive ? "all" : option.value,
+                          page: 1,
+                        })
+                      }
+                      title={isActive ? `Clear ${option.label} filter` : `Filter by ${option.label}`}
+                      className={`inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-normal transition-colors ${
+                        isActive
+                          ? "border-foreground/40 bg-muted text-foreground"
+                          : "border-border hover:bg-muted/60"
+                      }`}
+                    >
+                      <span className={levelDotClass(option.value)} />
+                      {option.label} {data.matchedLevelCounts[option.value].toLocaleString()}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -301,46 +302,63 @@ function LogsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.entries.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell className="align-top text-xs text-muted-foreground">
-                        <div className="font-medium text-foreground">{formatLogTime(entry.timestamp)}</div>
-                        <div>
-                          {entry.sourceFile}:{entry.line}
-                        </div>
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <Badge variant="outline" className={levelBadgeClass(entry.level)}>
-                          <span className={levelDotClass(entry.level)} />
-                          {entry.level}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-0 align-top whitespace-normal">
-                        <div className="font-medium text-foreground">{entry.message}</div>
-                        {entry.contextItems.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                            {entry.contextItems.map((item) => (
-                              <span
-                                key={`${entry.id}:${item.key}`}
-                                className="rounded-md border border-border bg-muted/40 px-2 py-1"
-                              >
-                                <span className="font-medium text-foreground">{item.key}</span>: {item.value}
-                              </span>
-                            ))}
+                  {data.entries.map((entry) => {
+                    const isExpanded = expandedIds.has(entry.id);
+                    return (
+                      <TableRow
+                        key={entry.id}
+                        onClick={() =>
+                          setExpandedIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(entry.id)) {
+                              next.delete(entry.id);
+                            } else {
+                              next.add(entry.id);
+                            }
+                            return next;
+                          })
+                        }
+                        className="cursor-pointer"
+                      >
+                        <TableCell className="align-top text-xs text-muted-foreground">
+                          <div className="font-medium text-foreground">{formatLogTime(entry.timestamp)}</div>
+                          <div>
+                            {entry.sourceFile}:{entry.line}
                           </div>
-                        )}
-                        {entry.errorMessage && <p className="mt-2 text-sm text-destructive">{entry.errorMessage}</p>}
-                        <details className="mt-3 rounded-lg border border-border bg-muted/25 p-3">
-                          <summary className="cursor-pointer text-sm font-medium text-foreground">
-                            View structured JSON
-                          </summary>
-                          <pre className="mt-3 max-h-72 overflow-auto rounded-md bg-background/80 p-3 text-xs leading-5 text-muted-foreground">
-                            {entry.detailsJson}
-                          </pre>
-                        </details>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell className="align-top">
+                          <Badge variant="outline" className={levelBadgeClass(entry.level)}>
+                            <span className={levelDotClass(entry.level)} />
+                            {entry.level}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="max-w-0 align-top whitespace-normal">
+                          <div className="font-medium text-foreground">{entry.message}</div>
+                          {entry.contextItems.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                              {entry.contextItems.map((item) => (
+                                <span
+                                  key={`${entry.id}:${item.key}`}
+                                  className="rounded-md border border-border bg-muted/40 px-2 py-1"
+                                >
+                                  <span className="font-medium text-foreground">{item.key}</span>: {item.value}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {entry.errorMessage && <p className="mt-2 text-sm text-destructive">{entry.errorMessage}</p>}
+                          {isExpanded && (
+                            <pre
+                              onClick={(e) => e.stopPropagation()}
+                              className="mt-3 max-h-72 cursor-text overflow-auto rounded-md border border-border bg-background/80 p-3 text-xs leading-5 text-muted-foreground"
+                            >
+                              {entry.detailsJson}
+                            </pre>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             ) : (
@@ -400,17 +418,6 @@ function PollShrinkBar({ duration }: { duration: number }) {
         transformOrigin: "center",
       }}
     />
-  );
-}
-
-function LogStatCard({ label, value, accent }: { label: string; value: string; accent: string }) {
-  return (
-    <div className="surface-card px-4 py-4">
-      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: accent }}>
-        {value}
-      </div>
-    </div>
   );
 }
 

@@ -1,6 +1,6 @@
 ---
 title: Triggers
-status: draft
+status: done
 owner: Mike
 last_updated: 2026-04-06
 canonical_file: docs/requirements/triggers.md
