@@ -165,15 +165,44 @@ export async function getHistory(opts: SonarrOptions, limit: number) {
   const client = createClient(opts);
   const result = await client.getHistory(1, limit, "date", "descending");
   const history = unwrap(result);
-  return (history?.records ?? []).map((h) => ({
-    seriesTitle: h.series?.title,
-    episodeTitle: h.episode?.title,
-    seasonNumber: h.episode?.seasonNumber,
-    episodeNumber: h.episode?.episodeNumber,
-    quality: h.quality?.quality?.name,
-    eventType: h.eventType,
-    date: h.date,
-  }));
+  const records = history?.records ?? [];
+
+  // tsarr's getHistory doesn't populate embedded series/episode objects, so we enrich by joining:
+  // - series titles via a single listSeries() call
+  // - episode info via getEpisodes() per unique seriesId in the history
+  const seriesIds = Array.from(new Set(records.map((r) => r.seriesId).filter((id): id is number => id != null)));
+  const [series, ...episodeLists] = await Promise.all([
+    listSeries(opts),
+    ...seriesIds.map(async (sid) => {
+      try {
+        return [sid, await listEpisodes(opts, sid)] as const;
+      } catch {
+        return [sid, []] as const;
+      }
+    }),
+  ]);
+  const seriesById = new Map(series.map((s) => [s.id, s.title]));
+  const episodesBySeries = new Map(
+    episodeLists.map(([sid, eps]) => [
+      sid,
+      new Map(eps.map((e) => [e.id, { season: e.seasonNumber, episode: e.episodeNumber, title: e.title }])),
+    ]),
+  );
+
+  return records.map((h) => {
+    const ep = h.seriesId != null && h.episodeId != null ? episodesBySeries.get(h.seriesId)?.get(h.episodeId) : undefined;
+    return {
+      seriesId: h.seriesId,
+      episodeId: h.episodeId,
+      seriesTitle: h.series?.title ?? (h.seriesId != null ? seriesById.get(h.seriesId) : undefined),
+      episodeTitle: h.episode?.title ?? ep?.title,
+      seasonNumber: h.episode?.seasonNumber ?? ep?.season,
+      episodeNumber: h.episode?.episodeNumber ?? ep?.episode,
+      quality: h.quality?.quality?.name,
+      eventType: h.eventType,
+      date: h.date,
+    };
+  });
 }
 
 // ─── Wanted / Missing ───

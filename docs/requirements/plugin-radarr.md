@@ -2,7 +2,7 @@
 title: Plugin — Radarr
 status: done
 owner: Mike
-last_updated: 2026-04-06
+last_updated: 2026-04-07
 canonical_file: docs/requirements/plugin-radarr.md
 ---
 
@@ -11,14 +11,14 @@ canonical_file: docs/requirements/plugin-radarr.md
 ## Purpose
 
 - Problem: No way to check on movie downloads, upcoming releases, or manage the Radarr library without opening the Radarr web UI separately.
-- Outcome: A Radarr plugin that gives the AI chat full read access to the movie library — movies, calendar, queue, history, and wanted list — plus the ability to trigger searches, add movies, and delete/re-download files. No dashboard widget or dedicated pages; AI-only integration with plugin settings.
+- Outcome: A Radarr plugin that gives the AI chat full read access to the movie library — movies, calendar, queue, history, and wanted list — plus the ability to trigger searches, add movies, and delete/re-download files. Phase 2 adds dashboard widgets for upcoming and recent movies.
 - Notes: Phase 2 of the *arr stack integration (after Sonarr). Shares the same `tsarr` dependency. Plugin ID is `radarr`.
 
 ## Current Reality
 
 - Current behavior: Sonarr plugin exists for TV shows. No movie management integration.
 - Constraints: Radarr runs as a separate service with its own API. Requires API key and base URL. All access via REST API.
-- Non-goals: Dashboard widgets, dedicated pages/routes, Radarr webhook receiver, quality profile editing, indexer configuration.
+- Non-goals (Phase 1): Dedicated pages/routes, Radarr webhook receiver, quality profile editing, indexer configuration. (Dashboard widgets added in Phase 2.)
 
 ## Dependency
 
@@ -34,6 +34,7 @@ canonical_file: docs/requirements/plugin-radarr.md
 | AI tools | done | 10 tools for querying and managing movies, calendar, queue, history, wanted |
 | System prompt | done | AI instructions for when and how to use Radarr tools |
 | Health check | done | Validate API key and connectivity via Radarr system/status endpoint |
+| Dashboard widgets | done | Phase 2 — Upcoming (next 30 days) and Recent (last 10 history events) widgets |
 
 ## Sub-features
 
@@ -94,7 +95,7 @@ src/plugins/radarr/
   index.server.ts     # Full AetherPlugin export with server
   meta.ts             # PluginMeta, optionFields, activityTypes
   server.ts           # AetherPluginServer (tools, systemPrompt, health)
-  client.tsx          # AetherPluginClient (commands only)
+  client.tsx          # AetherPluginClient (commands + dashboard widgets)
   lib/
     radarr-client.ts  # tsarr wrapper with typed helpers
 ```
@@ -103,9 +104,18 @@ src/plugins/radarr/
 
 None — follows established patterns from Sonarr plugin.
 
+## Phase 2 — Dashboard Widgets
+
+Two half-width widgets contributed via `AetherPluginClient.widgets`:
+
+- **Radarr — Upcoming**: Next 30 days from `getCalendar()`. Shows movie title, year, and the soonest of cinema/digital/physical release dates. Limited to 10 entries.
+- **Radarr — Recent**: Last 10 history events from `getHistory()`. Shows movie title, event type, and relative timestamp.
+
+Data is loaded server-side via `loadWidgetData(ctx)` in `server.ts` — returns `{ configured, upcoming, recent, error? }`. Both widgets read from the same per-plugin `data` object and gracefully render "not configured" / error states.
+
 ## Future
 
-- Dashboard widget showing combined *arr queue/upcoming (when 2+ *arr plugins exist)
+- Combined cross-plugin "media" widget spanning Sonarr + Radarr queues/upcoming
 - Webhook receiver for Radarr events
 - Cross-plugin "media" tools spanning Sonarr + Radarr
 
@@ -113,3 +123,4 @@ None — follows established patterns from Sonarr plugin.
 
 - 2026-04-04: Initial requirements. 10 AI tools with JMESPath filtering, settings, health check.
 - 2026-04-06: Marked complete — all requirements fully implemented.
+- 2026-04-07: Phase 2 — added two dashboard widgets (Radarr — Upcoming, Radarr — Recent) backed by `loadWidgetData()` in `server.ts`.

@@ -325,6 +325,35 @@ List tools (list_movies, upcoming, queue, history, wanted, search_new) support a
     };
   },
 
+  async loadWidgetData(ctx) {
+    logger.debug({ userId: ctx.userId }, "Radarr: loading widget data");
+    const opts = await ctx.getOptions<Partial<RadarrOptions>>();
+    if (!opts.base_url || !opts.api_key) {
+      return { configured: false, upcoming: [], recent: [] };
+    }
+    const radarrOpts: RadarrOptions = { base_url: opts.base_url, api_key: opts.api_key };
+    try {
+      const [upcoming, recent] = await Promise.all([getUpcoming(radarrOpts, 30), getHistory(radarrOpts, 50)]);
+      // Dedupe history: one entry per movie, keeping the most recent event.
+      const seen = new Set<number>();
+      const recentDeduped: typeof recent = [];
+      for (const h of recent) {
+        if (h.movieId == null || seen.has(h.movieId)) continue;
+        seen.add(h.movieId);
+        recentDeduped.push(h);
+      }
+      return { configured: true, upcoming, recent: recentDeduped };
+    } catch (err) {
+      logger.error({ err, userId: ctx.userId }, "Radarr: widget data load failed");
+      return {
+        configured: true,
+        error: err instanceof Error ? err.message : "Failed to load Radarr data",
+        upcoming: [],
+        recent: [],
+      };
+    }
+  },
+
   async checkHealth(ctx) {
     logger.debug({ userId: ctx.userId }, "Radarr: health check");
     const opts = await ctx.getOptions<Partial<RadarrOptions>>();
