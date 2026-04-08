@@ -89,6 +89,20 @@ export const CHAT_MODELS = [
     },
   },
   {
+    id: "z-ai/glm-5.1",
+    label: "GLM-5.1",
+    description: "Complex systems engineering",
+    supportsWebTools: true,
+    supportsEffort: false,
+    supportsCodeExecution: false,
+    webToolVersion: "none" as const,
+    provider: "openrouter" as const,
+    pricing: {
+      inputCostPerMillionTokensUsd: 1.26,
+      outputCostPerMillionTokensUsd: 3.96,
+    },
+  },
+  {
     id: "moonshotai/kimi-k2.5",
     label: "Kimi K2.5",
     description: "Low-cost reasoning",
