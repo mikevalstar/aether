@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as UsageRouteImport } from './routes/usage'
+import { Route as ScheduledNotificationsRouteImport } from './routes/scheduled-notifications'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as LoginRouteImport } from './routes/login'
@@ -66,6 +67,11 @@ const UsersRoute = UsersRouteImport.update({
 const UsageRoute = UsageRouteImport.update({
   id: '/usage',
   path: '/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScheduledNotificationsRoute = ScheduledNotificationsRouteImport.update({
+  id: '/scheduled-notifications',
+  path: '/scheduled-notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/notifications': typeof NotificationsRoute
+  '/scheduled-notifications': typeof ScheduledNotificationsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -360,6 +367,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/notifications': typeof NotificationsRoute
+  '/scheduled-notifications': typeof ScheduledNotificationsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -411,6 +419,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/notifications': typeof NotificationsRoute
+  '/scheduled-notifications': typeof ScheduledNotificationsRoute
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
@@ -463,6 +472,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logs'
     | '/notifications'
+    | '/scheduled-notifications'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -512,6 +522,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logs'
     | '/notifications'
+    | '/scheduled-notifications'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -562,6 +573,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logs'
     | '/notifications'
+    | '/scheduled-notifications'
     | '/usage'
     | '/users'
     | '/api/chat'
@@ -613,6 +625,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
   NotificationsRoute: typeof NotificationsRoute
+  ScheduledNotificationsRoute: typeof ScheduledNotificationsRoute
   UsageRoute: typeof UsageRoute
   UsersRoute: typeof UsersRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -657,6 +670,13 @@ declare module '@tanstack/react-router' {
       path: '/usage'
       fullPath: '/usage'
       preLoaderRoute: typeof UsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scheduled-notifications': {
+      id: '/scheduled-notifications'
+      path: '/scheduled-notifications'
+      fullPath: '/scheduled-notifications'
+      preLoaderRoute: typeof ScheduledNotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -1035,6 +1055,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
   NotificationsRoute: NotificationsRoute,
+  ScheduledNotificationsRoute: ScheduledNotificationsRoute,
   UsageRoute: UsageRoute,
   UsersRoute: UsersRoute,
   ApiChatRoute: ApiChatRoute,

@@ -228,6 +228,7 @@ Non-AI cron tasks defined in code (not markdown files) that run alongside the us
 | `cleanup-stale-records` | `0 * * * *` (hourly) | Deletes `Task` and `Workflow` rows where `fileExists: false` and `lastRunAt` is null |
 | `cleanup-old-notifications` | `0 3 * * *` (daily 3 AM) | Deletes read notifications older than 30 days |
 | `calendar-sync` | `* * * * *` (every minute) | Triggers calendar feed sync (checks per-feed intervals internally) |
+| `scheduled-notifications` | `* * * * *` (every minute) | Delivers any `ScheduledNotification` rows whose `scheduledAt <= now`, with claim-based concurrency protection and retry. Also runs once at startup to catch up anything missed while the server was offline. See [Notifications — Scheduled Notification Worker](notifications.md) |
 
 System tasks use the same croner options (`protect`, `catch`, `unref`, timezone) and are tracked in a separate `systemJobs` array. Activity is logged with type `system_task`.
 

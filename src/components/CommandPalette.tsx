@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import {
   Activity,
+  AlarmClock,
   BarChart3,
   Bell,
   BookOpen,
@@ -49,6 +50,7 @@ const STATIC_PAGES = [
   { label: "Board", route: "/board", icon: Columns3 },
   { label: "Obsidian", route: "/o", icon: BookOpen },
   { label: "Notifications", route: "/notifications", icon: Bell },
+  { label: "Scheduled Notifications", route: "/scheduled-notifications", icon: AlarmClock },
   { label: "Activity", route: "/activity", icon: Activity },
   { label: "Usage", route: "/usage", icon: BarChart3 },
   { label: "Logs", route: "/logs", icon: ScrollText },
