@@ -21,11 +21,22 @@ Cron-scheduled AI tasks defined as markdown config. Set a schedule, pick a model
 
 <a href="docs/screenshots/full/tasks.png"><img src="docs/screenshots/tasks.png" alt="Tasks" width="360" /></a>
 
-### Obsidian Integration
-Your Obsidian vault is the source of truth. Aether reads AI config, system prompts, task definitions, and workflow specs from markdown files in your vault. The AI can browse, search, read, write, and edit any file in the vault — turning your notes into a living knowledge base the AI can act on.
+### Triggers
+Event-driven AI prompts that fire in response to webhooks or plugin events (e.g. new email). Trigger files live in your vault as markdown with JMESPath pattern matching on the incoming JSON payload — when a match hits, the prompt runs via the shared agent loop with full tool access. Webhook URLs and API keys are managed from a dedicated UI page.
 
-### Kanban Board
-A drag-and-drop task board synced to an Obsidian Kanban file. Move tasks between columns in the UI and they persist back to your vault. The AI can also manage board tasks as a tool during conversations.
+### Skills
+Teach the AI new capabilities by dropping markdown files into the `skills/` folder of your AI config. Skills use two-phase loading — only names and descriptions are injected into the system prompt; the AI loads full instructions on demand via a `load_skill` tool, keeping the context window lean.
+
+### Plugins
+Features are packaged as plugins that declare their own tools, settings, dashboard widgets, activity types, and command palette entries in one place. Built-in plugins:
+
+- **Board** — drag-and-drop kanban synced to an Obsidian Kanban file; AI can manage tasks as a tool
+- **Sonarr / Radarr** — browse and manage your TV and movie libraries, with dashboard widgets for upcoming and recent releases
+- **IMAP Email** — read and search email, fire triggers on new messages
+- **API Balances** — track credit balances across AI providers
+
+### Obsidian Integration
+Your Obsidian vault is the source of truth. Aether reads AI config, system prompts, task definitions, workflow specs, triggers, and skills from markdown files in your vault. The AI can browse, search, read, write, and edit any file in the vault — turning your notes into a living knowledge base the AI can act on.
 
 ### Activity Log
 Track every change the AI makes — file edits, task runs, workflow executions, and system events. Inspect diffs and revert file changes when needed.
@@ -46,18 +57,22 @@ In-app notification system with optional [Pushover](https://pushover.net/) integ
 ### Command Palette
 Keyboard-first navigation with `Cmd+K` to jump to any page or action.
 
+### And more
+In-app requirements viewer, task and workflow editors with frontmatter modals, a structured log viewer for server and Vite logs, and per-user preferences for theme, models, and plugin settings.
+
 ## AI Tool Access
 
-During chat, workflows, and periodic tasks, the AI has access to:
+During chat, workflows, periodic tasks, and triggers, the AI has access to:
 
 | Tool | Description |
 |------|-------------|
 | **Web Search & Fetch** | Search the web and fetch pages as clean markdown |
 | **Obsidian Vault** | Read, write, edit, search, and browse vault files |
-| **Kanban Board** | List, add, update, and move tasks |
 | **Calendar** | Query upcoming events from connected iCal feeds |
 | **Notifications** | Send in-app and push notifications |
 | **AI Memory** | Read and write to a structured memory folder in your vault |
+| **Skills** | Discover and load markdown-defined skills on demand |
+| **Plugin Tools** | Kanban board, Sonarr, Radarr, IMAP email, and API balances tools provided by enabled plugins |
 
 ## Tech Stack
 
