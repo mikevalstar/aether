@@ -24,6 +24,7 @@ import { createObsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
+import { createCancelScheduledNotification, createListScheduledNotifications } from "#/lib/tools/scheduled-notifications";
 import { createSendNotification } from "#/lib/tools/send-notification";
 import { getPluginTools } from "#/plugins/index.server";
 
@@ -108,7 +109,9 @@ export function createAiTools(
     fetch_url_markdown: fetchUrlMarkdown,
     ...obsidianTools,
     ...boardTools,
-    send_notification: createSendNotification(userId),
+    send_notification: createSendNotification(userId, timezone),
+    list_scheduled_notifications: createListScheduledNotifications(userId, timezone),
+    cancel_scheduled_notification: createCancelScheduledNotification(userId),
     calendar_events: createCalendarEvents(userId, timezone),
     list_models: listModels,
     list_users: listUsers,
@@ -127,6 +130,8 @@ export function getToolCategories(): Record<string, { category: string; conditio
     // Utility
     fetch_url_markdown: { category: "Utility" },
     send_notification: { category: "Utility" },
+    list_scheduled_notifications: { category: "Utility" },
+    cancel_scheduled_notification: { category: "Utility" },
     calendar_events: { category: "Utility" },
     // Obsidian
     obsidian_folders: { category: "Obsidian" },

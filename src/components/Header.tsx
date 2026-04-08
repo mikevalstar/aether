@@ -2,6 +2,7 @@ import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-ro
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
+  AlarmClock,
   BarChart3,
   BookOpen,
   CheckSquare,
@@ -70,6 +71,7 @@ const primaryLinks: NavLink[] = [
 const systemLinks: NavLink[] = [
   { to: "/activity", label: "Activity", icon: Activity, auth: true },
   { to: "/usage", label: "Usage", icon: BarChart3, auth: true },
+  { to: "/scheduled-notifications", label: "Scheduled", icon: AlarmClock, auth: true },
   { to: "/logs", label: "Logs", icon: ScrollText, auth: true },
   { to: "/chat-debug", label: "Chat Debug", icon: CircuitBoard, auth: true },
   { to: "/requirements", label: "Requirements", icon: FileText, auth: true },

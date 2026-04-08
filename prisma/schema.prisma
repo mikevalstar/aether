@@ -41,6 +41,7 @@ model User {
   triggers        Trigger[]
   webhooks        Webhook[]
   notifications   Notification[]
+  scheduledNotifications ScheduledNotification[]
 }
 
 model Session {
@@ -249,4 +250,30 @@ model Notification {
 
   @@index([userId, read, createdAt])
   @@index([userId, archived, level, createdAt])
+}
+
+model ScheduledNotification {
+  id           String    @id @default(cuid())
+  title        String
+  body         String?
+  link         String?
+  level        String    @default("low")
+  category     String?
+  source       String?
+  pushToPhone  Boolean   @default(false)
+  scheduledAt  DateTime                   // absolute UTC time to deliver
+  timezone     String?                    // IANA timezone that was used when scheduling (for display)
+  status       String    @default("pending") // pending | sent | cancelled | failed
+  sentAt       DateTime?
+  cancelledAt  DateTime?
+  attempts     Int       @default(0)
+  lastError    String?
+  notificationId String?                  // id of the Notification row once delivered
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledAt])
+  @@index([userId, status, scheduledAt])
 }

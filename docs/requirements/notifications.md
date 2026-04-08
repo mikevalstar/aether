@@ -2,7 +2,7 @@
 title: Notifications
 status: done
 owner: self
-last_updated: 2026-04-03
+last_updated: 2026-04-08
 canonical_file: docs/requirements/notifications.md
 ---
 
@@ -55,6 +55,34 @@ Defined in `src/lib/notify.ts` as `NotificationSeverity` with numeric ordering v
 | `userId` | String | — | Owner user |
 
 Indexes: `(userId, read, createdAt)`, `(userId, archived, level, createdAt)`.
+
+### ScheduledNotification (`prisma/schema.prisma`)
+
+Used for notifications/reminders that should be delivered at a future time. A background worker moves a row from `pending` to `sent` by calling `notify()` when its `scheduledAt` is due.
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `id` | String | cuid() | Primary key |
+| `title` | String | — | Notification title |
+| `body` | String? | — | Optional longer description |
+| `link` | String? | — | Optional relative app URL |
+| `level` | String | `"low"` | Severity copied to the emitted Notification |
+| `category` | String? | `"ai"` | Normally `"ai"` when created by the AI tool |
+| `source` | String? | `"scheduled"` | Marked `"scheduled"` once delivered by the worker |
+| `pushToPhone` | Boolean | false | Whether delivery should force a push |
+| `scheduledAt` | DateTime | — | Absolute UTC time to deliver |
+| `timezone` | String? | — | IANA timezone used when scheduling (stored for display) |
+| `status` | String | `"pending"` | `pending`, `sent`, `cancelled`, `failed` |
+| `sentAt` | DateTime? | — | When the notification was delivered |
+| `cancelledAt` | DateTime? | — | When the user (or AI) cancelled it |
+| `attempts` | Int | 0 | Delivery attempt count |
+| `lastError` | String? | — | Error message from the last failed attempt |
+| `notificationId` | String? | — | Id of the resulting `Notification` row once sent |
+| `createdAt` | DateTime | now() | Creation timestamp |
+| `updatedAt` | DateTime | now() | Auto-updated |
+| `userId` | String | — | Owner user |
+
+Indexes: `(status, scheduledAt)` for the worker query, `(userId, status, scheduledAt)` for the list page.
 
 ### Type System (`src/lib/notify.ts`)
 
@@ -171,10 +199,46 @@ Task and workflow detail pages accept a `highlight` search param:
 ### AI Notify Tool (`src/lib/tools/send-notification.ts`)
 
 - Registered as `send_notification` tool in `src/lib/ai-tools.ts`
-- Parameters: `title`, `body?`, `link?`, `level` (default `low`), `pushToPhone` (default `false`)
+- Parameters: `title`, `body?`, `link?`, `level` (default `low`), `pushToPhone` (default `false`), `scheduledAt?`, `timezone?`
 - Category is always `"ai"`
 - Claude should only use this when the user explicitly asks or something genuinely important comes up
-- Logs an `ai_notification` entry to `activityLog`
+- Logs an `ai_notification` entry (immediate) or `ai_notification_scheduled` entry (future) to `activityLog`
+- When `scheduledAt` is omitted, notification is delivered immediately via `notify()`
+- When `scheduledAt` is provided, a `ScheduledNotification` row is created:
+  - If `scheduledAt` has an explicit offset (e.g. `...Z` or `+02:00`), it's parsed as-is
+  - Otherwise the `timezone` parameter (or user's current timezone) is used to interpret the string
+  - Past times are delivered immediately instead of being scheduled
+  - Returns `{ id, scheduledAt, scheduledAtLocal, timezone }` so the AI can confirm the time back to the user
+
+### AI Scheduled Notification Tools (`src/lib/tools/scheduled-notifications.ts`)
+
+Two companion tools let the AI manage what it scheduled:
+
+- **`list_scheduled_notifications`** — lists upcoming (pending) scheduled notifications for the current user. Parameters: `limit` (default 25), `includeCompleted` (default false) to also return sent/cancelled/failed. Returns id, title, scheduled time (ISO + local), timezone, status, and attempt info. Used when the user asks "what reminders do I have" or before cancelling one.
+- **`cancel_scheduled_notification`** — cancels an upcoming notification by id. Only pending notifications can be cancelled. Sets status to `cancelled`, records `cancelledAt`, and logs an `ai_notification_cancelled` activity entry.
+
+### Scheduled Notification Worker (`src/lib/scheduled-notifications-worker.ts`)
+
+Background worker that delivers due scheduled notifications. Registered as the `scheduled-notifications` system task in `src/lib/system-tasks.ts` and runs every minute. Also runs once at startup to catch up on anything that came due while the server was offline.
+
+**Fault tolerance:**
+- Selects up to 50 `pending` rows whose `scheduledAt <= now()`
+- "Claims" each row with a conditional update (`updateMany` where status is still `pending`) so two concurrent workers can't double-deliver
+- On each attempt increments `attempts`
+- On success: calls `notify()` with the stored fields, sets `status=sent`, records `sentAt` and the resulting `notificationId`
+- On failure: records `lastError`; if `attempts < 5` leaves status as `pending` for the next tick to retry; otherwise marks `status=failed`
+- Rows delivered more than 24 hours after their original scheduled time log a `warn` line noting how stale they were
+
+### Scheduled Notifications Page (`/scheduled-notifications`)
+
+**Route:** `src/routes/scheduled-notifications.tsx`
+**Server functions:** `src/lib/scheduled-notifications.functions.ts`
+
+- Listed under the header **System** dropdown and in the command palette
+- Status filter (Pending / Sent / Cancelled / Failed / All) via search param
+- Table of title, level, scheduled time (rendered in each row's stored timezone with relative "in 3 hours" hint), status badge, and a Cancel button for pending rows
+- Counts summary (pending / sent / cancelled / failed) across all of the current user's scheduled notifications
+- Cancel action calls the `cancelScheduledNotification` server function, then invalidates the route loader
 
 ### Pushover Integration (`src/lib/pushover.ts`)
 
@@ -207,3 +271,4 @@ Task and workflow detail pages accept a `highlight` search param:
 - 2026-03-16: Initial requirements — basic notification model, Pushover integration, browser polling, header bell, AI notify tool.
 - 2026-03-22: Updated to match v1 implementation — corrected routes, added test Pushover, documented NotificationLevel type, per-task/workflow notification config.
 - 2026-04-03: Major expansion — six severity levels (info/low/medium/high/critical/error), full-page `/notifications` management with filters and bulk actions, header bell filtering to medium+, per-user push level preferences, dashboard widget with level counts, AI tool level parameter (default low), deep-link to specific task/workflow runs with highlight, multi-user targeting via `notifyUsers` frontmatter. Deferred: mute/snooze, quiet hours, digest, email, templates, grouping.
+- 2026-04-08: Added scheduled notifications — new `ScheduledNotification` model, `send_notification` tool gained `scheduledAt` + `timezone` params, new `list_scheduled_notifications` and `cancel_scheduled_notification` AI tools, per-minute worker that fault-tolerantly delivers anything past its scheduled time (with startup catch-up), and a `/scheduled-notifications` page listed under the System nav for viewing and cancelling them.

@@ -34,6 +34,14 @@ const systemTaskDefs: SystemTask[] = [
       await syncCalendarFeeds();
     },
   },
+  {
+    name: "scheduled-notifications",
+    cron: "* * * * *", // every minute — delivers any due scheduled notifications
+    handler: async () => {
+      const { processDueScheduledNotifications } = await import("#/lib/scheduled-notifications-worker");
+      await processDueScheduledNotifications();
+    },
+  },
 ];
 
 // ── Running jobs ─────────────────────────────────────────────────────
@@ -70,6 +78,20 @@ export async function startSystemTasks(): Promise<void> {
 
   // Register plugin scheduled tasks
   await registerPluginScheduledTasks();
+
+  // Catch up on any scheduled notifications that became due while the server was down.
+  // This runs once at startup in addition to the per-minute cron job.
+  void (async () => {
+    try {
+      const { processDueScheduledNotifications } = await import("#/lib/scheduled-notifications-worker");
+      const result = await processDueScheduledNotifications();
+      if (result.claimed > 0) {
+        logger.info({ result }, "Startup catch-up processed pending scheduled notifications");
+      }
+    } catch (err) {
+      logger.error({ err }, "Startup catch-up for scheduled notifications failed");
+    }
+  })();
 }
 
 export function stopSystemTasks(): void {
