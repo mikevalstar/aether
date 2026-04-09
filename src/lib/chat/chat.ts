@@ -59,6 +59,18 @@ export type ChatThreadSummary = {
   createdAt: string;
 };
 
+const THREAD_ID_PREFIX = "thread_";
+
+/** Strip the `thread_` prefix for use in URLs: `thread_abc` → `abc` */
+export function threadIdToSlug(id: string): string {
+  return id.startsWith(THREAD_ID_PREFIX) ? id.slice(THREAD_ID_PREFIX.length) : id;
+}
+
+/** Add the `thread_` prefix back from a URL slug: `abc` → `thread_abc` */
+export function slugToThreadId(slug: string): string {
+  return slug.startsWith(THREAD_ID_PREFIX) ? slug : `${THREAD_ID_PREFIX}${slug}`;
+}
+
 export function parseStoredMessages(value: string): AppChatMessage[] {
   try {
     const parsed = JSON.parse(value);

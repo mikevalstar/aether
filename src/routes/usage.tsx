@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#
 import { StatCard } from "#/components/ui/stat-card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import { getSession } from "#/lib/auth.functions";
+import { threadIdToSlug } from "#/lib/chat/chat";
 import { formatUsageCurrency, getTaskTypeLabel, normalizeUsageSearch, TASK_TYPES } from "#/lib/chat/chat-usage";
 import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat/chat-usage.functions";
 import { formatDateTime } from "#/lib/date";
@@ -243,8 +244,8 @@ function UsagePage() {
                       <div className="mt-1 truncate text-xs text-[var(--ink-soft)]">
                         {event.threadId ? (
                           <Link
-                            to="/chat"
-                            search={{ threadId: event.threadId }}
+                            to="/chat/$threadId"
+                            params={{ threadId: threadIdToSlug(event.threadId) }}
                             className="hover:text-[var(--teal)] transition-colors"
                           >
                             {event.threadTitle}

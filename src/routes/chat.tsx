@@ -1,37 +1,18 @@
-import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { GripVerticalIcon, MessageSquarePlusIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { z } from "zod";
-import { ChatEmptyState } from "#/components/chat/ChatEmptyState";
-import { ChatHeader } from "#/components/chat/ChatHeader";
 import { ChatThreadItem } from "#/components/chat/ChatThreadItem";
 import { ChatThreadSearchInput, useChatThreadSearch } from "#/components/chat/ChatThreadSearch";
-import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { Button } from "#/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#/components/ui/dialog";
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "#/components/ui/drawer";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
-import {
-  CHAT_MODELS,
-  type ChatEffort,
-  type ChatThreadSummary,
-  DEFAULT_CHAT_EFFORT,
-  DEFAULT_CHAT_MODEL,
-} from "#/lib/chat/chat";
-import {
-  createChatThread,
-  deleteChatThread,
-  exportChatThreadToObsidian,
-  getChatPageData,
-  updateChatThreadEffort,
-  updateChatThreadModel,
-  updateChatThreadTitle,
-} from "#/lib/chat/chat.functions";
-
-const chatSearchSchema = z.object({
-  threadId: z.string().optional(),
-});
+import type { ChatThreadSummary } from "#/lib/chat/chat";
+import { threadIdToSlug } from "#/lib/chat/chat";
+import { createChatThread, deleteChatThread, getChatPageData } from "#/lib/chat/chat.functions";
+import type { ChatLayoutContext } from "#/lib/chat/chat-layout-context";
+import { ChatLayoutCtx } from "#/lib/chat/chat-layout-context";
 
 const PENDING_MESSAGE_KEY = "aether:pending-chat-message";
 const SIDEBAR_WIDTH_KEY = "aether:chat-sidebar-width";
@@ -40,32 +21,27 @@ const MIN_SIDEBAR_WIDTH = 280;
 const MAX_SIDEBAR_WIDTH = 460;
 
 export const Route = createFileRoute("/chat")({
-  validateSearch: chatSearchSchema,
   beforeLoad: async () => {
     const session = await getSession();
-
     if (!session) {
       throw redirect({ to: "/login" });
     }
   },
-  loaderDeps: ({ search }) => ({ threadId: search.threadId }),
-  loader: async ({ deps }) => {
-    return await getChatPageData({ data: { threadId: deps.threadId } });
+  loader: async () => {
+    return await getChatPageData({ data: {} });
   },
-  component: ChatPage,
+  component: ChatLayout,
 });
 
-function ChatPage() {
+function ChatLayout() {
   const data = Route.useLoaderData();
-  const navigate = useNavigate({ from: Route.fullPath });
+  const navigate = useNavigate();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
   const [pendingDeleteThread, setPendingDeleteThread] = useState<ChatThreadSummary | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const [isMutating, startTransition] = useTransition();
-  const [draftModel, setDraftModel] = useState(data.defaultChatModel);
-  const [draftEffort, setDraftEffort] = useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const {
     query: threadSearchQuery,
@@ -73,10 +49,11 @@ function ChatPage() {
     filtered: filteredThreads,
   } = useChatThreadSearch(data.threads);
 
+  const selectedThreadId = data.selectedThreadId;
+
   const refreshPage = useCallback(async () => {
     await router.invalidate();
   }, [router]);
-  const selectedThread = data.selectedThread;
 
   const handleCreateThread = useCallback(
     async (model: string, firstMessage?: string, effort?: string) => {
@@ -92,7 +69,7 @@ function ChatPage() {
       }
 
       setPendingThreadId(createdThread.id);
-      await navigate({ search: { threadId: createdThread.id } });
+      await navigate({ to: "/chat/$threadId", params: { threadId: threadIdToSlug(createdThread.id) } });
       await router.invalidate();
       setPendingThreadId(null);
     },
@@ -103,32 +80,17 @@ function ChatPage() {
     async (thread: ChatThreadSummary) => {
       await deleteChatThread({ data: { threadId: thread.id } });
 
-      const isCurrentThread = selectedThread?.id === thread.id;
-      await navigate({
-        search: isCurrentThread ? {} : { threadId: selectedThread?.id },
-      });
+      const isCurrentThread = selectedThreadId === thread.id;
+      if (isCurrentThread) {
+        await navigate({ to: "/chat" });
+      }
       await router.invalidate();
       toast.success("Thread deleted");
     },
-    [navigate, router, selectedThread],
+    [navigate, router, selectedThreadId],
   );
 
-  const selectedModel = selectedThread?.model ?? DEFAULT_CHAT_MODEL;
-  const selectedEffort = selectedThread?.effort ?? DEFAULT_CHAT_EFFORT;
   const isBusy = isMutating || pendingThreadId !== null;
-  const emptyStateModel = selectedThread?.model ?? draftModel;
-  const emptyStateEffort = selectedThread?.effort ?? draftEffort;
-  const selectedUsageTotals = {
-    inputTokens: selectedThread?.totalInputTokens ?? 0,
-    outputTokens: selectedThread?.totalOutputTokens ?? 0,
-    estimatedCostUsd: selectedThread?.totalEstimatedCostUsd ?? 0,
-  };
-  const selectedCostLabel =
-    selectedUsageTotals.estimatedCostUsd > 0 && selectedUsageTotals.estimatedCostUsd < 0.0001
-      ? "<$0.0001"
-      : `$${selectedUsageTotals.estimatedCostUsd.toFixed(4)}`;
-
-  const currentModelDef = CHAT_MODELS.find((m) => m.id === (selectedThread ? selectedModel : emptyStateModel));
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -141,25 +103,6 @@ function ChatPage() {
 
     setSidebarWidth(Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, parsedWidth)));
   }, []);
-
-  // Consume pending message from sessionStorage.
-  // Uses a ref to track which thread ID we already consumed for,
-  // so the message survives re-renders but is only read once per thread.
-  const consumedThreadRef = useRef<string | null>(null);
-  const initialMessageRef = useRef<string | undefined>(undefined);
-  if (typeof window !== "undefined" && selectedThread?.id && consumedThreadRef.current !== selectedThread.id) {
-    const key = `${PENDING_MESSAGE_KEY}:${selectedThread.id}`;
-    const pendingMessage = window.sessionStorage.getItem(key) ?? undefined;
-    if (pendingMessage) {
-      window.sessionStorage.removeItem(key);
-    }
-    consumedThreadRef.current = selectedThread.id;
-    initialMessageRef.current = pendingMessage;
-  } else if (!selectedThread?.id) {
-    consumedThreadRef.current = null;
-    initialMessageRef.current = undefined;
-  }
-  const initialMessage = initialMessageRef.current;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -206,8 +149,21 @@ function ChatPage() {
 
   function handleMobileThreadSelect(threadId: string) {
     setMobileDrawerOpen(false);
-    void navigate({ search: { threadId } });
+    void navigate({ to: "/chat/$threadId", params: { threadId: threadIdToSlug(threadId) } });
   }
+
+  const openMobileDrawer = useCallback(() => setMobileDrawerOpen(true), []);
+
+  const ctxValue: ChatLayoutContext = {
+    threads: data.threads,
+    selectedThreadId,
+    defaultChatModel: data.defaultChatModel,
+    isBusy,
+    refreshPage,
+    handleCreateThread,
+    handleRequestDelete,
+    openMobileDrawer,
+  };
 
   const threadListContent = (
     <>
@@ -221,7 +177,7 @@ function ChatPage() {
             title={thread.title}
             preview={thread.preview}
             updatedAt={thread.updatedAt}
-            isActive={thread.id === selectedThread?.id}
+            isActive={thread.id === selectedThreadId}
             disabled={isBusy}
             onClick={() => handleMobileThreadSelect(thread.id)}
             onDelete={() => handleRequestDelete(thread)}
@@ -245,237 +201,122 @@ function ChatPage() {
   );
 
   return (
-    <main className="page-wrap flex h-[calc(100svh-1.75rem-env(safe-area-inset-top))] min-h-0 px-0 py-0 lg:h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] lg:min-h-[500px] lg:px-4 lg:py-2">
-      <div ref={containerRef} className="flex min-h-0 w-full flex-col gap-0 lg:flex-row lg:gap-0">
-        {/* Main chat area */}
-        <section className="order-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-[var(--surface)] lg:rounded-xl lg:border lg:border-[var(--line)] lg:rounded-r-none lg:border-r-0">
-          <ChatHeader
-            title={selectedThread?.title ?? "New chat"}
-            model={selectedThread ? selectedModel : emptyStateModel}
-            effort={selectedThread ? selectedEffort : emptyStateEffort}
-            inputTokens={selectedUsageTotals.inputTokens}
-            outputTokens={selectedUsageTotals.outputTokens}
-            costLabel={selectedCostLabel}
-            showStats={!!selectedThread}
-            disabled={isBusy}
-            editable={!!selectedThread}
-            showMobileMenu
-            onMobileMenuClick={() => setMobileDrawerOpen(true)}
-            onEffortChange={(value) => {
-              if (!selectedThread) {
-                setDraftEffort(value as ChatEffort);
-                return;
-              }
+    <ChatLayoutCtx.Provider value={ctxValue}>
+      <main className="page-wrap flex h-[calc(100svh-1.75rem-env(safe-area-inset-top))] min-h-0 px-0 py-0 lg:h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] lg:min-h-[500px] lg:px-4 lg:py-2">
+        <div ref={containerRef} className="flex min-h-0 w-full flex-col gap-0 lg:flex-row lg:gap-0">
+          {/* Main chat area — rendered by child route */}
+          <section className="order-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-[var(--surface)] lg:rounded-xl lg:border lg:border-[var(--line)] lg:rounded-r-none lg:border-r-0">
+            <Outlet />
+          </section>
 
-              startTransition(() => {
-                void updateChatThreadEffort({
-                  data: {
-                    threadId: selectedThread.id,
-                    effort: value,
-                  },
-                }).then(() => {
-                  toast.success("Effort updated");
-                  return refreshPage();
-                });
-              });
-            }}
-            onTitleChange={
-              selectedThread
-                ? (newTitle) => {
-                    startTransition(() => {
-                      void updateChatThreadTitle({
-                        data: {
-                          threadId: selectedThread.id,
-                          title: newTitle,
-                        },
-                      }).then(() => {
-                        toast.success("Title updated");
-                        return refreshPage();
-                      });
-                    });
-                  }
-                : undefined
-            }
-            onModelChange={(value) => {
-              if (!selectedThread) {
-                setDraftModel(value as (typeof CHAT_MODELS)[number]["id"]);
-                return;
-              }
-
-              startTransition(() => {
-                void updateChatThreadModel({
-                  data: {
-                    threadId: selectedThread.id,
-                    model: value,
-                  },
-                }).then(() => {
-                  toast.success("Model updated");
-                  return refreshPage();
-                });
-              });
-            }}
-            onExport={
-              selectedThread
-                ? () => {
-                    startTransition(() => {
-                      void exportChatThreadToObsidian({
-                        data: { threadId: selectedThread.id },
-                      })
-                        .then((result) => {
-                          toast.success(`Exported to ${result.relativePath}`);
-                        })
-                        .catch((err) => {
-                          toast.error(err instanceof Error ? err.message : "Export failed");
-                        });
-                    });
-                  }
-                : undefined
-            }
-            onDelete={selectedThread ? () => handleRequestDelete(selectedThread) : undefined}
-          />
-
-          <div className="min-h-0 flex-1">
-            {selectedThread ? (
-              <ChatWorkspace
-                key={`${selectedThread.id}:${selectedModel}:${selectedEffort}`}
-                threadId={selectedThread.id}
-                model={selectedModel}
-                effort={selectedEffort}
-                messagesJson={data.messagesJson}
-                initialMessage={initialMessage}
-                onFinish={() => {
-                  void refreshPage();
-                }}
-              />
-            ) : (
-              <ChatEmptyState
-                model={emptyStateModel}
-                effort={emptyStateEffort}
-                modelLabel={currentModelDef?.label ?? "Claude"}
-                disabled={isBusy}
-                onModelChange={(value) => {
-                  setDraftModel(value as (typeof CHAT_MODELS)[number]["id"]);
-                }}
-                onEffortChange={(value) => {
-                  setDraftEffort(value as ChatEffort);
-                }}
-                onSend={(message) => {
-                  startTransition(() => {
-                    void handleCreateThread(emptyStateModel, message, emptyStateEffort);
-                  });
-                }}
-              />
-            )}
+          {/* Desktop resize handle */}
+          <div className="order-2 hidden w-3 items-stretch justify-center lg:flex">
+            <button
+              type="button"
+              className="group flex w-full cursor-col-resize items-center justify-center rounded-none text-[var(--ink-soft)] transition hover:bg-[var(--teal-subtle)] hover:text-[var(--teal)] focus-visible:bg-[var(--teal-subtle)] focus-visible:outline-none"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                handleResizeStart();
+              }}
+              onDoubleClick={() => {
+                setSidebarWidth(DEFAULT_SIDEBAR_WIDTH);
+              }}
+              aria-label="Resize thread sidebar"
+            >
+              <GripVerticalIcon className="size-4 transition group-hover:scale-110" />
+            </button>
           </div>
-        </section>
 
-        {/* Desktop resize handle */}
-        <div className="order-2 hidden w-3 items-stretch justify-center lg:flex">
-          <button
-            type="button"
-            className="group flex w-full cursor-col-resize items-center justify-center rounded-none text-[var(--ink-soft)] transition hover:bg-[var(--teal-subtle)] hover:text-[var(--teal)] focus-visible:bg-[var(--teal-subtle)] focus-visible:outline-none"
-            onPointerDown={(event) => {
-              event.preventDefault();
-              handleResizeStart();
-            }}
-            onDoubleClick={() => {
-              setSidebarWidth(DEFAULT_SIDEBAR_WIDTH);
-            }}
-            aria-label="Resize thread sidebar"
+          {/* Desktop sidebar */}
+          <aside
+            className="order-3 hidden min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:flex lg:rounded-l-none"
+            style={{ width: `${sidebarWidth}px` }}
           >
-            <GripVerticalIcon className="size-4 transition group-hover:scale-110" />
-          </button>
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-3">
+              <h2 className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">Threads</h2>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  void navigate({ to: "/chat" });
+                }}
+                disabled={isBusy || !selectedThreadId}
+                className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
+              >
+                <MessageSquarePlusIcon className="size-4" />
+                New
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
+          </aside>
+
+          {/* Mobile drawer */}
+          <Drawer open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen} direction="right">
+            <DrawerContent className="h-full pt-[env(safe-area-inset-top)]">
+              <DrawerHeader className="flex flex-row items-center justify-between border-b border-[var(--line)]">
+                <DrawerTitle className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
+                  Threads
+                </DrawerTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setMobileDrawerOpen(false);
+                      void navigate({ to: "/chat" });
+                    }}
+                    disabled={isBusy || !selectedThreadId}
+                    className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
+                  >
+                    <MessageSquarePlusIcon className="size-4" />
+                    New
+                  </Button>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon-sm">
+                      <XIcon className="size-4" />
+                    </Button>
+                  </DrawerClose>
+                </div>
+              </DrawerHeader>
+              <div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
+            </DrawerContent>
+          </Drawer>
         </div>
 
-        {/* Desktop sidebar */}
-        <aside
-          className="order-3 hidden min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:flex lg:rounded-l-none"
-          style={{ width: `${sidebarWidth}px` }}
+        <Dialog
+          open={pendingDeleteThread !== null}
+          onOpenChange={(open) => {
+            if (!open && !isBusy) {
+              setPendingDeleteThread(null);
+            }
+          }}
         >
-          <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-3">
-            <h2 className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">Threads</h2>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => {
-                void navigate({ search: {} });
-              }}
-              disabled={isBusy || !selectedThread}
-              className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
-            >
-              <MessageSquarePlusIcon className="size-4" />
-              New
-            </Button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
-        </aside>
-
-        {/* Mobile drawer */}
-        <Drawer open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen} direction="right">
-          <DrawerContent className="h-full pt-[env(safe-area-inset-top)]">
-            <DrawerHeader className="flex flex-row items-center justify-between border-b border-[var(--line)]">
-              <DrawerTitle className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
-                Threads
-              </DrawerTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => {
-                    setMobileDrawerOpen(false);
-                    void navigate({ search: {} });
-                  }}
-                  disabled={isBusy || !selectedThread}
-                  className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
-                >
-                  <MessageSquarePlusIcon className="size-4" />
-                  New
-                </Button>
-                <DrawerClose asChild>
-                  <Button variant="ghost" size="icon-sm">
-                    <XIcon className="size-4" />
-                  </Button>
-                </DrawerClose>
-              </div>
-            </DrawerHeader>
-            <div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
-          </DrawerContent>
-        </Drawer>
-      </div>
-
-      <Dialog
-        open={pendingDeleteThread !== null}
-        onOpenChange={(open) => {
-          if (!open && !isBusy) {
-            setPendingDeleteThread(null);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete thread?</DialogTitle>
-            <DialogDescription>
-              {pendingDeleteThread
-                ? `This will permanently remove "${pendingDeleteThread.title}" and its messages.`
-                : "This will permanently remove the selected thread and its messages."}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setPendingDeleteThread(null)} disabled={isBusy}>
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              disabled={isBusy || !pendingDeleteThread}
-            >
-              Delete thread
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </main>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Delete thread?</DialogTitle>
+              <DialogDescription>
+                {pendingDeleteThread
+                  ? `This will permanently remove "${pendingDeleteThread.title}" and its messages.`
+                  : "This will permanently remove the selected thread and its messages."}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setPendingDeleteThread(null)} disabled={isBusy}>
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleConfirmDelete}
+                disabled={isBusy || !pendingDeleteThread}
+              >
+                Delete thread
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </main>
+    </ChatLayoutCtx.Provider>
   );
 }

@@ -269,7 +269,7 @@ export default function CommandPalette() {
 
         {/* Actions */}
         <CommandGroup heading="Actions">
-          <CommandItem value="action-new-chat" onSelect={() => select("/chat?new=1")}>
+          <CommandItem value="action-new-chat" onSelect={() => select("/chat")}>
             <Plus className="mr-2 size-4" />
             New Chat
           </CommandItem>

@@ -28,6 +28,7 @@ import { Route as TasksIndexRouteImport } from './routes/tasks/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
 import { Route as OIndexRouteImport } from './routes/o/index'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as WorkflowsSplatRouteImport } from './routes/workflows/$'
 import { Route as TriggersWebhooksRouteImport } from './routes/triggers/webhooks'
 import { Route as TriggersSplatRouteImport } from './routes/triggers/$'
@@ -44,6 +45,7 @@ import { Route as OSplatRouteImport } from './routes/o/$'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
+import { Route as ChatThreadIdRouteImport } from './routes/chat/$threadId'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as WorkflowsEditorIndexRouteImport } from './routes/workflows/editor/index'
 import { Route as TriggersEditorIndexRouteImport } from './routes/triggers/editor/index'
@@ -154,6 +156,11 @@ const OIndexRoute = OIndexRouteImport.update({
   path: '/o/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ChatRoute,
+} as any)
 const WorkflowsSplatRoute = WorkflowsSplatRouteImport.update({
   id: '/workflows/$',
   path: '/workflows/$',
@@ -234,6 +241,11 @@ const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
   path: '/demo/better-auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatThreadIdRoute = ChatThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => ChatRoute,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -311,7 +323,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
-  '/chat': typeof ChatRoute
+  '/chat': typeof ChatRouteWithChildren
   '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -321,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
+  '/chat/$threadId': typeof ChatThreadIdRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
@@ -337,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/triggers/$': typeof TriggersSplatRoute
   '/triggers/webhooks': typeof TriggersWebhooksRoute
   '/workflows/$': typeof WorkflowsSplatRoute
+  '/chat/': typeof ChatIndexRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -361,7 +375,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
-  '/chat': typeof ChatRoute
   '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -371,6 +384,7 @@ export interface FileRoutesByTo {
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
+  '/chat/$threadId': typeof ChatThreadIdRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
@@ -387,6 +401,7 @@ export interface FileRoutesByTo {
   '/triggers/$': typeof TriggersSplatRoute
   '/triggers/webhooks': typeof TriggersWebhooksRoute
   '/workflows/$': typeof WorkflowsSplatRoute
+  '/chat': typeof ChatIndexRoute
   '/o': typeof OIndexRoute
   '/requirements': typeof RequirementsIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -413,7 +428,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/activity': typeof ActivityRoute
-  '/chat': typeof ChatRoute
+  '/chat': typeof ChatRouteWithChildren
   '/chat-debug': typeof ChatDebugRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -423,6 +438,7 @@ export interface FileRoutesById {
   '/usage': typeof UsageRoute
   '/users': typeof UsersRoute
   '/api/chat': typeof ApiChatRoute
+  '/chat/$threadId': typeof ChatThreadIdRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/error-display': typeof DemoErrorDisplayRoute
   '/demo/prisma': typeof DemoPrismaRoute
@@ -439,6 +455,7 @@ export interface FileRoutesById {
   '/triggers/$': typeof TriggersSplatRoute
   '/triggers/webhooks': typeof TriggersWebhooksRoute
   '/workflows/$': typeof WorkflowsSplatRoute
+  '/chat/': typeof ChatIndexRoute
   '/o/': typeof OIndexRoute
   '/requirements/': typeof RequirementsIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -476,6 +493,7 @@ export interface FileRouteTypes {
     | '/usage'
     | '/users'
     | '/api/chat'
+    | '/chat/$threadId'
     | '/demo/better-auth'
     | '/demo/error-display'
     | '/demo/prisma'
@@ -492,6 +510,7 @@ export interface FileRouteTypes {
     | '/triggers/$'
     | '/triggers/webhooks'
     | '/workflows/$'
+    | '/chat/'
     | '/o/'
     | '/requirements/'
     | '/settings/'
@@ -516,7 +535,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/activity'
-    | '/chat'
     | '/chat-debug'
     | '/dashboard'
     | '/login'
@@ -526,6 +544,7 @@ export interface FileRouteTypes {
     | '/usage'
     | '/users'
     | '/api/chat'
+    | '/chat/$threadId'
     | '/demo/better-auth'
     | '/demo/error-display'
     | '/demo/prisma'
@@ -542,6 +561,7 @@ export interface FileRouteTypes {
     | '/triggers/$'
     | '/triggers/webhooks'
     | '/workflows/$'
+    | '/chat'
     | '/o'
     | '/requirements'
     | '/settings'
@@ -577,6 +597,7 @@ export interface FileRouteTypes {
     | '/usage'
     | '/users'
     | '/api/chat'
+    | '/chat/$threadId'
     | '/demo/better-auth'
     | '/demo/error-display'
     | '/demo/prisma'
@@ -593,6 +614,7 @@ export interface FileRouteTypes {
     | '/triggers/$'
     | '/triggers/webhooks'
     | '/workflows/$'
+    | '/chat/'
     | '/o/'
     | '/requirements/'
     | '/settings/'
@@ -619,7 +641,7 @@ export interface RootRouteChildren {
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ActivityRoute: typeof ActivityRoute
-  ChatRoute: typeof ChatRoute
+  ChatRoute: typeof ChatRouteWithChildren
   ChatDebugRoute: typeof ChatDebugRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
@@ -791,6 +813,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/': {
+      id: '/chat/'
+      path: '/'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof ChatRoute
+    }
     '/workflows/$': {
       id: '/workflows/$'
       path: '/workflows/$'
@@ -902,6 +931,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/better-auth'
       preLoaderRoute: typeof DemoBetterAuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/chat/$threadId': {
+      id: '/chat/$threadId'
+      path: '/$threadId'
+      fullPath: '/chat/$threadId'
+      preLoaderRoute: typeof ChatThreadIdRouteImport
+      parentRoute: typeof ChatRoute
     }
     '/api/chat': {
       id: '/api/chat'
@@ -1032,6 +1068,18 @@ const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
   SettingsRouteRouteChildren,
 )
 
+interface ChatRouteChildren {
+  ChatThreadIdRoute: typeof ChatThreadIdRoute
+  ChatIndexRoute: typeof ChatIndexRoute
+}
+
+const ChatRouteChildren: ChatRouteChildren = {
+  ChatThreadIdRoute: ChatThreadIdRoute,
+  ChatIndexRoute: ChatIndexRoute,
+}
+
+const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
+
 interface PPluginIdRouteChildren {
   PPluginIdPageIdRoute: typeof PPluginIdPageIdRoute
 }
@@ -1049,7 +1097,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ActivityRoute: ActivityRoute,
-  ChatRoute: ChatRoute,
+  ChatRoute: ChatRouteWithChildren,
   ChatDebugRoute: ChatDebugRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,

@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
@@ -128,7 +129,7 @@ export const createChatThread = createServerFn({ method: "POST" })
 
     const thread = await prisma.chatThread.create({
       data: {
-        id: `thread_${crypto.randomUUID()}`,
+        id: `thread_${nanoid(10)}`,
         userId: session.user.id,
         model,
         effort,

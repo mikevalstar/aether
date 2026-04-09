@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { MessageSquare, Plus } from "lucide-react";
+import { threadIdToSlug } from "#/lib/chat/chat";
 import type { DashboardThread } from "#/lib/dashboard.functions";
 
 type Props = {
@@ -29,8 +30,8 @@ export function RecentChats({ threads }: Props) {
       {threads.map((thread) => (
         <Link
           key={thread.id}
-          to="/chat"
-          search={{ threadId: thread.id }}
+          to="/chat/$threadId"
+          params={{ threadId: threadIdToSlug(thread.id) }}
           className="group flex items-start gap-3 rounded-lg border border-transparent px-3 py-2 no-underline transition-colors hover:border-border hover:bg-card"
         >
           <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-[var(--teal)] opacity-60 group-hover:opacity-100" />

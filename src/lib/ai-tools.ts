@@ -15,6 +15,7 @@ import {
 import { createCalendarEvents } from "#/lib/tools/calendar-events";
 import { exaTools } from "#/lib/tools/exa-tools";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
+import { createGetChatId } from "#/lib/tools/get-chat-id";
 import { listModels } from "#/lib/tools/list-models";
 import { listUsers } from "#/lib/tools/list-users";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
@@ -113,6 +114,7 @@ export function createAiTools(
     list_scheduled_notifications: createListScheduledNotifications(userId, timezone),
     cancel_scheduled_notification: createCancelScheduledNotification(userId),
     calendar_events: createCalendarEvents(userId, timezone),
+    get_chat_id: createGetChatId(threadId),
     list_models: listModels,
     list_users: listUsers,
     ...pluginTools,
@@ -142,6 +144,7 @@ export function getToolCategories(): Record<string, { category: string; conditio
     obsidian_edit: { category: "Obsidian" },
     obsidian_ai_notes_list: { category: "Obsidian" },
     // System
+    get_chat_id: { category: "System" },
     list_models: { category: "System" },
     list_users: { category: "System" },
     // Memory

@@ -7,6 +7,7 @@ import {
   stepCountIs,
   streamText,
 } from "ai";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config/ai-config";
@@ -227,7 +228,7 @@ export const Route = createFileRoute("/api/chat")({
           const nextTotals = addChatUsageTotals(currentTotals, exchangeUsage);
           const assistantMessage = [...messages].reverse().find((message) => message.role === "assistant");
           const usageEntry: ChatUsageEntry = {
-            id: `usage_${crypto.randomUUID()}`,
+            id: `usage_${nanoid(10)}`,
             model: usageModel,
             taskType,
             createdAt: new Date().toISOString(),
@@ -369,7 +370,7 @@ export const Route = createFileRoute("/api/chat")({
               ...titleUsageEvents.map((titleEvent) =>
                 prisma.chatUsageEvent.create({
                   data: {
-                    id: `usage_event_${crypto.randomUUID()}`,
+                    id: `usage_event_${nanoid(10)}`,
                     userId: session.user.id,
                     threadId: thread.id,
                     model: titleEvent.model,
@@ -397,7 +398,7 @@ export const Route = createFileRoute("/api/chat")({
               }),
               prisma.chatUsageEvent.create({
                 data: {
-                  id: `usage_event_${crypto.randomUUID()}`,
+                  id: `usage_event_${nanoid(10)}`,
                   userId: session.user.id,
                   threadId: thread.id,
                   model,
