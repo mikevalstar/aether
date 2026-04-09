@@ -25,6 +25,7 @@ import { createObsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
+import { createReadChat } from "#/lib/tools/read-chat";
 import { createCancelScheduledNotification, createListScheduledNotifications } from "#/lib/tools/scheduled-notifications";
 import { createSendNotification } from "#/lib/tools/send-notification";
 import { getPluginTools } from "#/plugins/index.server";
@@ -115,6 +116,7 @@ export function createAiTools(
     cancel_scheduled_notification: createCancelScheduledNotification(userId),
     calendar_events: createCalendarEvents(userId, timezone),
     get_chat_id: createGetChatId(threadId),
+    read_chat: createReadChat(userId),
     list_models: listModels,
     list_users: listUsers,
     ...pluginTools,
@@ -145,6 +147,7 @@ export function getToolCategories(): Record<string, { category: string; conditio
     obsidian_ai_notes_list: { category: "Obsidian" },
     // System
     get_chat_id: { category: "System" },
+    read_chat: { category: "System" },
     list_models: { category: "System" },
     list_users: { category: "System" },
     // Memory
