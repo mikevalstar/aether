@@ -128,7 +128,7 @@
     "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
     "jsdom": "^29.0.1",
-    "knip": "^6.1.0",
+    "knip": "^6.3.0",
     "storybook": "^10.3.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
