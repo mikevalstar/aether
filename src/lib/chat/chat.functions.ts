@@ -21,6 +21,7 @@ import {
   parseStoredMessages,
   resolveModelId,
 } from "#/lib/chat/chat";
+import { searchChats } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { getUserPreference } from "#/lib/preferences.server";
@@ -339,4 +340,25 @@ export const exportChatThreadToObsidian = createServerFn({ method: "POST" })
     }
 
     return { success: true, relativePath };
+  });
+
+const searchChatThreadsInputSchema = z
+  .object({
+    query: z.string().trim().min(1),
+    limit: z.number().optional().default(10),
+  })
+  .strict();
+
+export const searchChatThreads = createServerFn({ method: "GET" })
+  .inputValidator((data) => searchChatThreadsInputSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+    const results = await searchChats(data.query, session.user.id, data.limit);
+    return results.map((r) => ({
+      id: r.threadId,
+      title: r.title,
+      preview: r.preview,
+      score: r.score,
+      updatedAt: r.updatedAt,
+    }));
   });

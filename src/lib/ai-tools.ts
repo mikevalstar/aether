@@ -4,6 +4,7 @@ import type { ToolSet } from "ai";
 import { minimax as createMinimax } from "vercel-minimax-ai-provider";
 import type { ChatModel } from "#/lib/chat/chat-models";
 import { getModelProvider, getProviderModelId, getWebToolVersion, supportsCodeExecution } from "#/lib/chat/chat-models";
+import { createSearchChatHistory } from "#/lib/embeddings";
 import type { UserPreferences } from "#/lib/preferences";
 import { aiMemory } from "#/lib/tools/ai-memory";
 import {
@@ -117,6 +118,7 @@ export function createAiTools(
     calendar_events: createCalendarEvents(userId, timezone),
     get_chat_id: createGetChatId(threadId),
     read_chat: createReadChat(userId),
+    search_chat_history: createSearchChatHistory(userId),
     list_models: listModels,
     list_users: listUsers,
     ...pluginTools,
@@ -145,6 +147,8 @@ export function getToolCategories(): Record<string, { category: string; conditio
     obsidian_write: { category: "Obsidian" },
     obsidian_edit: { category: "Obsidian" },
     obsidian_ai_notes_list: { category: "Obsidian" },
+    // Search
+    search_chat_history: { category: "Search" },
     // System
     get_chat_id: { category: "System" },
     read_chat: { category: "System" },

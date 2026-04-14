@@ -47,6 +47,7 @@ function ChatLayout() {
     query: threadSearchQuery,
     setQuery: setThreadSearchQuery,
     filtered: filteredThreads,
+    isSearching,
   } = useChatThreadSearch(data.threads);
 
   const selectedThreadId = data.selectedThreadId;
@@ -168,7 +169,7 @@ function ChatLayout() {
   const threadListContent = (
     <>
       <div className="px-2 pb-2">
-        <ChatThreadSearchInput value={threadSearchQuery} onChange={setThreadSearchQuery} />
+        <ChatThreadSearchInput value={threadSearchQuery} onChange={setThreadSearchQuery} isSearching={isSearching} />
       </div>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
         {filteredThreads.map((thread: ChatThreadSummary) => (

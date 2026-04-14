@@ -34,6 +34,7 @@ import {
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
 import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
+import { embedThread } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { getUserPreferences } from "#/lib/preferences.server";
 import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
@@ -411,6 +412,11 @@ export const Route = createFileRoute("/api/chat")({
                 },
               }),
             ]);
+
+            // Fire-and-forget: update embedding for semantic search
+            embedThread(thread.id).catch((err) => {
+              logger.error({ err, threadId: thread.id }, "Failed to update chat embedding");
+            });
           },
         });
       },
