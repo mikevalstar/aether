@@ -353,12 +353,17 @@ export const searchChatThreads = createServerFn({ method: "GET" })
   .inputValidator((data) => searchChatThreadsInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
-    const results = await searchChats(data.query, session.user.id, data.limit);
-    return results.map((r) => ({
-      id: r.threadId,
-      title: r.title,
-      preview: r.preview,
-      score: r.score,
-      updatedAt: r.updatedAt,
-    }));
+    try {
+      const results = await searchChats(data.query, session.user.id, data.limit);
+      return results.map((r) => ({
+        id: r.threadId,
+        title: r.title,
+        preview: r.preview,
+        score: r.score,
+        updatedAt: r.updatedAt,
+      }));
+    } catch (err) {
+      logger.error({ err, userId: session.user.id, query: data.query }, "searchChatThreads server function failed");
+      throw err;
+    }
   });

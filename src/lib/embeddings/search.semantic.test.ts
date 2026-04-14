@@ -37,20 +37,18 @@ const { prismaMock, state } = vi.hoisted(() => {
   const state = { threads: [] as Thread[] };
   const prismaMock = {
     chatThread: {
-      findMany: vi.fn(
-        async ({ where }: { where?: { id?: { in?: string[] }; userId?: string } }) => {
-          const idSet = where?.id?.in ? new Set(where.id.in) : null;
-          return state.threads
-            .filter((t) => (idSet ? idSet.has(t.id) : true))
-            .filter((t) => (where?.userId ? t.userId === where.userId : true))
-            .map((t) => ({
-              id: t.id,
-              title: t.title,
-              messagesJson: t.messagesJson,
-              updatedAt: t.updatedAt,
-            }));
-        },
-      ),
+      findMany: vi.fn(async ({ where }: { where?: { id?: { in?: string[] }; userId?: string } }) => {
+        const idSet = where?.id?.in ? new Set(where.id.in) : null;
+        return state.threads
+          .filter((t) => (idSet ? idSet.has(t.id) : true))
+          .filter((t) => (where?.userId ? t.userId === where.userId : true))
+          .map((t) => ({
+            id: t.id,
+            title: t.title,
+            messagesJson: t.messagesJson,
+            updatedAt: t.updatedAt,
+          }));
+      }),
     },
   };
   return { prismaMock, state };

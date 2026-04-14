@@ -36,9 +36,11 @@ export function useChatThreadSearch(threads: ChatThreadSummary[]) {
       const results = await searchChatThreads({ data: { query: q, limit: 20 } });
       if (controller.signal.aborted) return;
       setSemanticIds(results.map((r) => r.id));
-    } catch {
+    } catch (err) {
       if (controller.signal.aborted) return;
-      // On error, fall back to fuse-only results
+      // Server-side logger already captured the details; surface in browser too
+      // so dev tools show the failure when the UI silently falls back to fuse.
+      console.error("Chat thread semantic search failed", err);
       setSemanticIds(null);
     } finally {
       if (!controller.signal.aborted) {

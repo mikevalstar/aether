@@ -20,7 +20,13 @@ const { prismaMock, state } = vi.hoisted(() => {
   const prismaMock = {
     chatThread: {
       findMany: vi.fn(
-        async ({ where, select }: { where?: { id?: { in?: string[] }; userId?: string }; select?: Record<string, boolean> }) => {
+        async ({
+          where,
+          select,
+        }: {
+          where?: { id?: { in?: string[] }; userId?: string };
+          select?: Record<string, boolean>;
+        }) => {
           const idSet = where?.id?.in ? new Set(where.id.in) : null;
           return state.threads
             .filter((t) => (idSet ? idSet.has(t.id) : true))
@@ -45,7 +51,7 @@ vi.mock("#/db", () => ({ prisma: prismaMock }));
 // Synthetic embedding generator — deterministic vectors keyed on "topic" words.
 // Each topic occupies a disjoint band of dimensions so cosine similarity is
 // ~1.0 between threads sharing a topic and ~0.0 between different topics.
-const { embedMock, synth, DIMS } = vi.hoisted(() => {
+const { embedMock, synth } = vi.hoisted(() => {
   const DIMS = 1536;
   const BAND = 128;
   const topicBands: Record<string, number> = {

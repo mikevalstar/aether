@@ -1,5 +1,6 @@
 import { prisma } from "#/db";
 import { getChatPreviewFromMessages, parseStoredMessages, threadIdToSlug } from "#/lib/chat/chat";
+import { logger } from "#/lib/logger";
 import { getVecDb } from "./db";
 import { generateEmbedding } from "./embed";
 
@@ -29,22 +30,44 @@ function recencyScore(updatedAt: Date): number {
 }
 
 export async function searchChats(query: string, userId: string, limit = 5): Promise<SearchResult[]> {
-  const queryEmbedding = await generateEmbedding(query);
+  const started = performance.now();
+  logger.info({ userId, query, limit }, "chat search started");
+
+  let queryEmbedding: number[];
+  try {
+    queryEmbedding = await generateEmbedding(query);
+  } catch (err) {
+    logger.error({ err, userId, query }, "chat search failed: could not generate query embedding");
+    throw err;
+  }
+
   const db = getVecDb();
 
   // Fetch more candidates than needed for re-ranking
   const fetchCount = Math.max(limit * 3, 20);
-  const candidates = db
-    .prepare(
-      `SELECT thread_id, distance
-       FROM chat_embedding_vec
-       WHERE embedding MATCH ?
-       ORDER BY distance
-       LIMIT ?`,
-    )
-    .all(new Float32Array(queryEmbedding), fetchCount) as VecCandidate[];
+  let candidates: VecCandidate[];
+  try {
+    candidates = db
+      .prepare(
+        `SELECT thread_id, distance
+         FROM chat_embedding_vec
+         WHERE embedding MATCH ?
+         ORDER BY distance
+         LIMIT ?`,
+      )
+      .all(new Float32Array(queryEmbedding), fetchCount) as VecCandidate[];
+  } catch (err) {
+    logger.error({ err, userId, query }, "chat search failed: sqlite-vec query error");
+    throw err;
+  }
 
-  if (candidates.length === 0) return [];
+  if (candidates.length === 0) {
+    logger.info(
+      { userId, query, durationMs: Math.round(performance.now() - started) },
+      "chat search returned no candidates",
+    );
+    return [];
+  }
 
   // Fetch thread details from Prisma (only the user's threads)
   const threadIds = candidates.map((c) => c.thread_id);
@@ -85,5 +108,21 @@ export async function searchChats(query: string, userId: string, limit = 5): Pro
   }
 
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, limit);
+  const results = scored.slice(0, limit);
+
+  logger.info(
+    {
+      userId,
+      query,
+      candidateCount: candidates.length,
+      visibleToUser: threads.length,
+      returned: results.length,
+      topScore: results[0]?.score ?? null,
+      topSimilarity: results[0]?.similarity ?? null,
+      durationMs: Math.round(performance.now() - started),
+    },
+    "chat search completed",
+  );
+
+  return results;
 }

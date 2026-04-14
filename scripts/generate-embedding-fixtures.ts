@@ -55,7 +55,8 @@ async function main(): Promise<void> {
     embeddings: pruned,
   };
 
-  fs.writeFileSync(OUTPUT_PATH, `${JSON.stringify(payload)}\n`);
+  // Match biome's formatting so regenerations produce minimal diffs.
+  fs.writeFileSync(OUTPUT_PATH, `${JSON.stringify(payload, null, 2)}\n`);
   console.log(`Wrote ${Object.keys(pruned).length} embeddings → ${OUTPUT_PATH}`);
 }
 
