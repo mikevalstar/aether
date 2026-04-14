@@ -4,6 +4,7 @@ import type { ToolSet } from "ai";
 import { minimax as createMinimax } from "vercel-minimax-ai-provider";
 import type { ChatModel } from "#/lib/chat/chat-models";
 import { getModelProvider, getProviderModelId, getWebToolVersion, supportsCodeExecution } from "#/lib/chat/chat-models";
+import { createSearchChatHistory } from "#/lib/embeddings";
 import type { UserPreferences } from "#/lib/preferences";
 import { aiMemory } from "#/lib/tools/ai-memory";
 import {
@@ -15,6 +16,7 @@ import {
 import { createCalendarEvents } from "#/lib/tools/calendar-events";
 import { exaTools } from "#/lib/tools/exa-tools";
 import { fetchUrlMarkdown } from "#/lib/tools/fetch-url-markdown";
+import { createGetChatId } from "#/lib/tools/get-chat-id";
 import { listModels } from "#/lib/tools/list-models";
 import { listUsers } from "#/lib/tools/list-users";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
@@ -24,6 +26,7 @@ import { createObsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
 import { createObsidianWrite } from "#/lib/tools/obsidian-write";
+import { createReadChat } from "#/lib/tools/read-chat";
 import { createCancelScheduledNotification, createListScheduledNotifications } from "#/lib/tools/scheduled-notifications";
 import { createSendNotification } from "#/lib/tools/send-notification";
 import { getPluginTools } from "#/plugins/index.server";
@@ -113,6 +116,9 @@ export function createAiTools(
     list_scheduled_notifications: createListScheduledNotifications(userId, timezone),
     cancel_scheduled_notification: createCancelScheduledNotification(userId),
     calendar_events: createCalendarEvents(userId, timezone),
+    get_chat_id: createGetChatId(threadId),
+    read_chat: createReadChat(userId),
+    search_chat_history: createSearchChatHistory(userId),
     list_models: listModels,
     list_users: listUsers,
     ...pluginTools,
@@ -141,7 +147,11 @@ export function getToolCategories(): Record<string, { category: string; conditio
     obsidian_write: { category: "Obsidian" },
     obsidian_edit: { category: "Obsidian" },
     obsidian_ai_notes_list: { category: "Obsidian" },
+    // Search
+    search_chat_history: { category: "Search" },
     // System
+    get_chat_id: { category: "System" },
+    read_chat: { category: "System" },
     list_models: { category: "System" },
     list_users: { category: "System" },
     // Memory

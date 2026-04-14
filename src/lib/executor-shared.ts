@@ -1,4 +1,5 @@
 import { generateText, stepCountIs } from "ai";
+import { nanoid } from "nanoid";
 import { prisma } from "#/db";
 import { createAiTools, getModel } from "#/lib/ai-tools";
 import {
@@ -68,7 +69,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
   const modelDef = CHAT_MODELS.find((m) => m.id === ctx.model);
 
   // Create ChatThread for this run
-  const threadId = `thread_${crypto.randomUUID()}`;
+  const threadId = `thread_${nanoid(10)}`;
   await prisma.chatThread.create({
     data: {
       id: threadId,
@@ -110,7 +111,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     const estimatedCost = estimateChatUsageCostUsd(ctx.model, usage);
 
     const usageEntry = {
-      id: `usage_${crypto.randomUUID()}`,
+      id: `usage_${nanoid(10)}`,
       model: ctx.model,
       taskType: ctx.type,
       createdAt: new Date().toISOString(),
@@ -139,7 +140,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
       }),
       prisma.chatUsageEvent.create({
         data: {
-          id: `usage_event_${crypto.randomUUID()}`,
+          id: `usage_event_${nanoid(10)}`,
           userId: ctx.userId,
           threadId,
           model: ctx.model,
@@ -205,7 +206,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
         data: {
           messagesJson: JSON.stringify([
             {
-              id: `msg_${crypto.randomUUID()}`,
+              id: `msg_${nanoid(10)}`,
               role: "assistant",
               parts: [{ type: "text", text: `${typeLabel(ctx.type)} execution failed: ${errorMessage}` }],
             },

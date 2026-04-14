@@ -7,6 +7,7 @@ import {
   stepCountIs,
   streamText,
 } from "ai";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { readSystemPrompt, readTitlePromptConfig } from "#/lib/ai-config/ai-config";
@@ -33,6 +34,7 @@ import {
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
 import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
+import { embedThread } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { getUserPreferences } from "#/lib/preferences.server";
 import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
@@ -227,7 +229,7 @@ export const Route = createFileRoute("/api/chat")({
           const nextTotals = addChatUsageTotals(currentTotals, exchangeUsage);
           const assistantMessage = [...messages].reverse().find((message) => message.role === "assistant");
           const usageEntry: ChatUsageEntry = {
-            id: `usage_${crypto.randomUUID()}`,
+            id: `usage_${nanoid(10)}`,
             model: usageModel,
             taskType,
             createdAt: new Date().toISOString(),
@@ -369,7 +371,7 @@ export const Route = createFileRoute("/api/chat")({
               ...titleUsageEvents.map((titleEvent) =>
                 prisma.chatUsageEvent.create({
                   data: {
-                    id: `usage_event_${crypto.randomUUID()}`,
+                    id: `usage_event_${nanoid(10)}`,
                     userId: session.user.id,
                     threadId: thread.id,
                     model: titleEvent.model,
@@ -397,7 +399,7 @@ export const Route = createFileRoute("/api/chat")({
               }),
               prisma.chatUsageEvent.create({
                 data: {
-                  id: `usage_event_${crypto.randomUUID()}`,
+                  id: `usage_event_${nanoid(10)}`,
                   userId: session.user.id,
                   threadId: thread.id,
                   model,
@@ -410,6 +412,11 @@ export const Route = createFileRoute("/api/chat")({
                 },
               }),
             ]);
+
+            // Fire-and-forget: update embedding for semantic search
+            embedThread(thread.id).catch((err) => {
+              logger.error({ err, threadId: thread.id }, "Failed to update chat embedding");
+            });
           },
         });
       },

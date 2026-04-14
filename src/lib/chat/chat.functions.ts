@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createServerFn } from "@tanstack/react-start";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
@@ -20,6 +21,7 @@ import {
   parseStoredMessages,
   resolveModelId,
 } from "#/lib/chat/chat";
+import { searchChats } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { getUserPreference } from "#/lib/preferences.server";
@@ -128,7 +130,7 @@ export const createChatThread = createServerFn({ method: "POST" })
 
     const thread = await prisma.chatThread.create({
       data: {
-        id: `thread_${crypto.randomUUID()}`,
+        id: `thread_${nanoid(10)}`,
         userId: session.user.id,
         model,
         effort,
@@ -338,4 +340,30 @@ export const exportChatThreadToObsidian = createServerFn({ method: "POST" })
     }
 
     return { success: true, relativePath };
+  });
+
+const searchChatThreadsInputSchema = z
+  .object({
+    query: z.string().trim().min(1),
+    limit: z.number().optional().default(10),
+  })
+  .strict();
+
+export const searchChatThreads = createServerFn({ method: "GET" })
+  .inputValidator((data) => searchChatThreadsInputSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await ensureSession();
+    try {
+      const results = await searchChats(data.query, session.user.id, data.limit);
+      return results.map((r) => ({
+        id: r.threadId,
+        title: r.title,
+        preview: r.preview,
+        score: r.score,
+        updatedAt: r.updatedAt,
+      }));
+    } catch (err) {
+      logger.error({ err, userId: session.user.id, query: data.query }, "searchChatThreads server function failed");
+      throw err;
+    }
   });
