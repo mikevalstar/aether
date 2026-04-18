@@ -244,14 +244,22 @@ function FileStatus({ detail }: { detail: ActivityDetail }) {
 }
 
 function ChatThreadMeta({ thread }: { thread: ActivityChatThread }) {
-  const totalTokens = thread.totalInputTokens + thread.totalOutputTokens;
+  const inputTokens = thread.aggregateInputTokens ?? thread.totalInputTokens;
+  const outputTokens = thread.aggregateOutputTokens ?? thread.totalOutputTokens;
+  const costUsd = thread.aggregateEstimatedCostUsd ?? thread.totalEstimatedCostUsd;
+  const totalTokens = inputTokens + outputTokens;
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
       <Badge variant="outline" className="text-xs">
         {thread.model}
       </Badge>
       {totalTokens > 0 && <span className="tabular-nums">{totalTokens.toLocaleString()} tokens</span>}
-      {thread.totalEstimatedCostUsd > 0 && <span className="tabular-nums">{formatCost(thread.totalEstimatedCostUsd)}</span>}
+      {thread.subAgentCount ? (
+        <span className="tabular-nums text-[var(--teal)]">
+          +{thread.subAgentCount} sub-agent{thread.subAgentCount === 1 ? "" : "s"}
+        </span>
+      ) : null}
+      {costUsd > 0 && <span className="tabular-nums">{formatCost(costUsd)}</span>}
     </div>
   );
 }

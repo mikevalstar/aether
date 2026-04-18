@@ -2,8 +2,11 @@ import { ChevronDownIcon, FileDownIcon, MenuIcon, PencilIcon, Trash2Icon } from 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ModelEffortSelector } from "#/components/chat/ModelEffortSelector";
 import { Button } from "#/components/ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "#/components/ui/hover-card";
 import type { ChatEffort, ChatModel } from "#/lib/chat/chat";
 import { CHAT_MODELS } from "#/lib/chat/chat";
+import type { CostBreakdown } from "#/lib/chat/chat-cost-aggregation";
+import { formatUsageCurrency, getChatModelLabel } from "#/lib/chat/chat-usage";
 
 export interface ChatHeaderProps {
   title: string;
@@ -12,6 +15,8 @@ export interface ChatHeaderProps {
   inputTokens?: number;
   outputTokens?: number;
   costLabel?: string;
+  /** When present, the stats row renders aggregate (parent + sub-agents) with a hover breakdown. */
+  costBreakdown?: CostBreakdown;
   showStats?: boolean;
   disabled?: boolean;
   showMobileMenu?: boolean;
@@ -31,6 +36,7 @@ export function ChatHeader({
   inputTokens = 0,
   outputTokens = 0,
   costLabel = "$0.0000",
+  costBreakdown,
   showStats = false,
   disabled = false,
   showMobileMenu = false,
@@ -232,35 +238,145 @@ export function ChatHeader({
           </div>
 
           {showStats && (
-            <div className="flex items-center gap-3 pt-2 text-xs text-[var(--ink-soft)]">
-              <span>
-                <span className="font-medium text-[var(--ink)]">{inputTokens.toLocaleString()}</span> in
-              </span>
-              <span className="text-[var(--line)]">/</span>
-              <span>
-                <span className="font-medium text-[var(--ink)]">{outputTokens.toLocaleString()}</span> out
-              </span>
-              <span className="text-[var(--line)]">/</span>
-              <span className="font-medium text-[var(--teal)]">{costLabel}</span>
-            </div>
+            <StatsRow
+              inputTokens={inputTokens}
+              outputTokens={outputTokens}
+              costLabel={costLabel}
+              costBreakdown={costBreakdown}
+              className="flex items-center gap-3 pt-2 text-xs text-[var(--ink-soft)]"
+              inputSuffix="in"
+              outputSuffix="out"
+            />
           )}
         </div>
       </div>
 
       {/* Desktop: stats row */}
       {showStats && (
-        <div className="mt-2 hidden items-center gap-3 text-xs text-[var(--ink-soft)] lg:flex">
-          <span>
-            <span className="font-medium text-[var(--ink)]">{inputTokens.toLocaleString()}</span> input tokens
-          </span>
-          <span className="text-[var(--line)]">/</span>
-          <span>
-            <span className="font-medium text-[var(--ink)]">{outputTokens.toLocaleString()}</span> output tokens
-          </span>
-          <span className="text-[var(--line)]">/</span>
-          <span className="font-medium text-[var(--teal)]">{costLabel}</span>
+        <StatsRow
+          inputTokens={inputTokens}
+          outputTokens={outputTokens}
+          costLabel={costLabel}
+          costBreakdown={costBreakdown}
+          className="mt-2 hidden items-center gap-3 text-xs text-[var(--ink-soft)] lg:flex"
+          inputSuffix="input tokens"
+          outputSuffix="output tokens"
+        />
+      )}
+    </div>
+  );
+}
+
+type StatsRowProps = {
+  inputTokens: number;
+  outputTokens: number;
+  costLabel: string;
+  costBreakdown?: CostBreakdown;
+  className: string;
+  inputSuffix: string;
+  outputSuffix: string;
+};
+
+function StatsRow({
+  inputTokens,
+  outputTokens,
+  costLabel,
+  costBreakdown,
+  className,
+  inputSuffix,
+  outputSuffix,
+}: StatsRowProps) {
+  const row = (
+    <div className={className}>
+      <span>
+        <span className="font-medium text-[var(--ink)]">{inputTokens.toLocaleString()}</span> {inputSuffix}
+      </span>
+      <span className="text-[var(--line)]">/</span>
+      <span>
+        <span className="font-medium text-[var(--ink)]">{outputTokens.toLocaleString()}</span> {outputSuffix}
+      </span>
+      <span className="text-[var(--line)]">/</span>
+      <span className="font-medium text-[var(--teal)]">{costLabel}</span>
+    </div>
+  );
+
+  if (!costBreakdown || (costBreakdown.subAgents.count === 0 && costBreakdown.byModel.length <= 1)) {
+    return row;
+  }
+
+  return (
+    <HoverCard openDelay={150} closeDelay={80}>
+      <HoverCardTrigger asChild>
+        <div className="inline-block cursor-help">{row}</div>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-auto max-w-sm p-0" sideOffset={6} align="start">
+        <CostBreakdownPanel breakdown={costBreakdown} />
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
+function CostBreakdownPanel({ breakdown }: { breakdown: CostBreakdown }) {
+  const { parent, subAgents, byModel } = breakdown;
+  const hasSubAgents = subAgents.count > 0;
+
+  return (
+    <div className="min-w-[240px] text-left text-xs">
+      <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        Cost breakdown
+      </div>
+      <div className="border-t border-border/60 px-3 py-2">
+        <BreakdownRow
+          label="Parent"
+          inputTokens={parent.inputTokens}
+          outputTokens={parent.outputTokens}
+          cost={parent.estimatedCostUsd}
+        />
+        {hasSubAgents && (
+          <BreakdownRow
+            label={`Sub-agents (${subAgents.count})`}
+            inputTokens={subAgents.inputTokens}
+            outputTokens={subAgents.outputTokens}
+            cost={subAgents.estimatedCostUsd}
+          />
+        )}
+      </div>
+      {byModel.length > 0 && (
+        <div className="border-t border-border/60 px-3 py-2">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">By model</div>
+          {byModel.map((m) => (
+            <BreakdownRow
+              key={m.model}
+              label={getChatModelLabel(m.model)}
+              inputTokens={m.inputTokens}
+              outputTokens={m.outputTokens}
+              cost={m.estimatedCostUsd}
+            />
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function BreakdownRow({
+  label,
+  inputTokens,
+  outputTokens,
+  cost,
+}: {
+  label: string;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-0.5">
+      <span className="truncate text-foreground">{label}</span>
+      <span className="whitespace-nowrap tabular-nums text-muted-foreground">
+        {inputTokens.toLocaleString()} / {outputTokens.toLocaleString()}{" "}
+        <span className="ml-1 font-medium text-[var(--teal)]">{formatUsageCurrency(cost)}</span>
+      </span>
     </div>
   );
 }

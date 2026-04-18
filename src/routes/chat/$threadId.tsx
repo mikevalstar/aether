@@ -68,11 +68,21 @@ function ChatThreadPage() {
 
   const selectedModel = selectedThread.model ?? DEFAULT_CHAT_MODEL;
   const selectedEffort = selectedThread.effort ?? DEFAULT_CHAT_EFFORT;
-  const selectedUsageTotals = {
-    inputTokens: selectedThread.totalInputTokens ?? 0,
-    outputTokens: selectedThread.totalOutputTokens ?? 0,
-    estimatedCostUsd: selectedThread.totalEstimatedCostUsd ?? 0,
-  };
+  // When a cost breakdown is available (chat threads with 0+ sub-agents),
+  // display the aggregate as the headline number. Sub-agent views fall back
+  // to the thread's own totals.
+  const aggregate = data.costBreakdown?.aggregate;
+  const selectedUsageTotals = aggregate
+    ? {
+        inputTokens: aggregate.inputTokens,
+        outputTokens: aggregate.outputTokens,
+        estimatedCostUsd: aggregate.estimatedCostUsd,
+      }
+    : {
+        inputTokens: selectedThread.totalInputTokens ?? 0,
+        outputTokens: selectedThread.totalOutputTokens ?? 0,
+        estimatedCostUsd: selectedThread.totalEstimatedCostUsd ?? 0,
+      };
   const selectedCostLabel =
     selectedUsageTotals.estimatedCostUsd > 0 && selectedUsageTotals.estimatedCostUsd < 0.0001
       ? "<$0.0001"
@@ -111,6 +121,7 @@ function ChatThreadPage() {
         inputTokens={selectedUsageTotals.inputTokens}
         outputTokens={selectedUsageTotals.outputTokens}
         costLabel={selectedCostLabel}
+        costBreakdown={data.costBreakdown ?? undefined}
         showStats
         disabled={isBusy}
         editable

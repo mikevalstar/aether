@@ -4,6 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
+import { getCostBreakdownsForThreads } from "#/lib/chat/chat-cost-aggregation";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { filenameInputSchema, threadIdInputSchema } from "#/lib/shared-schemas";
@@ -40,6 +41,10 @@ export type TaskRunItem = {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalEstimatedCostUsd: number;
+  aggregateInputTokens?: number;
+  aggregateOutputTokens?: number;
+  aggregateEstimatedCostUsd?: number;
+  subAgentCount?: number;
   createdAt: string;
   updatedAt: string;
   messagesJson: string;
@@ -94,7 +99,7 @@ export const getTasksPageData = createServerFn({ method: "GET" }).handler(async 
 export const getTaskRunHistory = createServerFn({ method: "GET" })
   .inputValidator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
-    await ensureSession();
+    const session = await ensureSession();
 
     // Reconcile this specific task if marked as missing
     await reconcileMissingTasks();
@@ -113,21 +118,33 @@ export const getTaskRunHistory = createServerFn({ method: "GET" })
       orderBy: { createdAt: "desc" },
     });
 
-    const runs: TaskRunItem[] = threads.map((t) => ({
-      id: t.id,
-      title: t.title,
-      type: t.type,
-      model: resolveModelId(t.model) ?? DEFAULT_CHAT_MODEL,
-      effort: t.effort,
-      totalInputTokens: t.totalInputTokens,
-      totalOutputTokens: t.totalOutputTokens,
-      totalEstimatedCostUsd: t.totalEstimatedCostUsd,
-      createdAt: t.createdAt.toISOString(),
-      updatedAt: t.updatedAt.toISOString(),
-      messagesJson: t.messagesJson,
-      systemPromptJson: t.systemPromptJson,
-      availableToolsJson: t.availableToolsJson,
-    }));
+    const breakdowns = await getCostBreakdownsForThreads(
+      threads.map((t) => t.id),
+      session.user.id,
+    );
+
+    const runs: TaskRunItem[] = threads.map((t) => {
+      const b = breakdowns.get(t.id);
+      return {
+        id: t.id,
+        title: t.title,
+        type: t.type,
+        model: resolveModelId(t.model) ?? DEFAULT_CHAT_MODEL,
+        effort: t.effort,
+        totalInputTokens: t.totalInputTokens,
+        totalOutputTokens: t.totalOutputTokens,
+        totalEstimatedCostUsd: t.totalEstimatedCostUsd,
+        aggregateInputTokens: b?.aggregate.inputTokens,
+        aggregateOutputTokens: b?.aggregate.outputTokens,
+        aggregateEstimatedCostUsd: b?.aggregate.estimatedCostUsd,
+        subAgentCount: b?.subAgents.count,
+        createdAt: t.createdAt.toISOString(),
+        updatedAt: t.updatedAt.toISOString(),
+        messagesJson: t.messagesJson,
+        systemPromptJson: t.systemPromptJson,
+        availableToolsJson: t.availableToolsJson,
+      };
+    });
 
     return {
       task: {

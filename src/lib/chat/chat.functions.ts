@@ -21,6 +21,7 @@ import {
   parseStoredMessages,
   resolveModelId,
 } from "#/lib/chat/chat";
+import { type CostBreakdown, getCostBreakdownForThread } from "#/lib/chat/chat-cost-aggregation";
 import { searchChats } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
@@ -139,6 +140,14 @@ export const getChatPageData = createServerFn({ method: "GET" })
       };
     }
 
+    // Cost breakdown: aggregate the selected thread's own usage with any
+    // sub-agents spawned from it. Skipped for sub-agent views — their own
+    // thread already captures their full cost in its totals.
+    let costBreakdown: CostBreakdown | null = null;
+    if (selectedThreadRecord && selectedThreadRecord.type !== "sub-agent") {
+      costBreakdown = await getCostBreakdownForThread(selectedThreadRecord.id, session.user.id);
+    }
+
     return {
       threads,
       selectedThreadId: selectedThreadRecord?.id ?? null,
@@ -147,6 +156,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
       usageHistoryJson: selectedThreadRecord?.usageHistoryJson ?? "[]",
       defaultChatModel: defaultChatModel ?? DEFAULT_CHAT_MODEL,
       subAgentContext,
+      costBreakdown,
     };
   });
 

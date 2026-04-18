@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "#/db";
 import { ensureAppRuntimeStarted } from "#/lib/app-runtime";
 import { ensureSession } from "#/lib/auth.functions";
+import { getCostBreakdownsForThreads } from "#/lib/chat/chat-cost-aggregation";
 import { type ChatModel, DEFAULT_CHAT_MODEL, resolveModelId } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { toObsidianRoutePath } from "#/lib/obsidian/obsidian";
@@ -44,6 +45,10 @@ export type WorkflowRunItem = {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalEstimatedCostUsd: number;
+  aggregateInputTokens?: number;
+  aggregateOutputTokens?: number;
+  aggregateEstimatedCostUsd?: number;
+  subAgentCount?: number;
   createdAt: string;
   updatedAt: string;
   messagesJson: string;
@@ -93,7 +98,7 @@ export const getWorkflowsPageData = createServerFn({ method: "GET" }).handler(as
 export const getWorkflowDetail = createServerFn({ method: "GET" })
   .inputValidator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
-    await ensureSession();
+    const session = await ensureSession();
 
     // Reconcile workflows in case file was temporarily missing
     await reconcileMissingWorkflows();
@@ -119,21 +124,33 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
       orderBy: { createdAt: "desc" },
     });
 
-    const runs: WorkflowRunItem[] = threads.map((t) => ({
-      id: t.id,
-      title: t.title,
-      type: t.type,
-      model: resolveModelId(t.model) ?? DEFAULT_CHAT_MODEL,
-      effort: t.effort,
-      totalInputTokens: t.totalInputTokens,
-      totalOutputTokens: t.totalOutputTokens,
-      totalEstimatedCostUsd: t.totalEstimatedCostUsd,
-      createdAt: t.createdAt.toISOString(),
-      updatedAt: t.updatedAt.toISOString(),
-      messagesJson: t.messagesJson,
-      systemPromptJson: t.systemPromptJson,
-      availableToolsJson: t.availableToolsJson,
-    }));
+    const breakdowns = await getCostBreakdownsForThreads(
+      threads.map((t) => t.id),
+      session.user.id,
+    );
+
+    const runs: WorkflowRunItem[] = threads.map((t) => {
+      const b = breakdowns.get(t.id);
+      return {
+        id: t.id,
+        title: t.title,
+        type: t.type,
+        model: resolveModelId(t.model) ?? DEFAULT_CHAT_MODEL,
+        effort: t.effort,
+        totalInputTokens: t.totalInputTokens,
+        totalOutputTokens: t.totalOutputTokens,
+        totalEstimatedCostUsd: t.totalEstimatedCostUsd,
+        aggregateInputTokens: b?.aggregate.inputTokens,
+        aggregateOutputTokens: b?.aggregate.outputTokens,
+        aggregateEstimatedCostUsd: b?.aggregate.estimatedCostUsd,
+        subAgentCount: b?.subAgents.count,
+        createdAt: t.createdAt.toISOString(),
+        updatedAt: t.updatedAt.toISOString(),
+        messagesJson: t.messagesJson,
+        systemPromptJson: t.systemPromptJson,
+        availableToolsJson: t.availableToolsJson,
+      };
+    });
 
     const aiConfigRel = process.env.OBSIDIAN_AI_CONFIG ?? "";
     const obsidianRelPath = aiConfigRel ? `${aiConfigRel}/workflows/${workflow.filename}` : "";
