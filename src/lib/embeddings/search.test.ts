@@ -136,11 +136,14 @@ describe("searchChats", () => {
   });
 
   afterAll(() => {
-    for (const suffix of ["", "-wal", "-shm"]) {
-      try {
-        fs.unlinkSync(tempDbPath + suffix);
-      } catch {
-        /* ignore */
+    const vecPath = tempDbPath.replace(/\.db$/, ".vec.db");
+    for (const base of [tempDbPath, vecPath]) {
+      for (const suffix of ["", "-wal", "-shm"]) {
+        try {
+          fs.unlinkSync(base + suffix);
+        } catch {
+          /* ignore */
+        }
       }
     }
   });
