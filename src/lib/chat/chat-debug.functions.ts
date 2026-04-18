@@ -11,6 +11,7 @@ import {
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { getUserPreferences } from "#/lib/preferences.server";
 import { readAllSkills, type SkillSummary } from "#/lib/skills";
+import { readAllSubAgents, type SubAgentSummary } from "#/lib/sub-agents";
 import { getAllPluginTools, getRegisteredPlugins } from "#/plugins/index.server";
 
 export type ToolParamInfo = {
@@ -41,6 +42,7 @@ export type ChatDebugData = {
   defaultEffort: string;
   tools: ToolInfo[];
   skills: SkillSummary[];
+  subAgents: SubAgentSummary[];
   plugins: { id: string; name: string; description: string; version: string; hasHealthCheck: boolean; enabled: boolean }[];
   config: {
     hasAnthropicKey: boolean;
@@ -138,7 +140,7 @@ export const getChatDebugData = createServerFn({ method: "GET" }).handler(async 
     }
   }
 
-  const skills = await readAllSkills();
+  const [skills, subAgents] = await Promise.all([readAllSkills(), readAllSubAgents()]);
 
   const models: ModelInfo[] = CHAT_MODELS.map((m) => ({
     ...m,
@@ -170,6 +172,7 @@ export const getChatDebugData = createServerFn({ method: "GET" }).handler(async 
     defaultEffort: DEFAULT_CHAT_EFFORT,
     tools: [...coreToolInfos, ...exaInfos, ...pluginToolInfos],
     skills: skills.map(({ body: _, ...rest }) => rest),
+    subAgents: subAgents.map(({ body: _, ...rest }) => rest),
     plugins,
     config: {
       hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
