@@ -1,4 +1,4 @@
-import { generateText, stepCountIs, tool } from "ai";
+import { readUIMessageStream, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { prisma } from "#/db";
@@ -26,19 +26,40 @@ export type SpawnSubAgentsParentContext = {
   userEmail?: string;
 };
 
-type SpawnResult = {
+/** Per-spawn state that is snapshotted and yielded to the parent UI stream. */
+type SpawnState = {
   agent: string;
   name: string;
-  threadId?: string;
   model: ChatModel;
-  finalText?: string;
+  threadId?: string;
+  status: "pending" | "running" | "done" | "error";
+  text: string;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCostUsd: number;
   error?: string;
 };
 
-/**
- * Build the tool description, embedding the available sub-agents catalog so
- * the parent AI knows which ones it can spawn and when.
- */
+/** Output schema yielded on every snapshot. Shape must stay stable. */
+const spawnStateSchema = z.object({
+  agent: z.string(),
+  name: z.string(),
+  model: z.string(),
+  threadId: z.string().optional(),
+  status: z.enum(["pending", "running", "done", "error"]),
+  text: z.string(),
+  inputTokens: z.number(),
+  outputTokens: z.number(),
+  estimatedCostUsd: z.number(),
+  error: z.string().optional(),
+});
+
+const spawnOutputSchema = z.object({
+  spawns: z.array(spawnStateSchema),
+});
+
+const STREAM_TICK_MS = 100;
+
 function buildToolDescription(subAgents: SubAgentEntry[]): string {
   const catalogLines = subAgents.map((s) => `- ${s.filename}: ${s.description}`);
 
@@ -54,39 +75,30 @@ function buildToolDescription(subAgents: SubAgentEntry[]): string {
   ].join("\n");
 }
 
-/**
- * Extract the final assistant text from a generateText response.
- */
-function extractFinalText(response: { text?: string; content?: unknown }): string {
-  if (typeof response.text === "string" && response.text.length > 0) return response.text;
-  // Fallback: stitch text parts from content if present.
-  if (Array.isArray(response.content)) {
-    return response.content
-      .filter((p) => p && typeof p === "object" && "type" in p && (p as { type: string }).type === "text")
-      .map((p) => (p as { text?: string }).text ?? "")
-      .join("\n")
-      .trim();
-  }
-  return "";
+/** Snapshot of the whole output — mutating the underlying map won't leak to the client, AI SDK serializes on send. */
+function snapshot(states: Map<string, SpawnState>): { spawns: SpawnState[] } {
+  return { spawns: [...states.values()].map((s) => ({ ...s })) };
 }
 
 /**
- * Run a single sub-agent synchronously. Persists its full conversation to a
- * new ChatThread linked to the parent, writes a ChatUsageEvent with
- * taskType="sub-agent", and returns only the final assistant text.
+ * Drive a single sub-agent via streamText, mutating its shared state object as
+ * text streams in. Persists the full conversation + usage event at the end.
+ * Never throws — errors are captured into state.error so other spawns aren't cancelled.
  */
 async function runSubAgent(
   subAgent: SubAgentEntry,
   userPrompt: string,
   parent: SpawnSubAgentsParentContext,
-): Promise<SpawnResult> {
-  const model: ChatModel = subAgent.model ?? parent.parentModel;
-  const modelDef = CHAT_MODELS.find((m) => m.id === model);
+  state: SpawnState,
+  notify: () => void,
+): Promise<void> {
+  const modelDef = CHAT_MODELS.find((m) => m.id === state.model);
 
   const threadId = `thread_${nanoid(10)}`;
+  state.threadId = threadId;
+
   const title = `${subAgent.name}: ${userPrompt.slice(0, 60).trimEnd()}${userPrompt.length > 60 ? "..." : ""}`;
 
-  // Compose the sub-agent's system prompt: base system prompt + sub-agent body.
   const userVars = {
     userName: parent.userName ?? "User",
     userEmail: parent.userEmail,
@@ -95,10 +107,9 @@ async function runSubAgent(
   const baseSystemPrompt = (await readSystemPrompt(userVars)) ?? "";
   const systemPrompt = `${baseSystemPrompt}\n\n## Sub-Agent Role\n\n${subAgent.body}`.trim();
 
-  // Tools: full parent tool set. `spawn_sub_agents` itself is wired in by the
-  // chat/task/workflow/trigger runners separately, so createAiTools naturally
-  // excludes it — preventing recursion.
-  const tools = createAiTools(model, parent.userId, threadId, parent.userTimezone, parent.userPrefs);
+  // Full parent tool set. `spawn_sub_agents` is wired in by each runner *after*
+  // `createAiTools()`, so sub-agents naturally never see it — no recursion.
+  const tools = createAiTools(state.model, parent.userId, threadId, parent.userTimezone, parent.userPrefs);
   const toolNames = Object.keys(tools);
 
   await prisma.chatThread.create({
@@ -106,7 +117,7 @@ async function runSubAgent(
       id: threadId,
       type: "sub-agent",
       title,
-      model,
+      model: state.model,
       effort: parent.parentEffort,
       parentThreadId: parent.parentThreadId,
       subAgentFilename: subAgent.filename,
@@ -114,11 +125,14 @@ async function runSubAgent(
     },
   });
 
+  state.status = "running";
+  notify();
+
   const startedAt = Date.now();
 
   try {
-    const result = await generateText({
-      model: getModel(model),
+    const result = streamText({
+      model: getModel(state.model),
       system: systemPrompt,
       prompt: userPrompt,
       tools,
@@ -133,14 +147,56 @@ async function runSubAgent(
       }),
     });
 
-    const messagesJson = JSON.stringify(result.response.messages);
-    const usage = usageTotalsFromLanguageModelUsage(result.usage);
-    const estimatedCost = estimateChatUsageCostUsd(model, usage);
-    const finalText = extractFinalText(result);
+    // Consume the UI-message stream so we get assembled UIMessages (the shape
+    // the chat UI expects) and can track live text for the parent UI snapshots.
+    const assistantMessages: UIMessage[] = [];
+    const assistantById = new Map<string, UIMessage>();
+
+    for await (const message of readUIMessageStream({ stream: result.toUIMessageStream() })) {
+      if (!assistantById.has(message.id)) {
+        assistantById.set(message.id, message);
+        assistantMessages.push(message);
+      } else {
+        // Replace in-place so the array stays ordered and references the latest snapshot.
+        const idx = assistantMessages.findIndex((m) => m.id === message.id);
+        if (idx >= 0) assistantMessages[idx] = message;
+        assistantById.set(message.id, message);
+      }
+
+      // Extract current text from the latest message's text parts for the live
+      // preview in the parent transcript.
+      state.text = message.parts
+        .filter((p): p is { type: "text"; text: string } => p.type === "text")
+        .map((p) => p.text)
+        .join("\n")
+        .trim();
+      notify();
+    }
+
+    const totalUsage = await result.totalUsage;
+    const usage = usageTotalsFromLanguageModelUsage(totalUsage);
+    const estimatedCost = estimateChatUsageCostUsd(state.model, usage);
+    const finalText = await result.text;
+
+    // Build the full conversation: a synthetic user message with the prompt,
+    // followed by the streamed assistant messages.
+    const userUIMessage: UIMessage = {
+      id: `msg_${nanoid(10)}`,
+      role: "user",
+      parts: [{ type: "text", text: userPrompt }],
+    };
+    const allMessages = [userUIMessage, ...assistantMessages];
+
+    state.text = finalText;
+    state.status = "done";
+    state.inputTokens = usage.inputTokens;
+    state.outputTokens = usage.outputTokens;
+    state.estimatedCostUsd = estimatedCost;
+    notify();
 
     const usageEntry = {
       id: `usage_${nanoid(10)}`,
-      model,
+      model: state.model,
       taskType: "sub-agent" as const,
       createdAt: new Date().toISOString(),
       ...usage,
@@ -155,7 +211,7 @@ async function runSubAgent(
       prisma.chatThread.update({
         where: { id: threadId },
         data: {
-          messagesJson,
+          messagesJson: JSON.stringify(allMessages),
           usageHistoryJson: serializeUsageHistory([usageEntry]),
           totalInputTokens: usage.inputTokens,
           totalOutputTokens: usage.outputTokens,
@@ -169,7 +225,7 @@ async function runSubAgent(
           id: `usage_event_${nanoid(10)}`,
           userId: parent.userId,
           threadId,
-          model,
+          model: state.model,
           taskType: "sub-agent",
           inputTokens: usage.inputTokens,
           outputTokens: usage.outputTokens,
@@ -184,7 +240,7 @@ async function runSubAgent(
         parentThreadId: parent.parentThreadId,
         subAgent: subAgent.filename,
         threadId,
-        model,
+        model: state.model,
         inputTokens: usage.inputTokens,
         outputTokens: usage.outputTokens,
         costUsd: estimatedCost,
@@ -192,14 +248,6 @@ async function runSubAgent(
       },
       "Sub-agent completed",
     );
-
-    return {
-      agent: subAgent.filename,
-      name: subAgent.name,
-      threadId,
-      model,
-      finalText,
-    };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     logger.error(
@@ -211,6 +259,10 @@ async function runSubAgent(
       },
       "Sub-agent failed",
     );
+
+    state.status = "error";
+    state.error = errorMessage;
+    notify();
 
     await prisma.chatThread.update({
       where: { id: threadId },
@@ -224,14 +276,6 @@ async function runSubAgent(
         ]),
       },
     });
-
-    return {
-      agent: subAgent.filename,
-      name: subAgent.name,
-      threadId,
-      model,
-      error: errorMessage,
-    };
   }
 }
 
@@ -255,31 +299,95 @@ export function createSpawnSubAgents(subAgents: SubAgentEntry[], parent: SpawnSu
         .min(1)
         .max(25),
     }),
-    execute: async ({ spawns }) => {
-      const settled = await Promise.all(
-        spawns.map(async (spawn): Promise<SpawnResult> => {
-          const subAgent = findSubAgent(subAgents, spawn.agent);
-          if (!subAgent) {
-            return {
-              agent: spawn.agent,
-              name: spawn.agent,
-              model: parent.parentModel,
-              error: `Sub-agent "${spawn.agent}" not found. Available: ${subAgents.map((s) => s.filename).join(", ")}`,
-            };
-          }
-          return runSubAgent(subAgent, spawn.prompt, parent);
-        }),
-      );
+    outputSchema: spawnOutputSchema,
+    async *execute({ spawns }) {
+      // Initialize per-spawn state. Unknown agents get an immediate error.
+      const states = new Map<string, SpawnState>();
+      const runnable: Array<{ subAgent: SubAgentEntry; prompt: string; state: SpawnState }> = [];
 
-      return {
-        spawns: settled.map((s) => ({
-          agent: s.agent,
-          name: s.name,
-          model: s.model,
-          threadId: s.threadId,
-          ...(s.error ? { error: s.error } : { finalText: s.finalText ?? "" }),
-        })),
+      for (let i = 0; i < spawns.length; i++) {
+        const spawn = spawns[i];
+        const key = `${i}:${spawn.agent}`;
+        const subAgent = findSubAgent(subAgents, spawn.agent);
+
+        if (!subAgent) {
+          const state: SpawnState = {
+            agent: spawn.agent,
+            name: spawn.agent,
+            model: parent.parentModel,
+            status: "error",
+            text: "",
+            inputTokens: 0,
+            outputTokens: 0,
+            estimatedCostUsd: 0,
+            error: `Sub-agent "${spawn.agent}" not found. Available: ${subAgents.map((s) => s.filename).join(", ")}`,
+          };
+          states.set(key, state);
+          continue;
+        }
+
+        const state: SpawnState = {
+          agent: subAgent.filename,
+          name: subAgent.name,
+          model: subAgent.model ?? parent.parentModel,
+          status: "pending",
+          text: "",
+          inputTokens: 0,
+          outputTokens: 0,
+          estimatedCostUsd: 0,
+        };
+        states.set(key, state);
+        runnable.push({ subAgent, prompt: spawn.prompt, state });
+      }
+
+      // Throttled notify — wakes the generator loop on each state change, then
+      // coalesces further changes for STREAM_TICK_MS before yielding again.
+      let wake: () => void = () => {};
+      let wakePromise: Promise<void> = new Promise<void>((resolve) => {
+        wake = resolve;
+      });
+      const resetWake = () => {
+        wakePromise = new Promise<void>((resolve) => {
+          wake = resolve;
+        });
       };
+
+      let dirty = false;
+      const notify = () => {
+        dirty = true;
+        wake();
+      };
+
+      // Kick off all runnable spawns in parallel.
+      const allDone = Promise.all(runnable.map((r) => runSubAgent(r.subAgent, r.prompt, parent, r.state, notify)));
+      allDone.finally(() => wake());
+
+      // Emit the initial snapshot so the UI shows pending cards right away.
+      yield snapshot(states);
+
+      // Yield throttled snapshots until every runnable spawn is settled.
+      let settled = false;
+      allDone.finally(() => {
+        settled = true;
+      });
+
+      while (!settled) {
+        await wakePromise;
+        resetWake();
+
+        if (dirty) {
+          dirty = false;
+          yield snapshot(states);
+        }
+
+        // Coalesce: sleep for the tick before the next yield.
+        if (!settled) {
+          await new Promise((r) => setTimeout(r, STREAM_TICK_MS));
+        }
+      }
+
+      // Make sure any final mutations that happened during the tick are flushed.
+      yield snapshot(states);
     },
   });
 }

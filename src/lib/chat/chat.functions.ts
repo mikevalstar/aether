@@ -107,9 +107,37 @@ export const getChatPageData = createServerFn({ method: "GET" })
     ]);
 
     const threads = threadRecords.map(mapThreadSummary);
-    const selectedThreadRecord = data.threadId
-      ? (threadRecords.find((thread) => thread.id === data.threadId) ?? null)
-      : null;
+
+    // If a threadId is requested, resolve it from the sidebar list first. If
+    // missing there (e.g. a sub-agent thread, not listed in the sidebar), fall
+    // back to a direct lookup by id so standalone views still work.
+    let selectedThreadRecord = data.threadId ? (threadRecords.find((thread) => thread.id === data.threadId) ?? null) : null;
+
+    if (!selectedThreadRecord && data.threadId) {
+      selectedThreadRecord = await prisma.chatThread.findFirst({
+        where: { id: data.threadId, userId: session.user.id },
+      });
+    }
+
+    // For sub-agent threads, resolve parent metadata so the UI can render a
+    // breadcrumb back to the parent conversation.
+    let subAgentContext: {
+      parentThreadId: string;
+      parentThreadTitle: string | null;
+      subAgentFilename: string | null;
+    } | null = null;
+
+    if (selectedThreadRecord?.type === "sub-agent" && selectedThreadRecord.parentThreadId) {
+      const parent = await prisma.chatThread.findFirst({
+        where: { id: selectedThreadRecord.parentThreadId, userId: session.user.id },
+        select: { id: true, title: true },
+      });
+      subAgentContext = {
+        parentThreadId: selectedThreadRecord.parentThreadId,
+        parentThreadTitle: parent?.title ?? null,
+        subAgentFilename: selectedThreadRecord.subAgentFilename,
+      };
+    }
 
     return {
       threads,
@@ -118,6 +146,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
       messagesJson: selectedThreadRecord?.messagesJson ?? "[]",
       usageHistoryJson: selectedThreadRecord?.usageHistoryJson ?? "[]",
       defaultChatModel: defaultChatModel ?? DEFAULT_CHAT_MODEL,
+      subAgentContext,
     };
   });
 

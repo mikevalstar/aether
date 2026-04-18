@@ -6,6 +6,7 @@ import {
 } from "@assistant-ui/react";
 import { AlertCircleIcon, CheckIcon, LoaderIcon, WrenchIcon, XCircleIcon } from "lucide-react";
 import { createContext, type FC, type ReactNode, useContext, useMemo, useState } from "react";
+import { SubAgentBlock } from "#/components/assistant-ui/sub-agent-block";
 import { ToolActivitySummary } from "#/components/assistant-ui/tool-activity-summary";
 import { Badge } from "#/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "#/components/ui/collapsible";
@@ -15,6 +16,8 @@ import { cn } from "#/lib/utils";
 // ── Constants & Types ────────────────────────────────────────────────
 
 const TOOL_ACTIVITY_PREFIX = "tool-activity:";
+const SUB_AGENTS_PREFIX = "sub-agents:";
+const SUB_AGENTS_TOOL_NAME = "spawn_sub_agents";
 
 export type ToolInspection = {
   argsText: string;
@@ -73,14 +76,26 @@ export function getToolStatusMeta(status?: ToolCallMessagePartStatus) {
 
 // ── Part Grouping ────────────────────────────────────────────────────
 
-export function groupConsecutiveToolParts(parts: readonly { type: string }[]) {
+export function groupConsecutiveToolParts(parts: readonly { type: string; toolName?: string }[]) {
   const groups: Array<{ groupKey: string | undefined; indices: number[] }> = [];
   let toolGroupIndex = 0;
+  let subAgentsGroupIndex = 0;
 
   for (let index = 0; index < parts.length; index += 1) {
     const part = parts[index];
     if (part?.type !== "tool-call") {
       groups.push({ groupKey: undefined, indices: [index] });
+      continue;
+    }
+
+    // `spawn_sub_agents` gets its own dedicated group so the custom transcript
+    // block renders outside the generic tool-activity accordion.
+    if (part.toolName === SUB_AGENTS_TOOL_NAME) {
+      groups.push({
+        groupKey: `${SUB_AGENTS_PREFIX}${subAgentsGroupIndex}`,
+        indices: [index],
+      });
+      subAgentsGroupIndex += 1;
       continue;
     }
 
@@ -102,6 +117,10 @@ export function groupConsecutiveToolParts(parts: readonly { type: string }[]) {
 
 function isToolActivityGroup(groupKey: string | undefined) {
   return groupKey?.startsWith(TOOL_ACTIVITY_PREFIX) ?? false;
+}
+
+export function isSubAgentsGroup(groupKey: string | undefined) {
+  return groupKey?.startsWith(SUB_AGENTS_PREFIX) ?? false;
 }
 
 function useToolParts(indices: number[]) {
@@ -260,8 +279,15 @@ export const InspectorToolActivity: FC<{
   children?: ReactNode;
 }> = ({ groupKey, indices, children }) => {
   const parts = useToolParts(indices);
-  const isToolGroup = isToolActivityGroup(groupKey) && parts.length > 0;
 
+  // Sub-agent groups render a custom block rather than the generic accordion.
+  if (isSubAgentsGroup(groupKey) && parts.length > 0) {
+    const part = parts[0];
+    if (!part) return <>{children}</>;
+    return <SubAgentBlock part={part} />;
+  }
+
+  const isToolGroup = isToolActivityGroup(groupKey) && parts.length > 0;
   if (!isToolGroup) return <>{children}</>;
 
   const summary = summarizeToolGroup(parts);
@@ -287,6 +313,10 @@ export const InspectorToolRow: ToolCallMessagePartComponent = (tool) => {
   const inspector = useToolInspector();
   const statusMeta = getToolStatusMeta(tool.status);
   const isSelected = inspector.selectedTool?.toolCallId === tool.toolCallId;
+
+  // Sub-agent calls are rendered by SubAgentBlock via the group dispatcher, not
+  // as a generic inspectable row.
+  if (tool.toolName === SUB_AGENTS_TOOL_NAME) return null;
 
   return (
     <button

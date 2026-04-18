@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeftIcon, UsersIcon } from "lucide-react";
 import { useRef, useTransition } from "react";
 import { ChatHeader } from "#/components/chat/ChatHeader";
 import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { toast } from "#/components/ui/sonner";
-import { DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL, slugToThreadId } from "#/lib/chat/chat";
+import { DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL, slugToThreadId, threadIdToSlug } from "#/lib/chat/chat";
 import {
   exportChatThreadToObsidian,
   getChatPageData,
@@ -31,6 +32,7 @@ function ChatThreadPage() {
 
   const fullThreadId = slugToThreadId(slug);
   const selectedThread = threads.find((t) => t.id === fullThreadId) ?? data.selectedThread;
+  const subAgentContext = data.subAgentContext;
 
   // Hooks must be called before any early return
   const consumedThreadRef = useRef<string | null>(null);
@@ -78,6 +80,30 @@ function ChatThreadPage() {
 
   return (
     <>
+      {subAgentContext && (
+        <div className="flex items-center gap-3 border-b border-border/60 bg-[var(--teal-subtle)] px-4 py-2 text-xs">
+          <UsersIcon className="size-3.5 text-[var(--teal)]" aria-hidden />
+          <span className="font-medium uppercase tracking-[0.12em] text-[var(--teal)]">Sub-agent thread</span>
+          {subAgentContext.subAgentFilename && (
+            <code className="rounded border border-[var(--teal)]/30 bg-background/50 px-1.5 py-0.5 text-[11px] text-muted-foreground">
+              {subAgentContext.subAgentFilename}
+            </code>
+          )}
+          <Link
+            to="/chat/$threadId"
+            params={{ threadId: threadIdToSlug(subAgentContext.parentThreadId) }}
+            className="ml-auto inline-flex items-center gap-1 rounded-md border border-border/60 bg-background px-2 py-1 font-medium text-muted-foreground hover:border-[var(--teal)]/40 hover:text-[var(--teal)]"
+          >
+            <ArrowLeftIcon className="size-3" />
+            Parent thread
+            {subAgentContext.parentThreadTitle && (
+              <span className="ml-1 max-w-[24ch] truncate text-muted-foreground/80">
+                {subAgentContext.parentThreadTitle}
+              </span>
+            )}
+          </Link>
+        </div>
+      )}
       <ChatHeader
         title={selectedThread.title}
         model={selectedModel}
