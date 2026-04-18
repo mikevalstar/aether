@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat";
 
-export const TASK_TYPES = ["chat", "title"] as const;
+export const TASK_TYPES = ["chat", "title", "task", "workflow", "trigger", "sub-agent"] as const;
 export type TaskType = (typeof TASK_TYPES)[number];
 
 export function isTaskType(value: string): value is TaskType {
@@ -14,6 +14,14 @@ export function getTaskTypeLabel(taskType: string): string {
       return "Chat";
     case "title":
       return "Title generation";
+    case "task":
+      return "Task";
+    case "workflow":
+      return "Workflow";
+    case "trigger":
+      return "Trigger";
+    case "sub-agent":
+      return "Sub-agent";
     default:
       return taskType;
   }

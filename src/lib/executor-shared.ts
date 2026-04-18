@@ -16,6 +16,8 @@ import { CHAT_MODELS } from "#/lib/chat/chat-models";
 import { logger } from "#/lib/logger";
 import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
 import { getUserPreferences } from "#/lib/preferences.server";
+import { readAllSubAgents } from "#/lib/sub-agents";
+import { createSpawnSubAgents } from "#/lib/tools/spawn-sub-agents";
 
 function typeLabel(type: ExecutionContext["type"]): string {
   return type === "task" ? "Task" : type === "workflow" ? "Workflow" : "Trigger";
@@ -88,6 +90,20 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
 
   const prefs = await getUserPreferences(ctx.userId);
   const tools = createAiTools(ctx.model, ctx.userId, threadId, ctx.userTimezone, prefs);
+
+  const subAgents = await readAllSubAgents();
+  const spawnSubAgentsTool = createSpawnSubAgents(subAgents, {
+    userId: ctx.userId,
+    parentThreadId: threadId,
+    parentModel: ctx.model,
+    parentEffort: ctx.effort,
+    userTimezone: ctx.userTimezone,
+    userPrefs: prefs,
+  });
+  if (spawnSubAgentsTool) {
+    tools.spawn_sub_agents = spawnSubAgentsTool;
+  }
+
   const toolNames = Object.keys(tools);
 
   try {

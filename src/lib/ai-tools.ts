@@ -163,6 +163,8 @@ export function getToolCategories(): Record<string, { category: string; conditio
     board_update_task: { category: "Board" },
     // Skills
     load_skill: { category: "Skills", conditional: "Only when skills are configured" },
+    // Sub-agents
+    spawn_sub_agents: { category: "Sub-agents", conditional: "Only when sub-agents are configured" },
   };
 }
 

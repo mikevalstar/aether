@@ -14,6 +14,11 @@ export type RunItem = {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalEstimatedCostUsd: number;
+  /** Aggregate across this run's parent thread and any sub-agent threads it spawned. */
+  aggregateInputTokens?: number;
+  aggregateOutputTokens?: number;
+  aggregateEstimatedCostUsd?: number;
+  subAgentCount?: number;
   createdAt: string;
   messagesJson: string;
   systemPromptJson: string | null;
@@ -132,9 +137,17 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                   <TableCell className="text-sm">{formatDateTime(run.createdAt)}</TableCell>
                   <TableCell className="text-sm">{run.model}</TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {(run.totalInputTokens + run.totalOutputTokens).toLocaleString()}
+                    {(
+                      (run.aggregateInputTokens ?? run.totalInputTokens) +
+                      (run.aggregateOutputTokens ?? run.totalOutputTokens)
+                    ).toLocaleString()}
+                    {run.subAgentCount ? (
+                      <span className="ml-1 text-[11px] font-medium text-[var(--teal)]">+{run.subAgentCount}</span>
+                    ) : null}
                   </TableCell>
-                  <TableCell className="text-sm tabular-nums">{formatCost(run.totalEstimatedCostUsd)}</TableCell>
+                  <TableCell className="text-sm tabular-nums">
+                    {formatCost(run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd)}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       {!isAlreadyChat && (

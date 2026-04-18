@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "#/db";
 import { logFileChange } from "#/lib/activity";
 import { ensureSession } from "#/lib/auth.functions";
+import { getCostBreakdownForThread } from "#/lib/chat/chat-cost-aggregation";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 
 const activityListInputSchema = z
@@ -97,6 +98,10 @@ export type ActivityChatThread = {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalEstimatedCostUsd: number;
+  aggregateInputTokens?: number;
+  aggregateOutputTokens?: number;
+  aggregateEstimatedCostUsd?: number;
+  subAgentCount?: number;
   createdAt: string;
 };
 
@@ -170,9 +175,14 @@ export const getActivityDetail = createServerFn({ method: "GET" })
             },
           });
           if (thread) {
+            const breakdown = await getCostBreakdownForThread(thread.id, session.user.id);
             chatThread = {
               ...thread,
               createdAt: thread.createdAt.toISOString(),
+              aggregateInputTokens: breakdown.aggregate.inputTokens,
+              aggregateOutputTokens: breakdown.aggregate.outputTokens,
+              aggregateEstimatedCostUsd: breakdown.aggregate.estimatedCostUsd,
+              subAgentCount: breakdown.subAgents.count,
             };
           }
         }

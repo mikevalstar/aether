@@ -1,6 +1,6 @@
 ---
 title: Requirements Index
-last_updated: 2026-04-06
+last_updated: 2026-04-18
 canonical_file: docs/requirements/index.md
 ---
 
@@ -36,6 +36,7 @@ Status legend: `todo`, `in-progress`, `done`
 | [Workflow Editor](workflow-editor.md)            | done        | Dedicated workflow file editor reusing ConfigEditorShell — frontmatter display, fields array editor, configure modal, new-workflow dialog.                                                                                            | [workflow-editor](workflow-editor.md)         | 2026-04-05   |
 | [Triggers](triggers.md)                          | in-progress | Event-driven AI prompts fired by file changes or plugin events. Config-as-markdown in `triggers/` folder, `{{details}}` placeholder, concurrent execution. Webhooks + seed/pull CLI done; UI for unconfigured triggers still pending. | [triggers](triggers.md)                       | 2026-04-06   |
 | [OpenRouter Model Browser](openrouter-models.md) | todo        | Browse OpenRouter model catalog from chat settings, see pricing, enable/disable models for use in chat.                                                                                                                               | [openrouter-models](openrouter-models.md)     | 2026-03-28   |
+| [Sub-Agents](sub-agents.md)                      | done        | Markdown-defined sub-agents spawned in parallel via `spawn_sub_agents` tool. Streaming UI, own ChatThreads, standalone thread view with parent breadcrumb, and parent+sub-agent cost aggregation with per-model breakdown tooltip in chat header and run-history/activity-dialog rollups. | [sub-agents](sub-agents.md)                   | 2026-04-18   |
 
 # Ideas
 

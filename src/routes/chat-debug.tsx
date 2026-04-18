@@ -1,5 +1,18 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Bot, BrainCircuit, Check, CircuitBoard, Cpu, Puzzle, Settings2, Sparkles, Star, Wrench, X } from "lucide-react";
+import {
+  Bot,
+  BrainCircuit,
+  Check,
+  CircuitBoard,
+  Cpu,
+  Puzzle,
+  Settings2,
+  Sparkles,
+  Star,
+  Users,
+  Wrench,
+  X,
+} from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
@@ -57,7 +70,7 @@ function ChatDebugPage() {
               Chat <span className="text-[var(--teal)]">debug</span>
             </h1>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Models, tools, skills, plugins, and configuration for the AI chat system.
+              Models, tools, skills, sub-agents, plugins, and configuration for the AI chat system.
             </p>
           </div>
         </section>
@@ -279,6 +292,50 @@ function ChatDebugPage() {
           )}
         </section>
 
+        {/* Sub-agents */}
+        <section className="mb-6">
+          <SectionHeading icon={Users} label={`Sub-agents (${data.subAgents.length})`} />
+          {data.subAgents.length > 0 ? (
+            <div className="surface-card overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[180px]">Filename</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="w-[180px]">Model override</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.subAgents.map((subAgent) => (
+                    <TableRow key={subAgent.filename}>
+                      <TableCell>
+                        <code className="text-xs text-[var(--teal)]">{subAgent.filename}</code>
+                      </TableCell>
+                      <TableCell className="font-medium text-foreground">{subAgent.name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{subAgent.description}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {subAgent.model ? <code className="text-xs">{subAgent.model}</code> : "inherit"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="surface-card px-6 py-10 text-center">
+              <p className="text-sm text-muted-foreground">
+                No sub-agents configured. Add sub-agent files to the AI config <code>sub-agents/</code> directory.
+              </p>
+            </div>
+          )}
+          <p className="mt-2 text-xs text-muted-foreground">
+            Sub-agents are spawned in parallel via the <code className="text-[var(--teal)]">spawn_sub_agents</code> tool.
+            Each inherits the parent's tools (minus <code>spawn_sub_agents</code>) and effort; the model is inherited unless
+            overridden in frontmatter.
+          </p>
+        </section>
+
         {/* Plugins */}
         <section className="mb-6">
           <SectionHeading icon={Puzzle} label={`Plugins (${data.plugins.length})`} />
@@ -355,6 +412,8 @@ function CategoryIcon({ category }: { category: string }) {
       return <Cpu className="size-4 text-[var(--teal)]" />;
     case "Skills":
       return <Sparkles className="size-4 text-[var(--teal)]" />;
+    case "Sub-agents":
+      return <Users className="size-4 text-[var(--teal)]" />;
     default:
       return <Wrench className="size-4 text-[var(--teal)]" />;
   }

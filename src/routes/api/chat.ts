@@ -38,7 +38,9 @@ import { embedThread } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { getUserPreferences } from "#/lib/preferences.server";
 import { buildSkillsPromptSection, readAllSkills } from "#/lib/skills";
+import { readAllSubAgents } from "#/lib/sub-agents";
 import { createLoadSkill } from "#/lib/tools/load-skill";
+import { createSpawnSubAgents } from "#/lib/tools/spawn-sub-agents";
 import { getPluginSystemPrompts } from "#/plugins/index.server";
 
 type TitleGenerationResult = {
@@ -293,7 +295,11 @@ export const Route = createFileRoute("/api/chat")({
         });
 
         const userVars = { userName: session.user.name || "User", userEmail: session.user.email, timezone: userTimezone };
-        const [configuredPrompt, skills] = await Promise.all([readSystemPrompt(userVars), readAllSkills()]);
+        const [configuredPrompt, skills, subAgents] = await Promise.all([
+          readSystemPrompt(userVars),
+          readAllSkills(),
+          readAllSubAgents(),
+        ]);
 
         if (!configuredPrompt) {
           return new Response("System prompt is not configured", {
@@ -306,6 +312,19 @@ export const Route = createFileRoute("/api/chat")({
         const systemPrompt = configuredPrompt + buildSkillsPromptSection(skills) + pluginPromptSection;
         if (skills.length > 0) {
           tools.load_skill = createLoadSkill(skills);
+        }
+        const spawnSubAgentsTool = createSpawnSubAgents(subAgents, {
+          userId: session.user.id,
+          parentThreadId: thread.id,
+          parentModel: model,
+          parentEffort: effort,
+          userTimezone,
+          userPrefs,
+          userName: session.user.name || "User",
+          userEmail: session.user.email,
+        });
+        if (spawnSubAgentsTool) {
+          tools.spawn_sub_agents = spawnSubAgentsTool;
         }
         const toolNames = Object.keys(tools);
 

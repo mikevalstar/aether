@@ -1,4 +1,5 @@
 import { skillValidator } from "./skill";
+import { subAgentValidator } from "./sub-agent";
 import { systemPromptValidator } from "./system-prompt";
 import { taskValidator } from "./task";
 import { taskPromptValidator } from "./task-prompt";
@@ -21,6 +22,7 @@ const validators: AiConfigValidator[] = [
   triggerPromptValidator,
   triggerValidator,
   skillValidator,
+  subAgentValidator,
 ];
 
 const validatorsByFilename = new Map<string, AiConfigValidator>(
