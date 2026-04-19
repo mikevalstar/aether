@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Aether** is a personal dashboard project built with TanStack Start. The primary feature is an AI chat interface powered by Claude (via Vercel AI SDK + Assistant UI), with plans to expand into Obsidian library integration and broader daily life management tools.
+**Aether** is a self-hosted personal dashboard and AI agent platform built with TanStack Start, backed by the user's Obsidian vault. Core surfaces: AI chat (Claude + OpenRouter models), markdown-defined workflows, cron-scheduled periodic tasks, event-driven triggers (webhooks + plugin events), a plugin system (Board / Sonarr / Radarr / IMAP / API Balances), and activity + usage tracking.
 
 we are using the latest version of most libraries, these tend to be newer then the training data, so use the skills and/or google for documentation when you don't have an example of how to do something already in the code.
 
@@ -54,9 +54,13 @@ pnpm db:migrate   # Run migrations
 pnpm db:studio    # Open Prisma Studio
 pnpm db:seed      # Seed the database
 
-pnpm create:first-admin  # Create first admin user
-pnpm ai-config:seed      # Seed AI config
-pnpm ai-config:pull      # Pull AI config
+pnpm create:first-admin     # Create first admin user
+pnpm ai-config:seed         # Seed AI config into the Obsidian vault
+pnpm ai-config:pull         # Pull AI config back from the vault
+pnpm embeddings:backfill    # Backfill embeddings for vault content
+pnpm embeddings:fixtures    # Generate embedding test fixtures
+pnpm knip                   # Find unused exports / deps
+pnpm knip:fix               # Auto-fix what knip can
 ```
 
 **Run a single test:**
@@ -127,34 +131,47 @@ Server functions are created with `createServerFn()`. API routes use a `server` 
 **Routes:**
 - `/` — Home page
 - `/login` — Sign in / sign up
-- `/dashboard` — Authenticated dashboard (placeholder widgets)
-- `/chat` — AI chat interface with thread management
-- `/activity` — Activity log
-- `/usage` — Usage tracking
-- `/users` — Users management
-- `/settings/password` — Password settings
+- `/dashboard` — Authenticated dashboard with plugin-contributed widgets
+- `/chat`, `/chat/$threadId` — AI chat interface with thread management
 - `/chat-debug` — Chat system debug info (models, tools, skills, plugins, config)
-- `/tasks/editor` — Task file editor with frontmatter configure modal
-- `/o/` — Obsidian library browser
-- `/requirements/` — Requirements viewer
+- `/tasks`, `/tasks/$`, `/tasks/editor` — Periodic (cron-scheduled) AI tasks list + file editor
+- `/workflows`, `/workflows/$`, `/workflows/editor` — Form-based AI workflows list + file editor
+- `/triggers`, `/triggers/$`, `/triggers/editor` — Event-driven AI triggers list + file editor
+- `/triggers/webhooks` — Webhook URL & API key management
+- `/notifications` — In-app notification inbox
+- `/scheduled-notifications` — Scheduled notification management
+- `/activity` — Activity log (AI actions, file changes, task runs)
+- `/usage` — Token usage & cost tracking
+- `/logs` — Structured viewer for server (pino) and Vite logs
+- `/o`, `/o/$` — Obsidian vault browser
+- `/requirements`, `/requirements/$` — Requirements viewer
+- `/users` — Invite-only user management
+- `/settings` — Settings landing page
+- `/settings/profile` — Profile settings
+- `/settings/password` — Password settings
+- `/settings/chat` — Chat / model preferences
+- `/settings/obsidian` — Obsidian vault configuration
+- `/settings/calendar` — iCal feed configuration
+- `/settings/notifications` — Notification / Pushover preferences
+- `/settings/plugins`, `/settings/plugins/$pluginId` — Plugin enable / configure
 - `/about` — About page
-- `/p/$pluginId` — Plugin pages (e.g., `/p/board` for kanban board)
-- `/p/$pluginId/$pageId` — Plugin sub-pages
+- `/p/$pluginId`, `/p/$pluginId/$pageId` — Plugin-provided pages (e.g., `/p/board`)
 - `/api/auth/$` — Better Auth endpoints
 - `/api/chat` — POST streaming chat endpoint
+- `/api/triggers/*` — Webhook ingress endpoints for triggers
 
 ### Database
 Prisma client is a singleton in `src/db.ts` using the `PrismaBetterSqlite3` adapter. Schema is at `prisma/schema.prisma`. Uses `DATABASE_URL` env var (defaults to `file:./dev.db`).
 
-**Models:** User, Session, Account, Verification (Better Auth), ChatThread (stores messages & usage as JSON), ChatUsageEvent, ActivityLog, FileChangeDetail, Todo (demo).
+**Models:** User, Session, Account, Verification (Better Auth); ChatThread (messages & usage as JSON), ChatUsageEvent; ActivityLog, FileChangeDetail; Task, Workflow, Trigger, Webhook; Notification, ScheduledNotification; Todo (demo).
 
 ### AI Chat
-- **Models**: Claude Haiku 4.5 (default), Sonnet 4.6, Opus 4.6 — defined in `src/lib/chat-models.ts`
-- **Streaming**: `/api/chat` endpoint uses `@ai-sdk/anthropic` to stream responses
-- **UI**: `src/components/chat/ChatWorkspace.tsx` manages state via `useChat()` hook; custom Assistant UI components in `src/components/assistant-ui/`
-- **Server functions**: `src/lib/chat.functions.ts` — CRUD for chat threads
-- **Features**: Multi-turn conversations, token usage tracking, cost estimation, message editing, thread management, markdown rendering with GFM
-- **Env**: Requires `ANTHROPIC_API_KEY`
+- **Models**: Defined in `src/lib/chat/chat-models.ts`. Anthropic: Claude Haiku 4.5 (default), Sonnet 4.6, Opus 4.6. OpenRouter: GLM-5, GLM-5.1, Kimi K2.5. MiniMax: M2.7 (direct or via OpenRouter). Each model carries `supportsWebTools`, `supportsEffort`, `supportsCodeExecution`, `webToolVersion`, and USD pricing for cost tracking.
+- **Streaming**: `/api/chat` streams responses via `@ai-sdk/anthropic`, `@openrouter/ai-sdk-provider`, or `vercel-minimax-ai-provider` based on provider.
+- **UI**: `src/components/chat/ChatWorkspace.tsx` manages state via `useChat()`; custom Assistant UI components in `src/components/assistant-ui/`.
+- **Shared agent loop**: Chat, workflows, periodic tasks, and triggers all go through the same executor (`src/lib/executor-shared.ts`) so tool access and pricing logic stay consistent.
+- **Features**: Multi-turn conversations, token usage & cost tracking, message editing, branch navigation, auto-generated thread titles, markdown + GFM rendering, sub-agents with streaming UI and cost rollups.
+- **Env**: Requires `ANTHROPIC_API_KEY`; optionally `OPENROUTER_API_KEY`, `MINIMAX_API_KEY`.
 
 ### Authentication
 - Server-side config: `src/lib/auth.ts` (Better Auth with TanStack Start cookies plugin)

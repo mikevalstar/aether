@@ -7,7 +7,7 @@ A self-hosted personal dashboard and AI agent platform, backed by your [Obsidian
 ## Features
 
 ### AI Chat
-Multi-turn conversations with Claude (Haiku 4.5, Sonnet 4.6, Opus 4.6) plus OpenRouter models. The AI has full tool access — it can search the web, read and write files in your Obsidian vault, manage your kanban board, query your calendar, and send you push notifications. Streaming responses, message editing, branch navigation, and auto-generated thread titles.
+Multi-turn conversations with Claude (Haiku 4.5, Sonnet 4.6, Opus 4.6), plus OpenRouter models (GLM-5, GLM-5.1, Kimi K2.5) and MiniMax M2.7. The AI has full tool access — it can search the web, read and write files in your Obsidian vault, manage your kanban board, query your calendar, and send you push notifications. Streaming responses, message editing, branch navigation, auto-generated thread titles, and sub-agents with streaming output and per-agent cost rollups.
 
 <a href="docs/screenshots/full/chat.png"><img src="docs/screenshots/chat.png" alt="Chat" width="360" /></a>
 
@@ -52,7 +52,7 @@ Real-time token usage and cost estimation across all AI interactions. Visualize 
 Connect iCal feeds to see upcoming events on your dashboard. The AI can query your calendar during conversations.
 
 ### Notifications
-In-app notification system with optional [Pushover](https://pushover.net/) integration for mobile push notifications. The AI can send you notifications as a tool — useful for task completions or alerts from periodic jobs.
+In-app notification inbox with optional [Pushover](https://pushover.net/) integration for mobile push. The AI can send notifications as a tool, and notifications can be scheduled for a future time from a dedicated `/scheduled-notifications` page — useful for reminders, task completions, or alerts from periodic jobs.
 
 ### Command Palette
 Keyboard-first navigation with `Cmd+K` to jump to any page or action.
@@ -76,9 +76,9 @@ During chat, workflows, periodic tasks, and triggers, the AI has access to:
 
 ## Tech Stack
 
-- **Framework**: [TanStack Start](https://tanstack.com/start) (SSR/streaming on Vite)
-- **Database**: SQLite via [Prisma](https://www.prisma.io/) (zero external dependencies)
-- **AI**: [Vercel AI SDK](https://sdk.vercel.ai/) + [Anthropic Claude](https://www.anthropic.com/) + [OpenRouter](https://openrouter.ai/)
+- **Framework**: [TanStack Start](https://tanstack.com/start) (SSR/streaming on Vite 8, React 19)
+- **Database**: SQLite via [Prisma 7](https://www.prisma.io/) with the better-sqlite3 adapter (zero external dependencies); optional `sqlite-vec` sidecar for embeddings
+- **AI**: [Vercel AI SDK](https://sdk.vercel.ai/) + [Anthropic Claude](https://www.anthropic.com/), [OpenRouter](https://openrouter.ai/), and MiniMax providers
 - **UI**: [Shadcn](https://ui.shadcn.com/) + [Tailwind CSS v4](https://tailwindcss.com/) + [Assistant UI](https://www.assistant-ui.com/)
 - **Auth**: [Better Auth](https://www.better-auth.com/) (invite-only, email/password)
 - **State**: Jotai + Zustand
