@@ -112,8 +112,22 @@ export const CHAT_MODELS = [
     webToolVersion: "none" as const,
     provider: "openrouter" as const,
     pricing: {
-      inputCostPerMillionTokensUsd: 0.42,
+      inputCostPerMillionTokensUsd: 0.44,
       outputCostPerMillionTokensUsd: 2.2,
+    },
+  },
+  {
+    id: "moonshotai/kimi-k2.6",
+    label: "Kimi K2.6",
+    description: "Agentic coding, multi-agent",
+    supportsWebTools: true,
+    supportsEffort: false,
+    supportsCodeExecution: false,
+    webToolVersion: "none" as const,
+    provider: "openrouter" as const,
+    pricing: {
+      inputCostPerMillionTokensUsd: 0.75,
+      outputCostPerMillionTokensUsd: 3.5,
     },
   },
 ] as const;
