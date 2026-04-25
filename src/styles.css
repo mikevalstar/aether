@@ -25,7 +25,7 @@
   --header-bg: oklch(0.985 0.005 85 / 0.92);
   /* Slightly darker than --bg so the header reads as its own band, matching
      the redesign artifact's `rgb(237, 231, 220)` vs body `rgb(244, 239, 230)`. */
-  --top-bar-bg: oklch(0.96 0.008 85);       /* warm cream */
+  --top-bar-bg: rgb(237 231 220);           /* #ede7dc — paper panel */
   --grid-line: oklch(0.85 0.012 85 / 0.18);  /* graph-paper rule */
 
   /* Ink */
