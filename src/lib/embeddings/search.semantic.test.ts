@@ -132,7 +132,10 @@ describe.skipIf(!fixture)("searchChats — real-model fixture", () => {
     const results = await searchChats(q.text, "u1", 3);
     expect(results.length).toBeGreaterThan(0);
 
-    const topTopic = topicById.get(results[0]!.threadId);
+    const [topResult] = results;
+    if (!topResult) throw new Error("Expected at least one search result");
+
+    const topTopic = topicById.get(topResult.threadId);
     expect(q.expectTopics).toContain(topTopic);
   });
 
@@ -163,7 +166,13 @@ describe.skipIf(!fixture)("searchChats — real-model fixture", () => {
       embedMock.mockResolvedValueOnce(lookup(q.text));
 
       const results = await searchChats(q.text, "u1", 5);
-      expect(results[0]!.similarity).toBeGreaterThan(results[4]!.similarity + 0.05);
+      expect(results.length).toBeGreaterThanOrEqual(5);
+
+      const first = results[0];
+      const fifth = results[4];
+      if (!first || !fifth) throw new Error("Expected at least five search results");
+
+      expect(first.similarity).toBeGreaterThan(fifth.similarity + 0.05);
     }
   });
 });

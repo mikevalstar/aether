@@ -116,6 +116,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.12",
+    "@rsbuild/core": "^2.0.1",
     "@storybook/addon-docs": "^10.3.5",
     "@storybook/react-vite": "^10.3.5",
     "@tailwindcss/typography": "^0.5.19",
