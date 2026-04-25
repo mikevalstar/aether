@@ -87,9 +87,6 @@ export function EmptyState({
 
 function CornerTick({ className, lines }: { className: string; lines: string }) {
   return (
-    <span
-      aria-hidden
-      className={`pointer-events-none absolute size-3 border-[var(--accent)]/40 ${lines} ${className}`}
-    />
+    <span aria-hidden className={`pointer-events-none absolute size-3 border-[var(--accent)]/40 ${lines} ${className}`} />
   );
 }

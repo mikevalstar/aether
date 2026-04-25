@@ -68,10 +68,7 @@ export function PageHeader({
           }`}
         >
           <div className="relative pl-4">
-            <span
-              aria-hidden
-              className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full bg-[var(--accent)]"
-            />
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full bg-[var(--accent)]" />
             <SectionLabel icon={icon} color={color}>
               {label}
             </SectionLabel>

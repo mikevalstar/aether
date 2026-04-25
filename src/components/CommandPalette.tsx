@@ -181,12 +181,7 @@ export default function CommandPalette() {
   // - Footer strip with ↵ to open · ⌘K to close — borrowed straight from
   //   Raycast / Linear.
   return (
-    <CommandDialog
-      open={open}
-      onOpenChange={setOpen}
-      showCloseButton={false}
-      className="palette-cmd sm:max-w-2xl"
-    >
+    <CommandDialog open={open} onOpenChange={setOpen} showCloseButton={false} className="palette-cmd sm:max-w-2xl">
       <CommandInput placeholder="Search pages, workflows, vault…" value={search} onValueChange={setSearch} />
       <CommandList className="max-h-[420px]">
         <CommandEmpty>
@@ -314,11 +309,15 @@ export default function CommandPalette() {
             <span>open</span>
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <kbd className="inline-flex h-4 items-center justify-center rounded border border-border bg-background px-1 font-mono text-[10px] text-foreground">↑↓</kbd>
+            <kbd className="inline-flex h-4 items-center justify-center rounded border border-border bg-background px-1 font-mono text-[10px] text-foreground">
+              ↑↓
+            </kbd>
             <span>navigate</span>
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <kbd className="inline-flex h-4 items-center justify-center rounded border border-border bg-background px-1 font-mono text-[10px] text-foreground">esc</kbd>
+            <kbd className="inline-flex h-4 items-center justify-center rounded border border-border bg-background px-1 font-mono text-[10px] text-foreground">
+              esc
+            </kbd>
             <span>close</span>
           </span>
         </div>

@@ -297,12 +297,7 @@ export default function Header({ serverSession }: HeaderProps) {
         {/* Desktop nav pills */}
         <div className="ml-3 hidden items-center gap-0.5 md:flex">
           {visiblePrimary.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className="nav-link"
-              activeProps={{ className: "nav-link is-active" }}
-            >
+            <Link key={link.to} to={link.to} className="nav-link" activeProps={{ className: "nav-link is-active" }}>
               {link.label}
             </Link>
           ))}
@@ -333,7 +328,11 @@ export default function Header({ serverSession }: HeaderProps) {
                 >
                   {session.user.image ? (
                     <Avatar size="sm" className="size-7 rounded-[var(--radius-xs)]">
-                      <AvatarImage src={session.user.image} alt={session.user.name ?? ""} className="rounded-[var(--radius-xs)]" />
+                      <AvatarImage
+                        src={session.user.image}
+                        alt={session.user.name ?? ""}
+                        className="rounded-[var(--radius-xs)]"
+                      />
                       <AvatarFallback className="rounded-[var(--radius-xs)] bg-[var(--accent)] text-[10px] text-[var(--accent-foreground)]">
                         {getInitials(session.user.name, session.user.email)}
                       </AvatarFallback>

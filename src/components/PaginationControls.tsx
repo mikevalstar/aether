@@ -53,11 +53,7 @@ export function PaginationControls({ page, totalPages, onPageChange, className }
         <PaginationContent className="gap-0.5">
           {page > 1 && (
             <PaginationItem>
-              <PaginationPrevious
-                onClick={() => onPageChange(page - 1)}
-                size="sm"
-                className="h-8 gap-1 px-2.5 text-xs"
-              />
+              <PaginationPrevious onClick={() => onPageChange(page - 1)} size="sm" className="h-8 gap-1 px-2.5 text-xs" />
             </PaginationItem>
           )}
           {items.map((item) =>
@@ -84,11 +80,7 @@ export function PaginationControls({ page, totalPages, onPageChange, className }
           )}
           {page < totalPages && (
             <PaginationItem>
-              <PaginationNext
-                onClick={() => onPageChange(page + 1)}
-                size="sm"
-                className="h-8 gap-1 px-2.5 text-xs"
-              />
+              <PaginationNext onClick={() => onPageChange(page + 1)} size="sm" className="h-8 gap-1 px-2.5 text-xs" />
             </PaginationItem>
           )}
         </PaginationContent>

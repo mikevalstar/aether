@@ -19,12 +19,7 @@ type AppLogoProps = {
 export function AppLogo({ className, markClassName }: AppLogoProps) {
   return (
     <span className={cn("inline-flex items-center", className)}>
-      <svg
-        viewBox="0 0 64 64"
-        role="img"
-        aria-label="Aether"
-        className={cn("size-8 shrink-0 text-primary", markClassName)}
-      >
+      <svg viewBox="0 0 64 64" role="img" aria-label="Aether" className={cn("size-8 shrink-0 text-primary", markClassName)}>
         <rect width="64" height="64" rx="14" fill="currentColor" />
         <text
           x="32"
