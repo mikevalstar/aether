@@ -72,7 +72,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="overflow-hidden rounded-sm border border-[var(--line)] bg-[var(--surface)] dark:bg-[var(--accent-subtle)]">
+    <div className="overflow-hidden rounded-sm border border-[var(--line)] bg-[rgb(229,222,207)] dark:bg-[rgb(39,67,122)]">
       <Table>
         <TableHeader>
           <TableRow className="border-[var(--line)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">

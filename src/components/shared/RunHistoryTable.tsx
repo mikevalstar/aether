@@ -98,7 +98,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
 
   if (runs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-[var(--line)] bg-[var(--surface)] p-12 text-center dark:bg-[var(--accent-subtle)]">
+      <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-[var(--line)] bg-[rgb(229,222,207)] p-12 text-center dark:bg-[rgb(39,67,122)]">
         <AlertCircle className="mb-3 size-8 text-[var(--ink-faint)]" />
         <p className="text-sm text-[var(--ink-soft)]">No runs yet for this {emptyLabel}.</p>
       </div>
@@ -106,7 +106,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
   }
 
   return (
-    <div className="overflow-hidden rounded-sm border border-[var(--line)] bg-[var(--surface)] dark:bg-[var(--accent-subtle)]">
+    <div className="overflow-hidden rounded-sm border border-[var(--line)] bg-[rgb(229,222,207)] dark:bg-[rgb(39,67,122)]">
       <Table>
         <TableHeader>
           <TableRow className="border-[var(--line)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">
