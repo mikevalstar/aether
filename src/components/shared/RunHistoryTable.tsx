@@ -106,7 +106,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
   }
 
   return (
-    <div className="overflow-hidden rounded-sm border border-[var(--table-border)] bg-[var(--table-surface)]">
+    <div className="overflow-hidden rounded-sm border border-[var(--table-border)] bg-[var(--table-surface)] [&_td]:px-3 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-3">
       <Table>
         <TableHeader>
           <TableRow className="border-[var(--table-border)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">
@@ -188,7 +188,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                 </TableRow>
                 {isExpanded && (
                   <TableRow className="border-[var(--table-border)] hover:bg-transparent">
-                    <TableCell colSpan={6} className="p-0">
+                    <TableCell colSpan={6} className="!p-0">
                       <RunDetail run={run} />
                     </TableCell>
                   </TableRow>
