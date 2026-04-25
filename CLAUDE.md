@@ -35,6 +35,27 @@ tail -50 logs/aether.$(date +%Y-%m-%d).1.log | jq .msg # just the messages
 tail -50 logs/vite.log
 ```
 
+### Debugging
+
+Reach for **`pnpm debug`** before tailing logs or opening Prisma Studio — it consolidates the most common diagnostic queries into one CLI:
+
+```bash
+pnpm debug doctor                  # env + DB + dev server smoke test
+pnpm debug logs errors             # error+ entries from today
+pnpm debug logs tail --grep "task" # tail today's log with optional filter
+pnpm debug tasks status            # scheduled tasks + last run state
+pnpm debug triggers status         # event triggers + last fired
+pnpm debug usage today             # token + cost rollup by model
+pnpm debug chat thread <id>        # full message history for a thread
+pnpm debug users                   # list users with role + enabled plugins
+pnpm debug models                  # chat models sorted by price (cheapest first)
+pnpm debug --help                  # complete command list
+```
+
+Most commands take `--user <email>` and `--json`. See **[`docs/debugging.md`](docs/debugging.md)** for the full reference (every subcommand, flag, and example) and the manual `tail | jq` fallbacks for when the CLI itself is broken.
+
+**Cost note for AI testing:** when iterating on AI features (chat behavior, tools, prompts, agent loops), default to the cheapest model that meets the need — run `pnpm debug models` to see the price-sorted list. Most changes behave the same across models, so prefer Haiku 4.5 or Kimi K2.5 unless a test specifically requires Sonnet/Opus quality. Override per-call via the `model:` frontmatter on a task/workflow/trigger.
+
 ```bash
 pnpm dev          # Start dev server on port 3000
 pnpm start        # Production build + serve
