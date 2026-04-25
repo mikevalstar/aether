@@ -2,6 +2,7 @@ import { useRouter } from "@tanstack/react-router";
 import { AlertCircle, ChevronDown, ChevronRight, MessageSquare, Trash2 } from "lucide-react";
 import { Fragment, useState } from "react";
 import { RunMessages } from "#/components/shared/RunMessages";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
@@ -140,7 +141,9 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                   )}
                 </TableCell>
                 <TableCell className="text-sm text-[var(--ink)]">{formatDateTime(run.createdAt)}</TableCell>
-                <TableCell className="font-mono text-xs text-[var(--ink-soft)]">{run.model}</TableCell>
+                <TableCell>
+                  <Badge variant="model-name">{run.model}</Badge>
+                </TableCell>
                 <TableCell className="text-sm tabular-nums text-[var(--ink)]">
                   {(
                     (run.aggregateInputTokens ?? run.totalInputTokens) + (run.aggregateOutputTokens ?? run.totalOutputTokens)

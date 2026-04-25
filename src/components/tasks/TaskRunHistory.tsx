@@ -1,21 +1,9 @@
 import cronstrue from "cronstrue";
+import { FileX } from "lucide-react";
+import { Badge } from "#/components/ui/badge";
 import { RunHistoryTable } from "#/components/shared/RunHistoryTable";
 import type { TaskRunItem } from "#/lib/tasks/task.functions";
 import { convertTaskToChat, deleteTaskRun } from "#/lib/tasks/task.functions";
-
-function MetaChip({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "warn" | "accent" }) {
-  const cls =
-    tone === "warn"
-      ? "border-amber-400/40 bg-amber-400/10 text-amber-600 dark:text-amber-300"
-      : tone === "accent"
-        ? "border-[var(--accent)]/30 bg-[var(--accent-subtle)] text-[var(--accent)]"
-        : "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]";
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${cls}`}>
-      {children}
-    </span>
-  );
-}
 
 export function TaskRunHistory({
   task,
@@ -49,10 +37,15 @@ export function TaskRunHistory({
         <code className="rounded border border-[var(--line)] bg-[var(--bg)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--ink-soft)]">
           {task.cron}
         </code>
-        <MetaChip tone="accent">{task.model}</MetaChip>
-        {task.timezone && <MetaChip>{task.timezone}</MetaChip>}
-        {!task.fileExists && <MetaChip tone="warn">File removed</MetaChip>}
-        {!task.enabled && task.fileExists && <MetaChip>Paused</MetaChip>}
+        <Badge variant="model-name">{task.model}</Badge>
+        {task.timezone && <Badge variant="outline">{task.timezone}</Badge>}
+        {!task.fileExists && (
+          <Badge variant="warning">
+            <FileX />
+            File removed
+          </Badge>
+        )}
+        {!task.enabled && task.fileExists && <Badge variant="ghost">Paused</Badge>}
       </div>
 
       <RunHistoryTable

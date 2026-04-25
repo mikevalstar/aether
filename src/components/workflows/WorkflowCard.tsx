@@ -77,9 +77,7 @@ export function WorkflowCard({ item }: { item: WorkflowListItem }) {
               <FormInput className="size-3" />
               {item.fields.length} field{item.fields.length !== 1 ? "s" : ""}
             </span>
-            <Badge variant="outline" className="text-xs">
-              {item.model}
-            </Badge>
+            <Badge variant="model-name">{item.model}</Badge>
             {item.lastRunAt && <span>Last run {formatRelativeTime(item.lastRunAt)}</span>}
             {!item.fileExists && (
               <Badge variant="outline" className="text-amber-600 border-amber-300">

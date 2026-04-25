@@ -78,9 +78,7 @@ export function WorkflowForm({
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 rounded-lg border bg-card p-4">
       <div className="mb-2 flex items-center gap-2">
         <h3 className="text-sm font-medium">Run Workflow</h3>
-        <Badge variant="outline" className="text-xs">
-          {model}
-        </Badge>
+        <Badge variant="model-name">{model}</Badge>
       </div>
       {description && <p className="text-xs text-muted-foreground -mt-2">{description}</p>}
 

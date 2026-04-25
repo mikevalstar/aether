@@ -75,9 +75,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
             {item.title}
           </Link>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[var(--ink-soft)]">
-            <Badge variant="outline" className="font-mono normal-case">
-              {item.model}
-            </Badge>
+            <Badge variant="model-name">{item.model}</Badge>
             {!item.fileExists && (
               <Badge variant="warning">
                 <FileX />
@@ -125,7 +123,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
         item.lastRunAt ? (
           <span className="text-sm tabular-nums text-[var(--ink)]">{formatRelativeTime(item.lastRunAt)}</span>
         ) : (
-          <span className="text-[var(--ink-faint)]">Never</span>
+          <span className="text-muted-foreground">Never</span>
         ),
     },
     {

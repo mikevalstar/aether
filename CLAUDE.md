@@ -8,6 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 we are using the latest version of most libraries, these tend to be newer then the training data, so use the skills and/or google for documentation when you don't have an example of how to do something already in the code.
 
+## Redesign
+
+We are currently in the middle of a redesign; attempting to move the design closer to that of the referecne design: docs/aether-redesign/index.html
+
 ## Documentation
 
 Documentation is very important in this project. Make sure requirements are updated when new features are built or updated.
@@ -135,7 +139,7 @@ Architecture decisions are documented in `docs/decisions/`. When making signific
 - **Linting/Formatting**: Biome (replaces ESLint + Prettier)
 
 ### Code Design
-- We prefer to use libraries; this project is about the functionality not the code 
+- We prefer to use libraries; this project is about the functionality not the code
 - We prefer Shadcn or 3rd party Shadcn type components for the UI when available
 - We like to have reusable components where possible
 

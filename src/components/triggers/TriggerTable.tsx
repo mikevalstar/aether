@@ -49,8 +49,8 @@ export function TriggerTable({ items }: { items: TriggerListItem[] }) {
                 <Link to="/triggers/$" params={{ _splat: item.filename }} className="font-medium hover:underline">
                   {item.title}
                 </Link>
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  {item.model}
+                <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                  <Badge variant="model-name">{item.model}</Badge>
                   {!item.fileExists && (
                     <Badge variant="outline" className="ml-2 text-amber-600 border-amber-300">
                       <FileX className="mr-1 size-3" />

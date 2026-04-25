@@ -31,6 +31,9 @@ const badgeVariants = cva(
         // Neutral chip — token style ("claude-haiku-4-5", "3 fields", "#daily").
         // Quieter than status badges: smaller, no uppercase, normal weight.
         outline: "border-[var(--line-strong)] bg-[var(--surface)] text-[var(--ink-soft)] [a&]:hover:bg-[var(--bg)]",
+        // Model identifier chip ("claude-haiku-4-5", "kimi-k2.5") — outline + mono.
+        "model-name":
+          "border-[var(--line-strong)] bg-[var(--surface)] text-[var(--ink-soft)] font-mono normal-case [a&]:hover:bg-[var(--bg)]",
         // Plain neutral, no border ("DRAFT")
         ghost:
           "bg-[var(--muted)] text-[var(--ink-soft)] font-semibold uppercase tracking-wider [a&]:hover:bg-[var(--muted)]/80",
