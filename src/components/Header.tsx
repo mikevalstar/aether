@@ -15,7 +15,6 @@ import {
   LogOut,
   Menu,
   MessageSquare,
-  Puzzle,
   ScrollText,
   Settings,
   Users,
@@ -87,20 +86,6 @@ interface HeaderProps {
   } | null;
 }
 
-/**
- * App-shell header.
- *
- * Design notes vs the redesign sample (`docs/aether-redesign.html`):
- * - The sample shows a status strip at the very top with `VAULT SYNCED`,
- *   `QUEUE 1`, and `$0.12/DAY` indicators. We intentionally do NOT build that
- *   row — vault sync, queue depth, and daily spend already surface elsewhere
- *   (Activity, scheduled-notifications, /usage), and the constant
- *   chrome/cognitive load is not worth it for a single-user dashboard.
- * - We render the æ mark only — no "Aether" wordmark next to it.
- * - Active nav indicator uses `--accent` (driven by `.nav-link.is-active` in
- *   `styles.css`); top bar is kept dense (single row, py-2).
- * - The ⌘K affordance (`CommandKButton`) is always visible when authed.
- */
 export default function Header({ serverSession }: HeaderProps) {
   const { data: clientSession } = authClient.useSession();
   const navigate = useNavigate();
@@ -173,7 +158,7 @@ export default function Header({ serverSession }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-[var(--header-bg)] backdrop-blur-sm pt-[env(safe-area-inset-top)] ${isChatRoute ? "border-b-0 lg:border-b lg:border-border" : "border-b border-border"}`}
+      className={`sticky top-0 z-50 bg-[var(--top-bar-bg)] pt-[env(safe-area-inset-top)] ${isChatRoute ? "border-b-0 lg:border-b lg:border-[var(--line-strong)]" : "border-b border-[var(--line-strong)]"}`}
       data-chat-route={isChatRoute || undefined}
     >
       {/* Impersonation banner */}
@@ -190,7 +175,7 @@ export default function Header({ serverSession }: HeaderProps) {
         >
           <AppLogo markClassName="size-6 rounded-md" />
           <ChevronDown
-            className={`size-3 text-[var(--teal)] transition-transform duration-150 ${chatHeaderExpanded ? "rotate-180" : ""}`}
+            className={`size-3 text-[var(--accent)] transition-transform duration-150 ${chatHeaderExpanded ? "rotate-180" : ""}`}
           />
         </button>
       )}
@@ -199,7 +184,7 @@ export default function Header({ serverSession }: HeaderProps) {
       {isChatRoute && chatHeaderExpanded && (
         <div
           ref={chatNavRef}
-          className="absolute left-0 right-0 top-full z-[70] overflow-hidden border-b border-[var(--teal)]/20 bg-[var(--header-bg)] shadow-xl backdrop-blur-md lg:hidden animate-in slide-in-from-top-2 fade-in duration-200"
+          className="absolute left-0 right-0 top-full z-[70] overflow-hidden border-b border-[var(--accent)]/20 bg-[var(--header-bg)] shadow-xl backdrop-blur-md lg:hidden animate-in slide-in-from-top-2 fade-in duration-200"
         >
           {/* Primary nav grid */}
           <div className="grid grid-cols-3 gap-1 px-3 pt-3 pb-2">
@@ -207,14 +192,14 @@ export default function Header({ serverSession }: HeaderProps) {
               <Link
                 key={link.to}
                 to={link.to}
-                className="group flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 no-underline transition-colors hover:bg-[var(--teal-subtle)] active:scale-95"
+                className="group flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 no-underline transition-colors hover:bg-[var(--accent-subtle)] active:scale-95"
                 activeProps={{
                   className:
-                    "group flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 no-underline bg-[var(--teal-subtle)] active:scale-95",
+                    "group flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 no-underline bg-[var(--accent-subtle)] active:scale-95",
                 }}
                 style={{ animationDelay: `${i * 30}ms` }}
               >
-                <div className="flex size-10 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)] transition-colors group-hover:bg-[var(--teal)]/15 group-[[class*=bg-\\[var]]:bg-[var(--teal)]/15">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-[var(--accent-subtle)] text-[var(--accent)] transition-colors group-hover:bg-[var(--accent)]/15 group-[[class*=bg-\\[var]]:bg-[var(--accent)]/15">
                   <link.icon className="size-5" />
                 </div>
                 <span className="text-[11px] font-semibold text-[var(--ink-soft)] group-hover:text-[var(--ink)]">
@@ -235,10 +220,10 @@ export default function Header({ serverSession }: HeaderProps) {
                     <Link
                       key={link.to}
                       to={link.to}
-                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--ink-soft)] no-underline transition-colors hover:bg-[var(--teal-subtle)] hover:text-[var(--ink)]"
+                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--ink-soft)] no-underline transition-colors hover:bg-[var(--accent-subtle)] hover:text-[var(--ink)]"
                       activeProps={{
                         className:
-                          "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-[var(--teal-subtle)] text-[var(--teal)] no-underline",
+                          "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-[var(--accent-subtle)] text-[var(--accent)] no-underline",
                       }}
                       style={{ animationDelay: `${(visiblePrimary.length + i) * 30}ms` }}
                     >
@@ -262,10 +247,10 @@ export default function Header({ serverSession }: HeaderProps) {
                     <Link
                       key={link.to}
                       to={link.to}
-                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--ink-soft)] no-underline transition-colors hover:bg-[var(--teal-subtle)] hover:text-[var(--ink)]"
+                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--ink-soft)] no-underline transition-colors hover:bg-[var(--accent-subtle)] hover:text-[var(--ink)]"
                       activeProps={{
                         className:
-                          "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-[var(--teal-subtle)] text-[var(--teal)] no-underline",
+                          "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-[var(--accent-subtle)] text-[var(--accent)] no-underline",
                       }}
                       style={{ animationDelay: `${(visiblePrimary.length + pluginPageLinks.length + i) * 30}ms` }}
                     >
@@ -295,81 +280,48 @@ export default function Header({ serverSession }: HeaderProps) {
         </div>
       )}
 
-      {/* Full nav bar: always visible on desktop, hidden on mobile for chat route */}
-      <nav className={`page-wrap flex items-center gap-6 py-2 px-4 ${isChatRoute ? "hidden lg:flex" : "flex"}`}>
+      {/* Full nav bar: always visible on desktop, hidden on mobile for chat route.
+          Layout matches the redesign artifact: fixed 48px height, brand on the
+          left, UPPERCASE pill nav, status indicators on the right, then the
+          theme toggle / ⌘K pill / square avatar. */}
+      <nav className={`flex h-12 items-center gap-3 px-5 ${isChatRoute ? "hidden lg:flex" : "flex"}`}>
         {/* Brand — links to dashboard when authed, home when not */}
         <Link
           to={isAuthed ? "/dashboard" : "/"}
           className="rounded-[9px] no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Aether home"
         >
-          <AppLogo />
+          <AppLogo markClassName="size-7 rounded-md" />
         </Link>
 
-        {/* Desktop nav links */}
-        <div className="hidden md:flex items-center gap-4 text-sm font-medium">
+        {/* Desktop nav pills */}
+        <div className="ml-3 hidden items-center gap-0.5 md:flex">
           {visiblePrimary.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="nav-link flex items-center gap-1.5"
-              activeProps={{ className: "nav-link is-active flex items-center gap-1.5" }}
+              className="nav-link"
+              activeProps={{ className: "nav-link is-active" }}
             >
-              <link.icon className="size-3.5" />
               {link.label}
             </Link>
           ))}
 
           {/* Plugins dropdown — only when authed and plugins have pages */}
           {isAuthed && pluginPageLinks.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button type="button" className={`nav-link flex items-center gap-1.5 ${pluginsIsActive ? "is-active" : ""}`}>
-                  <Puzzle className="size-3.5" />
-                  Plugins
-                  <ChevronDown className="size-3 opacity-50" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-44">
-                {pluginPageLinks.map((link) => (
-                  <DropdownMenuItem key={link.to} asChild>
-                    <Link to={link.to} className="flex items-center gap-2 no-underline">
-                      <link.icon className="size-4" />
-                      {link.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <NavDropdown label="Plugins" active={pluginsIsActive} links={pluginPageLinks} />
           )}
 
           {/* System dropdown — only when authed */}
-          {isAuthed && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button type="button" className={`nav-link flex items-center gap-1.5 ${systemIsActive ? "is-active" : ""}`}>
-                  <Settings className="size-3.5" />
-                  System
-                  <ChevronDown className="size-3 opacity-50" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-44">
-                {systemLinks.map((link) => (
-                  <DropdownMenuItem key={link.to} asChild>
-                    <Link to={link.to} className="flex items-center gap-2 no-underline">
-                      <link.icon className="size-4" />
-                      {link.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          {isAuthed && <NavDropdown label="System" active={systemIsActive} links={systemLinks} />}
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          {isAuthed && <CommandKButton />}
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        <div className="flex items-center gap-2">
           <ThemeToggle />
+          {isAuthed && <CommandKButton />}
           {isAuthed && <NotificationBell />}
           {isAuthed ? (
             <DropdownMenu>
@@ -377,14 +329,18 @@ export default function Header({ serverSession }: HeaderProps) {
                 <button
                   type="button"
                   aria-label="User menu"
-                  className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="grid size-7 place-items-center rounded-[var(--radius-xs)] bg-[var(--accent)] text-[10px] font-bold uppercase tracking-wide text-[var(--accent-foreground)] outline-none transition-colors hover:bg-[var(--accent-hover)] focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <Avatar size="sm">
-                    {session.user.image && <AvatarImage src={session.user.image} alt={session.user.name ?? ""} />}
-                    <AvatarFallback className="bg-primary text-xs text-primary-foreground">
-                      {getInitials(session.user.name, session.user.email)}
-                    </AvatarFallback>
-                  </Avatar>
+                  {session.user.image ? (
+                    <Avatar size="sm" className="size-7 rounded-[var(--radius-xs)]">
+                      <AvatarImage src={session.user.image} alt={session.user.name ?? ""} className="rounded-[var(--radius-xs)]" />
+                      <AvatarFallback className="rounded-[var(--radius-xs)] bg-[var(--accent)] text-[10px] text-[var(--accent-foreground)]">
+                        {getInitials(session.user.name, session.user.email)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    getInitials(session.user.name, session.user.email)
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -527,6 +483,50 @@ export default function Header({ serverSession }: HeaderProps) {
         </SheetContent>
       </Sheet>
     </header>
+  );
+}
+
+function NavDropdown({
+  label,
+  active,
+  links,
+}: {
+  label: string;
+  active: boolean;
+  links: { to: string; label: string; icon: LucideIcon }[];
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button type="button" className={`nav-link ${active ? "is-active" : ""}`}>
+          {label}
+          <ChevronDown className="size-3 opacity-50" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        sideOffset={6}
+        className="w-52 rounded-[var(--radius-sm)] border-[var(--line-strong)] bg-[var(--surface)] p-1 shadow-lg"
+      >
+        <div className="px-2 pt-1.5 pb-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--ink-dim)]">
+          {label}
+        </div>
+        {links.map((link) => (
+          <DropdownMenuItem
+            key={link.to}
+            asChild
+            className="rounded-[var(--radius-xs)] px-2 py-1.5 text-[12.5px] font-medium text-[var(--ink-soft)] focus:bg-[var(--accent-subtle)] focus:text-[var(--accent)]"
+          >
+            <Link to={link.to} className="flex items-center gap-2 no-underline">
+              <span className="grid size-5 place-items-center rounded-[var(--radius-xs)] bg-[var(--accent-subtle)] text-[var(--accent)]">
+                <link.icon className="size-3.5" />
+              </span>
+              {link.label}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
