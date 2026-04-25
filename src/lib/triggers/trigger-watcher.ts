@@ -47,7 +47,9 @@ globalThis.__aetherTriggerWatcherState ??= {
 };
 
 function getState(): TriggerWatcherState {
-  return globalThis.__aetherTriggerWatcherState!;
+  const state = globalThis.__aetherTriggerWatcherState;
+  if (!state) throw new Error("Trigger watcher state was not initialized");
+  return state;
 }
 
 // ── Public API ──────────────────────────────────────────────────────

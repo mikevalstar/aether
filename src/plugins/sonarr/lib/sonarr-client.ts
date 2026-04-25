@@ -1,4 +1,4 @@
-import { SonarrClient } from "tsarr";
+import { SonarrClient } from "tsarr/sonarr";
 
 export type SonarrOptions = {
   base_url: string;
