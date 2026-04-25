@@ -40,7 +40,7 @@ export interface RunHistoryTableProps {
 
 function RunDetail({ run }: { run: RunItem }) {
   return (
-    <div className="max-h-[600px] overflow-y-auto bg-muted/50 px-4 py-3">
+    <div className="max-h-[600px] overflow-y-auto border-t border-[var(--line)] bg-[var(--bg)] px-5 py-4">
       <RunMessages
         messagesJson={run.messagesJson}
         systemPromptJson={run.systemPromptJson}
@@ -98,18 +98,18 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
 
   if (runs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-        <AlertCircle className="mb-3 size-8 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">No runs yet for this {emptyLabel}.</p>
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--line)] bg-[var(--surface)] p-12 text-center">
+        <AlertCircle className="mb-3 size-8 text-[var(--ink-faint)]" />
+        <p className="text-sm text-[var(--ink-soft)]">No runs yet for this {emptyLabel}.</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border bg-card">
+    <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)]">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="border-[var(--line)] hover:bg-transparent [&_th]:bg-[var(--bg)] [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--ink-soft)]">
             <TableHead className="w-8" />
             <TableHead>Time</TableHead>
             <TableHead>Model</TableHead>
@@ -128,28 +128,36 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
             return (
               <Fragment key={run.id}>
                 <TableRow
-                  className={`cursor-pointer ${highlightId === run.id ? "bg-[var(--teal-subtle)]" : ""}`}
+                  className={`cursor-pointer border-[var(--line)] transition-colors hover:bg-[var(--bg)] ${
+                    highlightId === run.id ? "bg-[var(--accent-subtle)] hover:bg-[var(--accent-subtle)]" : ""
+                  }`}
                   onClick={() => setExpandedId(isExpanded ? null : run.id)}
                 >
                   <TableCell>
-                    {isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+                    {isExpanded ? (
+                      <ChevronDown className="size-4 text-[var(--ink-soft)]" />
+                    ) : (
+                      <ChevronRight className="size-4 text-[var(--ink-soft)]" />
+                    )}
                   </TableCell>
-                  <TableCell className="text-sm">{formatDateTime(run.createdAt)}</TableCell>
-                  <TableCell className="text-sm">{run.model}</TableCell>
-                  <TableCell className="text-sm tabular-nums">
+                  <TableCell className="text-sm text-[var(--ink)]">{formatDateTime(run.createdAt)}</TableCell>
+                  <TableCell className="font-mono text-xs text-[var(--ink-soft)]">{run.model}</TableCell>
+                  <TableCell className="text-sm tabular-nums text-[var(--ink)]">
                     {(
                       (run.aggregateInputTokens ?? run.totalInputTokens) +
                       (run.aggregateOutputTokens ?? run.totalOutputTokens)
                     ).toLocaleString()}
                     {run.subAgentCount ? (
-                      <span className="ml-1 text-[11px] font-medium text-[var(--teal)]">+{run.subAgentCount}</span>
+                      <span className="ml-1.5 rounded-full bg-[var(--accent-subtle)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
+                        +{run.subAgentCount}
+                      </span>
                     ) : null}
                   </TableCell>
-                  <TableCell className="text-sm tabular-nums">
+                  <TableCell className="text-sm tabular-nums text-[var(--ink)]">
                     {formatCost(run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd)}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       {!isAlreadyChat && (
                         <Button
                           variant="ghost"
@@ -161,7 +169,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                             void handleConvertToChat(run.id);
                           }}
                         >
-                          <MessageSquare className="size-4 text-muted-foreground" />
+                          <MessageSquare className="size-4 text-[var(--ink-soft)]" />
                         </Button>
                       )}
                       <Button
@@ -173,13 +181,13 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                           void handleDelete(run.id);
                         }}
                       >
-                        <Trash2 className="size-4 text-muted-foreground" />
+                        <Trash2 className="size-4 text-[var(--ink-soft)]" />
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
                 {isExpanded && (
-                  <TableRow>
+                  <TableRow className="border-[var(--line)] hover:bg-transparent">
                     <TableCell colSpan={6} className="p-0">
                       <RunDetail run={run} />
                     </TableCell>
