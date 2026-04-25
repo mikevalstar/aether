@@ -15,14 +15,14 @@
 
 :root {
   /* Surfaces */
-  --bg: oklch(0.985 0.005 85);              /* #faf9f5 paper */
+  --bg: rgb(244 239 230);                   /* #f4efe6 paper */
   --surface: oklch(1 0 0);                  /* #ffffff card */
   --raised: oklch(1 0 0);                   /* #ffffff popover */
   --line: oklch(0.92 0.008 85);             /* #e8e6dd */
   --line-strong: oklch(0.85 0.012 85);      /* #d6d3c7 */
   --table-surface: rgb(229 222 207);        /* #e5decf — warm tan card */
   --table-border:  rgb(207 197 176);        /* #cfc5b0 */
-  --header-bg: oklch(0.985 0.005 85 / 0.92);
+  --header-bg: rgb(244 239 230 / 0.92);
   /* Slightly darker than --bg so the header reads as its own band, matching
      the redesign artifact's `rgb(237, 231, 220)` vs body `rgb(244, 239, 230)`. */
   --top-bar-bg: rgb(237 231 220);           /* #ede7dc — paper panel */
