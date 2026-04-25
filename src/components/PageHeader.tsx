@@ -29,12 +29,24 @@ export interface PageHeaderProps {
   children?: React.ReactNode;
 }
 
-const DEFAULT_GLOWS: GlowConfig[] = [{ color: "var(--teal)", size: "size-[500px]", position: "-right-48 -top-48" }];
+const DEFAULT_GLOWS: GlowConfig[] = [{ color: "var(--accent)", size: "size-[420px]", position: "-right-48 -top-48" }];
 
+/**
+ * Page-level header used at the top of every authenticated route.
+ *
+ * Redesign notes:
+ * - Default accent shifted from `--teal` → `--accent` (single-accent system).
+ * - Density tightened: smaller display type and trimmer vertical padding so
+ *   list / table content rises into view without scrolling.
+ * - A 2px `--accent` rule sits to the left of the title block as the new
+ *   "instrument" tic — echoes the focused-row bar in CommandPalette.
+ * - A hairline `--line` divider sits beneath the header so the section
+ *   label + title read as a tight chip rather than floating in space.
+ */
 export function PageHeader({
   icon,
   label,
-  color = "text-[var(--teal)]",
+  color = "text-[var(--accent)]",
   title,
   highlight,
   description,
@@ -49,13 +61,21 @@ export function PageHeader({
           <GlowBg key={`${glow.color}-${glow.position}`} color={glow.color} size={glow.size} position={glow.position} />
         ))}
 
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        <section className={`mb-8 ${action ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""}`}>
-          <div>
+      <div className="page-wrap relative px-4 pb-10 pt-6 sm:pt-8">
+        <section
+          className={`mb-6 border-b border-[var(--line)] pb-5 ${
+            action ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""
+          }`}
+        >
+          <div className="relative pl-4">
+            <span
+              aria-hidden
+              className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full bg-[var(--accent)]"
+            />
             <SectionLabel icon={icon} color={color}>
               {label}
             </SectionLabel>
-            <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="display-title mt-2 mb-1.5 text-2xl font-bold tracking-tight sm:text-3xl">
               {highlight ? (
                 <>
                   {title} <span className={color}>{highlight}</span>
