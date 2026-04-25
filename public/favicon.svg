@@ -1,9 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Aether">
-  <rect width="64" height="64" rx="14" fill="#178a85"/>
+  <style>
+    /* Light mode (default) — teal square, cream glyph */
+    .bg { fill: #178a85; }
+    .fg { fill: #f1fbf9; }
+    @media (prefers-color-scheme: dark) {
+      /* Dark mode — brighter teal, near-black glyph for contrast */
+      .bg { fill: #3fb8b1; }
+      .fg { fill: #0a1413; }
+    }
+  </style>
+  <rect class="bg" width="64" height="64" rx="14"/>
   <text
+    class="fg"
     x="32"
-    y="44"
-    fill="#f1fbf9"
+    y="46"
     font-family="Fraunces, Georgia, serif"
     font-size="38"
     font-weight="700"
