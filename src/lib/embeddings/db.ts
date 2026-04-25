@@ -105,9 +105,9 @@ function migrateLegacyTablesFromMainDb(vecDb: Database.Database, mainDbPath: str
     logger.info({ legacyTables: [...names] }, "Migrating legacy embedding tables from main DB to vec sidecar");
 
     if (names.has("chat_embedding_meta")) {
-      const cols = vecDb
-        .prepare("SELECT name FROM legacy_main.pragma_table_info('chat_embedding_meta')")
-        .all() as Array<{ name: string }>;
+      const cols = vecDb.prepare("SELECT name FROM legacy_main.pragma_table_info('chat_embedding_meta')").all() as Array<{
+        name: string;
+      }>;
       const colList = cols.map((c) => `"${c.name}"`).join(", ");
       vecDb.exec(
         `INSERT OR IGNORE INTO chat_embedding_meta (${colList})

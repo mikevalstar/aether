@@ -1,6 +1,13 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { readKanbanBoard, resolveKanbanPath, writeKanbanBoard } from "#/lib/board/board.server";
+import { logger } from "#/lib/logger";
+
+function boardError(toolName: string, userId: string, err: unknown, fallback: string): { error: string } {
+  const message = err instanceof Error ? err.message : fallback;
+  logger.warn({ tool: toolName, userId, err }, `Board tool ${toolName} failed: ${message}`);
+  return { error: message };
+}
 
 export function createBoardListTasks(userId: string) {
   return tool({
@@ -38,7 +45,7 @@ export function createBoardListTasks(userId: string) {
           })),
         };
       } catch (err) {
-        return { error: err instanceof Error ? err.message : "Failed to read board" };
+        return boardError("board_list_tasks", userId, err, "Failed to read board");
       }
     },
   });
@@ -64,7 +71,7 @@ export function createBoardListColumns(userId: string) {
           })),
         };
       } catch (err) {
-        return { error: err instanceof Error ? err.message : "Failed to read board" };
+        return boardError("board_list_columns", userId, err, "Failed to read board");
       }
     },
   });
@@ -103,7 +110,7 @@ export function createBoardAddTask(userId: string) {
 
         return { success: true, column: col.name, task };
       } catch (err) {
-        return { error: err instanceof Error ? err.message : "Failed to add task" };
+        return boardError("board_add_task", userId, err, "Failed to add task");
       }
     },
   });
@@ -169,7 +176,7 @@ export function createBoardUpdateTask(userId: string) {
 
         return { success: true, changes };
       } catch (err) {
-        return { error: err instanceof Error ? err.message : "Failed to update task" };
+        return boardError("board_update_task", userId, err, "Failed to update task");
       }
     },
   });
