@@ -143,8 +143,8 @@ async function doInit(): Promise<void> {
   // Ensure the tasks directory exists
   try {
     await fs.mkdir(tasksDir, { recursive: true });
-  } catch {
-    // ignore
+  } catch (err) {
+    logger.warn({ tasksDir, err }, "Could not ensure tasks directory exists");
   }
 
   const cronDisabled = process.env.DISABLE_CRON === "true";
@@ -158,7 +158,8 @@ async function doInit(): Promise<void> {
   let loadedTasks: LoadedTaskConfig[];
   try {
     loadedTasks = await loadTaskConfigs(tasksDir);
-  } catch {
+  } catch (err) {
+    logger.warn({ tasksDir, err }, "Cannot read tasks directory");
     done.skip("cannot read tasks directory", { dir: tasksDir });
     return;
   }
@@ -262,8 +263,10 @@ async function handleFileDelete(filePath: string): Promise<void> {
       where: { filename },
       data: { fileExists: false },
     });
-  } catch {
-    // row may not exist
+  } catch (err) {
+    // The row may not exist yet (file deleted before upsert ran). Log at debug
+    // since this is expected during startup races; warn for unexpected DB errors.
+    logger.debug({ filename, err }, "Could not mark task fileExists=false (row may not exist)");
   }
 
   logger.info({ task: filename }, "Task file deleted");
@@ -287,7 +290,8 @@ function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | n
         unref: true,
         ...(config.endDate ? { stopAt: config.endDate } : {}),
       });
-    } catch {
+    } catch (err) {
+      logger.warn({ task: filename, cron: config.cron, err }, "Could not create paused cron job for disabled task");
       return null;
     }
   }
@@ -313,8 +317,8 @@ function createCronJob(filename: string, config: TaskConfig, lastRunAt: Date | n
           }
         }
       }
-    } catch {
-      // ignore, just don't apply restart guard
+    } catch (err) {
+      logger.debug({ task: filename, cron: config.cron, err }, "Restart guard skipped — could not compute next run");
     }
   }
 

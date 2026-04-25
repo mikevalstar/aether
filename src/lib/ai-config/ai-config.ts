@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { logger } from "#/lib/logger";
 import { OBSIDIAN_AI_CONFIG, OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { interpolatePrompt, type PromptVars } from "#/lib/prompt-utils";
 import { type AiConfigReadResult, parseAndValidateAiConfig } from "./ai-config.shared";
@@ -29,7 +30,15 @@ export async function readAiConfig(filename: string): Promise<AiConfigReadResult
   let rawContent: string;
   try {
     rawContent = await fs.readFile(filePath, "utf8");
-  } catch {
+  } catch (err) {
+    // ENOENT is expected when the optional config file isn't present — log at debug.
+    // Other errors (permission, IO) are unexpected and warrant a warn.
+    const code = (err as NodeJS.ErrnoException | null)?.code;
+    if (code === "ENOENT") {
+      logger.debug({ filename, filePath }, "AI config file not found");
+    } else {
+      logger.warn({ filename, filePath, err }, "Failed to read AI config file");
+    }
     return null;
   }
 

@@ -22,6 +22,7 @@
     "ai-config:pull": "dotenv -e .env -- tsx scripts/ai-config-pull.ts",
     "embeddings:backfill": "dotenv -e .env -- tsx scripts/backfill-embeddings.ts",
     "embeddings:fixtures": "dotenv -e .env -- tsx scripts/generate-embedding-fixtures.ts",
+    "debug": "dotenv -e .env -- tsx scripts/debug.ts",
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
