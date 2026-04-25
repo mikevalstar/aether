@@ -72,10 +72,10 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)]">
+    <div className="overflow-hidden rounded-md border border-[var(--line)] bg-[var(--accent-subtle)]">
       <Table>
         <TableHeader>
-          <TableRow className="border-[var(--line)] hover:bg-transparent [&_th]:bg-[var(--bg)] [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--ink-soft)]">
+          <TableRow className="border-[var(--line)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">
             <TableHead>Task</TableHead>
             <TableHead>Schedule</TableHead>
             <TableHead>Next Run</TableHead>
@@ -93,7 +93,7 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
             return (
               <TableRow
                 key={item.id}
-                className={`border-[var(--line)] transition-colors hover:bg-[var(--bg)] ${dimmed ? "opacity-60" : ""}`}
+                className={`border-[var(--line)] transition-colors hover:bg-[oklch(from_var(--accent)_l_c_h_/_0.10)] ${dimmed ? "opacity-60" : ""}`}
               >
                 <TableCell>
                   <Link
