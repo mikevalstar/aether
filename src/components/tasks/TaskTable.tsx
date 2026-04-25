@@ -1,11 +1,11 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import cronstrue from "cronstrue";
 import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Pencil, Play } from "lucide-react";
 import { useState } from "react";
 import { formatRelativeTime } from "#/components/activity/format-relative-time";
 import { Button } from "#/components/ui/button";
+import { DataTable, type DataTableColumn } from "#/components/ui/data-table";
 import { toast } from "#/components/ui/sonner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import type { TaskListItem } from "#/lib/tasks/task.functions";
 import { triggerTaskRun } from "#/lib/tasks/task.functions";
@@ -49,6 +49,7 @@ function MutedTag({ children, tone = "neutral" }: { children: React.ReactNode; t
 }
 
 export function TaskTable({ items }: { items: TaskListItem[] }) {
+  const navigate = useNavigate();
   const [runningTasks, setRunningTasks] = useState<Set<string>>(new Set());
 
   async function handleRunNow(filename: string) {
@@ -71,115 +72,129 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
 
   if (items.length === 0) return null;
 
-  return (
-    <div className="overflow-hidden rounded-sm border border-[var(--table-border)] bg-[var(--table-surface)] [&_td]:px-3 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-3">
-      <Table>
-        <TableHeader>
-          <TableRow className="border-[var(--table-border)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">
-            <TableHead>Task</TableHead>
-            <TableHead>Schedule</TableHead>
-            <TableHead>Next Run</TableHead>
-            <TableHead>Last Run</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="w-[60px]" />
-            <TableHead className="w-[50px]" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((item) => {
-            const isRunning = runningTasks.has(item.filename) || item.isBusy;
-            const dimmed = !item.fileExists || !item.enabled;
-
-            return (
-              <TableRow
-                key={item.id}
-                className={`border-[var(--table-border)] transition-colors hover:bg-[oklch(from_var(--accent)_l_c_h_/_0.10)] ${dimmed ? "opacity-60" : ""}`}
-              >
-                <TableCell>
-                  <Link
-                    to="/tasks/$"
-                    params={{ _splat: item.filename }}
-                    className="font-medium text-[var(--ink)] transition-colors hover:text-[var(--accent)]"
-                  >
-                    {item.title}
-                  </Link>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[var(--ink-soft)]">
-                    <span className="font-mono text-[11px]">{item.model}</span>
-                    {!item.fileExists && (
-                      <MutedTag tone="warn">
-                        <FileX className="size-3" />
-                        File removed
-                      </MutedTag>
-                    )}
-                    {!item.enabled && item.fileExists && <MutedTag>Paused</MutedTag>}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Tooltip>
-                    <TooltipTrigger className="text-left text-sm text-[var(--ink)]">{formatCron(item.cron)}</TooltipTrigger>
-                    <TooltipContent>
-                      <span className="font-mono text-xs">{item.cron}</span>
-                      {item.timezone && <div className="mt-1 text-xs opacity-80">{item.timezone}</div>}
-                    </TooltipContent>
-                  </Tooltip>
-                  {item.timezone && <div className="text-xs text-[var(--ink-soft)]">{item.timezone}</div>}
-                </TableCell>
-                <TableCell className="text-sm text-[var(--ink)]">
-                  {item.nextRun ? (
-                    <span className="inline-flex items-center gap-1 tabular-nums">
-                      <Clock className="size-3 text-[var(--ink-soft)]" />
-                      {formatRelativeTime(item.nextRun)}
-                    </span>
+  const columns: DataTableColumn<TaskListItem>[] = [
+    {
+      key: "task",
+      header: "Task",
+      cell: (item) => (
+        <div className={!item.fileExists || !item.enabled ? "opacity-60" : ""}>
+          <Link
+            to="/tasks/$"
+            params={{ _splat: item.filename }}
+            className="font-medium text-[var(--ink)] transition-colors hover:text-[var(--accent)]"
+          >
+            {item.title}
+          </Link>
+          <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[var(--ink-soft)]">
+            <span className="font-mono text-[11px]">{item.model}</span>
+            {!item.fileExists && (
+              <MutedTag tone="warn">
+                <FileX className="size-3" />
+                File removed
+              </MutedTag>
+            )}
+            {!item.enabled && item.fileExists && <MutedTag>Paused</MutedTag>}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "schedule",
+      header: "Schedule",
+      cell: (item) => (
+        <>
+          <Tooltip>
+            <TooltipTrigger className="text-left text-sm text-[var(--ink)]">{formatCron(item.cron)}</TooltipTrigger>
+            <TooltipContent>
+              <span className="font-mono text-xs">{item.cron}</span>
+              {item.timezone && <div className="mt-1 text-xs opacity-80">{item.timezone}</div>}
+            </TooltipContent>
+          </Tooltip>
+          {item.timezone && <div className="text-xs text-[var(--ink-soft)]">{item.timezone}</div>}
+        </>
+      ),
+    },
+    {
+      key: "next",
+      header: "Next Run",
+      cell: (item) =>
+        item.nextRun ? (
+          <span className="inline-flex items-center gap-1 tabular-nums text-sm text-[var(--ink)]">
+            <Clock className="size-3 text-[var(--ink-soft)]" />
+            {formatRelativeTime(item.nextRun)}
+          </span>
+        ) : (
+          <span className="text-[var(--ink-faint)]">—</span>
+        ),
+    },
+    {
+      key: "last",
+      header: "Last Run",
+      cell: (item) =>
+        item.lastRunAt ? (
+          <span className="text-sm tabular-nums text-[var(--ink)]">{formatRelativeTime(item.lastRunAt)}</span>
+        ) : (
+          <span className="text-[var(--ink-faint)]">Never</span>
+        ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (item) => <StatusPill status={item.lastRunStatus} />,
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      cell: (item) => {
+        const isRunning = runningTasks.has(item.filename) || item.isBusy;
+        return (
+          <div className="flex items-center justify-end gap-1">
+            {item.fileExists && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={isRunning}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleRunNow(item.filename);
+                  }}
+                  title="Run now"
+                >
+                  {isRunning ? (
+                    <Loader2 className="size-4 animate-spin text-[var(--ink-soft)]" />
                   ) : (
-                    <span className="text-[var(--ink-faint)]">—</span>
+                    <Play className="size-4 text-[var(--ink-soft)]" />
                   )}
-                </TableCell>
-                <TableCell className="text-sm tabular-nums text-[var(--ink)]">
-                  {item.lastRunAt ? (
-                    formatRelativeTime(item.lastRunAt)
-                  ) : (
-                    <span className="text-[var(--ink-faint)]">Never</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <StatusPill status={item.lastRunStatus} />
-                </TableCell>
-                <TableCell>
-                  {item.fileExists && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={isRunning}
-                      onClick={() => void handleRunNow(item.filename)}
-                      title="Run now"
-                    >
-                      {isRunning ? (
-                        <Loader2 className="size-4 animate-spin text-[var(--ink-soft)]" />
-                      ) : (
-                        <Play className="size-4 text-[var(--ink-soft)]" />
-                      )}
+                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild onClick={(e) => e.stopPropagation()}>
+                      <Link to="/tasks/editor/$" params={{ _splat: item.filename }} search={{ configure: false }}>
+                        <Pencil className="size-4 text-[var(--ink-soft)]" />
+                      </Link>
                     </Button>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {item.fileExists && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to="/tasks/editor/$" params={{ _splat: item.filename }} search={{ configure: false }}>
-                            <Pencil className="size-4 text-[var(--ink-soft)]" />
-                          </Link>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Edit task</TooltipContent>
-                    </Tooltip>
-                  )}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>Edit task</TooltipContent>
+                </Tooltip>
+              </>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
+  return (
+    <DataTable
+      title="Tasks"
+      count={items.length}
+      data={items}
+      columns={columns}
+      rowKey={(item) => item.id}
+      showChevron
+      onRowClick={(item) => navigate({ to: "/tasks/$", params: { _splat: item.filename } })}
+    />
   );
 }

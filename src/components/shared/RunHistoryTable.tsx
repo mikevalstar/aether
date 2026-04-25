@@ -106,98 +106,95 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
   }
 
   return (
-    <div className="overflow-hidden rounded-sm border border-[var(--table-border)] bg-[var(--table-surface)] [&_td]:px-3 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-3">
-      <Table>
-        <TableHeader>
-          <TableRow className="border-[var(--table-border)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">
-            <TableHead className="w-8" />
-            <TableHead>Time</TableHead>
-            <TableHead>Model</TableHead>
-            <TableHead>Tokens</TableHead>
-            <TableHead>Cost</TableHead>
-            <TableHead className="w-[120px]" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {runs.map((run) => {
-            const isExpanded = expandedId === run.id;
-            const isDeleting = deletingIds.has(run.id);
-            const isConverting = convertingIds.has(run.id);
-            const isAlreadyChat = run.type === "chat";
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-8" />
+          <TableHead>Time</TableHead>
+          <TableHead>Model</TableHead>
+          <TableHead>Tokens</TableHead>
+          <TableHead>Cost</TableHead>
+          <TableHead className="w-[120px]" />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {runs.map((run) => {
+          const isExpanded = expandedId === run.id;
+          const isDeleting = deletingIds.has(run.id);
+          const isConverting = convertingIds.has(run.id);
+          const isAlreadyChat = run.type === "chat";
 
-            return (
-              <Fragment key={run.id}>
-                <TableRow
-                  className={`cursor-pointer border-[var(--table-border)] transition-colors hover:bg-[oklch(from_var(--accent)_l_c_h_/_0.10)] ${
-                    highlightId === run.id ? "bg-[oklch(from_var(--accent)_l_c_h_/_0.14)]" : ""
-                  }`}
-                  onClick={() => setExpandedId(isExpanded ? null : run.id)}
-                >
-                  <TableCell>
-                    {isExpanded ? (
-                      <ChevronDown className="size-4 text-[var(--ink-soft)]" />
-                    ) : (
-                      <ChevronRight className="size-4 text-[var(--ink-soft)]" />
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm text-[var(--ink)]">{formatDateTime(run.createdAt)}</TableCell>
-                  <TableCell className="font-mono text-xs text-[var(--ink-soft)]">{run.model}</TableCell>
-                  <TableCell className="text-sm tabular-nums text-[var(--ink)]">
-                    {(
-                      (run.aggregateInputTokens ?? run.totalInputTokens) +
-                      (run.aggregateOutputTokens ?? run.totalOutputTokens)
-                    ).toLocaleString()}
-                    {run.subAgentCount ? (
-                      <span className="ml-1.5 rounded-full bg-[var(--accent-subtle)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
-                        +{run.subAgentCount}
-                      </span>
-                    ) : null}
-                  </TableCell>
-                  <TableCell className="text-sm tabular-nums text-[var(--ink)]">
-                    {formatCost(run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-0.5">
-                      {!isAlreadyChat && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={isConverting}
-                          title="Continue in Chat"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            void handleConvertToChat(run.id);
-                          }}
-                        >
-                          <MessageSquare className="size-4 text-[var(--ink-soft)]" />
-                        </Button>
-                      )}
+          return (
+            <Fragment key={run.id}>
+              <TableRow
+                className={`cursor-pointer border-[var(--table-border)] transition-colors hover:bg-[oklch(from_var(--accent)_l_c_h_/_0.10)] ${
+                  highlightId === run.id ? "bg-[oklch(from_var(--accent)_l_c_h_/_0.14)]" : ""
+                }`}
+                onClick={() => setExpandedId(isExpanded ? null : run.id)}
+              >
+                <TableCell>
+                  {isExpanded ? (
+                    <ChevronDown className="size-4 text-[var(--ink-soft)]" />
+                  ) : (
+                    <ChevronRight className="size-4 text-[var(--ink-soft)]" />
+                  )}
+                </TableCell>
+                <TableCell className="text-sm text-[var(--ink)]">{formatDateTime(run.createdAt)}</TableCell>
+                <TableCell className="font-mono text-xs text-[var(--ink-soft)]">{run.model}</TableCell>
+                <TableCell className="text-sm tabular-nums text-[var(--ink)]">
+                  {(
+                    (run.aggregateInputTokens ?? run.totalInputTokens) + (run.aggregateOutputTokens ?? run.totalOutputTokens)
+                  ).toLocaleString()}
+                  {run.subAgentCount ? (
+                    <span className="ml-1.5 rounded-full bg-[var(--accent-subtle)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
+                      +{run.subAgentCount}
+                    </span>
+                  ) : null}
+                </TableCell>
+                <TableCell className="text-sm tabular-nums text-[var(--ink)]">
+                  {formatCost(run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd)}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-0.5">
+                    {!isAlreadyChat && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        disabled={isDeleting}
+                        disabled={isConverting}
+                        title="Continue in Chat"
                         onClick={(e) => {
                           e.stopPropagation();
-                          void handleDelete(run.id);
+                          void handleConvertToChat(run.id);
                         }}
                       >
-                        <Trash2 className="size-4 text-[var(--ink-soft)]" />
+                        <MessageSquare className="size-4 text-[var(--ink-soft)]" />
                       </Button>
-                    </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={isDeleting}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void handleDelete(run.id);
+                      }}
+                    >
+                      <Trash2 className="size-4 text-[var(--ink-soft)]" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+              {isExpanded && (
+                <TableRow className="border-[var(--table-border)] hover:bg-transparent">
+                  <TableCell colSpan={6} className="!p-0">
+                    <RunDetail run={run} />
                   </TableCell>
                 </TableRow>
-                {isExpanded && (
-                  <TableRow className="border-[var(--table-border)] hover:bg-transparent">
-                    <TableCell colSpan={6} className="!p-0">
-                      <RunDetail run={run} />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </Fragment>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+              )}
+            </Fragment>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }

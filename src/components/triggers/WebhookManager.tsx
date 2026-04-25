@@ -251,81 +251,79 @@ export function WebhookManager({ initialItems }: { initialItems: WebhookListItem
         </Button>
       </div>
 
-      <div className="rounded-md border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Webhook URL</TableHead>
-              <TableHead>Last Received</TableHead>
-              <TableHead className="w-[100px]" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((item) => {
-              const url = getWebhookUrl(item.apiKey);
-              const isLoading = loading.has(item.id);
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Webhook URL</TableHead>
+            <TableHead>Last Received</TableHead>
+            <TableHead className="w-[100px]" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {items.map((item) => {
+            const url = getWebhookUrl(item.apiKey);
+            const isLoading = loading.has(item.id);
 
-              return (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      {item.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <code className="max-w-[300px] truncate rounded bg-muted px-1.5 py-0.5 text-[11px]">{url}</code>
-                      <CopyButton text={url} />
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {item.lastReceivedAt ? (
-                      formatRelativeTime(item.lastReceivedAt)
-                    ) : (
-                      <span className="text-muted-foreground">Never</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={isLoading}
-                            onClick={() => setConfirmRegen(item.id)}
-                            className="h-7 px-2"
-                          >
-                            <RefreshCw className="size-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Regenerate API key</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={isLoading}
-                            onClick={() => setConfirmDelete(item.id)}
-                            className="h-7 px-2 text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Delete webhook</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+            return (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium">{item.name}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {item.type}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <code className="max-w-[300px] truncate rounded bg-muted px-1.5 py-0.5 text-[11px]">{url}</code>
+                    <CopyButton text={url} />
+                  </div>
+                </TableCell>
+                <TableCell className="text-sm">
+                  {item.lastReceivedAt ? (
+                    formatRelativeTime(item.lastReceivedAt)
+                  ) : (
+                    <span className="text-muted-foreground">Never</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isLoading}
+                          onClick={() => setConfirmRegen(item.id)}
+                          className="h-7 px-2"
+                        >
+                          <RefreshCw className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Regenerate API key</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isLoading}
+                          onClick={() => setConfirmDelete(item.id)}
+                          className="h-7 px-2 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Delete webhook</TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
 
       <CreateWebhookDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={handleCreated} />
 

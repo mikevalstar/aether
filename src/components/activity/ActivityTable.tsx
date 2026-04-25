@@ -11,40 +11,38 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
   }
 
   return (
-    <section className="surface-card overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[180px]">When</TableHead>
-            <TableHead className="w-[100px]">Type</TableHead>
-            <TableHead>Summary</TableHead>
-            <TableHead className="w-[120px]">Source</TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[180px]">When</TableHead>
+          <TableHead className="w-[100px]">Type</TableHead>
+          <TableHead>Summary</TableHead>
+          <TableHead className="w-[120px]">Source</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {items.map((item) => (
+          <TableRow key={item.id} className="cursor-pointer" onClick={() => onItemClick(item.id)}>
+            <TableCell className="text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Clock className="size-3.5" />
+                {formatRelativeTime(item.createdAt)}
+              </div>
+            </TableCell>
+            <TableCell>
+              <TypeBadge type={item.type} />
+            </TableCell>
+            <TableCell>
+              <span className="font-medium">{item.summary}</span>
+              {item.fileChangeDetail && (
+                <span className="ml-2 font-mono text-xs text-muted-foreground">{item.fileChangeDetail.filePath}</span>
+              )}
+            </TableCell>
+            <TableCell>{item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}</TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.id} className="cursor-pointer" onClick={() => onItemClick(item.id)}>
-              <TableCell className="text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="size-3.5" />
-                  {formatRelativeTime(item.createdAt)}
-                </div>
-              </TableCell>
-              <TableCell>
-                <TypeBadge type={item.type} />
-              </TableCell>
-              <TableCell>
-                <span className="font-medium">{item.summary}</span>
-                {item.fileChangeDetail && (
-                  <span className="ml-2 font-mono text-xs text-muted-foreground">{item.fileChangeDetail.filePath}</span>
-                )}
-              </TableCell>
-              <TableCell>{item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </section>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
