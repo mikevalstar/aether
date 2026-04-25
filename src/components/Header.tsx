@@ -22,6 +22,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AppLogo } from "#/components/AppLogo";
 import CommandKButton from "#/components/CommandKButton";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
 import { Button } from "#/components/ui/button";
@@ -173,7 +174,7 @@ export default function Header({ serverSession }: HeaderProps) {
           onClick={() => setChatHeaderExpanded((v) => !v)}
           aria-label="Show navigation"
         >
-          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--teal)]">Aether</span>
+          <AppLogo markClassName="size-6 rounded-md" />
           <ChevronDown
             className={`size-3 text-[var(--teal)] transition-transform duration-150 ${chatHeaderExpanded ? "rotate-180" : ""}`}
           />
@@ -283,8 +284,12 @@ export default function Header({ serverSession }: HeaderProps) {
       {/* Full nav bar: always visible on desktop, hidden on mobile for chat route */}
       <nav className={`page-wrap flex items-center gap-6 py-3 px-4 ${isChatRoute ? "hidden lg:flex" : "flex"}`}>
         {/* Brand — links to dashboard when authed, home when not */}
-        <Link to={isAuthed ? "/dashboard" : "/"} className="text-sm font-bold text-primary no-underline tracking-wide">
-          Aether
+        <Link
+          to={isAuthed ? "/dashboard" : "/"}
+          className="rounded-[9px] no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Aether home"
+        >
+          <AppLogo />
         </Link>
 
         {/* Desktop nav links */}
@@ -415,7 +420,9 @@ export default function Header({ serverSession }: HeaderProps) {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="right" className="w-64 p-0">
           <SheetHeader className="border-b border-border px-4 py-3">
-            <SheetTitle className="text-sm font-bold text-primary">Aether</SheetTitle>
+            <SheetTitle>
+              <AppLogo showWordmark />
+            </SheetTitle>
           </SheetHeader>
           <div className="flex flex-col py-2">
             {visiblePrimary.map((link) => (
