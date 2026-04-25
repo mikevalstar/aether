@@ -24,7 +24,7 @@
   /* Slightly darker than --bg so the header reads as its own band, matching
      the redesign artifact's `rgb(237, 231, 220)` vs body `rgb(244, 239, 230)`. */
   --top-bar-bg: oklch(0.96 0.008 85);       /* warm cream */
-  --grid-line: oklch(0.85 0.012 85 / 0.5);  /* graph-paper rule */
+  --grid-line: oklch(0.85 0.012 85 / 0.18);  /* graph-paper rule */
 
   /* Ink */
   --ink: oklch(0.18 0.005 95);              /* #0c0d0a */
@@ -144,7 +144,7 @@
   --line-strong: oklch(0.36 0.008 260);     /* #383941 */
   --header-bg: oklch(0.135 0.003 95 / 0.92);
   --top-bar-bg: oklch(0.18 0.005 260);      /* one stop above --bg */
-  --grid-line: oklch(0.36 0.008 260 / 0.45);
+  --grid-line: oklch(0.36 0.008 260 / 0.18);
 
   /* Ink */
   --ink: oklch(0.96 0.003 95);              /* #f5f5f2 */
