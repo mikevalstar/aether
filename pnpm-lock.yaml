@@ -222,8 +222,8 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       tsarr:
-        specifier: ^2.9.1
-        version: 2.9.1
+        specifier: ^2.10.0
+        version: 2.10.0
       turndown:
         specifier: ^7.2.4
         version: 7.2.4
@@ -5766,8 +5766,8 @@ packages:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
 
-  tsarr@2.9.1:
-    resolution: {integrity: sha512-2/AnItx7voL4yJb3qW4NttihbEAf6idjQ07heveUOQAIeXyP8SmDonTKYDs8h7q/8TF86KURI6K5zXfIVs69uw==}
+  tsarr@2.10.0:
+    resolution: {integrity: sha512-SxRg80AdhTtP3msqIvZJ7oXXsTWO3rF/AnMV3I69QVRrZ8k+njXIDsy0y7icMSblwMTEeip25GFLdV3U7q1RXg==}
     engines: {node: '>=24.15.0'}
     hasBin: true
 
@@ -11985,7 +11985,7 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  tsarr@2.9.1:
+  tsarr@2.10.0:
     dependencies:
       citty: 0.2.2
       consola: 3.4.2

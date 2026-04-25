@@ -1,4 +1,4 @@
-import { RadarrClient } from "tsarr";
+import { RadarrClient } from "tsarr/radarr";
 
 export type RadarrOptions = {
   base_url: string;
