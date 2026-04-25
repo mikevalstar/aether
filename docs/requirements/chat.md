@@ -2,7 +2,7 @@
 title: Chat
 status: in-progress
 owner: self
-last_updated: 2026-03-22
+last_updated: 2026-04-25
 canonical_file: docs/requirements/chat.md
 ---
 
@@ -49,7 +49,7 @@ canonical_file: docs/requirements/chat.md
 | Empty-state start | done | Users can begin a new thread from the empty state with a drafted first message, chosen model, and effort level. | Inline |
 | Streaming workspace | done | Existing threads load into Assistant UI with streaming responses from `/api/chat`. | Inline |
 | Message controls | done | Assistant messages support copy, export, reload, and edited-branch navigation; user messages support editing. | Inline |
-| Tool inspection | done | Tool calls are grouped in the transcript and can be inspected in a detail drawer. | Inline |
+| Tool inspection | done | Tool calls are grouped in the transcript and can be inspected in a detail drawer; Obsidian markdown read/write/edit calls render as compact tiled document cards that open the note in a large modal. | Inline |
 | Usage accounting | done | Thread totals and usage events are updated after each completed assistant response, including title generation usage. | Inline |
 | AI-generated titles | done | On first message, the system calls Haiku to generate a short title (max 10 words) with configurable prompt. | Inline |
 | Editable titles | done | Users can click the thread title in the header to edit it inline; saves on blur or Enter, cancels on Escape. | Inline |
@@ -130,7 +130,7 @@ canonical_file: docs/requirements/chat.md
 ### Tool-call visibility and inspection
 
 - Requirement: When the assistant uses tools, the transcript must summarize tool activity inline and allow inspection of individual tool payloads and outputs.
-- Notes: Consecutive tool calls are grouped into a collapsible activity block with animated running indicators and whimsical status messages; each tool row shows status and summary text; selecting a tool opens a right-side drawer with raw input, output or error text, and metadata such as call ID and payload size.
+- Notes: Consecutive generic tool calls are grouped into a collapsible activity block with animated running indicators and whimsical status messages; each generic tool row shows status and summary text; selecting a tool opens a right-side drawer with raw input, output or error text, and metadata such as call ID and payload size. Obsidian markdown document tools are not grouped into that collapsible block; consecutive document events tile in a compact grid. `obsidian_read` opens the returned note content, `obsidian_write` previews the written content, and `obsidian_edit` loads the latest saved note content into a large modal.
 - Dependencies: `src/components/assistant-ui/thread.tsx`, `src/components/assistant-ui/tool-activity-summary.tsx`, `src/components/assistant-ui/tool-inspector.tsx`.
 - Follow-up: Decide whether users also need a simpler non-technical tool summary separate from raw payload inspection.
 
@@ -216,6 +216,7 @@ canonical_file: docs/requirements/chat.md
 
 ## Change Log
 
+- 2026-04-25: Added compact tiled document cards for Obsidian markdown tool calls, with large modal note previews for read, write, and edit actions.
 - 2026-03-14: Created the initial chat requirements doc from the current implementation and added it to the requirements index.
 - 2026-03-14: Added AI-generated titles and editable titles sub-features.
 - 2026-03-15: Added context compaction sub-feature (planned) with implementation notes.
