@@ -8,7 +8,7 @@ export interface ChartCardProps {
   subtitle: string;
   /** Optional Lucide icon shown before the title */
   icon?: LucideIcon;
-  /** CSS color value or var reference for the icon badge (defaults to teal) */
+  /** CSS color value or var reference for the icon badge (defaults to --accent) */
   accentColor?: string;
   children?: ReactNode;
 }
@@ -23,8 +23,8 @@ export function ChartCard({ title, subtitle, icon: Icon, accentColor, children }
             style={{
               backgroundColor: accentColor
                 ? `oklch(from ${accentColor} l c h / 0.1)`
-                : "oklch(from var(--teal) l c h / 0.1)",
-              color: accentColor ?? "var(--teal)",
+                : "oklch(from var(--accent) l c h / 0.1)",
+              color: accentColor ?? "var(--accent)",
             }}
           >
             <Icon className="size-4" strokeWidth={1.75} />

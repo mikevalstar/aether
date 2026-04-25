@@ -182,7 +182,7 @@ function renderToolbarButton(
   executeCommand: (command: ICommand, name?: string) => void,
 ) {
   if (command.keyCommand === "divider") {
-    return <div className="mx-2 h-6 w-px bg-[var(--teal)]/15" />;
+    return <div className="mx-2 h-6 w-px bg-[var(--accent)]/15" />;
   }
 
   const meta = toolbarMeta.get(command.name ?? "");
@@ -194,7 +194,7 @@ function renderToolbarButton(
         <button
           type="button"
           className={cn(
-            "inline-flex items-center justify-center rounded-lg text-[var(--ink-soft)] transition-all duration-150 hover:bg-[var(--teal)]/12 hover:text-[var(--teal)] active:scale-90 active:bg-[var(--teal)]/20",
+            "inline-flex items-center justify-center rounded-lg text-[var(--ink-soft)] transition-all duration-150 hover:bg-[var(--accent)]/12 hover:text-[var(--accent)] active:scale-90 active:bg-[var(--accent)]/20",
             isExtra ? "size-[32px]" : "size-[38px]",
           )}
           onClick={() => executeCommand(command)}
@@ -255,7 +255,7 @@ export function MarkdownEditor({ value, onChange, showStatusBar = true, classNam
         </div>
 
         {showStatusBar && (
-          <div className="flex items-center justify-end border-t border-[var(--line)] bg-[var(--teal-subtle)]/40 px-4 py-2">
+          <div className="flex items-center justify-end border-t border-[var(--line)] bg-[var(--accent-subtle)]/40 px-4 py-2">
             <div className="flex items-center gap-3 font-mono text-[11px] font-medium text-[var(--ink-soft)]/70">
               <span>
                 {stats.words.toLocaleString()} {stats.words === 1 ? "word" : "words"}

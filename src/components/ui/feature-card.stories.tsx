@@ -16,30 +16,30 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Teal: Story = {
+export const Accent: Story = {
   args: {
     icon: BrainCircuit,
     title: "AI Chat",
     description:
       "Ask questions about your notes in natural language. Claude understands context, connects ideas, and helps you think.",
-    color: "text-[var(--teal)]",
-    bg: "bg-[var(--teal-subtle)]",
-    border: "border-[var(--teal)]/20",
+    color: "text-[var(--accent)]",
+    bg: "bg-[var(--accent-subtle)]",
+    border: "border-[var(--accent)]/20",
   },
 };
 
-export const Coral: Story = {
+export const Success: Story = {
   args: {
     icon: CalendarCheck,
     title: "Daily Planner",
     description: "Organise your tasks and goals for each day. Stay focused on what matters most.",
-    color: "text-[var(--coral)]",
-    bg: "bg-[var(--coral)]/8",
-    border: "border-[var(--coral)]/20",
+    color: "text-[var(--success)]",
+    bg: "bg-[var(--success-subtle)]",
+    border: "border-[var(--success)]/20",
   },
 };
 
-export const Blue: Story = {
+export const Chart3: Story = {
   args: {
     icon: BookOpen,
     title: "Linked Notes",
@@ -70,17 +70,17 @@ export const Grid: Story = {
         icon={BrainCircuit}
         title="AI Chat"
         description="Ask questions about your notes in natural language."
-        color="text-[var(--teal)]"
-        bg="bg-[var(--teal-subtle)]"
-        border="border-[var(--teal)]/20"
+        color="text-[var(--accent)]"
+        bg="bg-[var(--accent-subtle)]"
+        border="border-[var(--accent)]/20"
       />
       <FeatureCard
         icon={CalendarCheck}
         title="Daily Planner"
         description="Organise your tasks and goals for each day."
-        color="text-[var(--coral)]"
-        bg="bg-[var(--coral)]/8"
-        border="border-[var(--coral)]/20"
+        color="text-[var(--success)]"
+        bg="bg-[var(--success-subtle)]"
+        border="border-[var(--success)]/20"
       />
       <FeatureCard
         icon={BookOpen}
@@ -106,17 +106,17 @@ export const TwoColumn: Story = {
         icon={Zap}
         title="Fast"
         description="Optimised for speed. Everything loads instantly."
-        color="text-[var(--coral)]"
-        bg="bg-[var(--coral)]/8"
-        border="border-[var(--coral)]/20"
+        color="text-[var(--warning)]"
+        bg="bg-[var(--warning-subtle)]"
+        border="border-[var(--warning)]/20"
       />
       <FeatureCard
         icon={Shield}
         title="Secure"
         description="Your data stays on your machine. Always."
-        color="text-[var(--teal)]"
-        bg="bg-[var(--teal-subtle)]"
-        border="border-[var(--teal)]/20"
+        color="text-[var(--accent)]"
+        bg="bg-[var(--accent-subtle)]"
+        border="border-[var(--accent)]/20"
       />
     </div>
   ),

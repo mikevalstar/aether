@@ -9,7 +9,7 @@ export interface StatCardProps {
   detail: string;
   /** Lucide icon */
   icon: LucideIcon;
-  /** CSS color value or var reference (e.g. "var(--teal)") */
+  /** CSS color value or var reference (e.g. "var(--accent)") */
   color: string;
 }
 

@@ -14,23 +14,23 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Coral: Story = {
+export const Purple: Story = {
   args: {
     label: "Estimated cost",
     value: "$4.27",
     detail: "138 tracked exchanges",
     icon: CircleDollarSign,
-    color: "var(--coral)",
+    color: "var(--chart-2)",
   },
 };
 
-export const Teal: Story = {
+export const Accent: Story = {
   args: {
     label: "Total tokens",
     value: "1,284,390",
     detail: "9,306 avg per exchange",
     icon: Coins,
-    color: "var(--teal)",
+    color: "var(--accent)",
   },
 };
 
@@ -60,7 +60,7 @@ export const Grid: Story = {
     value: "$4.27",
     detail: "138 tracked exchanges",
     icon: CircleDollarSign,
-    color: "var(--coral)",
+    color: "var(--chart-2)",
   },
   render: () => (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -69,9 +69,9 @@ export const Grid: Story = {
         value="$4.27"
         detail="138 tracked exchanges"
         icon={CircleDollarSign}
-        color="var(--coral)"
+        color="var(--chart-2)"
       />
-      <StatCard label="Total tokens" value="1,284,390" detail="9,306 avg per exchange" icon={Coins} color="var(--teal)" />
+      <StatCard label="Total tokens" value="1,284,390" detail="9,306 avg per exchange" icon={Coins} color="var(--accent)" />
       <StatCard label="Active users" value="3" detail="Last 30 days" icon={Users} color="var(--chart-3)" />
       <StatCard label="Average cost" value="$0.031" detail="Per exchange" icon={TrendingUp} color="var(--chart-4)" />
     </div>

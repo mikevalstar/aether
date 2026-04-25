@@ -5,11 +5,11 @@ export interface SectionLabelProps {
   icon?: LucideIcon;
   /** Label text */
   children: React.ReactNode;
-  /** Tailwind text color class (defaults to coral) */
+  /** Tailwind text color class (defaults to --accent) */
   color?: string;
 }
 
-export function SectionLabel({ icon: Icon, children, color = "text-[var(--coral)]" }: SectionLabelProps) {
+export function SectionLabel({ icon: Icon, children, color = "text-[var(--accent)]" }: SectionLabelProps) {
   return (
     <div className={`flex items-center gap-2 ${color}`}>
       {Icon && <Icon className="size-4" />}
