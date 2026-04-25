@@ -98,7 +98,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
 
   if (runs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-[var(--line)] bg-[rgb(229,222,207)] p-12 text-center dark:bg-[rgb(39,67,122)]">
+      <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-[var(--table-border)] bg-[var(--table-surface)] p-12 text-center">
         <AlertCircle className="mb-3 size-8 text-[var(--ink-faint)]" />
         <p className="text-sm text-[var(--ink-soft)]">No runs yet for this {emptyLabel}.</p>
       </div>
@@ -106,10 +106,10 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
   }
 
   return (
-    <div className="overflow-hidden rounded-sm border border-[var(--line)] bg-[rgb(229,222,207)] dark:bg-[rgb(39,67,122)]">
+    <div className="overflow-hidden rounded-sm border border-[var(--table-border)] bg-[var(--table-surface)]">
       <Table>
         <TableHeader>
-          <TableRow className="border-[var(--line)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">
+          <TableRow className="border-[var(--table-border)] hover:bg-transparent [&_th]:bg-transparent [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.12em] [&_th]:text-[var(--accent)]">
             <TableHead className="w-8" />
             <TableHead>Time</TableHead>
             <TableHead>Model</TableHead>
@@ -128,7 +128,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
             return (
               <Fragment key={run.id}>
                 <TableRow
-                  className={`cursor-pointer border-[var(--line)] transition-colors hover:bg-[oklch(from_var(--accent)_l_c_h_/_0.10)] ${
+                  className={`cursor-pointer border-[var(--table-border)] transition-colors hover:bg-[oklch(from_var(--accent)_l_c_h_/_0.10)] ${
                     highlightId === run.id ? "bg-[oklch(from_var(--accent)_l_c_h_/_0.14)]" : ""
                   }`}
                   onClick={() => setExpandedId(isExpanded ? null : run.id)}
@@ -187,7 +187,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                   </TableCell>
                 </TableRow>
                 {isExpanded && (
-                  <TableRow className="border-[var(--line)] hover:bg-transparent">
+                  <TableRow className="border-[var(--table-border)] hover:bg-transparent">
                     <TableCell colSpan={6} className="p-0">
                       <RunDetail run={run} />
                     </TableCell>
