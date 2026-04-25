@@ -87,6 +87,20 @@ interface HeaderProps {
   } | null;
 }
 
+/**
+ * App-shell header.
+ *
+ * Design notes vs the redesign sample (`docs/aether-redesign.html`):
+ * - The sample shows a status strip at the very top with `VAULT SYNCED`,
+ *   `QUEUE 1`, and `$0.12/DAY` indicators. We intentionally do NOT build that
+ *   row — vault sync, queue depth, and daily spend already surface elsewhere
+ *   (Activity, scheduled-notifications, /usage), and the constant
+ *   chrome/cognitive load is not worth it for a single-user dashboard.
+ * - We render the æ mark only — no "Aether" wordmark next to it.
+ * - Active nav indicator uses `--accent` (driven by `.nav-link.is-active` in
+ *   `styles.css`); top bar is kept dense (single row, py-2).
+ * - The ⌘K affordance (`CommandKButton`) is always visible when authed.
+ */
 export default function Header({ serverSession }: HeaderProps) {
   const { data: clientSession } = authClient.useSession();
   const navigate = useNavigate();
@@ -282,7 +296,7 @@ export default function Header({ serverSession }: HeaderProps) {
       )}
 
       {/* Full nav bar: always visible on desktop, hidden on mobile for chat route */}
-      <nav className={`page-wrap flex items-center gap-6 py-3 px-4 ${isChatRoute ? "hidden lg:flex" : "flex"}`}>
+      <nav className={`page-wrap flex items-center gap-6 py-2 px-4 ${isChatRoute ? "hidden lg:flex" : "flex"}`}>
         {/* Brand — links to dashboard when authed, home when not */}
         <Link
           to={isAuthed ? "/dashboard" : "/"}
@@ -421,7 +435,7 @@ export default function Header({ serverSession }: HeaderProps) {
         <SheetContent side="right" className="w-64 p-0">
           <SheetHeader className="border-b border-border px-4 py-3">
             <SheetTitle>
-              <AppLogo showWordmark />
+              <AppLogo />
             </SheetTitle>
           </SheetHeader>
           <div className="flex flex-col py-2">

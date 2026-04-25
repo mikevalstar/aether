@@ -47,7 +47,7 @@ export const Route = createRootRoute({
       },
       {
         name: "theme-color",
-        content: "#1a8a8a",
+        content: "#7cb0ff",
       },
       {
         title: "Aether",
@@ -84,9 +84,9 @@ function NotFoundComponent() {
   return (
     <div className="page-wrap py-12">
       <div className="surface-card p-8 text-center">
-        <h1 className="text-4xl font-display font-bold text-teal mb-2">404</h1>
+        <h1 className="text-4xl font-display font-bold text-primary mb-2">404</h1>
         <p className="text-muted-foreground mb-6">This page doesn't exist.</p>
-        <Link to="/" className="text-teal hover:underline text-sm font-medium">
+        <Link to="/" className="text-primary hover:underline text-sm font-medium">
           Go home
         </Link>
       </div>
@@ -115,6 +115,13 @@ function RootErrorComponent({ error }: ErrorComponentProps) {
 function RootComponent() {
   const { session } = Route.useRouteContext();
 
+  // Design notes vs `docs/aether-redesign.html` sample:
+  // - The sample renders a slim status strip above the header with
+  //   `VAULT SYNCED`, `QUEUE 1`, `$0.12/DAY`. We intentionally skip it —
+  //   those signals already live on /activity, /scheduled-notifications,
+  //   and /usage, and a single-user dashboard does not need them as
+  //   permanent chrome on every page.
+  // - Logo only, no "Aether" wordmark beside the mark (see `AppLogo`).
   return (
     <>
       <Header serverSession={session} />
