@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink, type LucideIcon } from "lucide-react";
+import { ExternalLink, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import type { GlowConfig } from "#/components/PageHeader";
 import { GlowBg } from "#/components/ui/glow-bg";
@@ -18,10 +18,6 @@ export interface DetailPageShellProps {
   color?: string;
   /** Page title — usually the entity's name */
   title: string;
-  /** "Back to ..." link target (route string) */
-  backTo: string;
-  /** "Back to ..." label, e.g. "Back to tasks" */
-  backLabel: string;
   /** Optional external/Obsidian link rendered next to the title */
   externalLink?: DetailExternalLink;
   /** Decorative glow backgrounds. Pass an array, or false to disable. */
@@ -36,17 +32,14 @@ const DEFAULT_GLOWS: GlowConfig[] = [{ color: "var(--accent)", size: "size-[420p
  * Detail page wrapper used by tasks/workflows/triggers single-item views.
  *
  * Mirrors the visual language of `PageHeader` (glow, accent rail, hairline
- * divider, display title) but is shaped for "single entity" pages: a back
- * link, an icon-tagged section label, and an optional external link beside
- * the title.
+ * divider, display title) but is shaped for "single entity" pages with an
+ * icon-tagged section label and an optional external link beside the title.
  */
 export function DetailPageShell({
   icon,
   label,
   color = "text-[var(--accent)]",
   title,
-  backTo,
-  backLabel,
   externalLink,
   glows = DEFAULT_GLOWS,
   children,
@@ -59,14 +52,6 @@ export function DetailPageShell({
         ))}
 
       <div className="page-wrap relative px-4 pb-16 pt-6 sm:pt-8">
-        <Link
-          to={backTo}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
-        >
-          <ArrowLeft className="size-4" />
-          {backLabel}
-        </Link>
-
         <section className="mb-6 border-b border-[var(--line)] pb-5">
           <div className="relative pl-4">
             <span aria-hidden className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full bg-[var(--accent)]" />

@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -69,16 +69,6 @@ function PluginSettingsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Link
-          to="/settings/plugins"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-3" />
-          Back to Plugins
-        </Link>
-      </div>
-
       <h2 className="text-lg font-semibold">{data.pluginName}</h2>
 
       {!data.enabled && (

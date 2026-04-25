@@ -35,8 +35,6 @@ function TriggerRunHistoryPage() {
       icon={Zap}
       label="Trigger History"
       title={data.trigger.title}
-      backTo="/triggers"
-      backLabel="Back to triggers"
       externalLink={{ kind: "external", href: `/o/${data.trigger.filename}`, title: "Open in Obsidian" }}
     >
       <TriggerRunHistory trigger={data.trigger} runs={data.runs} highlightId={highlight} />

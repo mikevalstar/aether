@@ -36,8 +36,6 @@ function WorkflowDetailPage() {
       icon={Workflow}
       label="Workflow"
       title={data.workflow.title}
-      backTo="/workflows"
-      backLabel="Back to workflows"
       externalLink={
         data.workflow.obsidianRoutePath
           ? {

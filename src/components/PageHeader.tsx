@@ -21,8 +21,8 @@ export interface PageHeaderProps {
   highlight?: string;
   /** Description paragraph below the title */
   description?: string;
-  /** Optional action element displayed to the right of the header on large screens */
-  action?: React.ReactNode;
+  /** Optional action(s) (typically Buttons) rendered to the right of the header on large screens */
+  actions?: React.ReactNode;
   /** Decorative glow backgrounds. Pass an array of configs, or false to disable. */
   glows?: GlowConfig[] | false;
   /** Extra content below the header section (e.g. filters, alerts) */
@@ -50,7 +50,7 @@ export function PageHeader({
   title,
   highlight,
   description,
-  action,
+  actions,
   glows = DEFAULT_GLOWS,
   children,
 }: PageHeaderProps) {
@@ -63,12 +63,12 @@ export function PageHeader({
 
       <div className="page-wrap relative px-4 pb-10 pt-6 sm:pt-8">
         <section
-          className={`mb-6 border-b border-[var(--line)] pb-5 ${
-            action ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""
+          className={`mb-6 border-b border-border-strong pb-5 ${
+            actions ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""
           }`}
         >
           <div className="relative pl-4">
-            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full bg-[var(--accent)]" />
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
             <SectionLabel icon={icon} color={color}>
               {label}
             </SectionLabel>
@@ -83,7 +83,7 @@ export function PageHeader({
             </h1>
             {description && <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>}
           </div>
-          {action}
+          {actions && <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap">{actions}</div>}
         </section>
 
         {children}

@@ -133,7 +133,7 @@ function LogsPage() {
       title="Daily log"
       highlight="viewer"
       glows={false}
-      action={
+      actions={
         <Button
           type="button"
           variant="outline"

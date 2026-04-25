@@ -53,8 +53,6 @@ export const Task: Story = {
     icon: CalendarClock,
     label: "Task History",
     title: "Daily morning brief",
-    backTo: "/tasks",
-    backLabel: "Back to tasks",
     externalLink: { kind: "external", href: "#", title: "Open in Obsidian" },
     children: <RunHistoryTable runs={sampleRuns} onDelete={noopAsync} onConvertToChat={noopAsync} emptyLabel="task" />,
   },
@@ -66,8 +64,6 @@ export const Workflow_: Story = {
     icon: Workflow,
     label: "Workflow",
     title: "Summarize inbox",
-    backTo: "/workflows",
-    backLabel: "Back to workflows",
     externalLink: { kind: "external", href: "#", title: "View in Obsidian" },
     children: (
       <div className="space-y-8">
@@ -88,8 +84,6 @@ export const Trigger: Story = {
     icon: Zap,
     label: "Trigger History",
     title: "Inbound webhook handler",
-    backTo: "/triggers",
-    backLabel: "Back to triggers",
     externalLink: { kind: "external", href: "#", title: "Open in Obsidian" },
     children: <RunHistoryTable runs={[]} onDelete={noopAsync} onConvertToChat={noopAsync} emptyLabel="trigger" />,
   },
@@ -100,8 +94,6 @@ export const WithoutExternalLink: Story = {
     icon: CalendarClock,
     label: "Task History",
     title: "Untitled task",
-    backTo: "/tasks",
-    backLabel: "Back to tasks",
     children: <RunHistoryTable runs={sampleRuns} onDelete={noopAsync} onConvertToChat={noopAsync} emptyLabel="task" />,
   },
 };

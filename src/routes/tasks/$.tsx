@@ -35,8 +35,6 @@ function TaskRunHistoryPage() {
       icon={CalendarClock}
       label="Task History"
       title={data.task.title}
-      backTo="/tasks"
-      backLabel="Back to tasks"
       externalLink={{ kind: "external", href: `/o/${data.task.filename}`, title: "Open in Obsidian" }}
     >
       <TaskRunHistory task={data.task} runs={data.runs} highlightId={highlight} />

@@ -102,7 +102,7 @@ function UsagePage() {
         { color: "var(--coral)", size: "size-[500px]", position: "-right-48 -top-48" },
         { color: "var(--teal)", size: "size-[350px]", position: "-left-36 top-96" },
       ]}
-      action={
+      actions={
         <Button asChild variant="outline" className="gap-2">
           <Link to="/chat">
             <MessageSquare className="size-3.5" />
