@@ -235,3 +235,5 @@ Solo personal dashboard — Mike is the only user. The context is daily workflow
 3. **Warm precision** — Clean and structured, but never sterile. Warm-tinted neutrals, subtle teal accents, and considered typography give it soul.
 4. **Function first, beauty follows** — Never sacrifice usability for aesthetics. If something looks good but slows the user down, simplify it.
 5. **Keyboard-friendly** — Design with keyboard navigation in mind. Actions should be reachable without a mouse where possible.
+
+@FP_CLAUDE.md
