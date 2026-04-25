@@ -3,6 +3,7 @@ import cronstrue from "cronstrue";
 import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Pencil, Play } from "lucide-react";
 import { useState } from "react";
 import { formatRelativeTime } from "#/components/activity/format-relative-time";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { DataTable, type DataTableColumn } from "#/components/ui/data-table";
 import { toast } from "#/components/ui/sonner";
@@ -22,29 +23,17 @@ function StatusPill({ status }: { status: string | null }) {
   if (!status) return <span className="text-xs text-[var(--ink-faint)]">—</span>;
   if (status === "success") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent)]/30 bg-[var(--accent-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--accent)]">
-        <CheckCircle2 className="size-3" />
+      <Badge variant="success">
+        <CheckCircle2 />
         Success
-      </span>
+      </Badge>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--destructive)]/30 bg-[oklch(from_var(--destructive)_l_c_h_/_0.08)] px-2 py-0.5 text-[11px] font-medium text-[var(--destructive)]">
-      <AlertCircle className="size-3" />
+    <Badge variant="destructive">
+      <AlertCircle />
       Error
-    </span>
-  );
-}
-
-function MutedTag({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "warn" }) {
-  const cls =
-    tone === "warn"
-      ? "border-amber-400/40 bg-amber-400/10 text-amber-600 dark:text-amber-300"
-      : "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]";
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${cls}`}>
-      {children}
-    </span>
+    </Badge>
   );
 }
 
@@ -86,14 +75,16 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
             {item.title}
           </Link>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[var(--ink-soft)]">
-            <span className="font-mono text-[11px]">{item.model}</span>
+            <Badge variant="outline" className="font-mono normal-case">
+              {item.model}
+            </Badge>
             {!item.fileExists && (
-              <MutedTag tone="warn">
-                <FileX className="size-3" />
+              <Badge variant="warning">
+                <FileX />
                 File removed
-              </MutedTag>
+              </Badge>
             )}
-            {!item.enabled && item.fileExists && <MutedTag>Paused</MutedTag>}
+            {!item.enabled && item.fileExists && <Badge variant="ghost">Paused</Badge>}
           </div>
         </div>
       ),
