@@ -1,8 +1,7 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink, Workflow } from "lucide-react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Workflow } from "lucide-react";
 import { z } from "zod";
-import { GlowBg } from "#/components/ui/glow-bg";
-import { SectionLabel } from "#/components/ui/section-label";
+import { DetailPageShell } from "#/components/shared/DetailPageShell";
 import { WorkflowForm } from "#/components/workflows/WorkflowForm";
 import { WorkflowRunHistory } from "#/components/workflows/WorkflowRunHistory";
 import { getSession } from "#/lib/auth.functions";
@@ -33,53 +32,38 @@ function WorkflowDetailPage() {
   const { highlight } = Route.useSearch();
 
   return (
-    <main className="relative overflow-hidden">
-      <GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
+    <DetailPageShell
+      icon={Workflow}
+      label="Workflow"
+      title={data.workflow.title}
+      backTo="/workflows"
+      backLabel="Back to workflows"
+      externalLink={
+        data.workflow.obsidianRoutePath
+          ? {
+              kind: "internal",
+              to: "/o/$",
+              params: { _splat: data.workflow.obsidianRoutePath },
+              title: "View in Obsidian",
+            }
+          : undefined
+      }
+    >
+      <div className="space-y-8">
+        <WorkflowForm
+          filename={data.workflow.filename}
+          title={data.workflow.title}
+          description={data.workflow.description}
+          model={data.workflow.model}
+          fields={data.workflow.fields}
+          fileExists={data.workflow.fileExists}
+        />
 
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        <Link
-          to="/workflows"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
-        >
-          <ArrowLeft className="size-4" />
-          Back to workflows
-        </Link>
-
-        <section className="mb-8">
-          <SectionLabel icon={Workflow} color="text-[var(--teal)]">
-            Workflow
-          </SectionLabel>
-          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            {data.workflow.title}
-            {data.workflow.obsidianRoutePath && (
-              <Link
-                to="/o/$"
-                params={{ _splat: data.workflow.obsidianRoutePath }}
-                className="ml-2 inline-flex align-middle text-muted-foreground hover:text-[var(--teal)] transition-colors"
-                title="View in Obsidian"
-              >
-                <ExternalLink className="size-5" />
-              </Link>
-            )}
-          </h1>
-        </section>
-
-        <div className="space-y-8">
-          <WorkflowForm
-            filename={data.workflow.filename}
-            title={data.workflow.title}
-            description={data.workflow.description}
-            model={data.workflow.model}
-            fields={data.workflow.fields}
-            fileExists={data.workflow.fileExists}
-          />
-
-          <div>
-            <h2 className="text-lg font-semibold mb-4">Run History</h2>
-            <WorkflowRunHistory runs={data.runs} highlightId={highlight} />
-          </div>
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-[var(--ink)]">Run History</h2>
+          <WorkflowRunHistory runs={data.runs} highlightId={highlight} />
         </div>
       </div>
-    </main>
+    </DetailPageShell>
   );
 }

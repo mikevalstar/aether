@@ -1,9 +1,8 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ArrowLeft, CalendarClock, ExternalLink } from "lucide-react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { CalendarClock } from "lucide-react";
 import { z } from "zod";
+import { DetailPageShell } from "#/components/shared/DetailPageShell";
 import { TaskRunHistory } from "#/components/tasks/TaskRunHistory";
-import { GlowBg } from "#/components/ui/glow-bg";
-import { SectionLabel } from "#/components/ui/section-label";
 import { getSession } from "#/lib/auth.functions";
 import { getTaskRunHistory } from "#/lib/tasks/task.functions";
 
@@ -32,38 +31,15 @@ function TaskRunHistoryPage() {
   const { highlight } = Route.useSearch();
 
   return (
-    <main className="relative overflow-hidden">
-      <GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
-
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        <Link
-          to="/tasks"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
-        >
-          <ArrowLeft className="size-4" />
-          Back to tasks
-        </Link>
-
-        <section className="mb-8">
-          <SectionLabel icon={CalendarClock} color="text-[var(--teal)]">
-            Task History
-          </SectionLabel>
-          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl flex items-center gap-3">
-            {data.task.title}
-            <a
-              href={`/o/${data.task.filename}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-[var(--teal)] transition-colors"
-              title="Open in Obsidian"
-            >
-              <ExternalLink className="size-5" />
-            </a>
-          </h1>
-        </section>
-
-        <TaskRunHistory task={data.task} runs={data.runs} highlightId={highlight} />
-      </div>
-    </main>
+    <DetailPageShell
+      icon={CalendarClock}
+      label="Task History"
+      title={data.task.title}
+      backTo="/tasks"
+      backLabel="Back to tasks"
+      externalLink={{ kind: "external", href: `/o/${data.task.filename}`, title: "Open in Obsidian" }}
+    >
+      <TaskRunHistory task={data.task} runs={data.runs} highlightId={highlight} />
+    </DetailPageShell>
   );
 }
