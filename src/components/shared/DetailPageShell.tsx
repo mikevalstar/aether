@@ -20,6 +20,10 @@ export interface DetailPageShellProps {
   title: string;
   /** Optional external/Obsidian link rendered next to the title */
   externalLink?: DetailExternalLink;
+  /** Description paragraph below the title */
+  description?: string;
+  /** Optional action(s) (typically Buttons) rendered to the right of the header on large screens */
+  actions?: ReactNode;
   /** Decorative glow backgrounds. Pass an array, or false to disable. */
   glows?: GlowConfig[] | false;
   /** Detail body */
@@ -41,6 +45,8 @@ export function DetailPageShell({
   color = "text-[var(--accent)]",
   title,
   externalLink,
+  description,
+  actions,
   glows = DEFAULT_GLOWS,
   children,
 }: DetailPageShellProps) {
@@ -52,9 +58,13 @@ export function DetailPageShell({
         ))}
 
       <div className="page-wrap relative px-4 pb-16 pt-6 sm:pt-8">
-        <section className="mb-6 border-b border-[var(--line)] pb-5">
+        <section
+          className={`mb-6 border-b border-border-strong pb-5 ${
+            actions ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""
+          }`}
+        >
           <div className="relative pl-4">
-            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full bg-[var(--accent)]" />
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
             <SectionLabel icon={icon} color={color}>
               {label}
             </SectionLabel>
@@ -62,7 +72,9 @@ export function DetailPageShell({
               {title}
               {externalLink && <ExternalLinkIcon link={externalLink} />}
             </h1>
+            {description && <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>}
           </div>
+          {actions && <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap">{actions}</div>}
         </section>
 
         {children}
