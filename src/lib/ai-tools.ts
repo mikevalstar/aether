@@ -22,6 +22,7 @@ import { listUsers } from "#/lib/tools/list-users";
 import { obsidianAiNotesList } from "#/lib/tools/obsidian-ai-notes";
 import { createObsidianToolContext } from "#/lib/tools/obsidian-context";
 import { createObsidianEdit } from "#/lib/tools/obsidian-edit";
+import { createObsidianMove } from "#/lib/tools/obsidian-move";
 import { createObsidianRead } from "#/lib/tools/obsidian-read";
 import { obsidianSearch } from "#/lib/tools/obsidian-search";
 import { obsidianFolders, obsidianList } from "#/lib/tools/obsidian-tree";
@@ -85,6 +86,7 @@ export function createAiTools(
     obsidian_read: createObsidianRead(obsidianCtx),
     obsidian_write: createObsidianWrite(obsidianCtx),
     obsidian_edit: createObsidianEdit(obsidianCtx),
+    obsidian_move: createObsidianMove(obsidianCtx),
     obsidian_ai_notes_list: obsidianAiNotesList,
     ai_memory: aiMemory,
   };
@@ -146,6 +148,7 @@ export function getToolCategories(): Record<string, { category: string; conditio
     obsidian_read: { category: "Obsidian" },
     obsidian_write: { category: "Obsidian" },
     obsidian_edit: { category: "Obsidian" },
+    obsidian_move: { category: "Obsidian" },
     obsidian_ai_notes_list: { category: "Obsidian" },
     // Search
     search_chat_history: { category: "Search" },
