@@ -6,7 +6,8 @@ import remarkGfm from "remark-gfm";
 import { createMarkdownComponents } from "#/components/markdown/markdown-components";
 import { Badge } from "#/components/ui/badge";
 import { threadIdToSlug } from "#/lib/chat/chat";
-import { formatUsageCurrency, getChatModelLabel } from "#/lib/chat/chat-usage";
+import { getChatModelLabel } from "#/lib/chat/chat-usage";
+import { Money } from "#/lib/format";
 import { cn } from "#/lib/utils";
 
 const markdownComponents = createMarkdownComponents("compact");
@@ -73,7 +74,7 @@ function StatusGlyph({ status }: { status: SpawnState["status"] }) {
   }
   if (status === "done") {
     return (
-      <span className="inline-flex size-5 items-center justify-center rounded-full bg-[var(--teal)]/15 text-[var(--teal)]">
+      <span className="inline-flex size-5 items-center justify-center rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
         <CheckIcon className="size-3" />
       </span>
     );
@@ -130,7 +131,7 @@ function SpawnCard({ spawn }: { spawn: SpawnState }) {
             href={href}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:border-[var(--teal)]/40 hover:text-[var(--teal)]"
+            className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:border-[var(--accent)]/40 hover:text-[var(--accent)]"
             title="Open sub-agent thread in new tab"
           >
             <ExternalLinkIcon className="size-3" />
@@ -170,7 +171,7 @@ function SpawnCard({ spawn }: { spawn: SpawnState }) {
           <span>
             <span className="font-medium text-foreground">{formatTokens(spawn.outputTokens)}</span> out
           </span>
-          <span className="ml-auto font-medium text-foreground">{formatUsageCurrency(spawn.estimatedCostUsd)}</span>
+          <Money usd={spawn.estimatedCostUsd} className="ml-auto font-medium text-foreground" />
         </footer>
       )}
     </article>
@@ -193,7 +194,7 @@ export const SubAgentBlock: FC<{ part: ToolCallMessagePartProps }> = ({ part }) 
   return (
     <section className="my-2 rounded-xl border border-border/60 bg-muted/10 p-2">
       <div className="mb-2 flex items-center gap-2 px-1 text-[11px] text-muted-foreground">
-        <UsersIcon className="size-3.5 text-[var(--teal)]" />
+        <UsersIcon className="size-3.5 text-[var(--accent)]" />
         <span className="font-medium uppercase tracking-[0.12em]">Sub-agents</span>
         <span aria-hidden>·</span>
         <span>{headerLabel}</span>

@@ -88,7 +88,7 @@ export function NewFileDialog({ open, onOpenChange }: NewFileDialogProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileTextIcon className="size-4 text-[var(--teal)]" />
+            <FileTextIcon className="size-4 text-[var(--accent)]" />
             New File
           </DialogTitle>
           <DialogDescription>Create a new Markdown file in your vault.</DialogDescription>

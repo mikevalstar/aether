@@ -3,7 +3,7 @@ import { AlertTriangle, CalendarClock } from "lucide-react";
 import { PageHeader } from "#/components/PageHeader";
 import { TaskEmptyState } from "#/components/tasks/TaskEmptyState";
 import { TaskTable } from "#/components/tasks/TaskTable";
-import { Alert, AlertDescription } from "#/components/ui/alert";
+import { Alert, AlertDescription, AlertHeader } from "#/components/ui/alert";
 import { getSession } from "#/lib/auth.functions";
 import { getTasksPageData } from "#/lib/tasks/task.functions";
 
@@ -32,8 +32,8 @@ function TasksPage() {
       description="Scheduled AI tasks that run automatically on a cron schedule."
     >
       {data.tasksDisabled && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertTriangle className="size-4" />
+        <Alert variant="warning" className="mb-6">
+          <AlertHeader icon={<AlertTriangle />} label="Tasks disabled" />
           <AlertDescription>
             {data.cronDisabled ? (
               <>

@@ -137,10 +137,12 @@ export function UserPicker({ value, onChange, placeholder = "Select users...", c
                 <div
                   className={cn(
                     "flex size-4 shrink-0 items-center justify-center rounded border",
-                    isAll ? "border-[var(--teal)] bg-[var(--teal)] text-white" : "border-[var(--line)]",
+                    isAll
+                      ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
+                      : "border-[var(--line)]",
                   )}
                 >
-                  {isAll && <CheckIcon className="size-3 text-white" />}
+                  {isAll && <CheckIcon className="size-3 text-[var(--accent-foreground)]" />}
                 </div>
                 <Users className="size-4 text-[var(--ink-soft)]" />
                 <span className="font-medium">All users</span>
@@ -160,15 +162,17 @@ export function UserPicker({ value, onChange, placeholder = "Select users...", c
                     <div
                       className={cn(
                         "flex size-4 shrink-0 items-center justify-center rounded border",
-                        isSelected ? "border-[var(--teal)] bg-[var(--teal)] text-white" : "border-[var(--line)]",
+                        isSelected
+                          ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
+                          : "border-[var(--line)]",
                       )}
                     >
-                      {isSelected && <CheckIcon className="size-3 text-white" />}
+                      {isSelected && <CheckIcon className="size-3 text-[var(--accent-foreground)]" />}
                     </div>
                     {user.image ? (
                       <img src={user.image} alt="" className="size-5 rounded-full" />
                     ) : (
-                      <div className="flex size-5 items-center justify-center rounded-full bg-[var(--teal-subtle)] text-[8px] font-bold text-[var(--teal)]">
+                      <div className="flex size-5 items-center justify-center rounded-full bg-[var(--accent-subtle)] text-[8px] font-bold text-[var(--accent)]">
                         {initials(user.name)}
                       </div>
                     )}

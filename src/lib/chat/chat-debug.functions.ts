@@ -1,18 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createAiTools, getToolCategories } from "#/lib/ai-tools";
 import { ensureSession } from "#/lib/auth.functions";
-import {
-  CHAT_EFFORT_LEVELS,
-  CHAT_MODELS,
-  type ChatModel,
-  DEFAULT_CHAT_EFFORT,
-  DEFAULT_CHAT_MODEL,
-} from "#/lib/chat/chat-models";
-import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
-import { getUserPreferences } from "#/lib/preferences.server";
-import { readAllSkills, type SkillSummary } from "#/lib/skills";
-import { readAllSubAgents, type SubAgentSummary } from "#/lib/sub-agents";
-import { getAllPluginTools, getRegisteredPlugins } from "#/plugins/index.server";
+import type { CHAT_MODELS } from "#/lib/chat/chat-models";
+import type { SkillSummary } from "#/lib/skills";
+import type { SubAgentSummary } from "#/lib/sub-agents";
 
 export type ToolParamInfo = {
   name: string;
@@ -54,133 +44,13 @@ export type ChatDebugData = {
   };
 };
 
-/** Extract parameter info from a Zod schema shape. */
-function extractZodParams(schema: unknown): ToolParamInfo[] {
-  if (!schema || typeof schema !== "object") return [];
-
-  const shape = (schema as Record<string, unknown>).shape;
-  if (!shape || typeof shape !== "object") return [];
-
-  const params: ToolParamInfo[] = [];
-  for (const [name, field] of Object.entries(shape as Record<string, Record<string, unknown>>)) {
-    const fieldType = (field.type as string) ?? "unknown";
-    const isOptional = fieldType === "optional" || fieldType === "default";
-    const innerType = isOptional
-      ? (((field.def as Record<string, Record<string, unknown>>)?.innerType?.type as string) ?? fieldType)
-      : fieldType;
-    const description = (field.description as string) ?? "";
-
-    params.push({
-      name,
-      type: innerType,
-      required: !isOptional,
-      description,
-    });
-  }
-  return params;
-}
-
-/** Extract ToolInfo from live tool objects. */
-function extractToolInfo(
-  tools: Record<string, Record<string, unknown>>,
-  categories: Record<string, { category: string; conditional?: string }>,
-): ToolInfo[] {
-  const result: ToolInfo[] = [];
-
-  for (const [name, toolObj] of Object.entries(tools)) {
-    const meta = categories[name];
-    const isProvider = toolObj.type === "provider";
-
-    result.push({
-      name,
-      description: (toolObj.description as string) ?? (meta ? `${meta.category} provider tool` : "Provider-managed tool"),
-      parameters: isProvider ? [] : extractZodParams(toolObj.inputSchema),
-      category: meta?.category ?? "Uncategorized",
-      conditional: meta?.conditional,
-      isProviderTool: isProvider,
-    });
-  }
-
-  return result;
-}
-
+/**
+ * Server-fn wrapper that resolves the current user from the session and delegates
+ * to {@link buildChatDebugData}. The `/chat-debug` route uses this; the debug CLI
+ * calls `buildChatDebugData` directly with an explicit user id.
+ */
 export const getChatDebugData = createServerFn({ method: "GET" }).handler(async (): Promise<ChatDebugData> => {
   const session = await ensureSession();
-
-  // Load user preferences for default model + to pass to createAiTools
-  const prefs = await getUserPreferences(session.user.id);
-  const userDefaultModel: ChatModel = prefs.defaultChatModel ?? DEFAULT_CHAT_MODEL;
-
-  // Build the core tool set using Sonnet (widest: code_execution + latest web tools)
-  // Pass empty prefs for plugins — we'll load ALL plugin tools separately below
-  const emptyPluginPrefs = { ...prefs, enabledPlugins: [] };
-  const coreTools = createAiTools(
-    "claude-sonnet-4-6",
-    session.user.id,
-    "debug-introspection",
-    prefs.timezone,
-    emptyPluginPrefs,
-  );
-  const categories = getToolCategories();
-
-  // Load ALL plugin tools regardless of enabled state
-  const allPluginTools = getAllPluginTools(session.user.id, "debug-introspection", prefs.timezone);
-  const plugins = getRegisteredPlugins(prefs);
-
-  // Build plugin category map: plugin tools get categorized under "Plugin: <name>"
-  const pluginCategories: Record<string, { category: string; conditional?: string }> = {};
-  for (const plugin of plugins) {
-    for (const toolName of Object.keys(allPluginTools)) {
-      if (toolName.startsWith(`${plugin.id}_`)) {
-        pluginCategories[toolName] = {
-          category: `Plugin: ${plugin.name}`,
-          conditional: plugin.enabled ? undefined : "Plugin not enabled",
-        };
-      }
-    }
-  }
-
-  const [skills, subAgents] = await Promise.all([readAllSkills(), readAllSubAgents()]);
-
-  const models: ModelInfo[] = CHAT_MODELS.map((m) => ({
-    ...m,
-    isDefault: m.id === DEFAULT_CHAT_MODEL,
-  }));
-
-  const coreToolInfos = extractToolInfo(coreTools as unknown as Record<string, Record<string, unknown>>, categories);
-  const pluginToolInfos = extractToolInfo(
-    allPluginTools as unknown as Record<string, Record<string, unknown>>,
-    pluginCategories,
-  );
-
-  // Also add Exa tools (not included when using Sonnet) and note them as conditional
-  const exaCategories: Record<string, { category: string; conditional?: string }> = {
-    web_search: { category: "Web (Exa)", conditional: "OpenRouter models only (webToolVersion = 'none')" },
-    web_fetch: { category: "Web (Exa)", conditional: "OpenRouter models only (webToolVersion = 'none')" },
-  };
-  const { exaTools } = await import("#/lib/tools/exa-tools");
-  const exaInfos = extractToolInfo(exaTools as unknown as Record<string, Record<string, unknown>>, exaCategories);
-  for (const info of exaInfos) {
-    info.name = `${info.name} (exa)`;
-  }
-
-  return {
-    models,
-    defaultModel: DEFAULT_CHAT_MODEL,
-    userDefaultModel,
-    effortLevels: CHAT_EFFORT_LEVELS,
-    defaultEffort: DEFAULT_CHAT_EFFORT,
-    tools: [...coreToolInfos, ...exaInfos, ...pluginToolInfos],
-    skills: skills.map(({ body: _, ...rest }) => rest),
-    subAgents: subAgents.map(({ body: _, ...rest }) => rest),
-    plugins,
-    config: {
-      hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
-      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
-      hasObsidianDir: !!OBSIDIAN_DIR,
-      obsidianDir: OBSIDIAN_DIR || "(not set)",
-      hasExaKey: !!process.env.EXA_API_KEY,
-      maxToolSteps: 10,
-    },
-  };
+  const { buildChatDebugData } = await import("#/lib/debug/chat-debug-data");
+  return buildChatDebugData(session.user.id);
 });

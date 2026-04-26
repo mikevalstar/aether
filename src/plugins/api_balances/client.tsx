@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { AlertCircle, CheckCircle2, Wallet } from "lucide-react";
+import { WidgetCard } from "#/components/dashboard/WidgetCard";
 import type { AetherPluginClient, PluginWidget } from "../types";
 import type { BalanceResult } from "./lib/types";
 
@@ -15,37 +16,24 @@ function BalancesWidget({
 
   if (!configured) {
     return (
-      <div className="surface-card rounded-lg p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Wallet className="size-4" />
-          API Balances
-        </div>
+      <WidgetCard icon={Wallet} title="API Balances">
         <p className="text-xs text-muted-foreground">
           No services configured. Go to Settings &gt; Plugins &gt; API Balances to set up.
         </p>
-      </div>
+      </WidgetCard>
     );
   }
 
   if (error) {
     return (
-      <div className="surface-card rounded-lg p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Wallet className="size-4" />
-          API Balances
-        </div>
+      <WidgetCard icon={Wallet} title="API Balances">
         <p className="text-xs text-destructive">{error}</p>
-      </div>
+      </WidgetCard>
     );
   }
 
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Wallet className="size-4" />
-        API Balances
-      </div>
-
+    <WidgetCard icon={Wallet} title="API Balances">
       {balances.length === 0 ? (
         <p className="text-xs text-muted-foreground">No balances to display</p>
       ) : (
@@ -78,7 +66,7 @@ function BalancesWidget({
           ))}
         </ul>
       )}
-    </div>
+    </WidgetCard>
   );
 }
 

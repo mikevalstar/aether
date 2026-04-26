@@ -45,10 +45,10 @@ export function NextEventCard({ events }: Props) {
 
   const statusLabel = isInProgress ? "In progress" : isStartingSoon ? "Starting soon" : "Next event";
   const statusDotClass = isInProgress
-    ? "animate-pulse bg-[var(--coral)]"
+    ? "animate-pulse bg-[var(--destructive)]"
     : isStartingSoon
-      ? "animate-pulse bg-[var(--coral)]"
-      : "bg-[var(--teal)]";
+      ? "animate-pulse bg-[var(--destructive)]"
+      : "bg-[var(--accent)]";
 
   const countdown = isInProgress
     ? `ends ${formatDistanceToNow(endTime, { addSuffix: true })}`

@@ -35,6 +35,27 @@ tail -50 logs/aether.$(date +%Y-%m-%d).1.log | jq .msg # just the messages
 tail -50 logs/vite.log
 ```
 
+### Debugging
+
+Reach for **`pnpm debug`** before tailing logs or opening Prisma Studio — it consolidates the most common diagnostic queries into one CLI:
+
+```bash
+pnpm debug doctor                  # env + DB + dev server smoke test
+pnpm debug logs errors             # error+ entries from today
+pnpm debug logs tail --grep "task" # tail today's log with optional filter
+pnpm debug tasks status            # scheduled tasks + last run state
+pnpm debug triggers status         # event triggers + last fired
+pnpm debug usage today             # token + cost rollup by model
+pnpm debug chat thread <id>        # full message history for a thread
+pnpm debug users                   # list users with role + enabled plugins
+pnpm debug models                  # chat models sorted by price (cheapest first)
+pnpm debug --help                  # complete command list
+```
+
+Most commands take `--user <email>` and `--json`. See **[`docs/debugging.md`](docs/debugging.md)** for the full reference (every subcommand, flag, and example) and the manual `tail | jq` fallbacks for when the CLI itself is broken.
+
+**Cost note for AI testing:** when iterating on AI features (chat behavior, tools, prompts, agent loops), default to the cheapest model that meets the need — run `pnpm debug models` to see the price-sorted list. Most changes behave the same across models, so prefer Haiku 4.5 or Kimi K2.5 unless a test specifically requires Sonnet/Opus quality. Override per-call via the `model:` frontmatter on a task/workflow/trigger.
+
 ```bash
 pnpm dev          # Start dev server on port 3000
 pnpm start        # Production build + serve
@@ -114,7 +135,7 @@ Architecture decisions are documented in `docs/decisions/`. When making signific
 - **Linting/Formatting**: Biome (replaces ESLint + Prettier)
 
 ### Code Design
-- We prefer to use libraries; this project is about the functionality not the code 
+- We prefer to use libraries; this project is about the functionality not the code
 - We prefer Shadcn or 3rd party Shadcn type components for the UI when available
 - We like to have reusable components where possible
 
@@ -181,15 +202,14 @@ Prisma client is a singleton in `src/db.ts` using the `PrismaBetterSqlite3` adap
 - Protected routes use `ensureSession()` in loaders to redirect unauthenticated users
 
 ### Styling
-Tailwind CSS v4 with custom CSS variables for theming in `src/styles.css`. Light/dark/auto theme managed via Jotai atom in `src/lib/theme.ts`, toggled in `src/components/ThemeToggle.tsx` and persisted to localStorage. Custom fonts: Manrope (sans), Fraunces (display).
+Tailwind CSS v4 with custom CSS variables for theming in `src/styles.css`. Light/dark/auto theme managed via Jotai atom in `src/lib/theme.ts`, toggled in `src/components/ThemeToggle.tsx` and persisted to localStorage. Custom fonts: Inter (sans), Fraunces (display), JetBrains Mono (mono).
 
-**Color Palette — Teal + Coral:**
-- **Primary (Teal)**: `--teal` — used for links, primary buttons, active nav indicators, brand identity. `oklch(0.55 0.15 180)` light / `oklch(0.65 0.13 180)` dark.
-- **Accent (Coral)**: `--coral` — used for secondary highlights, chart accents, attention-drawing elements. `oklch(0.70 0.14 25)` light / `oklch(0.72 0.12 25)` dark.
-- **Teal Subtle**: `--teal-subtle` — tinted backgrounds for secondary/accent surfaces. `oklch(0.94 0.03 180)` light / `oklch(0.22 0.03 180)` dark.
-- **Neutrals**: Warm-tinted (hue 80/180) rather than pure gray — gives surfaces subtle warmth.
-- **Destructive**: Red tones for errors/danger actions.
-- Tailwind theme tokens: `teal`, `teal-subtle`, `coral` available via `bg-teal`, `text-coral`, etc.
+**Color Palette — single accent system** (see `docs/redesign/tokens.md`):
+- **Accent**: `--accent` / `--accent-hover` / `--accent-subtle` / `--accent-foreground` — the single brand accent. `oklch(0.58 0.16 255)` light (`#3d7fd9`) / `oklch(0.76 0.13 255)` dark (`#7cb0ff`). Drives primary buttons, links, focus rings, active nav, brand identity, chart-1.
+- **Surfaces**: `--bg` (page) → `--surface` (card) → `--raised` (popover) on the warm "paper" palette in light, near-black blueprint palette in dark.
+- **Ink**: `--ink` / `--ink-soft` / `--ink-dim` / `--ink-faint` for the four text levels.
+- **Status**: `--destructive`, `--success`, `--warning` (each with matching `-subtle` token). There is no secondary accent — destructive / success / warning cover everything else semantically.
+- **Charts**: `--chart-1` through `--chart-5`, accent-anchored sequence used by `recharts` surfaces.
 
 ### Demo Files
 Files/directories prefixed with `demo` (e.g., `src/routes/demo/`, `src/components/demo.*`, `src/hooks/demo.*`) are starter examples that can be deleted once real features replace them.
@@ -206,11 +226,13 @@ Solo personal dashboard — Mike is the only user. The context is daily workflow
 - **Sharp & efficient** — information-dense, fast, get-in-get-out. Prioritize scannability and keyboard-driven interaction.
 - **Reference apps**: Linear, Raycast — fast developer tools that are dark-mode-friendly, keyboard-first, and respect the user's time.
 - **Anti-patterns**: Overly spacious/airy layouts, large hero sections with wasted space, decorative elements that don't serve function, generic SaaS marketing aesthetics.
-- **Theme**: Light + dark mode (both supported). Warm neutrals with teal primary and coral accent. Fraunces for display headings, Manrope for everything else.
+- **Theme**: Light + dark mode (both supported). Single soft-blue accent (`oklch(0.58 0.16 255)` light / `oklch(0.76 0.13 255)` dark) on warm "paper" surfaces in light and a near-black blueprint palette in dark. Inter everywhere; Fraunces reserved for display headings; JetBrains Mono for code. See `docs/redesign/tokens.md` and `docs/decisions/005-aether-redesign.md`.
 
 ### Design Principles
 1. **Density over whitespace** — Pack useful information into views. Avoid padding-heavy layouts. Every pixel should serve a purpose.
 2. **Speed is a feature** — Interactions should feel instant. Favor lightweight animations (150ms transitions), skeleton states, and optimistic UI over loading spinners.
-3. **Warm precision** — Clean and structured, but never sterile. Warm-tinted neutrals, subtle teal accents, and considered typography give it soul.
+3. **Warm precision** — Clean and structured, but never sterile. Warm-tinted neutrals, a single soft-blue accent, and considered typography give it soul.
 4. **Function first, beauty follows** — Never sacrifice usability for aesthetics. If something looks good but slows the user down, simplify it.
 5. **Keyboard-friendly** — Design with keyboard navigation in mind. Actions should be reachable without a mouse where possible.
+
+@FP_CLAUDE.md

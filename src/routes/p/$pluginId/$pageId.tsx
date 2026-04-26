@@ -1,4 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Puzzle } from "lucide-react";
+import { PageHeader } from "#/components/PageHeader";
 import { getSession } from "#/lib/auth.functions";
 import { plugins } from "#/plugins";
 
@@ -16,10 +18,12 @@ function PluginSubPage() {
   const plugin = plugins.find((p) => p.meta.id === pluginId);
   if (!plugin) {
     return (
-      <main className="page-wrap px-4 pb-12 pt-10">
-        <h1 className="text-2xl font-bold">Plugin not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">No plugin with id "{pluginId}" is registered.</p>
-      </main>
+      <PageHeader
+        icon={Puzzle}
+        label="Plugin"
+        title="Plugin not found"
+        description={`No plugin with id "${pluginId}" is registered.`}
+      />
     );
   }
 
@@ -28,15 +32,19 @@ function PluginSubPage() {
 
   if (!page) {
     return (
-      <main className="page-wrap px-4 pb-12 pt-10">
-        <h1 className="text-2xl font-bold">Page not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Plugin "{plugin.meta.name}" has no page with id "{pageId}".
-        </p>
-      </main>
+      <PageHeader
+        icon={plugin.meta.icon}
+        label={plugin.meta.name}
+        title="Page not found"
+        description={`Plugin "${plugin.meta.name}" has no page with id "${pageId}".`}
+      />
     );
   }
 
   const PageComponent = page.component;
-  return <PageComponent />;
+  return (
+    <PageHeader icon={page.icon ?? plugin.meta.icon} label={plugin.meta.name} title={page.label}>
+      <PageComponent />
+    </PageHeader>
+  );
 }

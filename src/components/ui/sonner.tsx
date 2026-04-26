@@ -16,7 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           </span>
         ),
         info: (
-          <span className="inline-flex size-5 items-center justify-center rounded-full bg-[var(--teal)]/15 text-[var(--teal)]">
+          <span className="inline-flex size-5 items-center justify-center rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
             <InfoIcon className="size-3" strokeWidth={2.5} />
           </span>
         ),
@@ -30,7 +30,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
             <OctagonXIcon className="size-3" strokeWidth={2.5} />
           </span>
         ),
-        loading: <Loader2Icon className="size-4 animate-spin text-[var(--teal)]" />,
+        loading: <Loader2Icon className="size-4 animate-spin text-[var(--accent)]" />,
       }}
       toastOptions={{
         unstyled: true,
@@ -40,7 +40,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           title: "font-medium text-[var(--ink)]",
           description: "text-[var(--ink-soft)] text-xs mt-0.5",
           actionButton:
-            "ml-auto shrink-0 rounded-lg bg-[var(--teal)] px-3 py-1 text-xs font-medium text-white hover:bg-[var(--teal-hover)] transition-colors",
+            "ml-auto shrink-0 rounded-lg bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)] transition-colors",
           cancelButton:
             "ml-auto shrink-0 rounded-lg border border-[var(--line)] px-3 py-1 text-xs font-medium text-[var(--ink-soft)] hover:bg-[var(--muted)] transition-colors",
           closeButton:
@@ -48,7 +48,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           success: "border-emerald-500/25 dark:border-emerald-400/20",
           error: "border-red-500/25 dark:border-red-400/20",
           warning: "border-amber-500/25 dark:border-amber-400/20",
-          info: "border-[var(--teal)]/25",
+          info: "border-[var(--accent)]/25",
         },
       }}
       {...props}

@@ -1,4 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Puzzle } from "lucide-react";
+import { PageHeader } from "#/components/PageHeader";
 import { getSession } from "#/lib/auth.functions";
 import { plugins } from "#/plugins";
 
@@ -16,26 +18,33 @@ function PluginPage() {
   const plugin = plugins.find((p) => p.meta.id === pluginId);
   if (!plugin) {
     return (
-      <main className="page-wrap px-4 pb-12 pt-10">
-        <h1 className="text-2xl font-bold">Plugin not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">No plugin with id "{pluginId}" is registered.</p>
-      </main>
+      <PageHeader
+        icon={Puzzle}
+        label="Plugin"
+        title="Plugin not found"
+        description={`No plugin with id "${pluginId}" is registered.`}
+      />
     );
   }
 
-  // Find the default page (first page in the plugin's pages array)
   const pages = plugin.client?.pages ?? [];
   const page = pages[0];
 
   if (!page) {
     return (
-      <main className="page-wrap px-4 pb-12 pt-10">
-        <h1 className="text-2xl font-bold">{plugin.meta.name}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">This plugin has no pages.</p>
-      </main>
+      <PageHeader
+        icon={plugin.meta.icon}
+        label={plugin.meta.name}
+        title={plugin.meta.name}
+        description="This plugin has no pages."
+      />
     );
   }
 
   const PageComponent = page.component;
-  return <PageComponent />;
+  return (
+    <PageHeader icon={page.icon ?? plugin.meta.icon} label={plugin.meta.name} title={page.label}>
+      <PageComponent />
+    </PageHeader>
+  );
 }

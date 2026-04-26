@@ -21,11 +21,11 @@ export const Default: Story = {
   },
 };
 
-export const Teal: Story = {
+export const Accent: Story = {
   args: {
     icon: Rocket,
     children: "Features",
-    color: "text-[var(--teal)]",
+    color: "text-[var(--accent)]",
   },
 };
 

@@ -1,8 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { MenuIcon } from "lucide-react";
 import { useState, useTransition } from "react";
 import { z } from "zod";
 import { ChatEmptyState } from "#/components/chat/ChatEmptyState";
-import { ChatHeader } from "#/components/chat/ChatHeader";
+import { Button } from "#/components/ui/button";
 import type { ChatEffort, ChatModel } from "#/lib/chat/chat";
 import { CHAT_MODELS, DEFAULT_CHAT_EFFORT, threadIdToSlug } from "#/lib/chat/chat";
 import { useChatLayout } from "#/lib/chat/chat-layout-context";
@@ -14,7 +15,6 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/chat/")({
   validateSearch: searchSchema,
   beforeLoad: ({ search }) => {
-    // Backward compat: redirect ?threadId=thread_xxx → /chat/xxx
     if (search.threadId) {
       throw redirect({
         to: "/chat/$threadId",
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/chat/")({
 });
 
 function ChatIndex() {
-  const { defaultChatModel, isBusy, handleCreateThread, openMobileDrawer } = useChatLayout();
+  const { defaultChatModel, isBusy, handleCreateThread, openMenu } = useChatLayout();
   const [draftModel, setDraftModel] = useState<ChatModel>(defaultChatModel as ChatModel);
   const [draftEffort, setDraftEffort] = useState<ChatEffort>(DEFAULT_CHAT_EFFORT);
   const [, startTransition] = useTransition();
@@ -34,22 +34,24 @@ function ChatIndex() {
   const currentModelDef = CHAT_MODELS.find((m) => m.id === draftModel);
 
   return (
-    <>
-      <ChatHeader
-        title="New chat"
-        model={draftModel}
-        effort={draftEffort}
-        inputTokens={0}
-        outputTokens={0}
-        costLabel="$0.0000"
-        showStats={false}
-        disabled={isBusy}
-        editable={false}
-        showMobileMenu
-        onMobileMenuClick={openMobileDrawer}
-        onEffortChange={(value) => setDraftEffort(value as ChatEffort)}
-        onModelChange={(value) => setDraftModel(value as (typeof CHAT_MODELS)[number]["id"])}
-      />
+    <div className="relative flex h-full min-h-0 flex-col">
+      <div className="flex items-center justify-end px-4 py-3 lg:px-6 lg:py-4">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-7 inline-flex items-center gap-2 border-[var(--line-strong)] bg-[var(--bg)] px-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--ink-soft)] hover:border-[var(--accent)]/50 hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)]"
+          onClick={openMenu}
+          title="Open chat menu"
+          aria-label="Open chat menu"
+        >
+          <MenuIcon className="size-3.5" />
+          <span>Threads</span>
+          <span className="rounded border border-[var(--line)] bg-[var(--surface)] px-1 py-px text-[9px] tracking-[0.1em] text-[var(--ink-faint)]">
+            ⌘J
+          </span>
+        </Button>
+      </div>
       <div className="min-h-0 flex-1">
         <ChatEmptyState
           model={draftModel}
@@ -65,6 +67,6 @@ function ChatIndex() {
           }}
         />
       </div>
-    </>
+    </div>
   );
 }

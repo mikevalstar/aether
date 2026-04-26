@@ -1,7 +1,9 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
+import { MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
-import { Label } from "#/components/ui/label";
+import { FieldRow } from "#/components/ui/field-row";
+import { SectionLabel } from "#/components/ui/section-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { CHAT_MODELS, type ChatModel, DEFAULT_CHAT_MODEL } from "#/lib/chat/chat-models";
@@ -35,30 +37,31 @@ function ChatSection() {
           setIsSaving(false);
         }
       }}
-      className="surface-card p-6"
+      className="surface-card flex flex-col gap-5 p-6"
     >
-      <h2 className="mb-4 text-lg font-semibold">Chat</h2>
-      <div className="grid gap-4">
-        <div className="grid gap-1.5">
-          <Label htmlFor="pref-default-model">Default model</Label>
-          <Select value={defaultChatModel} onValueChange={(v) => setDefaultChatModel(v as ChatModel)}>
-            <SelectTrigger id="pref-default-model" className="w-full">
-              <SelectValue placeholder="Select a model" />
-            </SelectTrigger>
-            <SelectContent>
-              {CHAT_MODELS.map((model) => (
-                <SelectItem key={model.id} value={model.id}>
-                  {model.label} — {model.description}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">The model used by default when starting a new chat thread.</p>
-        </div>
-        <Button type="submit" disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save chat settings"}
-        </Button>
-      </div>
+      <header className="flex flex-col gap-1.5">
+        <SectionLabel icon={MessageSquare}>Chat</SectionLabel>
+        <p className="text-sm text-muted-foreground">Default model used when starting a new chat thread.</p>
+      </header>
+
+      <FieldRow label="DEFAULT MODEL" htmlFor="pref-default-model" hint={<span>per-thread override available</span>}>
+        <Select value={defaultChatModel} onValueChange={(v) => setDefaultChatModel(v as ChatModel)}>
+          <SelectTrigger id="pref-default-model" className="w-full font-mono text-[12.5px]">
+            <SelectValue placeholder="Select a model" />
+          </SelectTrigger>
+          <SelectContent>
+            {CHAT_MODELS.map((model) => (
+              <SelectItem key={model.id} value={model.id}>
+                {model.label} — {model.description}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldRow>
+
+      <Button type="submit" disabled={isSaving} className="mt-1 w-fit">
+        {isSaving ? "Saving..." : "Save chat settings"}
+      </Button>
     </form>
   );
 }

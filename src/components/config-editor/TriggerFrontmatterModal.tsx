@@ -75,7 +75,7 @@ function formToFields(form: FormState): Record<string, unknown> {
 
 function TabExplainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-4 rounded-md border border-[var(--line)] bg-[var(--teal-subtle)] px-3 py-2 text-xs text-[var(--ink-soft)]">
+    <div className="mb-4 rounded-md border border-[var(--line)] bg-[var(--accent-subtle)] px-3 py-2 text-xs text-[var(--ink-soft)]">
       {children}
     </div>
   );
@@ -223,7 +223,7 @@ export function TriggerFrontmatterModal({
                     className={cn(
                       "flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-md border p-3 transition-colors",
                       form.effort === level
-                        ? "border-[var(--teal)] bg-[var(--teal)]/5"
+                        ? "border-[var(--accent)] bg-[var(--accent)]/5"
                         : "border-[var(--line)] hover:border-[var(--ink-soft)]/30",
                     )}
                   >

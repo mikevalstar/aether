@@ -1,9 +1,8 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink, Zap } from "lucide-react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Zap } from "lucide-react";
 import { z } from "zod";
+import { DetailPageShell } from "#/components/shared/DetailPageShell";
 import { TriggerRunHistory } from "#/components/triggers/TriggerRunHistory";
-import { GlowBg } from "#/components/ui/glow-bg";
-import { SectionLabel } from "#/components/ui/section-label";
 import { getSession } from "#/lib/auth.functions";
 import { getTriggerRunHistory } from "#/lib/triggers/trigger.functions";
 
@@ -32,38 +31,13 @@ function TriggerRunHistoryPage() {
   const { highlight } = Route.useSearch();
 
   return (
-    <main className="relative overflow-hidden">
-      <GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
-
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        <Link
-          to="/triggers"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
-        >
-          <ArrowLeft className="size-4" />
-          Back to triggers
-        </Link>
-
-        <section className="mb-8">
-          <SectionLabel icon={Zap} color="text-[var(--teal)]">
-            Trigger History
-          </SectionLabel>
-          <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl flex items-center gap-3">
-            {data.trigger.title}
-            <a
-              href={`/o/${data.trigger.filename}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-[var(--teal)] transition-colors"
-              title="Open in Obsidian"
-            >
-              <ExternalLink className="size-5" />
-            </a>
-          </h1>
-        </section>
-
-        <TriggerRunHistory trigger={data.trigger} runs={data.runs} highlightId={highlight} />
-      </div>
-    </main>
+    <DetailPageShell
+      icon={Zap}
+      label="Trigger History"
+      title={data.trigger.title}
+      externalLink={{ kind: "external", href: `/o/${data.trigger.filename}`, title: "Open in Obsidian" }}
+    >
+      <TriggerRunHistory trigger={data.trigger} runs={data.runs} highlightId={highlight} />
+    </DetailPageShell>
   );
 }

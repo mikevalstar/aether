@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { Mail, MailOpen } from "lucide-react";
+import { WidgetCard } from "#/components/dashboard/WidgetCard";
 import type { AetherPluginClient, PluginWidget } from "../types";
 import type { EmailEnvelope } from "./lib/imap-client";
 
@@ -16,44 +17,34 @@ function InboxWidget({
 
   if (!configured) {
     return (
-      <div className="surface-card rounded-lg p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Mail className="size-4" />
-          Email
-        </div>
+      <WidgetCard icon={Mail} title="Email">
         <p className="text-xs text-muted-foreground">
           Not configured. Go to Settings &gt; Plugins &gt; Email (IMAP) to set up.
         </p>
-      </div>
+      </WidgetCard>
     );
   }
 
   if (error) {
     return (
-      <div className="surface-card rounded-lg p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Mail className="size-4" />
-          Email
-        </div>
+      <WidgetCard icon={Mail} title="Email">
         <p className="text-xs text-destructive">{error}</p>
-      </div>
+      </WidgetCard>
     );
   }
 
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Mail className="size-4" />
-          Inbox
-        </div>
-        {unreadCount > 0 && (
-          <span className="rounded-full bg-[var(--coral)] px-2 py-0.5 text-xs font-semibold text-white">
+    <WidgetCard
+      icon={Mail}
+      title="Inbox"
+      action={
+        unreadCount > 0 ? (
+          <span className="rounded-full bg-[var(--destructive)] px-2 py-0.5 text-xs font-semibold text-white">
             {unreadCount} unread
           </span>
-        )}
-      </div>
-
+        ) : null
+      }
+    >
       {recentEmails.length === 0 ? (
         <p className="text-xs text-muted-foreground">No recent emails</p>
       ) : (
@@ -61,7 +52,7 @@ function InboxWidget({
           {recentEmails.map((email) => (
             <li key={email.uid} className="flex items-start gap-2">
               {email.unread ? (
-                <Mail className="mt-0.5 size-3.5 shrink-0 text-[var(--teal)]" />
+                <Mail className="mt-0.5 size-3.5 shrink-0 text-[var(--accent)]" />
               ) : (
                 <MailOpen className="mt-0.5 size-3.5 shrink-0 text-muted-foreground/50" />
               )}
@@ -82,7 +73,7 @@ function InboxWidget({
           ))}
         </ul>
       )}
-    </div>
+    </WidgetCard>
   );
 }
 

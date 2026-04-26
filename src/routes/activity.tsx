@@ -126,25 +126,29 @@ function ActivityPage() {
       highlight="log"
       description="Track all file changes made by AI tools and manual edits."
     >
-      <section className="mb-4 flex flex-wrap gap-2">
-        {getTypeFilters().map((filter) => (
-          <Button
-            key={filter.value}
-            variant={activeType === filter.value ? "default" : "outline"}
-            size="sm"
-            onClick={() =>
-              void navigate({
-                search: {
-                  page: 1,
-                  type: filter.value === "all" ? undefined : filter.value,
-                },
-                replace: true,
-              })
-            }
-          >
-            {filter.label}
-          </Button>
-        ))}
+      <section className="mb-4 flex flex-wrap gap-1.5">
+        {getTypeFilters().map((filter) => {
+          const active = activeType === filter.value;
+          return (
+            <Button
+              key={filter.value}
+              variant={active ? "default" : "outline"}
+              size="xs"
+              onClick={() =>
+                void navigate({
+                  search: {
+                    page: 1,
+                    type: filter.value === "all" ? undefined : filter.value,
+                  },
+                  replace: true,
+                })
+              }
+              className="tracking-[0.06em]"
+            >
+              {filter.label}
+            </Button>
+          );
+        })}
       </section>
 
       <ActivityTable items={data.items} onItemClick={(id) => void openDetail(id)} />

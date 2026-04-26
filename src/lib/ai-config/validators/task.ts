@@ -1,5 +1,6 @@
 import { Cron } from "croner";
 import { z } from "zod";
+import { logger } from "#/lib/logger";
 import {
   effortField,
   formatFrontmatterErrors,
@@ -29,7 +30,8 @@ export const taskFrontmatterSchema = z.object({
       try {
         Intl.DateTimeFormat(undefined, { timeZone: val });
         return true;
-      } catch {
+      } catch (err) {
+        logger.debug({ value: val, err }, "Task timezone validation rejected");
         return false;
       }
     }, "Must be a valid IANA timezone (e.g. America/Toronto)")
@@ -44,7 +46,8 @@ function isValidCron(expr: string): boolean {
   try {
     new Cron(expr, { paused: true });
     return true;
-  } catch {
+  } catch (err) {
+    logger.debug({ expr, err }, "Task cron expression validation rejected");
     return false;
   }
 }

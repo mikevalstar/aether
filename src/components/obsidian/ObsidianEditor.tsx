@@ -126,27 +126,22 @@ export function ObsidianEditor({ document, aiConfigPath, onCancel, onSaved }: Ob
   return (
     <div className="flex h-full flex-col">
       {/* ─── Header ─── */}
-      <div className="relative border-b border-[var(--line)]">
-        <div
-          className="absolute inset-x-0 top-0 h-1"
-          style={{
-            background: "linear-gradient(90deg, var(--teal), var(--coral))",
-          }}
-        />
-        <div className="flex items-center justify-between px-6 py-3 pt-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Editing</p>
-            <h2 className="display-title min-w-0 truncate text-lg font-bold tracking-tight text-[var(--ink)]">
+      <div className="border-b border-[var(--line)] bg-[var(--surface)]">
+        <div className="flex items-center justify-between px-5 py-3 sm:px-7">
+          <div className="relative flex min-w-0 items-center gap-3 pl-3">
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
+            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.15em] text-[var(--accent)]">Editing</p>
+            <h2 className="display-title min-w-0 truncate text-base font-semibold tracking-tight text-[var(--ink)]">
               {document.title}
             </h2>
             {hasChanges && (
-              <span className="shrink-0 rounded-full bg-[var(--coral)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--coral)]">
+              <span className="shrink-0 rounded-full bg-[var(--warning)]/15 px-2 py-0.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-[var(--warning)]">
                 Unsaved
               </span>
             )}
             {validation && !validation.isValid && (
-              <span className="shrink-0 rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive-foreground">
-                Validation errors
+              <span className="shrink-0 rounded-full bg-destructive/10 px-2 py-0.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-destructive-foreground">
+                Errors
               </span>
             )}
           </div>
@@ -180,7 +175,7 @@ export function ObsidianEditor({ document, aiConfigPath, onCancel, onSaved }: Ob
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 border-b border-destructive/20 bg-destructive/5 px-6 py-2 text-sm text-destructive-foreground">
+        <div className="flex items-center gap-2 border-b border-destructive/20 bg-destructive/5 px-5 py-2 text-sm text-destructive-foreground sm:px-7">
           <AlertCircle className="size-4 shrink-0" />
           {error}
         </div>
@@ -200,8 +195,8 @@ export function ObsidianEditor({ document, aiConfigPath, onCancel, onSaved }: Ob
       </Suspense>
 
       {/* ─── File path ─── */}
-      <div className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-1.5">
-        <span className="font-mono text-[11px] text-[var(--ink-soft)]/60">{document.relativePath}</span>
+      <div className="border-t border-[var(--line)] bg-[var(--bg)] px-5 py-1.5 sm:px-7">
+        <span className="font-mono text-[11px] text-[var(--ink-dim)]">{document.relativePath}</span>
       </div>
 
       {aiConfigFilename && <AiConfigValidationPanel validatorInfo={validatorInfo} validation={validation} />}
@@ -211,7 +206,7 @@ export function ObsidianEditor({ document, aiConfigPath, onCancel, onSaved }: Ob
 
 function UnrecognizedConfigBanner(props: { filename: string }) {
   return (
-    <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-6 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
+    <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-5 py-2 sm:px-7 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
       <AlertCircle className="size-4 shrink-0" />
       <span>
         <strong>{props.filename}</strong> is not a recognized config file and will not be used by Aether.
@@ -229,12 +224,12 @@ function AiConfigValidationPanel(props: {
   if (!validatorInfo && !validation) return null;
 
   return (
-    <div className="border-t border-[var(--line)] bg-[var(--teal-subtle)]">
+    <div className="border-t border-[var(--line)] bg-[var(--accent-subtle)]">
       {/* Validation status */}
       {validation && (
-        <div className="border-b border-[var(--line)] px-6 py-3">
+        <div className="border-b border-[var(--line)] px-5 py-3 sm:px-7">
           {validation.isValid ? (
-            <div className="flex items-center gap-2 text-sm text-[var(--teal)]">
+            <div className="flex items-center gap-2 text-sm text-[var(--accent)]">
               <CheckCircle2 className="size-4" />
               <span className="font-medium">Valid</span>
             </div>
@@ -260,8 +255,8 @@ function AiConfigValidationPanel(props: {
 
       {/* Requirements description */}
       {validatorInfo && (
-        <div className="px-6 py-3">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
+        <div className="px-5 py-3 sm:px-7">
+          <div className="flex items-center gap-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.15em] text-[var(--ink-dim)]">
             <Info className="size-3.5" />
             {validatorInfo.label} — Requirements
           </div>

@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Workflow } from "lucide-react";
 import { PageHeader } from "#/components/PageHeader";
+import { DataTableHeader } from "#/components/ui/data-table";
 import { WorkflowCard } from "#/components/workflows/WorkflowCard";
 import { WorkflowEmptyState } from "#/components/workflows/WorkflowEmptyState";
 import { getSession } from "#/lib/auth.functions";
@@ -33,11 +34,14 @@ function WorkflowsPage() {
       {data.items.length === 0 ? (
         <WorkflowEmptyState />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {data.items.map((item) => (
-            <WorkflowCard key={item.id} item={item} />
-          ))}
-        </div>
+        <>
+          <DataTableHeader title="Defined Workflows" count={data.items.length} />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {data.items.map((item) => (
+              <WorkflowCard key={item.id} item={item} />
+            ))}
+          </div>
+        </>
       )}
     </PageHeader>
   );

@@ -2,6 +2,11 @@ import { useAtom } from "jotai";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { themeModeAtom } from "#/lib/theme";
 
+/**
+ * Bordered 28x28 theme toggle — matches the redesign artifact's header
+ * affordance: a small framed square that sits next to the ⌘K pill on the
+ * right side of the top bar.
+ */
 export default function ThemeToggle() {
   const [mode, setMode] = useAtom(themeModeAtom);
 
@@ -20,9 +25,9 @@ export default function ThemeToggle() {
       onClick={toggleMode}
       aria-label={label}
       title={label}
-      className="flex items-center justify-center rounded-md p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+      className="grid size-7 place-items-center rounded-[var(--radius-xs)] border border-[var(--line)] bg-[var(--top-bar-bg)] text-[var(--ink-soft)] transition-colors hover:border-[var(--accent)]/40 hover:bg-[var(--accent-subtle)] hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <Icon className="size-4" />
+      <Icon className="size-3.5" />
     </button>
   );
 }

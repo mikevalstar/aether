@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -6,108 +6,229 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  /* Brand palette — Teal + Coral */
-  --ink: oklch(0.15 0.01 180);
-  --ink-soft: oklch(0.45 0.015 180);
-  --ink-dim: oklch(0.58 0.01 180);
-  --teal: oklch(0.55 0.15 180);
-  --teal-hover: oklch(0.48 0.17 180);
-  --teal-subtle: oklch(0.94 0.03 180);
-  --coral: oklch(0.70 0.14 25);
-  --coral-hover: oklch(0.63 0.16 25);
-  --bg: oklch(0.975 0.008 80);
-  --surface: oklch(0.995 0.003 80);
-  --line: oklch(0.88 0.015 180);
-  --header-bg: oklch(0.96 0.02 180 / 0.92);
+/* =============================================================
+   Aether — Phase 1 design tokens (light + dark)
+   Source: docs/redesign/tokens.md (extracted from
+   docs/aether-redesign.html with #7cb0ff override per AETH-mzadfbns).
+   Light + dark are first-class; values are not derived.
+   ============================================================= */
 
-  /* Shadcn tokens */
+:root {
+  /* Surfaces — paper palette (CONSOLE_PALETTES.paper) */
+  --bg: rgb(244 239 230);                   /* #f4efe6 paper bg */
+  --surface: rgb(237 231 220);              /* #ede7dc paper panelSolid (cards) */
+  --raised: rgb(237 231 220);               /* #ede7dc popover */
+  --line: rgb(207 197 176);                 /* #cfc5b0 paper border */
+  --line-strong: rgb(181 172 151);          /* #b5ac97 paper borderHi */
+  --table-surface: rgb(229 222 207);        /* #e5decf — heavier card / table band */
+  --table-border:  rgb(207 197 176);        /* #cfc5b0 */
+  --header-bg: rgb(244 239 230 / 0.92);
+  --top-bar-bg: rgb(237 231 220);           /* #ede7dc — paper panel */
+  --grid-line: oklch(0.65 0.012 85 / 0.10);  /* graph-paper rule, design default 10% */
+
+  /* Ink */
+  --ink: oklch(0.18 0.005 95);              /* #0c0d0a */
+  --ink-soft: oklch(0.45 0.005 95);         /* #4a4b48 */
+  --ink-dim: oklch(0.6 0.004 95);           /* #7a7b77 */
+  --ink-faint: oklch(0.62 0.004 95);        /* #818178 — darkened from 0.72 for AA-Lg/UI 3:1 on bg+surface (AETH-wxllcgzf) */
+
+  /* Accent — single brand colour (#7cb0ff family) */
+  --accent: oklch(0.58 0.16 255);           /* #3d7fd9 — AA on light bg */
+  --accent-hover: oklch(0.52 0.17 255);     /* #2d6dc7 */
+  --accent-subtle: oklch(0.95 0.03 255);    /* #e7f0ff */
+  --accent-foreground: oklch(1 0 0);        /* #ffffff */
+
+  /* Status */
+  --destructive: oklch(0.55 0.20 27);
+  --destructive-hover: oklch(0.48 0.21 27);
+  --destructive-subtle: oklch(0.95 0.03 27);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.55 0.13 155);
+  --success-subtle: oklch(0.95 0.03 155);
+  --warning: oklch(0.6 0.12 70);
+  --warning-subtle: oklch(0.96 0.04 90);
+
+  /* Charts */
+  --chart-1: oklch(0.58 0.16 255);          /* accent blue */
+  --chart-2: oklch(0.52 0.18 295);          /* purple */
+  --chart-3: oklch(0.55 0.13 155);          /* green */
+  --chart-4: oklch(0.55 0.20 27);           /* red */
+  --chart-5: oklch(0.6 0.12 70);            /* amber */
+
+  /* Shadcn alias layer — maps brand tokens to shadcn semantics */
   --background: var(--bg);
   --foreground: var(--ink);
   --card: var(--surface);
   --card-foreground: var(--ink);
-  --popover: var(--surface);
+  --popover: var(--raised);
   --popover-foreground: var(--ink);
-  --primary: var(--teal);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: var(--teal-subtle);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-foreground);
+  --secondary: var(--accent-subtle);
   --secondary-foreground: var(--ink);
-  --muted: oklch(0.94 0.008 80);
+  --muted: oklch(0.96 0.005 85);
   --muted-foreground: var(--ink-soft);
-  --accent: var(--teal-subtle);
-  --accent-foreground: var(--ink);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: var(--line);
-  --input: var(--line);
-  --ring: oklch(0.55 0.15 180 / 0.3);
-  --chart-1: var(--teal);
-  --chart-2: var(--coral);
-  --chart-3: oklch(0.60 0.12 250);
-  --chart-4: oklch(0.75 0.15 85);
-  --chart-5: oklch(0.55 0.10 300);
-  --radius: 0.5rem;
+  --input: oklch(0.62 0.005 95);            /* #818178 — form control border, ≥3:1 on bg/surface (AETH-wxllcgzf) */
+  --ring: oklch(0.58 0.16 255 / 0.3);
   --sidebar: var(--surface);
   --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--teal);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: var(--teal-subtle);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--accent-foreground);
+  --sidebar-accent: var(--accent-subtle);
   --sidebar-accent-foreground: var(--ink);
   --sidebar-border: var(--line);
-  --sidebar-ring: oklch(0.55 0.15 180 / 0.3);
+  --sidebar-ring: oklch(0.58 0.16 255 / 0.3);
+
+  /* Radius scale */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+  --radius: var(--radius-md);
+
+  /* Tracking */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.08em;
+
+  /* Layout */
+  --page-gutter: 1.5rem;
+  --page-gutter-lg: 2.5rem;
+  --page-max: 80rem;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 260ms;
+  --motion-deliberate: 400ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Z-index */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 20;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-toast: 70;
+  --z-tooltip: 80;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.08), 0 2px 4px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.12), 0 4px 8px rgb(0 0 0 / 0.06);
+  --shadow-xl: 0 24px 64px rgb(0 0 0 / 0.16), 0 8px 16px rgb(0 0 0 / 0.08);
 }
 
 .dark {
-  --ink: oklch(0.92 0.01 180);
-  --ink-soft: oklch(0.58 0.015 180);
-  --ink-dim: oklch(0.42 0.01 180);
-  --teal: oklch(0.65 0.13 180);
-  --teal-hover: oklch(0.72 0.11 180);
-  --teal-subtle: oklch(0.22 0.03 180);
-  --coral: oklch(0.72 0.12 25);
-  --coral-hover: oklch(0.78 0.10 25);
-  --bg: oklch(0.13 0.01 180);
-  --surface: oklch(0.17 0.012 180);
-  --line: oklch(0.27 0.02 180);
-  --header-bg: oklch(0.13 0.015 180 / 0.92);
+  /* Surfaces */
+  --bg: rgb(10 24 48);                      /* #0a1830 deep navy */
+  --surface: rgb(17 38 77);                 /* #11264d blueprint panelSolid */
+  --raised: rgb(22 48 102);                 /* #163066 blueprint surface */
+  --line: rgb(39 67 122);                   /* #27437a blueprint border */
+  --line-strong: rgb(54 89 144);            /* #365990 blueprint borderHi */
+  --table-surface: rgb(22 48 102);          /* #163066 — blueprint surface */
+  --table-border:  rgb(39 67 122);          /* #27437a — blueprint border */
+  --header-bg: rgb(10 24 48 / 0.92);
+  --top-bar-bg: rgb(17 38 77);              /* #11264d — blueprint panelSolid */
+  --grid-line: oklch(0.55 0.08 255 / 0.10);
 
+  /* Ink — dark scale lifted for better contrast against dark surfaces */
+  --ink: oklch(0.96 0.003 95);              /* #f5f5f2 */
+  --ink-soft: oklch(0.80 0.005 95);         /* lifted from 0.72 */
+  --ink-dim: oklch(0.66 0.005 95);          /* lifted from 0.50 */
+  --ink-faint: oklch(0.56 0.005 95);        /* lifted from 0.40 */
+
+  /* Accent — base #7cb0ff in dark */
+  --accent: oklch(0.76 0.13 255);           /* #7cb0ff */
+  --accent-hover: oklch(0.82 0.10 255);     /* #9bc3ff */
+  --accent-subtle: oklch(0.24 0.04 255);    /* #1a2540 */
+  --accent-foreground: oklch(0.135 0.003 95);
+
+  /* Status */
+  --destructive: oklch(0.7 0.17 27);
+  --destructive-hover: oklch(0.76 0.16 27);
+  --destructive-subtle: oklch(0.26 0.06 27);
+  --destructive-foreground: oklch(0.135 0.003 95);
+  --success: oklch(0.72 0.13 155);
+  --success-subtle: oklch(0.25 0.04 155);
+  --warning: oklch(0.76 0.13 70);
+  --warning-subtle: oklch(0.25 0.04 70);
+
+  /* Charts */
+  --chart-1: oklch(0.76 0.13 255);
+  --chart-2: oklch(0.7 0.14 295);
+  --chart-3: oklch(0.72 0.13 155);
+  --chart-4: oklch(0.7 0.17 27);
+  --chart-5: oklch(0.76 0.13 70);
+
+  /* Shadcn aliases */
   --background: var(--bg);
   --foreground: var(--ink);
   --card: var(--surface);
   --card-foreground: var(--ink);
-  --popover: var(--surface);
+  --popover: var(--raised);
   --popover-foreground: var(--ink);
-  --primary: var(--teal);
-  --primary-foreground: oklch(0.13 0.01 180);
-  --secondary: var(--teal-subtle);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-foreground);
+  --secondary: var(--accent-subtle);
   --secondary-foreground: var(--ink);
-  --muted: oklch(0.22 0.01 180);
+  --muted: oklch(0.2 0.005 260);
   --muted-foreground: var(--ink-soft);
-  --accent: var(--teal-subtle);
-  --accent-foreground: var(--ink);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: var(--line);
-  --input: var(--line);
-  --ring: oklch(0.65 0.13 180 / 0.4);
-  --chart-1: var(--teal);
-  --chart-2: var(--coral);
-  --chart-3: oklch(0.65 0.12 250);
-  --chart-4: oklch(0.78 0.13 85);
-  --chart-5: oklch(0.60 0.10 300);
+  --input: oklch(0.62 0.07 255);            /* #5f82b4 — form control border, ≥3:1 on bg/surface/raised (AETH-wxllcgzf) */
+  --ring: oklch(0.76 0.13 255 / 0.4);
   --sidebar: var(--surface);
   --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--teal);
-  --sidebar-primary-foreground: oklch(0.13 0.01 180);
-  --sidebar-accent: var(--teal-subtle);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--accent-foreground);
+  --sidebar-accent: var(--accent-subtle);
   --sidebar-accent-foreground: var(--ink);
   --sidebar-border: var(--line);
-  --sidebar-ring: oklch(0.65 0.13 180 / 0.4);
+  --sidebar-ring: oklch(0.76 0.13 255 / 0.4);
+
+  /* Dark shadows: lower opacity, subtle inner highlight for lift */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.25);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.35), 0 1px 2px rgb(0 0 0 / 0.25);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --shadow-xl: 0 24px 64px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.04);
 }
 
 @theme inline {
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  /* Fonts */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Type scale (info-dense) */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.125rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.25rem;
+  --text-md: 1rem;
+  --text-md--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 2.375rem;       /* 38px — page-header h1 (Console design) */
+  --text-3xl--line-height: 2.5rem;
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 3.25rem;
+
+  /* Surface / brand colours exposed as Tailwind utilities */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -120,11 +241,21 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent-subtle);
+  --color-accent-foreground: var(--ink);
+  --color-accent-base: var(--accent);
+  --color-accent-base-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
   --color-border: var(--border);
+  --color-border-strong: var(--line-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -132,10 +263,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -144,9 +271,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-teal: var(--teal);
-  --color-teal-subtle: var(--teal-subtle);
-  --color-coral: var(--coral);
+
+  /* Radius aliases for shadcn primitives */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 html,
@@ -159,30 +289,43 @@ body {
   margin: 0;
   color: var(--ink);
   font-family: var(--font-sans);
+  /* "Graph paper" canvas — matches the redesign artifact (faint 48px grid
+     overlaid on a warm paper / near-black base). Depth without per-page
+     GlowBg chrome; the grid is the brand's "instrument" texture. */
   background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: 0 0;
+  background-attachment: fixed;
+  background-repeat: repeat;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark mode just swaps the grid line via --grid-line; keep the rest. */
+
 @layer base {
   a {
-    color: var(--teal);
-    text-decoration-color: oklch(0.55 0.15 180 / 0.3);
+    color: var(--accent);
+    text-decoration-color: oklch(from var(--accent) l c h / 0.3);
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;
   }
 
   a:hover {
-    color: var(--teal-hover);
+    color: var(--accent-hover);
   }
 }
 
 code {
   font-size: 0.9em;
+  font-family: var(--font-mono);
   border: 1px solid var(--line);
   background: var(--surface);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 2px 6px;
 }
 
@@ -197,9 +340,9 @@ pre code {
 
 .prose pre {
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: oklch(0.16 0.01 180);
-  color: oklch(0.92 0.01 180);
+  border-radius: var(--radius-md);
+  background: var(--raised);
+  color: var(--ink);
 }
 
 .page-wrap {
@@ -214,7 +357,8 @@ pre code {
 }
 
 .display-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-tight);
 }
 
 .surface-card {
@@ -225,51 +369,122 @@ pre code {
 
 button,
 a {
-  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease,
-    opacity 150ms ease;
+  transition: background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out),
+    opacity var(--motion-fast) var(--ease-out);
 }
 
+/* Top-bar nav pill — matches the redesign artifact's UPPERCASE tracked
+   pill style (CHAT / TASKS / WORKFLOWS …). Active state uses an 8% accent
+   wash + accent text; hover is a 5% neutral wash with ink-color shift. */
 .nav-link {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-xs);
   text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 600;
   color: var(--ink-soft);
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
 }
 
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  width: 100%;
-  height: 1px;
-  transform: scaleX(0);
-  transform-origin: left;
-  background: var(--teal);
-  transition: transform 150ms ease;
+.nav-link:active {
+  transform: translateY(0.5px);
 }
 
-.nav-link:hover,
-.nav-link.is-active {
+.nav-link:hover {
   color: var(--ink);
+  background-color: oklch(from var(--ink) l c h / 0.04);
 }
 
-.nav-link:hover::after,
-.nav-link.is-active::after {
-  transform: scaleX(1);
+.nav-link.is-active {
+  color: var(--accent);
+  background-color: oklch(from var(--accent) l c h / 0.08);
+}
+
+.nav-link.is-active:hover {
+  background-color: oklch(from var(--accent) l c h / 0.12);
 }
 
 .nav-link-mobile {
   text-decoration: none;
   color: var(--ink-soft);
-  transition: color 150ms ease, background-color 150ms ease;
+  transition: color var(--motion-base) var(--ease-out),
+    background-color var(--motion-base) var(--ease-out);
 }
 
 .nav-link-mobile:hover,
 .nav-link-mobile.is-active {
   color: var(--ink);
-  background-color: var(--teal-subtle);
+  background-color: var(--accent-subtle);
 }
 
+
+/* Command palette — Raycast-style polish.
+ * Targets the cmdk markup inside `CommandPalette` (CommandDialog adds the
+ * `palette-cmd` class). Group headings become uppercase eyebrows and the
+ * focused item gets a 2px accent left-bar in addition to the default
+ * accent-subtle bg. Kept as plain CSS so it stays out of the per-item
+ * className soup. */
+.palette-cmd [cmdk-group-heading] {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider, 0.08em);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-dim);
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.25rem !important;
+}
+
+.palette-cmd [cmdk-item] {
+  position: relative;
+  border-radius: var(--radius-sm, 0.375rem);
+  transition: background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.palette-cmd [cmdk-item][data-selected='true']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: palette-bar-in var(--motion-fast) var(--ease-out);
+}
+
+@keyframes palette-bar-in {
+  from {
+    transform: scaleY(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.palette-cmd [cmdk-item][data-selected='true'] svg {
+  color: var(--accent) !important;
+}
+
+.palette-cmd [cmdk-input] {
+  font-size: 0.9375rem;
+}
 
 @layer base {
   * {
@@ -289,20 +504,29 @@ a {
   }
 }
 
-/* Reduced motion — disable animations and transitions for users who prefer it */
+/* Reduced motion — disable animations and transitions for users who prefer it.
+   Also neutralise hover/active transforms so nothing pops or scales. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
+  }
+
+  *:hover,
+  *:active,
+  *:focus,
+  *:focus-visible {
+    transform: none !important;
   }
 }
 
-/* MDEditor theme overrides — align with Aether teal palette */
-/* Override the GitHub color-mode variables the library reads */
+/* MDEditor theme overrides — align with Aether accent palette */
 [data-color-mode] {
   --color-fg-default: var(--ink) !important;
   --color-fg-muted: var(--ink-soft) !important;
@@ -310,10 +534,10 @@ a {
   --color-canvas-subtle: var(--surface) !important;
   --color-border-default: var(--line) !important;
   --color-border-muted: var(--line) !important;
-  --color-neutral-muted: var(--teal-subtle) !important;
-  --color-accent-fg: var(--teal) !important;
-  --color-prettylights-syntax-keyword: var(--teal) !important;
-  --color-prettylights-syntax-entity: var(--coral) !important;
+  --color-neutral-muted: var(--accent-subtle) !important;
+  --color-accent-fg: var(--accent) !important;
+  --color-prettylights-syntax-keyword: var(--accent) !important;
+  --color-prettylights-syntax-entity: var(--destructive) !important;
 }
 
 .w-md-editor {
@@ -327,8 +551,8 @@ a {
 
 /* Custom toolbar — our own buttons, strip library chrome */
 .w-md-editor-toolbar {
-  background-color: color-mix(in oklch, var(--teal-subtle) 35%, var(--surface)) !important;
-  border-bottom: 2px solid color-mix(in oklch, var(--teal) 15%, var(--line)) !important;
+  background-color: color-mix(in oklch, var(--accent-subtle) 35%, var(--surface)) !important;
+  border-bottom: 2px solid color-mix(in oklch, var(--accent) 15%, var(--line)) !important;
   padding: 6px 12px !important;
   min-height: auto !important;
 }
@@ -363,6 +587,7 @@ a {
   font-size: 14px !important;
   line-height: 1.7 !important;
   color: var(--ink) !important;
+  font-family: var(--font-mono) !important;
 }
 
 .w-md-editor-preview {
@@ -409,8 +634,8 @@ a {
   cursor: grab;
   z-index: 1;
   opacity: 0;
-  transition: opacity 150ms ease;
-  background: linear-gradient(to bottom, oklch(0.55 0.15 180 / 0.08), transparent);
+  transition: opacity var(--motion-base) var(--ease-out);
+  background: linear-gradient(to bottom, oklch(from var(--accent) l c h / 0.08), transparent);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
@@ -424,15 +649,15 @@ a {
 
 /* Placeholder shown during drag */
 .react-grid-placeholder {
-  background: var(--teal-subtle) !important;
-  border: 2px dashed var(--teal) !important;
+  background: var(--accent-subtle) !important;
+  border: 2px dashed var(--accent) !important;
   border-radius: var(--radius-lg) !important;
   opacity: 0.6 !important;
 }
 
 /* Override default react-grid-layout transition for smoother feel */
 .react-grid-item.cssTransforms {
-  transition-duration: 150ms !important;
+  transition-duration: var(--motion-base) !important;
 }
 
 .react-grid-item > .react-resizable-handle {
@@ -453,7 +678,7 @@ a {
 }
 @keyframes log-row-fresh-fade {
   0% {
-    background-color: color-mix(in oklch, var(--teal) 18%, transparent);
+    background-color: color-mix(in oklch, var(--accent) 18%, transparent);
   }
   100% {
     background-color: transparent;
@@ -463,4 +688,14 @@ a {
   .log-row-fresh {
     animation: none;
   }
+}
+
+/* Faint dashed grid background — used by the auth brand panel for the
+   "blueprint" feel without committing every page to a global pattern. */
+.auth-grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--line) 40%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--line) 40%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
 }

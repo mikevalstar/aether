@@ -1,9 +1,10 @@
 import { useRouter } from "@tanstack/react-router";
-import { AlertCircle, CheckCircle2, Loader2, Pencil, Save, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileText, Loader2, Pencil, Save, X } from "lucide-react";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/markdown-components";
+import { PageHeader } from "#/components/PageHeader";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
 import type { ObsidianDocument } from "#/lib/obsidian/obsidian";
@@ -18,7 +19,7 @@ const MarkdownEditor = lazy(() =>
 );
 
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
-const modKey = isMac ? "\u2318" : "Ctrl+";
+const modKey = isMac ? "⌘" : "Ctrl+";
 
 type SaveState = "idle" | "saving" | "saved";
 
@@ -40,24 +41,37 @@ export function ConfigEditorShell({
     [basePath],
   );
 
+  const singular = navLabel.toLowerCase().replace(/s$/, "");
+
   if (!data.configured) {
     return (
-      <main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
+      <PageHeader
+        icon={navIcon as import("lucide-react").LucideIcon}
+        label={navLabel}
+        title="Editor"
+        description={`Edit and configure your ${singular} markdown files.`}
+      >
         <div className="surface-card mx-auto max-w-lg px-8 py-12 text-center">
           <h2 className="text-xl font-semibold text-[var(--ink)]">Not configured</h2>
-          <p className="mt-2 text-sm text-[var(--ink-soft)]">
+          <p className="mt-2 text-sm text-muted-foreground">
             Set the <code className="text-[12px]">OBSIDIAN_DIR</code> and{" "}
             <code className="text-[12px]">OBSIDIAN_AI_CONFIG</code> environment variables to enable the editor.
           </p>
         </div>
-      </main>
+      </PageHeader>
     );
   }
 
   return (
-    <main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
-      <div className="grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
-        <aside>
+    <PageHeader
+      icon={navIcon as import("lucide-react").LucideIcon}
+      label={navLabel}
+      title="Editor"
+      description={`Edit and configure your ${singular} markdown files.`}
+      actions={headerAction}
+    >
+      <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]">
+        <aside className="min-w-0">
           <ScopedTreeNav
             nodes={data.tree}
             currentPath={data.document?.relativePath ?? ""}
@@ -65,7 +79,6 @@ export function ConfigEditorShell({
             icon={navIcon}
             basePath={basePath}
             getHref={getHref}
-            headerAction={headerAction}
           />
         </aside>
 
@@ -86,7 +99,7 @@ export function ConfigEditorShell({
           )}
         </section>
       </div>
-    </main>
+    </PageHeader>
   );
 }
 
@@ -161,22 +174,15 @@ function EditorPane(props: {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="relative border-b border-[var(--line)]">
-        <div
-          className="absolute inset-x-0 top-0 h-1"
-          style={{ background: "linear-gradient(90deg, var(--teal), var(--coral))" }}
-        />
-        <div className="flex items-center justify-between px-6 py-3 pt-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">
-              {editing ? "Editing" : "Viewing"}
-            </p>
-            <h2 className="display-title min-w-0 truncate text-lg font-bold tracking-tight text-[var(--ink)]">
-              {document.title}
-            </h2>
-            {editing && hasChanges && (
-              <span className="shrink-0 rounded-full bg-[var(--coral)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--coral)]">
-                Unsaved
+      <div className="relative border-b border-border-strong">
+        <div className="flex items-center justify-between gap-3 px-5 py-3">
+          <div className="relative flex min-w-0 items-center gap-3 pl-3">
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
+            <FileText className="size-4 shrink-0 text-[var(--accent)]" />
+            <h2 className="display-title min-w-0 truncate text-base font-semibold text-[var(--ink)]">{document.title}</h2>
+            {editing && (
+              <span className="shrink-0 rounded-full bg-[var(--accent-subtle)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
+                {hasChanges ? "Unsaved" : "Editing"}
               </span>
             )}
           </div>
@@ -241,14 +247,14 @@ function EditorPane(props: {
           <Suspense
             fallback={
               <div className="flex min-h-0 flex-1 items-center justify-center">
-                <Loader2 className="size-5 animate-spin text-[var(--ink-soft)]" />
+                <Loader2 className="size-5 animate-spin text-muted-foreground" />
               </div>
             }
           >
             <MarkdownEditor value={content} onChange={setContent} className="min-h-0 flex-1" />
           </Suspense>
-          <div className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-1.5">
-            <span className="font-mono text-[11px] text-[var(--ink-soft)]/60">{document.relativePath}</span>
+          <div className="border-t border-[var(--line)] bg-[var(--surface)] px-5 py-1.5">
+            <span className="font-mono text-[11px] text-muted-foreground/70">{document.relativePath}</span>
           </div>
         </>
       ) : (
@@ -273,7 +279,7 @@ function EmptyState({ label, hasFiles }: { label: string; hasFiles: boolean }) {
         <h3 className="text-lg font-semibold text-[var(--ink)]">
           {hasFiles ? "Select a file" : `No ${label.toLowerCase()} found`}
         </h3>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">
+        <p className="mt-2 text-sm text-muted-foreground">
           {hasFiles
             ? `Choose a ${label.toLowerCase().replace(/s$/, "")} from the sidebar to start editing.`
             : `Create a new ${label.toLowerCase().replace(/s$/, "")} file to get started.`}

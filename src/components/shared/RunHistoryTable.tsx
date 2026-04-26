@@ -2,10 +2,11 @@ import { useRouter } from "@tanstack/react-router";
 import { AlertCircle, ChevronDown, ChevronRight, MessageSquare, Trash2 } from "lucide-react";
 import { Fragment, useState } from "react";
 import { RunMessages } from "#/components/shared/RunMessages";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
-import { formatCost, formatDateTime } from "#/lib/format";
+import { formatDateTime, Money } from "#/lib/format";
 
 export type RunItem = {
   id: string;
@@ -40,7 +41,7 @@ export interface RunHistoryTableProps {
 
 function RunDetail({ run }: { run: RunItem }) {
   return (
-    <div className="max-h-[600px] overflow-y-auto bg-muted/50 px-4 py-3">
+    <div className="max-h-[600px] overflow-y-auto border-t border-[var(--line)] bg-[var(--bg)] px-5 py-4">
       <RunMessages
         messagesJson={run.messagesJson}
         systemPromptJson={run.systemPromptJson}
@@ -98,98 +99,105 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
 
   if (runs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-        <AlertCircle className="mb-3 size-8 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">No runs yet for this {emptyLabel}.</p>
+      <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-[var(--table-border)] bg-[var(--table-surface)] p-12 text-center">
+        <AlertCircle className="mb-3 size-8 text-[var(--ink-faint)]" />
+        <p className="text-sm text-[var(--ink-soft)]">No runs yet for this {emptyLabel}.</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border bg-card">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-8" />
-            <TableHead>Time</TableHead>
-            <TableHead>Model</TableHead>
-            <TableHead>Tokens</TableHead>
-            <TableHead>Cost</TableHead>
-            <TableHead className="w-[120px]" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {runs.map((run) => {
-            const isExpanded = expandedId === run.id;
-            const isDeleting = deletingIds.has(run.id);
-            const isConverting = convertingIds.has(run.id);
-            const isAlreadyChat = run.type === "chat";
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-8" />
+          <TableHead>Time</TableHead>
+          <TableHead>Model</TableHead>
+          <TableHead className="text-right">Tokens</TableHead>
+          <TableHead className="text-right">Cost</TableHead>
+          <TableHead className="w-[120px]" />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {runs.map((run) => {
+          const isExpanded = expandedId === run.id;
+          const isDeleting = deletingIds.has(run.id);
+          const isConverting = convertingIds.has(run.id);
+          const isAlreadyChat = run.type === "chat";
 
-            return (
-              <Fragment key={run.id}>
-                <TableRow
-                  className={`cursor-pointer ${highlightId === run.id ? "bg-[var(--teal-subtle)]" : ""}`}
-                  onClick={() => setExpandedId(isExpanded ? null : run.id)}
-                >
-                  <TableCell>
-                    {isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-                  </TableCell>
-                  <TableCell className="text-sm">{formatDateTime(run.createdAt)}</TableCell>
-                  <TableCell className="text-sm">{run.model}</TableCell>
-                  <TableCell className="text-sm tabular-nums">
-                    {(
-                      (run.aggregateInputTokens ?? run.totalInputTokens) +
-                      (run.aggregateOutputTokens ?? run.totalOutputTokens)
-                    ).toLocaleString()}
-                    {run.subAgentCount ? (
-                      <span className="ml-1 text-[11px] font-medium text-[var(--teal)]">+{run.subAgentCount}</span>
-                    ) : null}
-                  </TableCell>
-                  <TableCell className="text-sm tabular-nums">
-                    {formatCost(run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      {!isAlreadyChat && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={isConverting}
-                          title="Continue in Chat"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            void handleConvertToChat(run.id);
-                          }}
-                        >
-                          <MessageSquare className="size-4 text-muted-foreground" />
-                        </Button>
-                      )}
+          return (
+            <Fragment key={run.id}>
+              <TableRow
+                className={`cursor-pointer border-[var(--table-border)] transition-colors hover:bg-[oklch(from_var(--accent)_l_c_h_/_0.10)] ${
+                  highlightId === run.id ? "bg-[oklch(from_var(--accent)_l_c_h_/_0.14)]" : ""
+                }`}
+                onClick={() => setExpandedId(isExpanded ? null : run.id)}
+              >
+                <TableCell>
+                  {isExpanded ? (
+                    <ChevronDown className="size-4 text-[var(--ink-soft)]" />
+                  ) : (
+                    <ChevronRight className="size-4 text-[var(--ink-soft)]" />
+                  )}
+                </TableCell>
+                <TableCell className="text-sm text-[var(--ink)]">{formatDateTime(run.createdAt)}</TableCell>
+                <TableCell>
+                  <Badge variant="model-name">{run.model}</Badge>
+                </TableCell>
+                <TableCell className="text-right text-sm tabular-nums text-[var(--ink)]">
+                  {(
+                    (run.aggregateInputTokens ?? run.totalInputTokens) + (run.aggregateOutputTokens ?? run.totalOutputTokens)
+                  ).toLocaleString()}
+                  {run.subAgentCount ? (
+                    <span className="ml-1.5 rounded-full bg-[var(--accent-subtle)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
+                      +{run.subAgentCount}
+                    </span>
+                  ) : null}
+                </TableCell>
+                <TableCell className="text-right text-sm text-[var(--ink)]">
+                  <Money usd={run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd} />
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-0.5">
+                    {!isAlreadyChat && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        disabled={isDeleting}
+                        disabled={isConverting}
+                        title="Continue in Chat"
                         onClick={(e) => {
                           e.stopPropagation();
-                          void handleDelete(run.id);
+                          void handleConvertToChat(run.id);
                         }}
                       >
-                        <Trash2 className="size-4 text-muted-foreground" />
+                        <MessageSquare className="size-4 text-[var(--ink-soft)]" />
                       </Button>
-                    </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={isDeleting}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void handleDelete(run.id);
+                      }}
+                    >
+                      <Trash2 className="size-4 text-[var(--ink-soft)]" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+              {isExpanded && (
+                <TableRow className="border-[var(--table-border)] hover:bg-transparent">
+                  <TableCell colSpan={6} className="!p-0">
+                    <RunDetail run={run} />
                   </TableCell>
                 </TableRow>
-                {isExpanded && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="p-0">
-                      <RunDetail run={run} />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </Fragment>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+              )}
+            </Fragment>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }

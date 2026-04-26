@@ -36,28 +36,29 @@ export function useCopyToClipboard(duration = 3000) {
 
 const variantStyles = {
   compact: {
-    h1: "mb-2 mt-3 scroll-m-20 text-base font-semibold first:mt-0 last:mb-0",
-    h2: "mt-3 mb-1.5 scroll-m-20 text-sm font-semibold first:mt-0 last:mb-0",
+    h1: "mb-2 mt-3 scroll-m-20 text-base font-semibold tracking-tight first:mt-0 last:mb-0",
+    h2: "mt-3 mb-1.5 scroll-m-20 text-sm font-semibold tracking-tight first:mt-0 last:mb-0",
     h3: "mt-2.5 mb-1 scroll-m-20 text-sm font-semibold first:mt-0 last:mb-0",
     h4: "mt-2 mb-1 scroll-m-20 text-sm font-medium first:mt-0 last:mb-0",
     h5: "mt-2 mb-1 text-sm font-medium first:mt-0 last:mb-0",
-    h6: "mt-2 mb-1 text-sm font-medium first:mt-0 last:mb-0",
+    h6: "mt-2 mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--ink-soft)] first:mt-0 last:mb-0",
     p: "my-2.5 leading-normal first:mt-0 last:mb-0",
-    a: "text-primary underline underline-offset-2 hover:text-primary/80",
-    ul: "my-2 ml-4 list-disc marker:text-muted-foreground [&>li]:mt-1",
-    ol: "my-2 ml-4 list-decimal marker:text-muted-foreground [&>li]:mt-1",
+    a: "text-[var(--accent)] underline decoration-[color:var(--line)] underline-offset-2 hover:text-[var(--accent-hover)]",
+    ul: "my-2 ml-4 list-disc marker:text-[var(--ink-soft)] [&>li]:mt-1",
+    ol: "my-2 ml-4 list-decimal marker:text-[var(--ink-soft)] [&>li]:mt-1",
     li: "leading-normal",
-    blockquote: "my-2.5 border-muted-foreground/30 border-l-2 pl-3 text-muted-foreground italic",
-    hr: "my-2 border-muted-foreground/20",
+    blockquote: "my-2.5 border-l-2 border-[var(--accent)]/60 bg-[var(--bg)] py-1 pl-3 text-[var(--ink-soft)] italic",
+    hr: "my-3 border-0 border-t border-[var(--line)]",
     tableWrap: "my-2",
-    table: "w-full border-separate border-spacing-0 overflow-y-auto",
-    thead: "bg-muted",
-    th: "bg-muted px-2 py-1 text-left font-medium first:rounded-tl-lg last:rounded-tr-lg",
-    td: "border-muted-foreground/20 border-b border-l px-2 py-1 text-left last:border-r [[align=center]]:text-center [[align=right]]:text-right",
-    tr: "m-0 border-b p-0 first:border-t [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg",
+    table: "w-full caption-bottom border-collapse text-sm",
+    thead: "[&_tr]:border-b [&_tr]:border-[var(--line)] [&_tr]:bg-[var(--table-surface)]",
+    th: "h-7 whitespace-nowrap px-2 text-left align-middle font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--ink-soft)]",
+    td: "whitespace-nowrap px-2 py-1.5 align-middle text-[var(--ink)] [[align=center]]:text-center [[align=right]]:text-right",
+    tr: "group border-t border-[var(--line)] transition-colors first:border-t-0 hover:bg-[var(--table-surface)]",
     preWrap: "mt-2.5",
     pre: "p-3 text-xs leading-relaxed",
-    codeInline: "rounded-md border border-border/50 bg-muted/50 px-1.5 py-0.5 font-mono text-[0.85em]",
+    codeInline:
+      "rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 font-mono text-[0.85em] text-[var(--ink)]",
   },
   prose: {
     h1: "display-title mt-10 mb-4 text-3xl font-bold tracking-tight first:mt-0 sm:text-[2rem]",
@@ -67,19 +68,19 @@ const variantStyles = {
     h5: "mt-5 mb-2 text-sm font-semibold",
     h6: "mt-5 mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]",
     p: "my-4 text-[0.97rem] leading-7",
-    a: "font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
+    a: "font-medium text-[var(--accent)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
     ul: "my-4 ml-5 list-disc space-y-2 marker:text-[var(--ink-soft)]",
     ol: "my-4 ml-5 list-decimal space-y-2 marker:text-[var(--ink-soft)]",
     li: "pl-1 leading-7 text-[0.97rem]",
     blockquote:
-      "my-6 rounded-r-lg border-l-3 border-[var(--teal)] bg-[var(--bg)] px-4 py-3 text-[0.97rem] leading-7 text-[var(--ink-soft)] italic",
+      "my-6 rounded-r-lg border-l-3 border-[var(--accent)] bg-[var(--bg)] px-4 py-3 text-[0.97rem] leading-7 text-[var(--ink-soft)] italic",
     hr: "my-8 border-0 border-t border-[var(--line)]",
     tableWrap: "my-6",
-    table: "w-full min-w-[36rem] border-collapse",
-    thead: "bg-[var(--bg)]",
-    th: "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]",
-    td: "px-4 py-3 text-[0.92rem] leading-6 text-[var(--ink)] align-top",
-    tr: "border-t border-[var(--line)]",
+    table: "w-full min-w-[36rem] caption-bottom border-collapse text-sm",
+    thead: "[&_tr]:border-b [&_tr]:border-[var(--line)] [&_tr]:bg-[var(--table-surface)]",
+    th: "h-9 whitespace-nowrap px-3 text-left align-middle font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-[var(--ink-soft)]",
+    td: "px-3 py-2 align-middle text-[0.92rem] leading-6 text-[var(--ink)]",
+    tr: "group border-t border-[var(--line)] transition-colors first:border-t-0 hover:bg-[var(--table-surface)]",
     preWrap: "my-6",
     pre: "p-4 text-[13px] leading-6",
     codeInline:
@@ -177,7 +178,12 @@ export function createMarkdownComponents(
     blockquote: ({ className, ...props }) => <blockquote className={cn(s.blockquote, className)} {...props} />,
     hr: ({ className, ...props }) => <hr className={cn(s.hr, className)} {...props} />,
     table: ({ className, ...props }) => (
-      <div className={cn(s.tableWrap, "overflow-x-auto rounded-xl border border-[var(--line)] bg-[var(--surface)]")}>
+      <div
+        className={cn(
+          s.tableWrap,
+          "relative w-full overflow-x-auto overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface)]",
+        )}
+      >
         <table className={cn(s.table, className)} {...props} />
       </div>
     ),
@@ -198,7 +204,7 @@ export function createMarkdownComponents(
           <input
             type="checkbox"
             className={cn(
-              "mr-2 mt-0.5 size-4 shrink-0 rounded border-[var(--line)] accent-[var(--teal)] align-middle",
+              "mr-2 mt-0.5 size-4 shrink-0 rounded border-[var(--line)] accent-[var(--accent)] align-middle",
               className,
             )}
             {...props}

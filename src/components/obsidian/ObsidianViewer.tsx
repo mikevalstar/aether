@@ -1,9 +1,10 @@
 import { useRouter } from "@tanstack/react-router";
-import { AlertCircle, Pencil } from "lucide-react";
+import { AlertCircle, BookOpen, Pencil } from "lucide-react";
 import { type ComponentPropsWithoutRef, useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/markdown-components";
+import { PageHeader } from "#/components/PageHeader";
 import { Button } from "#/components/ui/button";
 import { getAiConfigValidatorInfo } from "#/lib/ai-config/ai-config.functions";
 import {
@@ -29,15 +30,21 @@ export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
 
   if (!data.configured) {
     return (
-      <main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
+      <PageHeader
+        icon={BookOpen}
+        label="Obsidian"
+        title="Vault"
+        highlight="Browser"
+        description="Browse, search, and edit your Obsidian vault from inside Aether."
+      >
         <div className="surface-card mx-auto max-w-lg px-8 py-12 text-center">
-          <h2 className="text-xl font-semibold text-[var(--ink)]">Obsidian not configured</h2>
+          <h2 className="display-title text-xl font-semibold text-[var(--ink)]">Obsidian not configured</h2>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            Set the <code className="text-[12px]">OBSIDIAN_DIR</code> environment variable to your vault path to enable the
-            Obsidian browser.
+            Set the <code className="font-mono text-[12px]">OBSIDIAN_DIR</code> environment variable to your vault path to
+            enable the Obsidian browser.
           </p>
         </div>
-      </main>
+      </PageHeader>
     );
   }
 
@@ -45,9 +52,15 @@ export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
   const isIndex = data.requestedPath === "";
 
   return (
-    <main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
-      <div className="grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
-        <aside>
+    <PageHeader
+      icon={BookOpen}
+      label="Obsidian"
+      title="Vault"
+      highlight="Browser"
+      description="Browse, search, and edit your Obsidian vault from inside Aether."
+    >
+      <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]">
+        <aside className="min-w-0">
           <ObsidianTreeNav
             nodes={data.tree}
             aiConfigPath={data.aiConfigPath}
@@ -78,7 +91,7 @@ export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
           )}
         </section>
       </div>
-    </main>
+    </PageHeader>
   );
 }
 
@@ -103,7 +116,7 @@ function DocumentContent(props: { document: ObsidianDocument; aiConfigPath: stri
         href={href}
         currentRelativePath={document.relativePath}
         className={cn(
-          "font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
+          "font-medium text-[var(--accent)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
           className,
         )}
         {...rest}
@@ -119,7 +132,7 @@ function DocumentContent(props: { document: ObsidianDocument; aiConfigPath: stri
       <DocumentHeader document={document} onEdit={onEdit} />
 
       {isUnrecognizedConfig && aiConfigFilename && (
-        <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-6 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
+        <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-5 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
           <AlertCircle className="size-4 shrink-0" />
           <span>
             <strong>{aiConfigFilename}</strong> is not a recognized config file and will not be used by Aether.
@@ -129,7 +142,7 @@ function DocumentContent(props: { document: ObsidianDocument; aiConfigPath: stri
 
       <FrontmatterDisplay frontmatter={document.frontmatter} />
 
-      <div className="px-6 py-6 sm:px-8 sm:py-8">
+      <div className="px-5 py-6 sm:px-7 sm:py-7">
         <div className="max-w-none text-[var(--ink)]">
           <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
             {document.body}
@@ -144,24 +157,17 @@ function DocumentHeader(props: { document: ObsidianDocument; onEdit: () => void 
   const { document, onEdit } = props;
 
   return (
-    <div className="relative overflow-hidden border-b border-[var(--line)]">
-      <div
-        className="absolute inset-x-0 top-0 h-1"
-        style={{
-          background: "linear-gradient(90deg, var(--teal), var(--coral))",
-        }}
-      />
-
-      <div className="px-6 pb-5 pt-6 sm:px-8">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Obsidian</p>
-            <h2 className="display-title mt-2 text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
+    <div className="border-b border-[var(--line)] bg-[var(--surface)]">
+      <div className="px-5 pb-4 pt-5 sm:px-7">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="relative min-w-0 flex-1 pl-3">
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
+            <h2 className="display-title text-xl font-semibold tracking-tight text-[var(--ink)] sm:text-2xl">
               {document.title}
             </h2>
-            <p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">{document.relativePath}</p>
+            <p className="mt-1.5 font-mono text-[12px] text-[var(--ink-dim)]">{document.relativePath}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={onEdit} className="mt-4 shrink-0">
+          <Button variant="outline" size="sm" onClick={onEdit} className="shrink-0">
             <Pencil className="mr-1.5 size-3.5" />
             Edit
           </Button>
@@ -182,11 +188,11 @@ function FrontmatterDisplay({ frontmatter }: { frontmatter: Record<string, strin
   if (entries.length === 0) return null;
 
   return (
-    <div className="border-b border-[var(--line)] bg-[var(--surface-alt)] px-6 py-3 sm:px-8">
-      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[12px]">
+    <div className="border-b border-[var(--line)] bg-[var(--bg)] px-5 py-2.5 sm:px-7">
+      <dl className="flex flex-wrap gap-x-5 gap-y-1 font-mono text-[11px]">
         {entries.map(([key, value]) => (
           <div key={key} className="flex items-baseline gap-1.5">
-            <dt className="font-semibold uppercase tracking-wide text-[var(--ink-soft)]/60">{key}</dt>
+            <dt className="font-semibold uppercase tracking-[0.12em] text-[var(--ink-faint)]">{key}</dt>
             <dd className="text-[var(--ink-soft)]">{formatFrontmatterValue(value)}</dd>
           </div>
         ))}

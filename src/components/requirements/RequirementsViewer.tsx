@@ -1,7 +1,9 @@
+import { BookOpen } from "lucide-react";
 import type { ComponentPropsWithoutRef } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/markdown-components";
+import { PageHeader } from "#/components/PageHeader";
 import type { RequirementDocument, RequirementsViewerData } from "#/lib/requirements";
 import { resolveRequirementLinkTarget } from "#/lib/requirements";
 import { cn } from "#/lib/utils";
@@ -17,9 +19,15 @@ export function RequirementsViewer({ data }: RequirementsViewerProps) {
   const document = data.document;
 
   return (
-    <main className="mx-auto flex w-[min(1560px,calc(100%-2rem))] px-4 pb-12 pt-8 text-[14px]">
-      <div className="grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
-        <aside>
+    <PageHeader
+      icon={BookOpen}
+      label="Requirements"
+      title="Requirements"
+      highlight="Docs"
+      description="Read product requirements stored in docs/requirements/ without leaving Aether."
+    >
+      <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]">
+        <aside className="min-w-0">
           <TreeNav nodes={data.tree} currentRoutePath={document?.routePath ?? data.requestedPath} />
         </aside>
 
@@ -27,7 +35,7 @@ export function RequirementsViewer({ data }: RequirementsViewerProps) {
           {document ? <DocumentContent document={document} /> : <MissingDocument requestedPath={data.requestedPath} />}
         </section>
       </div>
-    </main>
+    </PageHeader>
   );
 }
 
@@ -39,7 +47,7 @@ function DocumentContent(props: { document: RequirementDocument }) {
         href={href}
         currentRelativePath={document.relativePath}
         className={cn(
-          "font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
+          "font-medium text-[var(--accent)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
           className,
         )}
         {...rest}
@@ -54,7 +62,7 @@ function DocumentContent(props: { document: RequirementDocument }) {
     <div>
       <DocumentHeader document={document} />
 
-      <div className="px-6 py-6 sm:px-8 sm:py-8">
+      <div className="px-5 py-6 sm:px-7 sm:py-7">
         <div className="max-w-none text-[var(--ink)]">
           <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
             {document.body}

@@ -1,4 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="6" fill="oklch(0.22 0.003 80)"/>
-  <path d="M16 7L8 25h3l1.5-4h7l1.5 4h3L16 7zm0 5.5L18.5 18h-5L16 12.5z" fill="oklch(0.92 0.003 80)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Aether">
+  <style>
+    /* Light mode (default) — teal square, cream glyph */
+    .bg { fill: #178a85; }
+    .fg { fill: #f1fbf9; }
+    @media (prefers-color-scheme: dark) {
+      /* Dark mode — brighter teal, near-black glyph for contrast */
+      .bg { fill: #3fb8b1; }
+      .fg { fill: #0a1413; }
+    }
+  </style>
+  <rect class="bg" width="64" height="64" rx="14"/>
+  <text
+    class="fg"
+    x="32"
+    y="46"
+    font-family="Fraunces, Georgia, serif"
+    font-size="38"
+    font-weight="700"
+    letter-spacing="0"
+    text-anchor="middle"
+  >Æ</text>
 </svg>

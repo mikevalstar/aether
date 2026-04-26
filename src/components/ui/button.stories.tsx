@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Mail, Plus, Trash2 } from "lucide-react";
+import { ArrowUpRight, Mail, Pencil, Play, Plus, Trash2, X } from "lucide-react";
 import { Button } from "./button";
 
 const meta = {
@@ -22,36 +22,59 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: { children: "Button" },
-};
-
-export const Destructive: Story = {
-  args: { variant: "destructive", children: "Delete" },
-};
-
-export const Outline: Story = {
-  args: { variant: "outline", children: "Outline" },
+export const Primary: Story = {
+  args: {
+    children: (
+      <>
+        <Play /> Primary
+      </>
+    ),
+  },
 };
 
 export const Secondary: Story = {
-  args: { variant: "secondary", children: "Secondary" },
+  args: {
+    variant: "outline",
+    children: (
+      <>
+        <Pencil /> Secondary
+      </>
+    ),
+  },
 };
 
 export const Ghost: Story = {
-  args: { variant: "ghost", children: "Ghost" },
+  args: {
+    variant: "ghost",
+    children: (
+      <>
+        <ArrowUpRight /> Ghost
+      </>
+    ),
+  },
+};
+
+export const Danger: Story = {
+  args: {
+    variant: "destructive",
+    children: (
+      <>
+        <X /> Danger
+      </>
+    ),
+  },
+};
+
+export const Small: Story = {
+  args: { size: "sm", variant: "outline", children: "Small" },
+};
+
+export const Large: Story = {
+  args: { size: "lg", children: "Large Primary" },
 };
 
 export const Link: Story = {
   args: { variant: "link", children: "Link" },
-};
-
-export const Small: Story = {
-  args: { size: "sm", children: "Small" },
-};
-
-export const Large: Story = {
-  args: { size: "lg", children: "Large" },
 };
 
 export const WithIcon: Story = {
@@ -73,7 +96,34 @@ export const IconOnly: Story = {
   },
 };
 
-export const DestructiveWithIcon: Story = {
+export const Disabled: Story = {
+  args: { children: "Disabled", disabled: true },
+};
+
+export const Showcase: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--line)] bg-[var(--top-bar-bg)] p-4">
+      <Button>
+        <Play /> Primary
+      </Button>
+      <Button variant="outline">
+        <Pencil /> Secondary
+      </Button>
+      <Button variant="ghost">
+        <ArrowUpRight /> Ghost
+      </Button>
+      <Button variant="destructive">
+        <X /> Danger
+      </Button>
+      <Button size="sm" variant="outline">
+        Small
+      </Button>
+      <Button size="lg">Large Primary</Button>
+    </div>
+  ),
+};
+
+export const Destructive: Story = {
   args: {
     variant: "destructive",
     children: (
@@ -82,21 +132,4 @@ export const DestructiveWithIcon: Story = {
       </>
     ),
   },
-};
-
-export const Disabled: Story = {
-  args: { children: "Disabled", disabled: true },
-};
-
-export const AllVariants: Story = {
-  render: () => (
-    <div className="flex flex-wrap items-center gap-3">
-      <Button>Default</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="destructive">Destructive</Button>
-      <Button variant="outline">Outline</Button>
-      <Button variant="ghost">Ghost</Button>
-      <Button variant="link">Link</Button>
-    </div>
-  ),
 };

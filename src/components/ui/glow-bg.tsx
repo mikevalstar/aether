@@ -1,5 +1,5 @@
 export interface GlowBgProps {
-  /** CSS color value or var reference (e.g. "var(--teal)") */
+  /** CSS color value or var reference (e.g. "var(--accent)") */
   color: string;
   /** Tailwind size class (e.g. "size-[600px]") */
   size?: string;

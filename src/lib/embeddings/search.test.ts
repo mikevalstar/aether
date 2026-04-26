@@ -267,8 +267,11 @@ describe("searchChats", () => {
 
     // Unrelated threads should rank clearly below the partial match.
     const others = results.slice(1);
+    const topResult = results[0];
+    if (!topResult) throw new Error("Expected at least one search result");
+
     for (const r of others) {
-      expect(r.similarity).toBeLessThan(results[0]!.similarity - 0.3);
+      expect(r.similarity).toBeLessThan(topResult.similarity - 0.3);
     }
   });
 
@@ -300,7 +303,12 @@ describe("searchChats", () => {
 
     expect(results[0]?.threadId).toBe("close");
     expect(results[1]?.threadId).toBe("loose");
-    expect(results[0]?.similarity).toBeGreaterThan(results[1]!.similarity);
+
+    const closeResult = results[0];
+    const looseResult = results[1];
+    if (!closeResult || !looseResult) throw new Error("Expected at least two search results");
+
+    expect(closeResult.similarity).toBeGreaterThan(looseResult.similarity);
   });
 
   it("searches hundreds of threads in well under a second", async () => {
@@ -308,7 +316,9 @@ describe("searchChats", () => {
     const topics = ["cooking", "coding", "music", "travel", "gardening"];
     const N = 500;
     for (let i = 0; i < N; i++) {
-      const topic = topics[i % topics.length]!;
+      const topic = topics[i % topics.length];
+      if (!topic) throw new Error("Expected benchmark topic");
+
       seedThread({
         threadId: `t-${i}`,
         userId: "u1",
@@ -331,7 +341,6 @@ describe("searchChats", () => {
     }
     expect(elapsedMs).toBeLessThan(500);
     // Surface the measurement so `pnpm test` output shows real numbers.
-    // biome-ignore lint/suspicious/noConsole: benchmark signal
     console.log(`[searchChats] ${N} threads, top-5 in ${elapsedMs.toFixed(1)}ms`);
   });
 });

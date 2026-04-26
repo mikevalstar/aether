@@ -13,14 +13,17 @@ export interface EmptyStateProps {
   footer?: React.ReactNode;
   /**
    * Visual variant:
-   * - "dashed" — compact dashed border box (for inline empty lists)
-   * - "centered" — full-height centered layout with accent icon circle (for page-level states)
+   * - "dashed" — compact line-art border box (for inline empty lists)
+   * - "centered" — full-height centered layout with accent icon mark (for page-level states)
    */
   variant?: "dashed" | "centered";
-  /** Accent color for the centered variant icon circle (e.g. "var(--teal)") */
+  /** Accent color for the centered variant icon mark (defaults to `var(--accent)`) */
   accentColor?: string;
 }
 
+/**
+ * Empty-state placeholder.
+ */
 export function EmptyState({
   icon: Icon,
   title,
@@ -28,19 +31,23 @@ export function EmptyState({
   action,
   footer,
   variant = "dashed",
-  accentColor = "var(--coral)",
+  accentColor = "var(--accent)",
 }: EmptyStateProps) {
   if (variant === "centered") {
     return (
-      <div className="flex min-h-[480px] items-center justify-center px-6 py-10 text-center">
+      <div className="flex min-h-[420px] items-center justify-center px-6 py-10 text-center">
         <div className="max-w-lg">
           <div
-            className="mx-auto flex size-14 items-center justify-center rounded-2xl"
-            style={{ backgroundColor: `oklch(from ${accentColor} l c h / 0.1)`, color: accentColor }}
+            className="mx-auto flex size-14 items-center justify-center rounded-md border-[1.5px]"
+            style={{
+              borderColor: accentColor,
+              backgroundColor: `oklch(from ${accentColor} l c h / 0.06)`,
+              color: accentColor,
+            }}
           >
             <Icon className="size-6" />
           </div>
-          <h2 className="mt-5 text-2xl font-semibold text-[var(--ink)]">{title}</h2>
+          <h2 className="mt-5 text-xl font-semibold text-[var(--ink)] tracking-tight">{title}</h2>
           {description && (
             <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[var(--ink-soft)]">{description}</p>
           )}
@@ -54,11 +61,25 @@ export function EmptyState({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-      <Icon className="mb-4 size-10 text-muted-foreground" />
-      <h3 className="text-lg font-semibold">{title}</h3>
-      {description && <p className="mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>}
+    <div className="relative flex flex-col items-center justify-center rounded-md border border-[var(--line)] bg-[oklch(from_var(--accent)_l_c_h_/_0.02)] p-8 text-center">
+      {/* Schematic corner ticks — accent-tinted, instrument feel. */}
+      <CornerTick className="left-2 top-2" lines="border-l-[1.5px] border-t-[1.5px]" />
+      <CornerTick className="right-2 top-2" lines="border-r-[1.5px] border-t-[1.5px]" />
+      <CornerTick className="left-2 bottom-2" lines="border-l-[1.5px] border-b-[1.5px]" />
+      <CornerTick className="right-2 bottom-2" lines="border-r-[1.5px] border-b-[1.5px]" />
+
+      <div className="mb-3 flex size-10 items-center justify-center rounded-md border-[1.5px] border-[var(--accent)]/40 text-[var(--accent)]">
+        <Icon className="size-5" />
+      </div>
+      <h3 className="text-base font-semibold tracking-tight">{title}</h3>
+      {description && <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
+  );
+}
+
+function CornerTick({ className, lines }: { className: string; lines: string }) {
+  return (
+    <span aria-hidden className={`pointer-events-none absolute size-3 border-[var(--accent)]/40 ${lines} ${className}`} />
   );
 }

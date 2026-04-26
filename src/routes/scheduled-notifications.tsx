@@ -1,14 +1,16 @@
-import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
+import type { VariantProps } from "class-variance-authority";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { AlarmClock, AlertTriangle, Ban, CheckCircle2, Clock, Info, Trash2 } from "lucide-react";
+import { AlarmClock, AlertTriangle, Ban, CheckCircle2, Clock, Info, Smartphone, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 import { PageHeader } from "#/components/PageHeader";
-import { Badge } from "#/components/ui/badge";
+import { Badge, type badgeVariants } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { DataTable, type DataTableColumn } from "#/components/ui/data-table";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import {
@@ -48,34 +50,39 @@ const STATUS_FILTERS = [
   { value: "all", label: "All" },
 ] as const;
 
-const LEVEL_STYLES: Record<string, string> = {
-  info: "text-blue-500 bg-blue-500/10",
-  low: "text-slate-500 bg-slate-500/10",
-  medium: "text-yellow-600 bg-yellow-500/10",
-  high: "text-orange-600 bg-orange-500/10",
-  critical: "text-red-600 bg-red-500/10",
-  error: "text-red-700 bg-red-700/10",
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
+
+const LEVEL_VARIANTS: Record<string, BadgeVariant> = {
+  info: "info",
+  low: "ghost",
+  medium: "warning",
+  high: "warning",
+  critical: "destructive",
+  error: "destructive",
 };
 
+type ScheduledItem = ScheduledNotificationListResult["items"][number];
+
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; icon: typeof Clock; className: string }> = {
-    pending: { label: "Pending", icon: Clock, className: "text-teal-700 bg-teal/10" },
-    sent: { label: "Sent", icon: CheckCircle2, className: "text-emerald-600 bg-emerald-500/10" },
-    cancelled: { label: "Cancelled", icon: Ban, className: "text-muted-foreground bg-muted" },
-    failed: { label: "Failed", icon: AlertTriangle, className: "text-red-600 bg-red-500/10" },
+  const map: Record<string, { label: string; icon: typeof Clock; variant: BadgeVariant }> = {
+    pending: { label: "Pending", icon: Clock, variant: "info" },
+    sent: { label: "Sent", icon: CheckCircle2, variant: "success" },
+    cancelled: { label: "Cancelled", icon: Ban, variant: "ghost" },
+    failed: { label: "Failed", icon: AlertTriangle, variant: "destructive" },
   };
-  const cfg = map[status] ?? { label: status, icon: Info, className: "bg-muted text-muted-foreground" };
+  const cfg = map[status] ?? { label: status, icon: Info, variant: "ghost" as BadgeVariant };
   const Icon = cfg.icon;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium ${cfg.className}`}>
-      <Icon className="size-3" />
+    <Badge variant={cfg.variant}>
+      <Icon />
       {cfg.label}
-    </span>
+    </Badge>
   );
 }
 
 function ScheduledNotificationsPage() {
   const router = useRouter();
+  const navigate = useNavigate({ from: Route.fullPath });
   const data = Route.useLoaderData() as ScheduledNotificationListResult;
   const search = Route.useSearch();
   const activeStatus = search.status ?? "pending";
@@ -98,123 +105,141 @@ function ScheduledNotificationsPage() {
     }
   }
 
+  function setStatus(value: (typeof STATUS_FILTERS)[number]["value"]) {
+    void navigate({
+      search: { status: value === "pending" ? undefined : value },
+      replace: true,
+    });
+  }
+
+  const columns: DataTableColumn<ScheduledItem>[] = [
+    {
+      key: "title",
+      header: "Notification",
+      cell: (item) => (
+        <div>
+          <div className="font-medium text-[var(--ink)]">{item.title}</div>
+          {item.body && <div className="mt-0.5 line-clamp-2 text-xs text-[var(--ink-soft)]">{item.body}</div>}
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            {item.pushToPhone && (
+              <Badge variant="outline">
+                <Smartphone />
+                Phone
+              </Badge>
+            )}
+            {item.attempts > 0 && <Badge variant="ghost">attempts: {item.attempts}</Badge>}
+          </div>
+          {item.lastError && <div className="mt-1 text-xs text-destructive">Error: {item.lastError}</div>}
+        </div>
+      ),
+    },
+    {
+      key: "level",
+      header: "Level",
+      cell: (item) => <Badge variant={LEVEL_VARIANTS[item.level] ?? "ghost"}>{item.level}</Badge>,
+    },
+    {
+      key: "scheduled",
+      header: "Scheduled For",
+      mono: true,
+      cell: (item) => {
+        const tz = item.timezone || dayjs.tz.guess();
+        const when = dayjs.utc(item.scheduledAt).tz(tz);
+        const isFuture = when.valueOf() > Date.now();
+        return (
+          <div className="text-[12.5px]">
+            <div className="text-[var(--ink)]">{when.format("YYYY-MM-DD HH:mm")}</div>
+            <div className="text-[var(--ink-faint)]">
+              {tz} · {isFuture ? when.fromNow() : `${when.fromNow()} (past)`}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (item) => <StatusBadge status={item.status} />,
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      cell: (item) =>
+        item.status === "pending" ? (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            disabled={busy === item.id}
+            onClick={(e) => {
+              e.stopPropagation();
+              void handleCancel(item.id);
+            }}
+            title="Cancel"
+            aria-label="Cancel scheduled notification"
+          >
+            <Trash2 className="size-4 text-[var(--ink-soft)]" />
+          </Button>
+        ) : (
+          <span className="text-[var(--ink-faint)]">—</span>
+        ),
+    },
+  ];
+
   return (
     <PageHeader
       icon={AlarmClock}
       label="System"
       title="Scheduled"
-      highlight="Notifications"
+      highlight="notifications"
       description="Reminders the AI (or system) has scheduled for later delivery. You can cancel any pending one here."
     >
       {/* Counts summary */}
-      <div className="mb-4 flex flex-wrap gap-2 text-xs">
-        <Badge variant="outline" className="gap-1">
-          <Clock className="size-3 text-teal" />
+      <section className="mb-3 flex flex-wrap gap-1.5">
+        <Badge variant="info">
+          <Clock />
           {data.counts.pending} pending
         </Badge>
-        <Badge variant="outline" className="gap-1">
-          <CheckCircle2 className="size-3 text-emerald-500" />
+        <Badge variant="success">
+          <CheckCircle2 />
           {data.counts.sent} sent
         </Badge>
-        <Badge variant="outline" className="gap-1">
-          <Ban className="size-3 text-muted-foreground" />
+        <Badge variant="ghost">
+          <Ban />
           {data.counts.cancelled} cancelled
         </Badge>
-        <Badge variant="outline" className="gap-1">
-          <AlertTriangle className="size-3 text-red-500" />
+        <Badge variant="destructive">
+          <AlertTriangle />
           {data.counts.failed} failed
         </Badge>
-      </div>
+      </section>
 
-      {/* Status filter */}
-      <div className="mb-4 inline-flex rounded-md border border-border overflow-hidden">
-        {STATUS_FILTERS.map((filter) => (
-          <Link
-            key={filter.value}
-            to="/scheduled-notifications"
-            search={{ status: filter.value === "pending" ? undefined : filter.value }}
-            className={`px-3 py-1 text-sm font-medium transition-colors border-r border-border last:border-r-0 no-underline ${
-              activeStatus === filter.value
-                ? "bg-primary text-primary-foreground"
-                : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
-            {filter.label}
-          </Link>
-        ))}
-      </div>
+      {/* Status filter chips */}
+      <section className="mb-4 flex flex-wrap gap-1.5">
+        {STATUS_FILTERS.map((filter) => {
+          const active = activeStatus === filter.value;
+          return (
+            <Button
+              key={filter.value}
+              variant={active ? "default" : "outline"}
+              size="xs"
+              onClick={() => setStatus(filter.value)}
+              className="tracking-[0.06em]"
+            >
+              {filter.label}
+            </Button>
+          );
+        })}
+      </section>
 
-      {/* List */}
-      {data.items.length === 0 ? (
-        <div className="surface-card p-8 text-center text-sm text-muted-foreground">
-          No {activeStatus === "all" ? "" : activeStatus} scheduled notifications.
-        </div>
-      ) : (
-        <div className="surface-card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">Title</th>
-                <th className="px-3 py-2 text-left font-medium">Level</th>
-                <th className="px-3 py-2 text-left font-medium">Scheduled for</th>
-                <th className="px-3 py-2 text-left font-medium">Status</th>
-                <th className="px-3 py-2 text-left font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((item) => {
-                const tz = item.timezone || dayjs.tz.guess();
-                const when = dayjs.utc(item.scheduledAt).tz(tz);
-                const isFuture = when.valueOf() > Date.now();
-                return (
-                  <tr key={item.id} className="border-t border-border">
-                    <td className="px-3 py-2 align-top">
-                      <div className="font-medium text-foreground">{item.title}</div>
-                      {item.body && <div className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{item.body}</div>}
-                      {item.pushToPhone && (
-                        <div className="mt-1 text-[10px] uppercase tracking-wider text-coral">Pushes to phone</div>
-                      )}
-                      {item.lastError && <div className="mt-1 text-xs text-red-500">Error: {item.lastError}</div>}
-                    </td>
-                    <td className="px-3 py-2 align-top">
-                      <span
-                        className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium ${LEVEL_STYLES[item.level] ?? LEVEL_STYLES.low}`}
-                      >
-                        {item.level}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 align-top text-xs">
-                      <div className="font-mono">{when.format("YYYY-MM-DD HH:mm")}</div>
-                      <div className="text-muted-foreground">
-                        {tz} · {isFuture ? when.fromNow() : `${when.fromNow()} (past)`}
-                      </div>
-                      {item.attempts > 0 && <div className="text-muted-foreground">attempts: {item.attempts}</div>}
-                    </td>
-                    <td className="px-3 py-2 align-top">
-                      <StatusBadge status={item.status} />
-                    </td>
-                    <td className="px-3 py-2 align-top">
-                      {item.status === "pending" ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={busy === item.id}
-                          onClick={() => handleCancel(item.id)}
-                        >
-                          <Trash2 className="size-3" />
-                          {busy === item.id ? "..." : "Cancel"}
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        title="Scheduled"
+        count={data.items.length}
+        data={data.items}
+        columns={columns}
+        rowKey={(item) => item.id}
+        empty={`No ${activeStatus === "all" ? "" : activeStatus} scheduled notifications.`}
+      />
     </PageHeader>
   );
 }

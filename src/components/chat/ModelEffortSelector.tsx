@@ -32,7 +32,7 @@ export function ModelEffortSelector({
     <>
       <Select value={model} onValueChange={(value) => onModelChange?.(value)} disabled={disabled}>
         <SelectTrigger
-          className={`min-w-0 border-[var(--teal)]/30 bg-[var(--teal-subtle)] font-semibold text-[var(--teal)] hover:bg-[var(--teal-subtle)] ${modelClassName}`}
+          className={`min-w-0 border-[var(--accent)]/30 bg-[var(--accent-subtle)] font-semibold text-[var(--accent)] hover:bg-[var(--accent-subtle)] ${modelClassName}`}
         >
           <SelectValue placeholder="Choose model" />
         </SelectTrigger>
@@ -57,7 +57,7 @@ export function ModelEffortSelector({
       {currentModelSupportsEffort && (
         <Select value={effort} onValueChange={(value) => onEffortChange?.(value)} disabled={disabled}>
           <SelectTrigger
-            className={`w-20 border-[var(--coral)]/30 bg-[var(--coral)]/8 font-semibold text-[var(--coral)] hover:bg-[var(--coral)]/12 ${effortClassName}`}
+            className={`w-20 border-[var(--warning)]/30 bg-[var(--warning)]/8 font-semibold text-[var(--warning)] hover:bg-[var(--warning)]/12 ${effortClassName}`}
           >
             <SelectValue placeholder="Effort" />
           </SelectTrigger>

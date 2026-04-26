@@ -1,5 +1,6 @@
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { CalendarClock, History, Tv } from "lucide-react";
+import { WidgetCard } from "#/components/dashboard/WidgetCard";
 import type { AetherPluginClient, PluginWidget } from "../types";
 
 type UpcomingEpisode = {
@@ -48,27 +49,19 @@ function humanEvent(eventType?: string) {
 
 function NotConfigured({ title }: { title: string }) {
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Tv className="size-4" />
-        {title}
-      </div>
+    <WidgetCard icon={Tv} title={title}>
       <p className="text-xs text-muted-foreground">
         Sonarr is not configured. Go to Settings &gt; Plugins &gt; Sonarr to set up.
       </p>
-    </div>
+    </WidgetCard>
   );
 }
 
 function ErrorBlock({ title, error }: { title: string; error: string }) {
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Tv className="size-4" />
-        {title}
-      </div>
+    <WidgetCard icon={Tv} title={title}>
       <p className="text-xs text-destructive">{error}</p>
-    </div>
+    </WidgetCard>
   );
 }
 
@@ -86,11 +79,7 @@ function SonarrUpcomingWidget({
   if (error) return <ErrorBlock title="Sonarr — Upcoming" error={error} />;
 
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <CalendarClock className="size-4" />
-        Sonarr — Upcoming
-      </div>
+    <WidgetCard icon={CalendarClock} title="Sonarr — Upcoming">
       {upcoming.length === 0 ? (
         <p className="text-xs text-muted-foreground">No episodes airing in the next 7 days.</p>
       ) : (
@@ -112,7 +101,7 @@ function SonarrUpcomingWidget({
           ))}
         </ul>
       )}
-    </div>
+    </WidgetCard>
   );
 }
 
@@ -130,11 +119,7 @@ function SonarrRecentWidget({
   if (error) return <ErrorBlock title="Sonarr — Recent" error={error} />;
 
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <History className="size-4" />
-        Sonarr — Recent
-      </div>
+    <WidgetCard icon={History} title="Sonarr — Recent">
       {recent.length === 0 ? (
         <p className="text-xs text-muted-foreground">No recent activity.</p>
       ) : (
@@ -160,7 +145,7 @@ function SonarrRecentWidget({
           ))}
         </ul>
       )}
-    </div>
+    </WidgetCard>
   );
 }
 

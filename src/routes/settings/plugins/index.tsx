@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader2, Settings } from "lucide-react";
+import { Loader2, Puzzle, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { SectionLabel } from "#/components/ui/section-label";
 import { toast } from "#/components/ui/sonner";
 import { Switch } from "#/components/ui/switch";
 import { plugins } from "#/plugins";
@@ -48,11 +49,13 @@ function PluginsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Plugins</h2>
-      <p className="text-sm text-muted-foreground">Enable or disable plugins and configure their settings.</p>
+    <section className="flex flex-col gap-5">
+      <header className="flex flex-col gap-1.5">
+        <SectionLabel icon={Puzzle}>Plugins</SectionLabel>
+        <p className="text-sm text-muted-foreground">Enable or disable plugins and configure their settings.</p>
+      </header>
 
-      <div className="space-y-3">
+      <div className="grid gap-3">
         {plugins.map((plugin) => {
           const pluginData = data.plugins.find((p) => p.id === plugin.meta.id);
           const isEnabled = enabledMap[plugin.meta.id] ?? false;
@@ -63,23 +66,25 @@ function PluginsPage() {
           const Icon = plugin.meta.icon;
 
           return (
-            <div key={plugin.meta.id} className="surface-card flex items-start gap-4 rounded-lg p-4">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-teal-subtle">
-                <Icon className="size-5 text-[var(--teal)]" />
+            <div key={plugin.meta.id} className="surface-card flex items-start gap-4 p-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-[var(--line)] bg-[var(--accent-subtle)]">
+                <Icon className="size-5 text-[var(--accent)]" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold">{plugin.meta.name}</h3>
-                  <span className="text-[10px] text-muted-foreground/60">v{plugin.meta.version}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-display text-sm font-semibold tracking-tight">{plugin.meta.name}</h3>
+                  <span className="font-mono text-[10px] tracking-wider text-[var(--ink-faint)]">
+                    v{plugin.meta.version}
+                  </span>
                   {health && (
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                      className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] ${
                         health.status === "ok"
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                           : health.status === "warning"
-                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                            : "bg-red-500/10 text-red-600 dark:text-red-400"
+                            ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            : "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
                       }`}
                     >
                       <span
@@ -102,16 +107,16 @@ function PluginsPage() {
                     <Link
                       to="/settings/plugins/$pluginId"
                       params={{ pluginId: plugin.meta.id }}
-                      className="inline-flex items-center gap-1 text-xs font-medium text-[var(--teal)] hover:underline"
+                      className="inline-flex items-center gap-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-[var(--accent)] hover:underline"
                     >
                       <Settings className="size-3" />
-                      Settings
+                      Configure
                     </Link>
                     {hasHealthCheck && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-auto px-2 py-0.5 text-xs"
+                        className="h-auto px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-[0.14em]"
                         onClick={() => void handleCheckHealth(plugin.meta.id)}
                         disabled={isCheckingHealth}
                       >
@@ -132,6 +137,6 @@ function PluginsPage() {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

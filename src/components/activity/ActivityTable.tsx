@@ -1,6 +1,6 @@
 import { Bell, Bot, Clock, Cog, FileText, History, PenLine, Play, Puzzle, Timer } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { DataTable, type DataTableColumn } from "#/components/ui/data-table";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { getPlugin } from "#/plugins";
 import { formatRelativeTime } from "./format-relative-time";
@@ -10,59 +10,72 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
     return <ActivityEmptyState />;
   }
 
+  const columns: DataTableColumn<ActivityListItem>[] = [
+    {
+      key: "when",
+      header: "When",
+      mono: true,
+      headerClassName: "w-[170px]",
+      cell: (item) => (
+        <span className="inline-flex items-center gap-1.5 text-[12.5px] text-[var(--ink)]">
+          <Clock className="size-3 text-[var(--ink-soft)]" />
+          {formatRelativeTime(item.createdAt)}
+        </span>
+      ),
+    },
+    {
+      key: "type",
+      header: "Type",
+      headerClassName: "w-[120px]",
+      cell: (item) => <TypeBadge type={item.type} />,
+    },
+    {
+      key: "summary",
+      header: "Summary",
+      cell: (item) => (
+        <div className="min-w-0">
+          <span className="font-medium text-[var(--ink)]">{item.summary}</span>
+          {item.fileChangeDetail && (
+            <span className="ml-2 font-mono text-[11px] text-[var(--ink-soft)]">{item.fileChangeDetail.filePath}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "source",
+      header: "Source",
+      headerClassName: "w-[110px]",
+      cell: (item) => (item.fileChangeDetail ? <SourceBadge source={item.fileChangeDetail.changeSource} /> : null),
+    },
+  ];
+
   return (
-    <section className="surface-card overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[180px]">When</TableHead>
-            <TableHead className="w-[100px]">Type</TableHead>
-            <TableHead>Summary</TableHead>
-            <TableHead className="w-[120px]">Source</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.id} className="cursor-pointer" onClick={() => onItemClick(item.id)}>
-              <TableCell className="text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="size-3.5" />
-                  {formatRelativeTime(item.createdAt)}
-                </div>
-              </TableCell>
-              <TableCell>
-                <TypeBadge type={item.type} />
-              </TableCell>
-              <TableCell>
-                <span className="font-medium">{item.summary}</span>
-                {item.fileChangeDetail && (
-                  <span className="ml-2 font-mono text-xs text-muted-foreground">{item.fileChangeDetail.filePath}</span>
-                )}
-              </TableCell>
-              <TableCell>{item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </section>
+    <DataTable
+      title="Activity"
+      count={items.length}
+      data={items}
+      columns={columns}
+      rowKey={(item) => item.id}
+      showChevron
+      onRowClick={(item) => onItemClick(item.id)}
+    />
   );
 }
 
 const TYPE_CONFIG: Record<string, { icon: typeof FileText; label: string; color: string }> = {
-  file_change: { icon: FileText, label: "File", color: "var(--teal)" },
-  cron_task: { icon: Timer, label: "Cron", color: "var(--coral)" },
+  file_change: { icon: FileText, label: "File", color: "var(--accent)" },
+  cron_task: { icon: Timer, label: "Cron", color: "var(--warning)" },
   workflow: { icon: Play, label: "Workflow", color: "oklch(0.65 0.15 270)" },
   system_task: { icon: Cog, label: "System", color: "oklch(0.60 0.12 140)" },
   ai_notification: { icon: Bell, label: "Notification", color: "oklch(0.65 0.14 25)" },
 };
 
-/** Palette of colors assigned to plugins by index for consistent badge styling. */
 const PLUGIN_COLORS = [
-  "oklch(0.65 0.15 300)", // purple
-  "oklch(0.65 0.14 200)", // cyan
-  "oklch(0.60 0.16 50)", // amber
-  "oklch(0.65 0.13 160)", // green
-  "oklch(0.60 0.15 350)", // pink
+  "oklch(0.65 0.15 300)",
+  "oklch(0.65 0.14 200)",
+  "oklch(0.60 0.16 50)",
+  "oklch(0.65 0.13 160)",
+  "oklch(0.60 0.15 350)",
 ];
 
 function resolvePluginType(type: string): { icon: typeof FileText; label: string; color: string } | null {
@@ -78,7 +91,6 @@ function resolvePluginType(type: string): { icon: typeof FileText; label: string
   const label = activityDef?.label ?? actType;
   const icon = activityDef?.icon ?? plugin.meta.icon ?? Puzzle;
 
-  // Deterministic color from plugin id
   let hash = 0;
   for (let i = 0; i < pluginId.length; i++) hash = (hash * 31 + pluginId.charCodeAt(i)) | 0;
   const color = PLUGIN_COLORS[Math.abs(hash) % PLUGIN_COLORS.length];
@@ -113,14 +125,14 @@ function TypeBadge({ type }: { type: string }) {
 function SourceBadge({ source }: { source: string }) {
   if (source === "ai") {
     return (
-      <Badge className="gap-1 border-[var(--teal)]/20 bg-[var(--teal)]/10 py-0 text-xs text-[var(--teal)] hover:bg-[var(--teal)]/15">
+      <Badge className="gap-1 border-[var(--accent)]/20 bg-[var(--accent)]/10 py-0 text-xs text-[var(--accent)] hover:bg-[var(--accent)]/15">
         <Bot className="size-3" />
         AI
       </Badge>
     );
   }
   return (
-    <Badge className="gap-1 border-[var(--coral)]/20 bg-[var(--coral)]/10 py-0 text-xs text-[var(--coral)] hover:bg-[var(--coral)]/15">
+    <Badge className="gap-1 border-[var(--warning)]/20 bg-[var(--warning)]/10 py-0 text-xs text-[var(--warning)] hover:bg-[var(--warning)]/15">
       <PenLine className="size-3" />
       Manual
     </Badge>
@@ -130,11 +142,11 @@ function SourceBadge({ source }: { source: string }) {
 function ActivityEmptyState() {
   return (
     <section className="surface-card flex flex-col items-center justify-center px-6 py-16 text-center">
-      <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--teal)]/10 text-[var(--teal)]">
+      <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--accent)]/10 text-[var(--accent)]">
         <History className="size-6" strokeWidth={1.5} />
       </div>
       <h2 className="text-lg font-semibold">No activity yet</h2>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+      <p className="mt-2 max-w-md text-sm text-[var(--ink-soft)]">
         File changes from AI tools and manual edits will appear here.
       </p>
     </section>

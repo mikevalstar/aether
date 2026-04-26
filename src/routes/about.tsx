@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Info } from "lucide-react";
+import { PageHeader } from "#/components/PageHeader";
 
 export const Route = createFileRoute("/about")({
   component: About,
@@ -6,15 +8,20 @@ export const Route = createFileRoute("/about")({
 
 function About() {
   return (
-    <main className="page-wrap px-4 py-12">
-      <section className="surface-card p-6 sm:p-8">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">About</p>
-        <h1 className="display-title mb-3 text-4xl font-bold sm:text-5xl">A small starter with room to grow.</h1>
-        <p className="m-0 max-w-3xl text-base leading-8 text-muted-foreground">
-          TanStack Start gives you type-safe routing, server functions, and modern SSR defaults. Use this as a clean
-          foundation, then layer in your own routes, styling, and add-ons.
+    <PageHeader
+      icon={Info}
+      label="About"
+      title="About"
+      highlight="Aether"
+      description="A self-hosted personal dashboard and AI agent platform, backed by your Obsidian vault."
+    >
+      <div className="surface-card max-w-3xl p-6 sm:p-8">
+        <p className="m-0 text-sm leading-7 text-muted-foreground">
+          Aether stitches together AI chat, markdown-defined workflows, cron-scheduled tasks, event-driven triggers, and a
+          plugin system into one keyboard-first surface. Notes, tasks, and configuration live in Obsidian — Aether is the
+          runtime that watches, reacts, and reports back.
         </p>
-      </section>
-    </main>
+      </div>
+    </PageHeader>
   );
 }
