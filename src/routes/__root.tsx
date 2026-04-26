@@ -6,6 +6,7 @@ import {
   Link,
   Outlet,
   Scripts,
+  useLocation,
   useRouter,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
@@ -114,17 +115,16 @@ function RootErrorComponent({ error }: ErrorComponentProps) {
 
 function RootComponent() {
   const { session } = Route.useRouteContext();
+  const { pathname } = useLocation();
 
-  // Design notes vs `docs/aether-redesign.html` sample:
-  // - The sample renders a slim status strip above the header with
-  //   `VAULT SYNCED`, `QUEUE 1`, `$0.12/DAY`. We intentionally skip it —
-  //   those signals already live on /activity, /scheduled-notifications,
-  //   and /usage, and a single-user dashboard does not need them as
-  //   permanent chrome on every page.
-  // - Logo only, no "Aether" wordmark beside the mark (see `AppLogo`).
+  // Routes that own their own chrome (full-bleed marketing/auth surfaces).
+  // `/` is only chromeless when signed-out — the marketing landing page;
+  // signed-in users get the normal header.
+  const hideHeader = pathname === "/login" || (pathname === "/" && !session?.user);
+
   return (
     <>
-      <Header serverSession={session} />
+      {!hideHeader && <Header serverSession={session} />}
       <ErrorBoundary>
         <div id="main-content">
           <Outlet />

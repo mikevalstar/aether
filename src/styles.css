@@ -679,3 +679,13 @@ a {
     animation: none;
   }
 }
+
+/* Faint dashed grid background — used by the auth brand panel for the
+   "blueprint" feel without committing every page to a global pattern. */
+.auth-grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--line) 40%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--line) 40%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
+}
