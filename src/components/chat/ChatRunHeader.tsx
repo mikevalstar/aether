@@ -1,6 +1,6 @@
 import { ArrowLeftIcon, FileDownIcon, MenuIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ModelEffortSelector } from "#/components/chat/ModelEffortSelector";
+import { ModelSelector } from "#/components/chat/ModelSelector";
 import { Button } from "#/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "#/components/ui/hover-card";
 import type { ChatEffort, ChatModel } from "#/lib/chat/chat";
@@ -215,11 +215,12 @@ export function ChatRunHeader(props: ChatRunHeaderProps) {
           </div>
 
           <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
-            <ModelEffortSelector
+            <ModelSelector
               model={model}
               effort={effort}
+              modelLabel={modelDef?.label}
+              modelDescription={modelDef?.description}
               disabled={busy}
-              modelClassName="lg:min-w-40"
               onModelChange={onModelChange}
               onEffortChange={onEffortChange}
             />
