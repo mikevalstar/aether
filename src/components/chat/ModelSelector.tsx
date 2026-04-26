@@ -81,7 +81,7 @@ export function ModelSelector({
   const supportsEffort = current?.supportsEffort ?? false;
   const isUnavailable = !current && (!!modelLabel || models.length > 0);
 
-  const { starredList, restList } = useMemo(() => {
+  const { starredList, providerGroups, hasDuplicateLabels } = useMemo(() => {
     const q = query.trim().toLowerCase();
     const matched = q
       ? models.filter(
@@ -89,16 +89,50 @@ export function ModelSelector({
             m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q) || m.description.toLowerCase().includes(q),
         )
       : models;
+
     const starred: ChatModelOption[] = [];
     const rest: ChatModelOption[] = [];
     for (const m of matched) (isStarred(m.id) ? starred : rest).push(m);
     const byLabel = (a: ChatModelOption, b: ChatModelOption) => a.label.localeCompare(b.label);
     starred.sort(byLabel);
-    rest.sort(byLabel);
-    return { starredList: starred, restList: rest };
+
+    // Group the non-starred remainder by provider so duplicate model
+    // labels/ids across providers (e.g. minimax/minimax-m2.7 via MiniMax direct
+    // vs OpenRouter) appear under explicit headers.
+    const groups = new Map<string, ChatModelOption[]>();
+    for (const m of rest) {
+      const list = groups.get(m.provider) ?? [];
+      list.push(m);
+      groups.set(m.provider, list);
+    }
+    const orderedProviders = Array.from(groups.keys()).sort((a, b) => {
+      const order = ["anthropic", "openrouter", "minimax"];
+      const ai = order.indexOf(a);
+      const bi = order.indexOf(b);
+      if (ai === -1 && bi === -1) return a.localeCompare(b);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+    const groupsArr = orderedProviders.map((p) => ({
+      provider: p,
+      items: (groups.get(p) ?? []).slice().sort(byLabel),
+    }));
+
+    // Detect whether any label or id appears under multiple providers in the
+    // visible matched set — when true, every row shows the provider tag.
+    const labelCounts = new Map<string, number>();
+    const idCounts = new Map<string, number>();
+    for (const m of matched) {
+      labelCounts.set(m.label, (labelCounts.get(m.label) ?? 0) + 1);
+      idCounts.set(m.id, (idCounts.get(m.id) ?? 0) + 1);
+    }
+    const hasDup = Array.from(labelCounts.values()).some((n) => n > 1) || Array.from(idCounts.values()).some((n) => n > 1);
+
+    return { starredList: starred, providerGroups: groupsArr, hasDuplicateLabels: hasDup };
   }, [models, query, isStarred]);
 
-  const totalCount = starredList.length + restList.length;
+  const totalCount = starredList.length + providerGroups.reduce((n, g) => n + g.items.length, 0);
 
   useEffect(() => {
     if (open) requestAnimationFrame(() => inputRef.current?.focus());
@@ -153,10 +187,11 @@ export function ModelSelector({
                 )}
                 {starredList.map((m) => (
                   <Row
-                    key={m.id}
+                    key={`starred:${m.provider}:${m.id}`}
                     option={m}
                     starred
                     selected={m.id === model}
+                    showProvider={hasDuplicateLabels}
                     onSelect={() => {
                       onModelChange?.(m.id);
                       setOpen(false);
@@ -164,21 +199,30 @@ export function ModelSelector({
                     onToggleStar={() => toggle(m.id)}
                   />
                 ))}
-                {starredList.length > 0 && restList.length > 0 && (
+                {starredList.length > 0 && providerGroups.length > 0 && (
                   <div aria-hidden="true" className="my-1 border-t border-[var(--line)]" />
                 )}
-                {restList.map((m) => (
-                  <Row
-                    key={m.id}
-                    option={m}
-                    starred={false}
-                    selected={m.id === model}
-                    onSelect={() => {
-                      onModelChange?.(m.id);
-                      setOpen(false);
-                    }}
-                    onToggleStar={() => toggle(m.id)}
-                  />
+                {providerGroups.map((group, idx) => (
+                  <div key={group.provider}>
+                    {idx > 0 && <div aria-hidden="true" className="my-1 border-t border-[var(--line)]" />}
+                    <div className="px-3 pt-1.5 pb-1 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--ink-faint)]">
+                      {PROVIDER_LABEL[group.provider] ?? group.provider}
+                    </div>
+                    {group.items.map((m) => (
+                      <Row
+                        key={`${m.provider}:${m.id}`}
+                        option={m}
+                        starred={false}
+                        selected={m.id === model}
+                        showProvider={false}
+                        onSelect={() => {
+                          onModelChange?.(m.id);
+                          setOpen(false);
+                        }}
+                        onToggleStar={() => toggle(m.id)}
+                      />
+                    ))}
+                  </div>
                 ))}
               </>
             )}
@@ -220,6 +264,7 @@ function Row({
   starred,
   selected,
   unavailable,
+  showProvider,
   onSelect,
   onToggleStar,
 }: {
@@ -227,6 +272,8 @@ function Row({
   starred: boolean;
   selected: boolean;
   unavailable?: boolean;
+  /** When true, show the provider tag inline alongside the label (used to disambiguate duplicate ids across providers). */
+  showProvider?: boolean;
   onSelect: () => void;
   onToggleStar: () => void;
 }) {
@@ -252,13 +299,15 @@ function Row({
       </button>
       <button type="button" onClick={onSelect} className="flex min-w-0 flex-1 items-center gap-2 text-left">
         <span className="truncate text-sm font-medium text-[var(--ink)]">{option.label}</span>
-        {!unavailable && (
-          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">
+        {!unavailable && showProvider && (
+          <span className="rounded bg-[var(--bg)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--ink-soft)]">
             {PROVIDER_LABEL[option.provider] ?? option.provider}
           </span>
         )}
         {unavailable && (
-          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">unavailable</span>
+          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">
+            unavailable {option.provider !== "unknown" ? `· ${PROVIDER_LABEL[option.provider] ?? option.provider}` : ""}
+          </span>
         )}
         {price && (
           <span className="ml-auto shrink-0 font-mono text-[10px] tabular-nums text-[var(--ink-faint)]">{price}</span>

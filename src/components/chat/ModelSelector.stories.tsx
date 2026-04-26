@@ -176,6 +176,38 @@ export const ManyModels: Story = {
   },
 };
 
+const DUPLICATE_ID_MODELS: ChatModelOption[] = [
+  ...SAMPLE_MODELS,
+  // Same id as the built-in MiniMax-M2.7 alias, but routed via OpenRouter.
+  {
+    id: "minimax/minimax-m2.7",
+    label: "MiniMax M2.7",
+    description: "Agentic, autonomous",
+    supportsEffort: false,
+    provider: "openrouter",
+    inputCostPerMillionTokensUsd: 0.32,
+    outputCostPerMillionTokensUsd: 1.3,
+    userSelected: true,
+  },
+];
+
+export const DuplicateIdsAcrossProviders: Story = {
+  args: {
+    model: "MiniMax-M2.7",
+    effort: "low",
+    modelLabel: "MiniMax M2.7",
+    models: DUPLICATE_ID_MODELS,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Two `MiniMax M2.7` rows — one routed through MiniMax direct, the other through the user's OpenRouter selection. Both show a provider tag inline so they are visually distinguishable.",
+      },
+    },
+  },
+};
+
 export const Interactive: Story = {
   args: {
     model: "claude-sonnet-4-6",
