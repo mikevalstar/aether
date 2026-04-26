@@ -139,7 +139,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
 
     const messagesJson = JSON.stringify(result.response.messages);
     const usage = usageTotalsFromLanguageModelUsage(result.usage);
-    const estimatedCost = estimateChatUsageCostUsd(ctx.model, usage);
+    const estimatedCost = estimateChatUsageCostUsd(ctx.model, usage, modelDef?.pricing);
 
     const usageEntry = {
       id: `usage_${nanoid(10)}`,

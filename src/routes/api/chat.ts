@@ -227,9 +227,13 @@ export const Route = createFileRoute("/api/chat")({
           const taskType = options?.taskType ?? "chat";
           const usageModel = options?.usageModel ?? model;
           const usageTotals = usageTotalsFromLanguageModelUsage(usage);
+          // For the chat turn we have modelDef in scope; for title generation
+          // (Haiku, a built-in) the override is undefined and the lookup
+          // falls back to the built-in pricing automatically.
+          const pricingOverride = usageModel === model ? modelDef?.pricing : undefined;
           const exchangeUsage: ChatUsageTotals = {
             ...usageTotals,
-            estimatedCostUsd: estimateChatUsageCostUsd(usageModel, usageTotals),
+            estimatedCostUsd: estimateChatUsageCostUsd(usageModel, usageTotals, pricingOverride),
           };
           const nextTotals = addChatUsageTotals(currentTotals, exchangeUsage);
           const assistantMessage = [...messages].reverse().find((message) => message.role === "assistant");

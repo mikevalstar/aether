@@ -189,7 +189,7 @@ async function runSubAgent(
 
     const totalUsage = await result.totalUsage;
     const usage = usageTotalsFromLanguageModelUsage(totalUsage);
-    const estimatedCost = estimateChatUsageCostUsd(state.model, usage);
+    const estimatedCost = estimateChatUsageCostUsd(state.model, usage, modelDef?.pricing);
     const finalText = await result.text;
 
     // Build the full conversation: a synthetic user message with the prompt,
