@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import cronstrue from "cronstrue";
-import { AlertCircle, CheckCircle2, Clock, FileX, Loader2, Pencil, Play } from "lucide-react";
+import { Clock, FileX, Loader2, Pencil, Play } from "lucide-react";
 import { useState } from "react";
 import { formatRelativeTime } from "#/components/activity/format-relative-time";
 import { Badge } from "#/components/ui/badge";
@@ -19,20 +19,25 @@ function formatCron(cron: string): string {
   }
 }
 
-function StatusPill({ status }: { status: string | null }) {
+function StatusPill({ status, busy }: { status: string | null; busy?: boolean }) {
+  if (busy) {
+    return (
+      <Badge variant="warning" size="glyph" aria-label="Running" title="Running">
+        ▸
+      </Badge>
+    );
+  }
   if (!status) return <span className="text-xs text-[var(--ink-faint)]">—</span>;
   if (status === "success") {
     return (
-      <Badge variant="success">
-        <CheckCircle2 />
-        Success
+      <Badge variant="success" size="glyph" aria-label="Success" title="Success">
+        ✓
       </Badge>
     );
   }
   return (
-    <Badge variant="destructive">
-      <AlertCircle />
-      Error
+    <Badge variant="destructive" size="glyph" aria-label="Error" title="Error">
+      ✕
     </Badge>
   );
 }
@@ -90,25 +95,27 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
     {
       key: "schedule",
       header: "Schedule",
+      mono: true,
       cell: (item) => (
-        <>
-          <Tooltip>
-            <TooltipTrigger className="text-left text-sm text-[var(--ink)]">{formatCron(item.cron)}</TooltipTrigger>
-            <TooltipContent>
-              <span className="font-mono text-xs">{item.cron}</span>
-              {item.timezone && <div className="mt-1 text-xs opacity-80">{item.timezone}</div>}
-            </TooltipContent>
-          </Tooltip>
-          {item.timezone && <div className="text-xs text-[var(--ink-soft)]">{item.timezone}</div>}
-        </>
+        <Tooltip>
+          <TooltipTrigger className="text-left text-[12.5px] text-[var(--ink)]">
+            {formatCron(item.cron)}
+            {item.timezone && <span className="ml-1.5 text-[var(--ink-faint)]">{item.timezone}</span>}
+          </TooltipTrigger>
+          <TooltipContent>
+            <span className="font-mono text-xs">{item.cron}</span>
+            {item.timezone && <div className="mt-1 text-xs opacity-80">{item.timezone}</div>}
+          </TooltipContent>
+        </Tooltip>
       ),
     },
     {
       key: "next",
       header: "Next Run",
+      mono: true,
       cell: (item) =>
         item.nextRun ? (
-          <span className="inline-flex items-center gap-1 tabular-nums text-sm text-[var(--ink)]">
+          <span className="inline-flex items-center gap-1 text-[12.5px] text-[var(--ink)]">
             <Clock className="size-3 text-[var(--ink-soft)]" />
             {formatRelativeTime(item.nextRun)}
           </span>
@@ -119,17 +126,18 @@ export function TaskTable({ items }: { items: TaskListItem[] }) {
     {
       key: "last",
       header: "Last Run",
+      mono: true,
       cell: (item) =>
         item.lastRunAt ? (
-          <span className="text-sm tabular-nums text-[var(--ink)]">{formatRelativeTime(item.lastRunAt)}</span>
+          <span className="text-[12.5px] text-[var(--ink)]">{formatRelativeTime(item.lastRunAt)}</span>
         ) : (
-          <span className="text-muted-foreground">Never</span>
+          <span className="text-[var(--ink-faint)]">—</span>
         ),
     },
     {
       key: "status",
       header: "Status",
-      cell: (item) => <StatusPill status={item.lastRunStatus} />,
+      cell: (item) => <StatusPill status={item.lastRunStatus} busy={item.isBusy} />,
     },
     {
       key: "actions",

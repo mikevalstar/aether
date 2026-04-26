@@ -17,10 +17,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn(
-        "[&_tr]:border-b [&_tr]:border-[var(--line)] [&_tr]:bg-[var(--table-surface)]",
-        className,
-      )}
+      className={cn("[&_tr]:border-b [&_tr]:border-[var(--line)] [&_tr]:bg-[var(--table-surface)]", className)}
       {...props}
     />
   );
@@ -34,10 +31,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
     <tfoot
       data-slot="table-footer"
-      className={cn(
-        "border-t border-[var(--line)] bg-[var(--table-surface)] font-medium",
-        className,
-      )}
+      className={cn("border-t border-[var(--line)] bg-[var(--table-surface)] font-medium", className)}
       {...props}
     />
   );
@@ -61,7 +55,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-8 whitespace-nowrap px-2.5 text-left align-middle text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)] [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "h-8 whitespace-nowrap px-2.5 text-left align-middle font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--ink-soft)] [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className,
       )}
       {...props}

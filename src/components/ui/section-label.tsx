@@ -13,7 +13,7 @@ export function SectionLabel({ icon: Icon, children, color = "text-[var(--accent
   return (
     <div className={`flex items-center gap-2 ${color}`}>
       {Icon && <Icon className="size-4" />}
-      <p className="text-xs font-semibold uppercase tracking-widest">{children}</p>
+      <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em]">{children}</p>
     </div>
   );
 }

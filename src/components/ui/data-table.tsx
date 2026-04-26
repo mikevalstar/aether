@@ -11,6 +11,8 @@ export type DataTableColumn<T> = {
   className?: string;
   headerClassName?: string;
   align?: "left" | "right" | "center";
+  /** Render cell content with monospace + tabular-nums (numeric/structural columns). */
+  mono?: boolean;
 };
 
 export type DataTableAction = {
@@ -67,12 +69,12 @@ export function DataTableHeader({
   return (
     <div className={cn("flex items-center gap-3 px-1 pb-2", className)}>
       {(title || count !== undefined) && (
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 font-mono">
           {title && (
-            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">{title}</span>
+            <span className="text-[10.5px] font-medium uppercase tracking-[0.15em] text-[var(--ink-soft)]">{title}</span>
           )}
           {count !== undefined && (
-            <span className="text-[11px] font-semibold tabular-nums text-[var(--accent)]">
+            <span className="text-[10.5px] font-medium tabular-nums text-[var(--accent)]">
               {typeof count === "number" ? String(count).padStart(2, "0") : count}
             </span>
           )}
@@ -160,7 +162,10 @@ export function DataTable<T>({
                   tabIndex={navigable ? 0 : undefined}
                 >
                   {columns.map((col) => (
-                    <TableCell key={col.key} className={cn(alignClass(col.align), col.className)}>
+                    <TableCell
+                      key={col.key}
+                      className={cn(alignClass(col.align), col.mono && "font-mono tabular-nums", col.className)}
+                    >
                       {col.cell(row, index)}
                     </TableCell>
                   ))}
