@@ -44,7 +44,7 @@ export const Thread: FC = () => {
     <ToolInspectorProvider>
       <div className="flex h-full min-h-0 flex-col">
         <ThreadPrimitive.Root
-          className="aui-root aui-thread-root @container flex h-full flex-col bg-[var(--bg)]"
+          className="aui-root aui-thread-root @container flex h-full flex-col"
           style={{
             ["--thread-max-width" as string]: "62rem",
             ["--thread-gutter" as string]: GUTTER_WIDTH,

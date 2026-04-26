@@ -119,7 +119,7 @@ function ChatLayout() {
 
   return (
     <ChatLayoutCtx.Provider value={ctxValue}>
-      <main className="page-wrap relative flex h-[calc(100svh-1.75rem-env(safe-area-inset-top))] min-h-0 px-0 py-0 lg:h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] lg:min-h-[500px]">
+      <main className="relative flex h-[calc(100svh-1.75rem-env(safe-area-inset-top))] min-h-0 w-full px-0 py-0 lg:h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] lg:min-h-[500px]">
         {/* Faint grid backdrop — chat showcase only */}
         <div
           aria-hidden
@@ -131,7 +131,7 @@ function ChatLayout() {
           }}
         />
 
-        <section className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[var(--bg)]">
+        <section className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <Outlet />
         </section>
 
