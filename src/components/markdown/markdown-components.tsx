@@ -50,11 +50,11 @@ const variantStyles = {
     blockquote: "my-2.5 border-l-2 border-[var(--accent)]/60 bg-[var(--bg)] py-1 pl-3 text-[var(--ink-soft)] italic",
     hr: "my-3 border-0 border-t border-[var(--line)]",
     tableWrap: "my-2",
-    table: "w-full border-collapse",
-    thead: "bg-[var(--bg)]",
-    th: "px-2 py-1 text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--ink-soft)]",
-    td: "border-t border-[var(--line)] px-2 py-1 text-left text-[var(--ink)] [[align=center]]:text-center [[align=right]]:text-right",
-    tr: "border-[var(--line)]",
+    table: "w-full caption-bottom border-collapse text-sm",
+    thead: "[&_tr]:border-b [&_tr]:border-[var(--line)] [&_tr]:bg-[var(--table-surface)]",
+    th: "h-7 whitespace-nowrap px-2 text-left align-middle font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--ink-soft)]",
+    td: "whitespace-nowrap px-2 py-1.5 align-middle text-[var(--ink)] [[align=center]]:text-center [[align=right]]:text-right",
+    tr: "group border-t border-[var(--line)] transition-colors first:border-t-0 hover:bg-[var(--table-surface)]",
     preWrap: "mt-2.5",
     pre: "p-3 text-xs leading-relaxed",
     codeInline:
@@ -76,11 +76,11 @@ const variantStyles = {
       "my-6 rounded-r-lg border-l-3 border-[var(--teal)] bg-[var(--bg)] px-4 py-3 text-[0.97rem] leading-7 text-[var(--ink-soft)] italic",
     hr: "my-8 border-0 border-t border-[var(--line)]",
     tableWrap: "my-6",
-    table: "w-full min-w-[36rem] border-collapse",
-    thead: "bg-[var(--bg)]",
-    th: "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]",
-    td: "px-4 py-3 text-[0.92rem] leading-6 text-[var(--ink)] align-top",
-    tr: "border-t border-[var(--line)]",
+    table: "w-full min-w-[36rem] caption-bottom border-collapse text-sm",
+    thead: "[&_tr]:border-b [&_tr]:border-[var(--line)] [&_tr]:bg-[var(--table-surface)]",
+    th: "h-9 whitespace-nowrap px-3 text-left align-middle font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-[var(--ink-soft)]",
+    td: "px-3 py-2 align-middle text-[0.92rem] leading-6 text-[var(--ink)]",
+    tr: "group border-t border-[var(--line)] transition-colors first:border-t-0 hover:bg-[var(--table-surface)]",
     preWrap: "my-6",
     pre: "p-4 text-[13px] leading-6",
     codeInline:
@@ -178,7 +178,7 @@ export function createMarkdownComponents(
     blockquote: ({ className, ...props }) => <blockquote className={cn(s.blockquote, className)} {...props} />,
     hr: ({ className, ...props }) => <hr className={cn(s.hr, className)} {...props} />,
     table: ({ className, ...props }) => (
-      <div className={cn(s.tableWrap, "overflow-x-auto rounded-xl border border-[var(--line)] bg-[var(--surface)]")}>
+      <div className={cn(s.tableWrap, "relative w-full overflow-x-auto overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface)]")}>
         <table className={cn(s.table, className)} {...props} />
       </div>
     ),
