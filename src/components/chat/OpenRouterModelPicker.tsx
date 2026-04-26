@@ -1,4 +1,4 @@
-import { CheckIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { CheckIcon, PlusIcon, RefreshCwIcon, TrashIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -7,6 +7,7 @@ import { listOpenRouterModels, type OpenRouterCatalogModel } from "#/lib/chat/op
 import {
   addOpenRouterModel,
   listSelectedOpenRouterModels,
+  refreshOpenRouterPrices,
   removeOpenRouterModel,
   type SelectedOpenRouterModel,
 } from "#/lib/chat/openrouter-selection.functions";
@@ -29,6 +30,7 @@ export function OpenRouterModelPicker() {
   const [selected, setSelected] = useState<SelectedOpenRouterModel[]>([]);
   const [query, setQuery] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +79,26 @@ export function OpenRouterModelPicker() {
     }
   }
 
+  async function handleRefresh() {
+    setIsRefreshing(true);
+    try {
+      const [result, fresh, freshCatalog] = await Promise.all([
+        refreshOpenRouterPrices(),
+        listSelectedOpenRouterModels(),
+        listOpenRouterModels(),
+      ]);
+      setSelected(fresh);
+      setCatalog(freshCatalog);
+      const parts = [`Updated ${result.updated} of ${result.total}`];
+      if (result.missing > 0) parts.push(`${result.missing} no longer in catalog`);
+      toast.success(parts.join(" · "));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to refresh prices");
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
+
   async function handleRemove(modelId: string) {
     setPendingId(modelId);
     try {
@@ -92,6 +114,23 @@ export function OpenRouterModelPicker() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] text-[var(--ink-faint)]">
+          Prices are snapshotted when added — historical chat costs do not change. Refresh to pull current OpenRouter
+          pricing for future runs.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={isRefreshing || selected.length === 0}
+          onClick={handleRefresh}
+          className="h-7 shrink-0 gap-1.5 px-2"
+        >
+          <RefreshCwIcon className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+          {isRefreshing ? "Refreshing…" : "Refresh prices"}
+        </Button>
+      </div>
       {selected.length > 0 && (
         <div className="flex flex-col gap-2">
           <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">

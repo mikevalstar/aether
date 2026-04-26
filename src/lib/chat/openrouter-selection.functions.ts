@@ -76,6 +76,40 @@ export const addOpenRouterModel = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const refreshOpenRouterPrices = createServerFn({ method: "POST" }).handler(async () => {
+  const session = await ensureSession();
+  const catalog = await listOpenRouterCatalog({ force: true });
+  if (catalog.length === 0) {
+    throw new Error("OpenRouter catalog is empty — refresh failed");
+  }
+  const catalogById = new Map(catalog.map((m) => [m.id, m]));
+  const rows = await prisma.userSelectedModel.findMany({
+    where: { userId: session.user.id, provider: "openrouter" },
+  });
+
+  let updated = 0;
+  let missing = 0;
+  for (const row of rows) {
+    const fresh = catalogById.get(row.modelId);
+    if (!fresh) {
+      missing += 1;
+      continue;
+    }
+    await prisma.userSelectedModel.update({
+      where: { id: row.id },
+      data: {
+        label: fresh.label,
+        description: fresh.description,
+        inputCostPerMillionTokensUsd: fresh.inputCostPerMillionTokensUsd,
+        outputCostPerMillionTokensUsd: fresh.outputCostPerMillionTokensUsd,
+        contextLength: fresh.contextLength,
+      },
+    });
+    updated += 1;
+  }
+  return { updated, missing, total: rows.length };
+});
+
 export const removeOpenRouterModel = createServerFn({ method: "POST" })
   .inputValidator((data) => modelIdInput.parse(data))
   .handler(async ({ data }) => {
