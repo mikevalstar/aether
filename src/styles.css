@@ -30,7 +30,7 @@
   --ink: oklch(0.18 0.005 95);              /* #0c0d0a */
   --ink-soft: oklch(0.45 0.005 95);         /* #4a4b48 */
   --ink-dim: oklch(0.6 0.004 95);           /* #7a7b77 */
-  --ink-faint: oklch(0.72 0.004 95);        /* #a3a39e */
+  --ink-faint: oklch(0.62 0.004 95);        /* #818178 — darkened from 0.72 for AA-Lg/UI 3:1 on bg+surface (AETH-wxllcgzf) */
 
   /* Accent — single brand colour (#7cb0ff family) */
   --accent: oklch(0.58 0.16 255);           /* #3d7fd9 — AA on light bg */
@@ -69,7 +69,7 @@
   --muted: oklch(0.96 0.005 85);
   --muted-foreground: var(--ink-soft);
   --border: var(--line);
-  --input: var(--line);
+  --input: oklch(0.62 0.005 95);            /* #818178 — form control border, ≥3:1 on bg/surface (AETH-wxllcgzf) */
   --ring: oklch(0.58 0.16 255 / 0.3);
   --sidebar: var(--surface);
   --sidebar-foreground: var(--ink);
@@ -183,7 +183,7 @@
   --muted: oklch(0.2 0.005 260);
   --muted-foreground: var(--ink-soft);
   --border: var(--line);
-  --input: var(--line);
+  --input: oklch(0.62 0.07 255);            /* #5f82b4 — form control border, ≥3:1 on bg/surface/raised (AETH-wxllcgzf) */
   --ring: oklch(0.76 0.13 255 / 0.4);
   --sidebar: var(--surface);
   --sidebar-foreground: var(--ink);
