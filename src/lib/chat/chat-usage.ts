@@ -66,7 +66,15 @@ export function formatUsageCurrency(value: number) {
   }).format(value);
 }
 
-export function getChatModelLabel(model: string) {
+/**
+ * Render a friendly model label.
+ * - If `snapshotLabel` is provided (e.g. ChatThread.modelLabel), prefer it —
+ *   this lets historical rows render correctly when the model has been
+ *   removed from the catalog or the user's selections.
+ * - Otherwise, look up the built-in catalog and fall back to the bare id.
+ */
+export function getChatModelLabel(model: string, snapshotLabel?: string | null) {
+  if (snapshotLabel?.trim()) return snapshotLabel;
   const resolved = resolveModelId(model);
   if (resolved) return CHAT_MODELS.find((item) => item.id === resolved)?.label ?? resolved;
   return model;

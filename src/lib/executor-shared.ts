@@ -13,6 +13,7 @@ import {
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
 import { CHAT_MODELS } from "#/lib/chat/chat-models";
+import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
 import { logger } from "#/lib/logger";
 import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
 import { getUserPreferences } from "#/lib/preferences.server";
@@ -72,12 +73,15 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
 
   // Create ChatThread for this run
   const threadId = `thread_${nanoid(10)}`;
+  const modelMeta = await snapshotModelMeta(ctx.model, ctx.userId);
   await prisma.chatThread.create({
     data: {
       id: threadId,
       type: ctx.type,
       title: ctx.title,
       model: ctx.model,
+      modelLabel: modelMeta.modelLabel,
+      modelProvider: modelMeta.modelProvider,
       effort: ctx.effort,
       ...(ctx.type === "task"
         ? { sourceTaskFile: ctx.filename }
@@ -160,6 +164,8 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
           userId: ctx.userId,
           threadId,
           model: ctx.model,
+          modelLabel: modelMeta.modelLabel,
+          modelProvider: modelMeta.modelProvider,
           taskType: ctx.type,
           inputTokens: usage.inputTokens,
           outputTokens: usage.outputTokens,

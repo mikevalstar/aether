@@ -11,6 +11,7 @@ import {
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
+import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
 import { logger } from "#/lib/logger";
 import type { UserPreferences } from "#/lib/preferences";
 import { findSubAgent, type SubAgentEntry } from "#/lib/sub-agents";
@@ -112,12 +113,15 @@ async function runSubAgent(
   const tools = createAiTools(state.model, parent.userId, threadId, parent.userTimezone, parent.userPrefs);
   const toolNames = Object.keys(tools);
 
+  const modelMeta = await snapshotModelMeta(state.model, parent.userId);
   await prisma.chatThread.create({
     data: {
       id: threadId,
       type: "sub-agent",
       title,
       model: state.model,
+      modelLabel: modelMeta.modelLabel,
+      modelProvider: modelMeta.modelProvider,
       effort: parent.parentEffort,
       parentThreadId: parent.parentThreadId,
       subAgentFilename: subAgent.filename,
@@ -226,6 +230,8 @@ async function runSubAgent(
           userId: parent.userId,
           threadId,
           model: state.model,
+          modelLabel: modelMeta.modelLabel,
+          modelProvider: modelMeta.modelProvider,
           taskType: "sub-agent",
           inputTokens: usage.inputTokens,
           outputTokens: usage.outputTokens,

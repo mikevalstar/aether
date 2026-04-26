@@ -34,6 +34,7 @@ import {
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
 import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
+import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
 import { embedThread } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { getUserPreferences } from "#/lib/preferences.server";
@@ -285,10 +286,14 @@ export const Route = createFileRoute("/api/chat")({
           }
         }
 
+        const modelMeta = await snapshotModelMeta(model, session.user.id);
+
         await prisma.chatThread.update({
           where: { id: thread.id },
           data: {
             model,
+            modelLabel: modelMeta.modelLabel,
+            modelProvider: modelMeta.modelProvider,
             title,
             messagesJson: serializeMessages(incomingMessages),
           },
@@ -385,15 +390,23 @@ export const Route = createFileRoute("/api/chat")({
               "Chat response completed",
             );
 
+            const titleEventsWithMeta = await Promise.all(
+              titleUsageEvents.map(async (titleEvent) => ({
+                ...titleEvent,
+                meta: await snapshotModelMeta(titleEvent.model, session.user.id),
+              })),
+            );
+
             await prisma.$transaction([
-              // Create usage events for title generation (if any)
-              ...titleUsageEvents.map((titleEvent) =>
+              ...titleEventsWithMeta.map((titleEvent) =>
                 prisma.chatUsageEvent.create({
                   data: {
                     id: `usage_event_${nanoid(10)}`,
                     userId: session.user.id,
                     threadId: thread.id,
                     model: titleEvent.model,
+                    modelLabel: titleEvent.meta.modelLabel,
+                    modelProvider: titleEvent.meta.modelProvider,
                     taskType: titleEvent.taskType,
                     inputTokens: titleEvent.exchangeUsage.inputTokens,
                     outputTokens: titleEvent.exchangeUsage.outputTokens,
@@ -407,6 +420,8 @@ export const Route = createFileRoute("/api/chat")({
                 where: { id: thread.id },
                 data: {
                   model,
+                  modelLabel: modelMeta.modelLabel,
+                  modelProvider: modelMeta.modelProvider,
                   messagesJson: serializeMessages(finalMessages),
                   usageHistoryJson: serializeUsageHistory(update.nextUsageHistory),
                   totalInputTokens: update.nextTotals.inputTokens,
@@ -422,6 +437,8 @@ export const Route = createFileRoute("/api/chat")({
                   userId: session.user.id,
                   threadId: thread.id,
                   model,
+                  modelLabel: modelMeta.modelLabel,
+                  modelProvider: modelMeta.modelProvider,
                   taskType: "chat",
                   inputTokens: update.exchangeUsage.inputTokens,
                   outputTokens: update.exchangeUsage.outputTokens,

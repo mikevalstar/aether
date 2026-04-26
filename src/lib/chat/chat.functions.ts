@@ -22,6 +22,7 @@ import {
   resolveModelId,
 } from "#/lib/chat/chat";
 import { type CostBreakdown, getCostBreakdownForThread } from "#/lib/chat/chat-cost-aggregation";
+import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
 import { searchChats } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
@@ -167,11 +168,14 @@ export const createChatThread = createServerFn({ method: "POST" })
     const model = (data.model && resolveModelId(data.model)) ?? DEFAULT_CHAT_MODEL;
     const effort = data.effort && isChatEffort(data.effort) ? data.effort : DEFAULT_CHAT_EFFORT;
 
+    const meta = await snapshotModelMeta(model, session.user.id);
     const thread = await prisma.chatThread.create({
       data: {
         id: `thread_${nanoid(10)}`,
         userId: session.user.id,
         model,
+        modelLabel: meta.modelLabel,
+        modelProvider: meta.modelProvider,
         effort,
       },
     });
@@ -192,9 +196,10 @@ export const updateChatThreadModel = createServerFn({ method: "POST" })
       throw new Error("Not found");
     }
 
+    const meta = await snapshotModelMeta(data.model, session.user.id);
     const updatedThread = await prisma.chatThread.update({
       where: { id: data.threadId },
-      data: { model: data.model },
+      data: { model: data.model, modelLabel: meta.modelLabel, modelProvider: meta.modelProvider },
     });
 
     return mapThreadSummary(updatedThread);
