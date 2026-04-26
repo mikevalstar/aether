@@ -12,7 +12,27 @@ export function isChatEffort(value: string): value is ChatEffort {
   return CHAT_EFFORT_LEVELS.includes(value as ChatEffort);
 }
 
-export const CHAT_MODELS = [
+export type ModelProvider = "anthropic" | "openrouter" | "minimax";
+export type WebToolVersion = "legacy" | "latest" | "none";
+
+export type ChatModelDef = {
+  id: string;
+  label: string;
+  description: string;
+  supportsWebTools: boolean;
+  supportsEffort: boolean;
+  supportsCodeExecution: boolean;
+  webToolVersion: WebToolVersion;
+  provider: ModelProvider;
+  aliases?: readonly string[];
+  providerIds?: Record<string, string>;
+  pricing: {
+    inputCostPerMillionTokensUsd: number;
+    outputCostPerMillionTokensUsd: number;
+  };
+};
+
+export const BUILTIN_CHAT_MODELS: readonly ChatModelDef[] = [
   {
     id: "claude-haiku-4-5",
     label: "Claude Haiku 4.5",
@@ -20,12 +40,9 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: false,
     supportsCodeExecution: false,
-    webToolVersion: "legacy" as const,
-    provider: "anthropic" as const,
-    pricing: {
-      inputCostPerMillionTokensUsd: 1,
-      outputCostPerMillionTokensUsd: 5,
-    },
+    webToolVersion: "legacy",
+    provider: "anthropic",
+    pricing: { inputCostPerMillionTokensUsd: 1, outputCostPerMillionTokensUsd: 5 },
   },
   {
     id: "claude-sonnet-4-6",
@@ -34,12 +51,9 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: true,
     supportsCodeExecution: true,
-    webToolVersion: "latest" as const,
-    provider: "anthropic" as const,
-    pricing: {
-      inputCostPerMillionTokensUsd: 3,
-      outputCostPerMillionTokensUsd: 15,
-    },
+    webToolVersion: "latest",
+    provider: "anthropic",
+    pricing: { inputCostPerMillionTokensUsd: 3, outputCostPerMillionTokensUsd: 15 },
   },
   {
     id: "claude-opus-4-6",
@@ -48,12 +62,9 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: true,
     supportsCodeExecution: true,
-    webToolVersion: "latest" as const,
-    provider: "anthropic" as const,
-    pricing: {
-      inputCostPerMillionTokensUsd: 5,
-      outputCostPerMillionTokensUsd: 25,
-    },
+    webToolVersion: "latest",
+    provider: "anthropic",
+    pricing: { inputCostPerMillionTokensUsd: 5, outputCostPerMillionTokensUsd: 25 },
   },
   {
     id: "MiniMax-M2.7",
@@ -62,17 +73,14 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: false,
     supportsCodeExecution: false,
-    webToolVersion: "none" as const,
-    provider: "minimax" as const,
-    aliases: ["minimax/minimax-m2.7"] as readonly string[],
+    webToolVersion: "none",
+    provider: "minimax",
+    aliases: ["minimax/minimax-m2.7"],
     providerIds: {
       minimax: "MiniMax-M2.7",
       openrouter: "minimax/minimax-m2.7",
-    } as Record<string, string>,
-    pricing: {
-      inputCostPerMillionTokensUsd: 0.3,
-      outputCostPerMillionTokensUsd: 1.2,
     },
+    pricing: { inputCostPerMillionTokensUsd: 0.3, outputCostPerMillionTokensUsd: 1.2 },
   },
   {
     id: "z-ai/glm-5",
@@ -81,12 +89,9 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: false,
     supportsCodeExecution: false,
-    webToolVersion: "none" as const,
-    provider: "openrouter" as const,
-    pricing: {
-      inputCostPerMillionTokensUsd: 0.72,
-      outputCostPerMillionTokensUsd: 2.3,
-    },
+    webToolVersion: "none",
+    provider: "openrouter",
+    pricing: { inputCostPerMillionTokensUsd: 0.72, outputCostPerMillionTokensUsd: 2.3 },
   },
   {
     id: "z-ai/glm-5.1",
@@ -95,12 +100,9 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: false,
     supportsCodeExecution: false,
-    webToolVersion: "none" as const,
-    provider: "openrouter" as const,
-    pricing: {
-      inputCostPerMillionTokensUsd: 1.26,
-      outputCostPerMillionTokensUsd: 3.96,
-    },
+    webToolVersion: "none",
+    provider: "openrouter",
+    pricing: { inputCostPerMillionTokensUsd: 1.26, outputCostPerMillionTokensUsd: 3.96 },
   },
   {
     id: "moonshotai/kimi-k2.5",
@@ -109,12 +111,9 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: false,
     supportsCodeExecution: false,
-    webToolVersion: "none" as const,
-    provider: "openrouter" as const,
-    pricing: {
-      inputCostPerMillionTokensUsd: 0.44,
-      outputCostPerMillionTokensUsd: 2.2,
-    },
+    webToolVersion: "none",
+    provider: "openrouter",
+    pricing: { inputCostPerMillionTokensUsd: 0.44, outputCostPerMillionTokensUsd: 2.2 },
   },
   {
     id: "moonshotai/kimi-k2.6",
@@ -123,52 +122,82 @@ export const CHAT_MODELS = [
     supportsWebTools: true,
     supportsEffort: false,
     supportsCodeExecution: false,
-    webToolVersion: "none" as const,
-    provider: "openrouter" as const,
-    pricing: {
-      inputCostPerMillionTokensUsd: 0.75,
-      outputCostPerMillionTokensUsd: 3.5,
-    },
+    webToolVersion: "none",
+    provider: "openrouter",
+    pricing: { inputCostPerMillionTokensUsd: 0.75, outputCostPerMillionTokensUsd: 3.5 },
   },
-] as const;
+];
 
-export type ChatModel = (typeof CHAT_MODELS)[number]["id"];
+/**
+ * Back-compat alias. Built-in chat models — does NOT include user-selected
+ * OpenRouter models. Use listChatModels() / getAvailableModels() to get the
+ * merged list.
+ */
+export const CHAT_MODELS: readonly ChatModelDef[] = BUILTIN_CHAT_MODELS;
+
+/**
+ * `ChatModel` used to be a union of the built-in ids. With user-selectable
+ * OpenRouter models it has to be `string`. Validation now happens at I/O
+ * boundaries (server fns, file parsers) instead of in the type system.
+ */
+export type ChatModel = string;
 
 export const DEFAULT_CHAT_MODEL: ChatModel = "claude-haiku-4-5";
 
-/** Resolve any model ID or alias to its canonical ChatModel ID. */
+const OPENROUTER_ID_PATTERN = /^[a-z0-9._-]+\/[a-z0-9._-]+$/i;
+
+/**
+ * Resolve any model id or alias to its canonical id.
+ * - Built-in id or alias → built-in id
+ * - String matching `provider/model` (OpenRouter convention) → returned as-is
+ *   (we can't sync-validate against the user's selection here)
+ * - Anything else → undefined
+ */
 export function resolveModelId(value: string): ChatModel | undefined {
-  const direct = CHAT_MODELS.find((m) => m.id === value);
+  const direct = BUILTIN_CHAT_MODELS.find((m) => m.id === value);
   if (direct) return direct.id;
-  const byAlias = CHAT_MODELS.find((m) => "aliases" in m && m.aliases.includes(value));
+  const byAlias = BUILTIN_CHAT_MODELS.find((m) => m.aliases?.includes(value));
   if (byAlias) return byAlias.id;
+  if (OPENROUTER_ID_PATTERN.test(value)) return value;
   return undefined;
 }
 
-export type WebToolVersion = (typeof CHAT_MODELS)[number]["webToolVersion"];
-export type ModelProvider = "anthropic" | "openrouter" | "minimax";
-
-function findModel(model: ChatModel) {
-  return CHAT_MODELS.find((m) => m.id === model);
+function findBuiltin(model: string): ChatModelDef | undefined {
+  return BUILTIN_CHAT_MODELS.find((m) => m.id === model);
 }
 
-export function getWebToolVersion(model: ChatModel): WebToolVersion {
-  return findModel(model)?.webToolVersion ?? "legacy";
+/**
+ * Look up a model definition. Pass `extras` (e.g. user-selected OpenRouter
+ * models) to find non-built-in entries.
+ */
+export function findModelDef(model: string, extras?: readonly ChatModelDef[]): ChatModelDef | undefined {
+  return findBuiltin(model) ?? extras?.find((m) => m.id === model);
 }
 
-export function getModelProvider(model: ChatModel): ModelProvider {
-  return findModel(model)?.provider ?? "anthropic";
+export function getWebToolVersion(model: string): WebToolVersion {
+  const def = findBuiltin(model);
+  if (def) return def.webToolVersion;
+  // Unknown (user-selected OpenRouter) models: web tools are not supported by default.
+  return "none";
+}
+
+export function getModelProvider(model: string): ModelProvider {
+  const def = findBuiltin(model);
+  if (def) return def.provider;
+  // Unknown ids in `provider/model` form go through OpenRouter.
+  if (OPENROUTER_ID_PATTERN.test(model)) return "openrouter";
+  return "anthropic";
 }
 
 /** Get the provider-specific model ID to send to the API. */
-export function getProviderModelId(model: ChatModel, provider: string): string {
-  const def = findModel(model);
-  if (def && "providerIds" in def && provider in def.providerIds) {
+export function getProviderModelId(model: string, provider: string): string {
+  const def = findBuiltin(model);
+  if (def?.providerIds && provider in def.providerIds) {
     return def.providerIds[provider];
   }
   return model;
 }
 
-export function supportsCodeExecution(model: ChatModel): boolean {
-  return findModel(model)?.supportsCodeExecution ?? false;
+export function supportsCodeExecution(model: string): boolean {
+  return findBuiltin(model)?.supportsCodeExecution ?? false;
 }
