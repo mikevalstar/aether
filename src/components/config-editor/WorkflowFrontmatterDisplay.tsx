@@ -75,8 +75,8 @@ function Section({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <Icon className="size-3.5 text-[var(--teal)]" />
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--teal)]">{title}</h3>
+          <Icon className="size-3.5 text-[var(--accent)]" />
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">{title}</h3>
         </div>
         <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px]" onClick={onConfigure}>
           <Settings2 className="mr-1 size-3" />
@@ -120,7 +120,7 @@ export function WorkflowFrontmatterDisplay({ document, onRefresh, autoOpenModal 
 
   return (
     <>
-      <div className="border-b border-[var(--line)] bg-[var(--surface-alt)] px-6 py-4 sm:px-8">
+      <div className="border-b border-[var(--line)] bg-[var(--surface-alt)]/60 px-6 py-4 sm:px-8">
         <div className="space-y-4">
           {/* Description */}
           {description && <p className="text-sm text-[var(--ink-soft)] italic">{description}</p>}

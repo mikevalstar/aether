@@ -150,7 +150,7 @@ export function TaskFrontmatterDisplay({ document, onRefresh, userTimezone, auto
 
   return (
     <>
-      <div className="border-b border-[var(--line)] bg-[var(--surface-alt)] px-6 py-4 sm:px-8">
+      <div className="border-b border-[var(--line)] bg-[var(--surface-alt)]/60 px-6 py-4 sm:px-8">
         <div className="space-y-4">
           {/* ── Schedule ── */}
           <Section title="Schedule" icon={CalendarClockIcon} onConfigure={() => openModal("schedule")}>

@@ -125,22 +125,17 @@ export function ScopedTreeNav({
 
   return (
     <div className="surface-card h-fit overflow-hidden lg:sticky lg:top-24">
-      <div className="border-b border-[var(--line)] bg-[var(--teal-subtle)] px-5 py-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">{label}</p>
-            <h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
-              <Icon className="size-4 text-[var(--teal)]" />
-              Editor
-            </h1>
-          </div>
-          {headerAction}
+      <div className="flex items-center justify-between gap-2 border-b border-border-strong px-3 py-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <Icon className="size-3.5 shrink-0 text-[var(--accent)]" />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">{label}</p>
         </div>
+        {headerAction}
       </div>
 
-      <div className="border-b border-[var(--line)] px-3 py-2">
+      <div className="border-b border-[var(--line)] px-2 py-2">
         <div className="relative">
-          <SearchIcon className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--ink-soft)]/50" />
+          <SearchIcon className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/60" />
           <Input
             placeholder="Search files..."
             value={search}
@@ -150,7 +145,7 @@ export function ScopedTreeNav({
         </div>
       </div>
 
-      <nav className="max-h-[calc(100vh-16rem)] overflow-y-auto px-3 py-3">
+      <nav className="max-h-[calc(100vh-14rem)] overflow-y-auto px-2 py-2">
         {filteredNodes.length > 0 ? (
           <TreeList
             nodes={filteredNodes}
@@ -225,11 +220,11 @@ function FolderNode(props: {
       <button
         type="button"
         onClick={() => props.toggleFolder(node.path)}
-        className="flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)] hover:bg-[var(--accent)] transition-colors"
+        className="flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-[var(--accent-subtle)] hover:text-[var(--ink)]"
         style={{ paddingLeft: `${props.depth * 14 + 10}px` }}
       >
         <ChevronRightIcon className={cn("size-3 shrink-0 transition-transform duration-150", isExpanded && "rotate-90")} />
-        <FolderTreeIcon className="size-3.5 text-[var(--teal)]/50" />
+        <FolderTreeIcon className="size-3.5 text-[var(--accent)]/60" />
         <span className="truncate">{node.name}</span>
       </button>
       {isExpanded && (
@@ -252,20 +247,20 @@ function TreeNavLink(props: { href: string; isActive: boolean; depth: number; ti
     <Link
       to={props.href}
       className={cn(
-        "group relative flex items-center gap-2 rounded-md px-2.5 py-2 text-sm no-underline transition-colors",
+        "group relative flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm no-underline transition-colors",
         props.isActive
-          ? "bg-[var(--teal)]/10 font-medium text-[var(--teal)]"
-          : "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
+          ? "bg-[var(--accent-subtle)] font-medium text-[var(--accent)]"
+          : "text-[var(--ink-soft)] hover:bg-[var(--accent-subtle)]/60 hover:text-[var(--ink)]",
       )}
       style={{ paddingLeft: `${props.depth * 14 + 10}px` }}
     >
       {props.isActive && (
-        <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--teal)]" aria-hidden />
+        <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-(--accent)" aria-hidden />
       )}
       <FileTextIcon
         className={cn(
           "size-4 shrink-0",
-          props.isActive ? "text-[var(--teal)]" : "text-[var(--ink-soft)]/50 group-hover:text-[var(--ink-soft)]",
+          props.isActive ? "text-[var(--accent)]" : "text-muted-foreground/60 group-hover:text-[var(--ink-soft)]",
         )}
       />
       <span className="truncate">{props.title}</span>
