@@ -31,7 +31,10 @@ function parsePricePerToken(value: string | undefined): number | null {
   if (!value) return null;
   const n = Number(value);
   if (!Number.isFinite(n)) return null;
-  return n * 1_000_000;
+  // OpenRouter sends per-token prices as strings like "0.0000005". Multiplying
+  // by 1e6 introduces float noise (e.g. 0.5000000000000001), so round to 4
+  // decimal places — the smallest meaningful unit per million tokens.
+  return Math.round(n * 1_000_000 * 10_000) / 10_000;
 }
 
 function normalize(raw: OpenRouterApiModel): OpenRouterCatalogModel {

@@ -13,7 +13,13 @@ import {
 
 function formatPrice(inputUsd: number | null, outputUsd: number | null) {
   if (inputUsd == null || outputUsd == null) return null;
-  const fmt = (n: number) => (n < 1 ? n.toFixed(2).replace(/0+$/, "").replace(/\.$/, "") : n.toFixed(2));
+  const fmt = (n: number) => {
+    if (n === 0) return "0";
+    // Pick a decimal precision that preserves at least 2 significant digits
+    // for cheap models (e.g. $0.044/M) without showing trailing FP noise.
+    const dp = n >= 10 ? 1 : n >= 1 ? 2 : n >= 0.1 ? 2 : n >= 0.01 ? 3 : 4;
+    return n.toFixed(dp).replace(/\.?0+$/, "");
+  };
   return `$${fmt(inputUsd)}/${fmt(outputUsd)}`;
 }
 
