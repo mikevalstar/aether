@@ -43,7 +43,7 @@ export const Success: Story = {
   },
 };
 
-export const Error: Story = {
+export const ErrorStory: Story = {
   args: {
     variant: "destructive",
     children: (

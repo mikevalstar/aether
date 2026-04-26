@@ -1,13 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  BrainIcon,
-  ChevronRightIcon,
-  FileTextIcon,
-  FolderIcon,
-  PlusIcon,
-  SearchIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { BrainIcon, ChevronRightIcon, FileTextIcon, FolderIcon, PlusIcon, SearchIcon, SparklesIcon } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -232,9 +224,7 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
           </SpecialSection>
         )}
 
-        {(aiConfigNode || aiMemoryNode) && mainNodes.length > 0 && (
-          <div className="my-2 border-t border-[var(--line)]" />
-        )}
+        {(aiConfigNode || aiMemoryNode) && mainNodes.length > 0 && <div className="my-2 border-t border-[var(--line)]" />}
 
         {mainNodes.length > 0 ? (
           <TreeList

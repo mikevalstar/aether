@@ -27,7 +27,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Error: Story = {
+export const ErrorStory: Story = {
   args: { variant: "destructive" },
   render: (args) => (
     <Alert {...args} className="max-w-3xl">

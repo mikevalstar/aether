@@ -130,9 +130,7 @@ export function ObsidianEditor({ document, aiConfigPath, onCancel, onSaved }: Ob
         <div className="flex items-center justify-between px-5 py-3 sm:px-7">
           <div className="relative flex min-w-0 items-center gap-3 pl-3">
             <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
-            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.15em] text-[var(--accent)]">
-              Editing
-            </p>
+            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.15em] text-[var(--accent)]">Editing</p>
             <h2 className="display-title min-w-0 truncate text-base font-semibold tracking-tight text-[var(--ink)]">
               {document.title}
             </h2>

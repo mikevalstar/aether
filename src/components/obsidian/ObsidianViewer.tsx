@@ -40,8 +40,8 @@ export function ObsidianViewer({ data, initialEdit }: ObsidianViewerProps) {
         <div className="surface-card mx-auto max-w-lg px-8 py-12 text-center">
           <h2 className="display-title text-xl font-semibold text-[var(--ink)]">Obsidian not configured</h2>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            Set the <code className="font-mono text-[12px]">OBSIDIAN_DIR</code> environment variable to your vault path
-            to enable the Obsidian browser.
+            Set the <code className="font-mono text-[12px]">OBSIDIAN_DIR</code> environment variable to your vault path to
+            enable the Obsidian browser.
           </p>
         </div>
       </PageHeader>
