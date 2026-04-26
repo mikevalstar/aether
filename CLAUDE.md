@@ -8,10 +8,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 we are using the latest version of most libraries, these tend to be newer then the training data, so use the skills and/or google for documentation when you don't have an example of how to do something already in the code.
 
-## Redesign
-
-We are currently in the middle of a redesign; attempting to move the design closer to that of the referecne design: docs/aether-redesign2/index.html and a redesign of the chat page specifically docs/aether-redesign/index.html
-
 ## Documentation
 
 Documentation is very important in this project. Make sure requirements are updated when new features are built or updated.
@@ -230,12 +226,12 @@ Solo personal dashboard — Mike is the only user. The context is daily workflow
 - **Sharp & efficient** — information-dense, fast, get-in-get-out. Prioritize scannability and keyboard-driven interaction.
 - **Reference apps**: Linear, Raycast — fast developer tools that are dark-mode-friendly, keyboard-first, and respect the user's time.
 - **Anti-patterns**: Overly spacious/airy layouts, large hero sections with wasted space, decorative elements that don't serve function, generic SaaS marketing aesthetics.
-- **Theme**: Light + dark mode (both supported). Warm neutrals with teal primary and coral accent. Fraunces for display headings, Manrope for everything else.
+- **Theme**: Light + dark mode (both supported). Single soft-blue accent (`oklch(0.58 0.16 255)` light / `oklch(0.76 0.13 255)` dark) on warm "paper" surfaces in light and a near-black blueprint palette in dark. Inter everywhere; Fraunces reserved for display headings; JetBrains Mono for code. See `docs/redesign/tokens.md` and `docs/decisions/005-aether-redesign.md`.
 
 ### Design Principles
 1. **Density over whitespace** — Pack useful information into views. Avoid padding-heavy layouts. Every pixel should serve a purpose.
 2. **Speed is a feature** — Interactions should feel instant. Favor lightweight animations (150ms transitions), skeleton states, and optimistic UI over loading spinners.
-3. **Warm precision** — Clean and structured, but never sterile. Warm-tinted neutrals, subtle teal accents, and considered typography give it soul.
+3. **Warm precision** — Clean and structured, but never sterile. Warm-tinted neutrals, a single soft-blue accent, and considered typography give it soul.
 4. **Function first, beauty follows** — Never sacrifice usability for aesthetics. If something looks good but slows the user down, simplify it.
 5. **Keyboard-friendly** — Design with keyboard navigation in mind. Actions should be reachable without a mouse where possible.
 
