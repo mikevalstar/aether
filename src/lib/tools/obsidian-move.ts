@@ -29,9 +29,7 @@ export function createObsidianMove(ctx: ObsidianToolContext) {
     description:
       "Move (rename) a note in the user's Obsidian vault from one path to another. Creates intermediate folders as needed. Fails if the destination already exists. When the filename itself changes (not just the folder), bare wiki-links (`[[old name]]`, `[[old name|alias]]`, `[[old name#heading]]`) and markdown links to `oldname.md` across the vault are rewritten to point at the new name. Path-prefixed wiki-links (e.g. `[[folder/old name]]`) are left alone — those are explicit references and the AI shouldn't second-guess them.",
     inputSchema: z.object({
-      fromPath: z
-        .string()
-        .describe("The current relative path of the note within the vault, e.g. 'folder/note.md'."),
+      fromPath: z.string().describe("The current relative path of the note within the vault, e.g. 'folder/note.md'."),
       toPath: z
         .string()
         .describe(
@@ -174,9 +172,7 @@ export function createObsidianMove(ctx: ObsidianToolContext) {
             continue;
           }
 
-          const updated = original
-            .replace(wikiRe, `[[${toBase}`)
-            .replace(mdRe, `$1${toBase}.md`);
+          const updated = original.replace(wikiRe, `[[${toBase}`).replace(mdRe, `$1${toBase}.md`);
 
           if (updated === original) continue;
 
