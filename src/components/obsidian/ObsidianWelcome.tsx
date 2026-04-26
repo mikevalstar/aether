@@ -28,7 +28,6 @@ export function ObsidianWelcome({ tree }: ObsidianWelcomeProps) {
   return (
     <EmptyState
       variant="centered"
-      accentColor="var(--teal)"
       icon={BookOpenIcon}
       title="Obsidian Vault"
       description="Select a file from the tree to start reading, or use the search to find a specific page."

@@ -20,7 +20,7 @@ export function ObsidianMissingDocument({ requestedPath }: ObsidianMissingDocume
       action={
         <ObsidianNavLink
           routePath=""
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--teal)] px-5 py-2.5 text-sm font-medium text-white no-underline shadow-sm hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-foreground)] no-underline shadow-sm hover:opacity-90"
         >
           <BookOpenIcon className="size-4" />
           Back to vault

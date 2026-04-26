@@ -1,10 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import {
-  BookOpenIcon,
   BrainIcon,
   ChevronRightIcon,
   FileTextIcon,
-  FolderTreeIcon,
+  FolderIcon,
   PlusIcon,
   SearchIcon,
   SparklesIcon,
@@ -87,7 +86,6 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(() => {
     const stored = loadExpanded();
-    // Auto-expand path to current document
     for (const p of getAncestorPaths(currentRoutePath)) {
       stored.add(p);
     }
@@ -98,7 +96,6 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
     saveExpanded(expanded);
   }, [expanded]);
 
-  // Auto-expand to current doc when it changes
   useEffect(() => {
     setExpanded((prev) => {
       const ancestors = getAncestorPaths(currentRoutePath);
@@ -143,7 +140,6 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
     [nodes, search, isSearching],
   );
 
-  // Split out AI config and AI memory folders from rest
   const { aiConfigNode, aiMemoryNode, mainNodes } = useMemo(() => {
     if (!aiConfigPath && !aiMemoryPath)
       return {
@@ -174,54 +170,38 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
   }, [filteredNodes, aiConfigPath, aiMemoryPath]);
 
   return (
-    <div className="surface-card h-fit overflow-hidden lg:sticky lg:top-24">
-      <div className="border-b border-[var(--line)] bg-[var(--teal-subtle)] px-5 py-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Obsidian</p>
-            <h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
-              <BookOpenIcon className="size-4 text-[var(--teal)]" />
-              Vault Browser
-            </h1>
-          </div>
-          <Button variant="outline" size="sm" className="mt-1" onClick={() => setNewFileOpen(true)}>
-            <PlusIcon className="mr-1 size-3.5" />
-            New
-          </Button>
-        </div>
+    <div className="surface-card overflow-hidden lg:sticky lg:top-24 lg:flex lg:max-h-[calc(100vh-7rem)] lg:flex-col">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-3 py-2">
+        <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em] text-[var(--ink-dim)]">Vault</p>
+        <Button variant="outline" size="sm" className="h-7 px-2 text-[11.5px]" onClick={() => setNewFileOpen(true)}>
+          <PlusIcon className="mr-1 size-3" />
+          New
+        </Button>
       </div>
 
       <NewFileDialog open={newFileOpen} onOpenChange={setNewFileOpen} />
 
-      <div className="border-b border-[var(--line)] px-3 py-2">
+      <div className="border-b border-[var(--line)] px-2 py-2">
         <div className="relative">
-          <SearchIcon className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--ink-soft)]/50" />
+          <SearchIcon className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--ink-faint)]" />
           <Input
             placeholder="Search files..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-8 pl-8 text-sm"
+            className="h-8 pl-8 text-[13px]"
           />
         </div>
       </div>
 
-      {aiConfigNode && aiConfigNode.type === "folder" && (
-        <div className="border-b border-[var(--coral)]/20 bg-[var(--coral)]/5 px-3 py-2">
-          <button
-            type="button"
-            onClick={() => toggleSection("aiConfig")}
-            className="mb-1 flex w-full items-center gap-1.5 px-2 transition-colors hover:opacity-80"
+      <nav className="min-h-0 flex-1 overflow-y-auto p-2">
+        {aiConfigNode && aiConfigNode.type === "folder" && (
+          <SpecialSection
+            label="AI Config"
+            icon={SparklesIcon}
+            color="var(--coral)"
+            collapsed={!!sectionCollapsed.aiConfig}
+            onToggle={() => toggleSection("aiConfig")}
           >
-            <ChevronRightIcon
-              className={cn(
-                "size-3 shrink-0 text-[var(--coral)] transition-transform duration-150",
-                !sectionCollapsed.aiConfig && "rotate-90",
-              )}
-            />
-            <SparklesIcon className="size-3 text-[var(--coral)]" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--coral)]">AI Config</span>
-          </button>
-          {!sectionCollapsed.aiConfig && (
             <TreeList
               nodes={aiConfigNode.children}
               currentRoutePath={currentRoutePath}
@@ -230,27 +210,17 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
               isSearching={isSearching}
               depth={0}
             />
-          )}
-        </div>
-      )}
+          </SpecialSection>
+        )}
 
-      {aiMemoryNode && aiMemoryNode.type === "folder" && (
-        <div className="border-b border-[var(--teal)]/20 bg-[var(--teal)]/5 px-3 py-2">
-          <button
-            type="button"
-            onClick={() => toggleSection("aiMemory")}
-            className="mb-1 flex w-full items-center gap-1.5 px-2 transition-colors hover:opacity-80"
+        {aiMemoryNode && aiMemoryNode.type === "folder" && (
+          <SpecialSection
+            label="AI Memory"
+            icon={BrainIcon}
+            color="var(--accent)"
+            collapsed={!!sectionCollapsed.aiMemory}
+            onToggle={() => toggleSection("aiMemory")}
           >
-            <ChevronRightIcon
-              className={cn(
-                "size-3 shrink-0 text-[var(--teal)] transition-transform duration-150",
-                !sectionCollapsed.aiMemory && "rotate-90",
-              )}
-            />
-            <BrainIcon className="size-3 text-[var(--teal)]" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--teal)]">AI Memory</span>
-          </button>
-          {!sectionCollapsed.aiMemory && (
             <TreeList
               nodes={aiMemoryNode.children}
               currentRoutePath={currentRoutePath}
@@ -259,11 +229,13 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
               isSearching={isSearching}
               depth={0}
             />
-          )}
-        </div>
-      )}
+          </SpecialSection>
+        )}
 
-      <nav className="max-h-[calc(100vh-16rem)] overflow-y-auto px-3 py-3">
+        {(aiConfigNode || aiMemoryNode) && mainNodes.length > 0 && (
+          <div className="my-2 border-t border-[var(--line)]" />
+        )}
+
         {mainNodes.length > 0 ? (
           <TreeList
             nodes={mainNodes}
@@ -274,11 +246,42 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
             depth={0}
           />
         ) : (
-          <p className="px-2 py-4 text-center text-sm text-[var(--ink-soft)]">
-            {isSearching ? "No files match your search." : "No files found."}
-          </p>
+          !aiConfigNode &&
+          !aiMemoryNode && (
+            <p className="px-2 py-4 text-center text-[13px] text-[var(--ink-soft)]">
+              {isSearching ? "No files match your search." : "No files found."}
+            </p>
+          )
         )}
       </nav>
+    </div>
+  );
+}
+
+function SpecialSection(props: {
+  label: string;
+  icon: typeof SparklesIcon;
+  color: string;
+  collapsed: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  const Icon = props.icon;
+  return (
+    <div className="mb-1">
+      <button
+        type="button"
+        onClick={props.onToggle}
+        className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors hover:bg-[var(--bg)]"
+        style={{ color: props.color }}
+      >
+        <ChevronRightIcon
+          className={cn("size-3 shrink-0 transition-transform duration-150", !props.collapsed && "rotate-90")}
+        />
+        <Icon className="size-3" />
+        <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em]">{props.label}</span>
+      </button>
+      {!props.collapsed && <div className="mt-px">{props.children}</div>}
     </div>
   );
 }
@@ -292,7 +295,7 @@ function TreeList(props: {
   depth: number;
 }) {
   return (
-    <ul className={cn("space-y-0.5", props.depth ? "mt-0.5" : "")}>
+    <ul className={cn("space-y-px", props.depth ? "mt-px" : "")}>
       {props.nodes.map((node) => (
         <li key={node.type === "folder" ? node.path : node.relativePath}>
           {node.type === "folder" ? (
@@ -334,13 +337,18 @@ function FolderNode(props: {
       <button
         type="button"
         onClick={() => props.toggleFolder(node.path)}
-        className="flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)] hover:bg-[var(--accent)] transition-colors"
+        className="flex w-full items-center gap-1.5 rounded-md py-1.5 pr-2 font-mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--ink-dim)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--ink)]"
         style={{
-          paddingLeft: `${props.depth * 14 + 10}px`,
+          paddingLeft: `${props.depth * 12 + 8}px`,
         }}
       >
-        <ChevronRightIcon className={cn("size-3 shrink-0 transition-transform duration-150", isExpanded && "rotate-90")} />
-        <FolderTreeIcon className="size-3.5 text-[var(--teal)]/50" />
+        <ChevronRightIcon
+          className={cn(
+            "size-3 shrink-0 text-[var(--ink-faint)] transition-transform duration-150",
+            isExpanded && "rotate-90",
+          )}
+        />
+        <FolderIcon className="size-3 text-[var(--ink-faint)]" />
         <span className="truncate">{node.name}</span>
       </button>
       {isExpanded && (
@@ -362,22 +370,22 @@ function TreeNavLink(props: { routePath: string; isActive: boolean; depth: numbe
     <Link
       to={getObsidianHref(props.routePath)}
       className={cn(
-        "group relative flex items-center gap-2 rounded-md px-2.5 py-2 text-sm no-underline transition-colors",
+        "group relative flex items-center gap-2 rounded-md py-1.5 pr-2 text-[13px] no-underline transition-colors",
         props.isActive
-          ? "bg-[var(--teal)]/10 font-medium text-[var(--teal)]"
-          : "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
+          ? "bg-[var(--accent)]/10 font-medium text-[var(--ink)]"
+          : "text-[var(--ink-soft)] hover:bg-[var(--accent)]/5 hover:text-[var(--ink)]",
       )}
       style={{
-        paddingLeft: `${props.depth * 14 + 10}px`,
+        paddingLeft: `${props.depth * 12 + 8}px`,
       }}
     >
       {props.isActive && (
-        <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--teal)]" aria-hidden />
+        <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-(--accent)" aria-hidden />
       )}
       <FileTextIcon
         className={cn(
-          "size-4 shrink-0",
-          props.isActive ? "text-[var(--teal)]" : "text-[var(--ink-soft)]/50 group-hover:text-[var(--ink-soft)]",
+          "size-3.5 shrink-0",
+          props.isActive ? "text-[var(--accent)]" : "text-[var(--ink-faint)] group-hover:text-[var(--ink-soft)]",
         )}
       />
       <span className="truncate">{props.title}</span>
