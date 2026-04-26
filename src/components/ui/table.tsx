@@ -6,7 +6,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto overflow-hidden rounded-sm border border-[var(--table-border)] bg-[var(--table-surface)]"
+      className="relative w-full overflow-x-auto overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface)]"
     >
       <table data-slot="table" className={cn("w-full caption-bottom border-collapse text-sm", className)} {...props} />
     </div>
@@ -18,7 +18,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
     <thead
       data-slot="table-header"
       className={cn(
-        "[&_tr]:border-b [&_tr]:border-[var(--table-border)] [&_tr]:bg-[oklch(from_var(--table-surface)_calc(l_-_0.03)_c_h)]",
+        "[&_tr]:border-b [&_tr]:border-[var(--line)] [&_tr]:bg-[var(--table-surface)]",
         className,
       )}
       {...props}
@@ -35,7 +35,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
     <tfoot
       data-slot="table-footer"
       className={cn(
-        "border-t border-[var(--table-border)] bg-[oklch(from_var(--table-surface)_calc(l_-_0.03)_c_h)] font-medium",
+        "border-t border-[var(--line)] bg-[var(--table-surface)] font-medium",
         className,
       )}
       {...props}
@@ -48,7 +48,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "group border-t border-[var(--table-border)] transition-colors first:border-t-0 hover:bg-[oklch(from_var(--table-surface)_calc(l_-_0.04)_c_h)] data-[state=selected]:bg-[oklch(from_var(--table-surface)_calc(l_-_0.05)_c_h)]",
+        "group border-t border-[var(--line)] transition-colors first:border-t-0 hover:bg-[var(--table-surface)] data-[state=selected]:bg-[var(--table-surface)]",
         className,
       )}
       {...props}

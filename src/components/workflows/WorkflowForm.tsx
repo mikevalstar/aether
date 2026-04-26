@@ -27,7 +27,7 @@ function FieldLabel({
         {label}
         {required && <span className="ml-1 text-[var(--accent)]">*</span>}
       </label>
-      <div className="flex-1 border-b border-dashed border-[var(--line-strong)] dark:border-white/15" />
+      <div className="flex-1 border-b border-dashed border-[var(--line-strong)]" />
       {hint && <span className="text-[10px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">{hint}</span>}
     </div>
   );
@@ -96,7 +96,7 @@ export function WorkflowForm({
 
   if (!fileExists) {
     return (
-      <div className="rounded-lg border border-[var(--table-border)] bg-[var(--table-surface)] p-6 text-center text-sm text-[var(--ink-soft)]">
+      <div className="rounded-md border border-[var(--line)] bg-[var(--surface)] p-6 text-center text-sm text-[var(--ink-soft)]">
         Workflow file has been removed. Past runs are still available below.
       </div>
     );
@@ -111,7 +111,7 @@ export function WorkflowForm({
           void handleSubmit(e);
         }
       }}
-      className="flex flex-col gap-5 rounded-lg border border-[var(--table-border)] bg-[var(--table-surface)] p-5"
+      className="flex flex-col gap-5 rounded-md border border-[var(--line)] bg-[var(--surface)] p-5"
     >
       {/* Header band */}
       <header className="flex flex-wrap items-start justify-between gap-3">
@@ -121,7 +121,7 @@ export function WorkflowForm({
               Run Workflow
             </span>
             <span className="text-[var(--ink-faint)]">·</span>
-            <h2 className="text-base font-semibold text-[var(--ink)]">{title}</h2>
+            <h2 className="font-display text-md font-semibold tracking-tight text-[var(--ink)]">{title}</h2>
             <Badge variant="model-name">{model}</Badge>
           </div>
           {description && <p className="text-xs leading-relaxed text-[var(--ink-soft)]">{description}</p>}
@@ -202,7 +202,7 @@ export function WorkflowForm({
       </div>
 
       {/* Footer */}
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line-strong)] pt-4 dark:border-white/15">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line-strong)] pt-4">
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
           <kbd className="font-mono">⌘ ↵</kbd> to run
         </span>

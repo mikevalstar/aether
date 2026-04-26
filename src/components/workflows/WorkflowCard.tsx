@@ -65,13 +65,13 @@ export function WorkflowCard({ item }: { item: WorkflowListItem }) {
     <Link
       to="/workflows/$"
       params={{ _splat: item.filename }}
-      className={`group relative flex h-full flex-col rounded-lg border border-[var(--table-border)] bg-[var(--table-surface)] p-4 no-underline transition-colors hover:border-[var(--line-strong)] ${
+      className={`group relative flex h-full flex-col rounded-md border border-[var(--line)] bg-[var(--surface)] p-4 no-underline transition-colors hover:border-[var(--line-strong)] ${
         dimmed ? "opacity-60" : ""
       }`}
     >
       {/* Header row */}
       <div className="mb-2 flex items-start justify-between gap-3">
-        <h3 className="text-lg font-semibold text-[var(--ink)]">{item.title}</h3>
+        <h3 className="text-md font-semibold leading-tight tracking-tight text-[var(--ink)]">{item.title}</h3>
         {item.lastRunStatus && (
           <div className="flex shrink-0 items-center gap-1.5">
             <StatusPill status={item.lastRunStatus} />
@@ -81,7 +81,7 @@ export function WorkflowCard({ item }: { item: WorkflowListItem }) {
 
       {/* Description */}
       {item.description && (
-        <p className="mb-3 line-clamp-3 text-xs leading-relaxed text-[var(--ink-soft)]">{item.description}</p>
+        <p className="mb-3 line-clamp-3 text-sm leading-relaxed text-[var(--ink-soft)]">{item.description}</p>
       )}
 
       {/* Tag row */}
@@ -99,7 +99,7 @@ export function WorkflowCard({ item }: { item: WorkflowListItem }) {
       </div>
 
       {/* Divider + footer */}
-      <div className="mt-auto border-t border-[var(--line-strong)] pt-3 dark:border-white/15">
+      <div className="mt-auto border-t border-[var(--line-strong)] pt-3">
         <div className="flex items-center justify-between gap-2">
           <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
             {item.lastRunAt ? `Last run ${formatRelativeTime(item.lastRunAt)}` : "Never run"}

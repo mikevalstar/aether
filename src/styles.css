@@ -14,19 +14,17 @@
    ============================================================= */
 
 :root {
-  /* Surfaces */
-  --bg: rgb(244 239 230);                   /* #f4efe6 paper */
-  --surface: oklch(1 0 0);                  /* #ffffff card */
-  --raised: oklch(1 0 0);                   /* #ffffff popover */
-  --line: oklch(0.92 0.008 85);             /* #e8e6dd */
-  --line-strong: oklch(0.85 0.012 85);      /* #d6d3c7 */
-  --table-surface: rgb(229 222 207);        /* #e5decf — warm tan card */
+  /* Surfaces — paper palette (CONSOLE_PALETTES.paper) */
+  --bg: rgb(244 239 230);                   /* #f4efe6 paper bg */
+  --surface: rgb(237 231 220);              /* #ede7dc paper panelSolid (cards) */
+  --raised: rgb(237 231 220);               /* #ede7dc popover */
+  --line: rgb(207 197 176);                 /* #cfc5b0 paper border */
+  --line-strong: rgb(181 172 151);          /* #b5ac97 paper borderHi */
+  --table-surface: rgb(229 222 207);        /* #e5decf — heavier card / table band */
   --table-border:  rgb(207 197 176);        /* #cfc5b0 */
   --header-bg: rgb(244 239 230 / 0.92);
-  /* Slightly darker than --bg so the header reads as its own band, matching
-     the redesign artifact's `rgb(237, 231, 220)` vs body `rgb(244, 239, 230)`. */
   --top-bar-bg: rgb(237 231 220);           /* #ede7dc — paper panel */
-  --grid-line: oklch(0.85 0.012 85 / 0.18);  /* graph-paper rule */
+  --grid-line: oklch(0.65 0.012 85 / 0.10);  /* graph-paper rule, design default 10% */
 
   /* Ink */
   --ink: oklch(0.18 0.005 95);              /* #0c0d0a */
@@ -140,21 +138,21 @@
 .dark {
   /* Surfaces */
   --bg: rgb(10 24 48);                      /* #0a1830 deep navy */
-  --surface: oklch(0.175 0.004 260);        /* #15161a */
-  --raised: oklch(0.215 0.005 260);         /* #1c1d22 */
-  --line: oklch(0.27 0.006 260);            /* #26272d */
-  --line-strong: oklch(0.36 0.008 260);     /* #383941 */
-  --table-surface: rgb(39 67 122);          /* #27437a — deep blueprint */
-  --table-border:  rgb(39 67 122);          /* same as surface — borderless feel */
+  --surface: rgb(17 38 77);                 /* #11264d blueprint panelSolid */
+  --raised: rgb(22 48 102);                 /* #163066 blueprint surface */
+  --line: rgb(39 67 122);                   /* #27437a blueprint border */
+  --line-strong: rgb(54 89 144);            /* #365990 blueprint borderHi */
+  --table-surface: rgb(22 48 102);          /* #163066 — blueprint surface */
+  --table-border:  rgb(39 67 122);          /* #27437a — blueprint border */
   --header-bg: rgb(10 24 48 / 0.92);
-  --top-bar-bg: oklch(0.18 0.005 260);      /* one stop above --bg */
-  --grid-line: oklch(0.36 0.008 260 / 0.18);
+  --top-bar-bg: rgb(17 38 77);              /* #11264d — blueprint panelSolid */
+  --grid-line: oklch(0.55 0.08 255 / 0.10);
 
   /* Ink */
   --ink: oklch(0.96 0.003 95);              /* #f5f5f2 */
   --ink-soft: oklch(0.72 0.005 95);         /* #a8a9a3 */
   --ink-dim: oklch(0.5 0.005 95);           /* #6a6b66 */
-  --ink-faint: oklch(0.4 0.005 260);        /* #46474a */
+  --ink-faint: oklch(0.4 0.005 95);         /* warm-tinted faint to match other inks */
 
   /* Accent — base #7cb0ff in dark */
   --accent: oklch(0.76 0.13 255);           /* #7cb0ff */
@@ -240,7 +238,7 @@
   --text-xl--line-height: 1.75rem;
   --text-2xl: 1.75rem;
   --text-2xl--line-height: 2rem;
-  --text-3xl: 2.25rem;
+  --text-3xl: 2.375rem;       /* 38px — page-header h1 (Console design) */
   --text-3xl--line-height: 2.5rem;
   --text-4xl: 3rem;
   --text-4xl--line-height: 3.25rem;
