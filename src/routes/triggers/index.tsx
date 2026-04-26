@@ -30,7 +30,7 @@ function TriggersPage() {
       title="Event"
       highlight="triggers"
       description="Event-driven AI triggers that run in response to webhooks and plugin events."
-      action={
+      actions={
         <Button variant="outline" size="sm" asChild>
           <Link to="/triggers/webhooks">
             <Webhook className="mr-1.5 size-3.5" />

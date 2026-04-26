@@ -31,7 +31,7 @@ const ThreadListNew: FC = () => {
     <ThreadListPrimitive.New asChild>
       <Button
         variant="outline"
-        className="aui-thread-list-new h-9 justify-start gap-2 rounded-lg px-3 text-sm hover:bg-muted data-active:bg-muted"
+        className="aui-thread-list-new h-9 justify-start gap-2 rounded-md border-[var(--line)] bg-[var(--surface)] px-3 text-sm text-[var(--ink)] transition-colors hover:border-[var(--accent)]/40 hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)]"
       >
         <PlusIcon className="size-4" />
         New Thread
@@ -54,7 +54,7 @@ const ThreadListSkeleton: FC = () => {
 
 const ThreadListItem: FC = () => {
   return (
-    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none data-active:bg-muted">
+    <ThreadListItemPrimitive.Root className="aui-thread-list-item group relative flex h-9 items-center gap-2 rounded-md text-[var(--ink-soft)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--ink)] focus-visible:bg-[var(--bg)] focus-visible:outline-none data-active:bg-[var(--accent-subtle)] data-active:text-[var(--ink)] data-active:before:absolute data-active:before:inset-y-1.5 data-active:before:left-0 data-active:before:w-0.5 data-active:before:rounded-r data-active:before:bg-[var(--accent)]">
       <ThreadListItemPrimitive.Trigger className="aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-sm">
         <span className="aui-thread-list-item-title min-w-0 flex-1 truncate">
           <ThreadListItemPrimitive.Title fallback="New Chat" />
@@ -81,7 +81,7 @@ const ThreadListItemMore: FC = () => {
       <ThreadListItemMorePrimitive.Content
         side="bottom"
         align="start"
-        className="aui-thread-list-item-more-content z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+        className="aui-thread-list-item-more-content z-50 min-w-32 overflow-hidden rounded-md border border-[var(--line)] bg-popover p-1 text-popover-foreground shadow-md"
       >
         <ThreadListItemPrimitive.Archive asChild>
           <ThreadListItemMorePrimitive.Item className="aui-thread-list-item-more-item flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">

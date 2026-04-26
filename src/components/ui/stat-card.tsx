@@ -1,15 +1,16 @@
 import type { LucideIcon } from "lucide-react";
+import type * as React from "react";
 
 export interface StatCardProps {
   /** Short uppercase label */
   label: string;
   /** Primary display value */
-  value: string;
+  value: React.ReactNode;
   /** Supporting detail text */
-  detail: string;
+  detail: React.ReactNode;
   /** Lucide icon */
   icon: LucideIcon;
-  /** CSS color value or var reference (e.g. "var(--teal)") */
+  /** CSS color value or var reference (e.g. "var(--accent)") */
   color: string;
 }
 
@@ -26,10 +27,10 @@ export function StatCard({ label, value, detail, icon: Icon, color }: StatCardPr
         >
           <Icon className="size-3.5" strokeWidth={2} />
         </div>
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">{label}</p>
       </div>
       <p className="mt-3 text-2xl font-semibold">{value}</p>
-      <p className="mt-2 text-sm text-muted-foreground">{detail}</p>
+      <p className="mt-2 text-sm text-[var(--ink-soft)]">{detail}</p>
     </article>
   );
 }

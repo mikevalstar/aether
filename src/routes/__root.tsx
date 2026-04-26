@@ -6,6 +6,7 @@ import {
   Link,
   Outlet,
   Scripts,
+  useLocation,
   useRouter,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
@@ -47,7 +48,7 @@ export const Route = createRootRoute({
       },
       {
         name: "theme-color",
-        content: "#1a8a8a",
+        content: "#7cb0ff",
       },
       {
         title: "Aether",
@@ -84,9 +85,9 @@ function NotFoundComponent() {
   return (
     <div className="page-wrap py-12">
       <div className="surface-card p-8 text-center">
-        <h1 className="text-4xl font-display font-bold text-teal mb-2">404</h1>
+        <h1 className="text-4xl font-display font-bold text-primary mb-2">404</h1>
         <p className="text-muted-foreground mb-6">This page doesn't exist.</p>
-        <Link to="/" className="text-teal hover:underline text-sm font-medium">
+        <Link to="/" className="text-primary hover:underline text-sm font-medium">
           Go home
         </Link>
       </div>
@@ -114,10 +115,16 @@ function RootErrorComponent({ error }: ErrorComponentProps) {
 
 function RootComponent() {
   const { session } = Route.useRouteContext();
+  const { pathname } = useLocation();
+
+  // Routes that own their own chrome (full-bleed marketing/auth surfaces).
+  // `/` is only chromeless when signed-out — the marketing landing page;
+  // signed-in users get the normal header.
+  const hideHeader = pathname === "/login" || (pathname === "/" && !session?.user);
 
   return (
     <>
-      <Header serverSession={session} />
+      {!hideHeader && <Header serverSession={session} />}
       <ErrorBoundary>
         <div id="main-content">
           <Outlet />
@@ -136,7 +143,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[oklch(0.55_0.15_180_/_0.24)]">
+      <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[oklch(0.65_0.15_255_/_0.28)]">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg"

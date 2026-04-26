@@ -98,19 +98,23 @@ export default function NotificationBell() {
         <button
           type="button"
           aria-label="Notifications"
-          className="relative rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className={`relative rounded-md p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            unreadCount > 0
+              ? "text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
         >
           <Bell className="size-4" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-[var(--coral)] text-[10px] font-bold text-white">
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground ring-2 ring-[var(--header-bg)]">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
-        <div className="flex items-center justify-between border-b border-border px-3 py-2">
-          <span className="text-sm font-semibold">Notifications</span>
+      <PopoverContent align="end" className="w-80 p-0 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3 py-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Notifications</span>
           {unreadCount > 0 && (
             <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-xs" onClick={handleMarkAllRead}>
               <CheckCheck className="mr-1 size-3" />
@@ -130,7 +134,7 @@ export default function NotificationBell() {
                 <button
                   type="button"
                   className={`flex w-full flex-col gap-0.5 px-3 py-2.5 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 transition-colors text-left ${
-                    !n.read ? "bg-[var(--teal-subtle)]" : ""
+                    !n.read ? "bg-[var(--accent-subtle)]" : ""
                   }`}
                   onClick={() => void handleClick(n)}
                 >

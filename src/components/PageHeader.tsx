@@ -21,24 +21,28 @@ export interface PageHeaderProps {
   highlight?: string;
   /** Description paragraph below the title */
   description?: string;
-  /** Optional action element displayed to the right of the header on large screens */
-  action?: React.ReactNode;
+  /** Optional action(s) (typically Buttons) rendered to the right of the header on large screens */
+  actions?: React.ReactNode;
   /** Decorative glow backgrounds. Pass an array of configs, or false to disable. */
   glows?: GlowConfig[] | false;
   /** Extra content below the header section (e.g. filters, alerts) */
   children?: React.ReactNode;
 }
 
-const DEFAULT_GLOWS: GlowConfig[] = [{ color: "var(--teal)", size: "size-[500px]", position: "-right-48 -top-48" }];
+const DEFAULT_GLOWS: GlowConfig[] = [{ color: "var(--accent)", size: "size-[420px]", position: "-right-48 -top-48" }];
 
+/**
+ * Page-level header used at the top of every authenticated route.
+ *
+ */
 export function PageHeader({
   icon,
   label,
-  color = "text-[var(--teal)]",
+  color = "text-[var(--accent)]",
   title,
   highlight,
   description,
-  action,
+  actions,
   glows = DEFAULT_GLOWS,
   children,
 }: PageHeaderProps) {
@@ -49,13 +53,18 @@ export function PageHeader({
           <GlowBg key={`${glow.color}-${glow.position}`} color={glow.color} size={glow.size} position={glow.position} />
         ))}
 
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        <section className={`mb-8 ${action ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""}`}>
-          <div>
+      <div className="page-wrap relative px-4 pb-10 pt-6 sm:pt-8">
+        <section
+          className={`mb-6 border-b border-border-strong pb-5 ${
+            actions ? "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between" : ""
+          }`}
+        >
+          <div className="relative pl-4">
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
             <SectionLabel icon={icon} color={color}>
               {label}
             </SectionLabel>
-            <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="display-title mt-2 mb-1.5 text-2xl font-bold tracking-tight sm:text-3xl">
               {highlight ? (
                 <>
                   {title} <span className={color}>{highlight}</span>
@@ -66,7 +75,7 @@ export function PageHeader({
             </h1>
             {description && <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>}
           </div>
-          {action}
+          {actions && <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap">{actions}</div>}
         </section>
 
         {children}

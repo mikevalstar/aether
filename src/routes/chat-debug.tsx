@@ -13,9 +13,8 @@ import {
   Wrench,
   X,
 } from "lucide-react";
+import { PageHeader } from "#/components/PageHeader";
 import { Badge } from "#/components/ui/badge";
-import { GlowBg } from "#/components/ui/glow-bg";
-import { SectionLabel } from "#/components/ui/section-label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { getSession } from "#/lib/auth.functions";
 import { type ChatDebugData, getChatDebugData } from "#/lib/chat/chat-debug.functions";
@@ -39,7 +38,7 @@ function BoolBadge({ value, label }: { value: boolean; label?: string }) {
       variant="outline"
       className={
         value
-          ? "gap-1.5 border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)]"
+          ? "gap-1.5 border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]"
           : "gap-1.5 border-border bg-muted/60 text-muted-foreground"
       }
     >
@@ -55,332 +54,370 @@ function ChatDebugPage() {
   const toolCategories = [...new Set(data.tools.map((t) => t.category))];
 
   return (
-    <main className="relative overflow-hidden">
-      <GlowBg color="var(--teal)" size="size-[520px]" position="-right-48 -top-48" />
-      <GlowBg color="var(--coral)" size="size-[320px]" position="-left-32 top-80" />
+    <PageHeader
+      icon={CircuitBoard}
+      label="System"
+      title="Chat"
+      highlight="debug"
+      description="Models, tools, skills, sub-agents, plugins, and configuration for the AI chat system."
+      glows={false}
+    >
+      {/* Configuration */}
+      <Section icon={Settings2} label="Configuration">
+        <div className="surface-card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ConfigItem label="Anthropic API key" value={data.config.hasAnthropicKey} />
+          <ConfigItem label="OpenRouter API key" value={data.config.hasOpenRouterKey} />
+          <ConfigItem label="Exa API key" value={data.config.hasExaKey} />
+          <ConfigItem label="Obsidian vault" value={data.config.hasObsidianDir} detail={data.config.obsidianDir} />
+          <KeyValue label="Max tool steps" value={data.config.maxToolSteps} />
+          <KeyValue label="Default effort" value={`${data.defaultEffort} (${data.effortLevels.join(" / ")})`} />
+        </div>
+      </Section>
 
-      <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
-        {/* Header */}
-        <section className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <SectionLabel icon={CircuitBoard} color="text-[var(--teal)]">
-              System
-            </SectionLabel>
-            <h1 className="display-title mt-4 mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
-              Chat <span className="text-[var(--teal)]">debug</span>
-            </h1>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              Models, tools, skills, sub-agents, plugins, and configuration for the AI chat system.
-            </p>
-          </div>
-        </section>
-
-        {/* Configuration */}
-        <section className="mb-6">
-          <SectionHeading icon={Settings2} label="Configuration" />
-          <div className="surface-card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
-            <ConfigItem label="Anthropic API Key" value={data.config.hasAnthropicKey} />
-            <ConfigItem label="OpenRouter API Key" value={data.config.hasOpenRouterKey} />
-            <ConfigItem label="Exa API Key" value={data.config.hasExaKey} />
-            <ConfigItem label="Obsidian Vault" value={data.config.hasObsidianDir} detail={data.config.obsidianDir} />
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Max tool steps</span>
-              <span className="text-sm font-medium text-foreground">{data.config.maxToolSteps}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Default effort</span>
-              <span className="text-sm font-medium text-foreground">
-                {data.defaultEffort} ({data.effortLevels.join(" / ")})
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* Models */}
-        <section className="mb-6">
-          <SectionHeading icon={Cpu} label={`Models (${data.models.length})`} />
-          <div className="surface-card overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Model</TableHead>
-                  <TableHead>Provider</TableHead>
-                  <TableHead className="text-right">Input $/M</TableHead>
-                  <TableHead className="text-right">Output $/M</TableHead>
-                  <TableHead>Web Tools</TableHead>
-                  <TableHead>Effort</TableHead>
-                  <TableHead>Code Exec</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.models.map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground">{m.label}</span>
-                        {m.isDefault && (
-                          <Badge
-                            variant="outline"
-                            className="border-muted-foreground/30 bg-muted/40 text-muted-foreground text-[10px]"
-                          >
-                            system default
-                          </Badge>
-                        )}
-                        {m.id === data.userDefaultModel && (
-                          <Badge
-                            variant="outline"
-                            className="gap-1 border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)] text-[10px]"
-                          >
-                            <Star className="size-2.5" />
-                            your default
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{m.description}</div>
-                      <code className="text-[11px] text-muted-foreground/70">{m.id}</code>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {m.provider}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
-                      <span className="text-[var(--teal)]">${m.pricing.inputCostPerMillionTokensUsd}</span>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
-                      <span className="text-[var(--coral)]">${m.pricing.outputCostPerMillionTokensUsd}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {m.webToolVersion}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <BoolBadge value={m.supportsEffort} />
-                    </TableCell>
-                    <TableCell>
-                      <BoolBadge value={m.supportsCodeExecution} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </section>
-
-        {/* Tools by category */}
-        <section className="mb-6">
-          <SectionHeading icon={Wrench} label={`Tools (${data.tools.length})`} />
-          <div className="space-y-4">
-            {toolCategories.map((category) => {
-              const tools = data.tools.filter((t) => t.category === category);
-              return (
-                <div key={category} className="surface-card overflow-hidden">
-                  <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-                    <CategoryIcon category={category} />
-                    <span className="text-sm font-semibold text-foreground">{category}</span>
-                    <Badge variant="outline" className="ml-auto text-xs">
-                      {tools.length}
+      {/* Models */}
+      <Section icon={Cpu} label={`Models · ${data.models.length}`}>
+        <div className="surface-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Model</TableHead>
+                <TableHead>Provider</TableHead>
+                <TableHead className="text-right">Input $/M</TableHead>
+                <TableHead className="text-right">Output $/M</TableHead>
+                <TableHead>Web tools</TableHead>
+                <TableHead>Effort</TableHead>
+                <TableHead>Code exec</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.models.map((m) => (
+                <TableRow key={m.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-foreground">{m.label}</span>
+                      {m.isDefault && (
+                        <Badge
+                          variant="outline"
+                          className="border-muted-foreground/30 bg-muted/40 text-[10px] text-muted-foreground"
+                        >
+                          system default
+                        </Badge>
+                      )}
+                      {m.id === data.userDefaultModel && (
+                        <Badge
+                          variant="outline"
+                          className="gap-1 border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[10px] text-[var(--accent)]"
+                        >
+                          <Star className="size-2.5" />
+                          your default
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-[var(--ink-soft)]">{m.description}</div>
+                    <code className="font-mono text-[11px] text-[var(--ink-faint)]">{m.id}</code>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="capitalize">
+                      {m.provider}
                     </Badge>
-                  </div>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[200px]">Tool</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="w-[320px]">Parameters</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tools.map((tool) => (
-                        <TableRow key={tool.name}>
-                          <TableCell className="align-top">
-                            <code className="text-sm font-medium text-[var(--teal)]">{tool.name}</code>
-                            <div className="mt-1 flex flex-wrap gap-1">
-                              {tool.conditional && (
-                                <Badge variant="outline" className="text-[10px] font-normal text-muted-foreground">
-                                  {tool.conditional}
-                                </Badge>
-                              )}
-                              {tool.isProviderTool && (
-                                <Badge
-                                  variant="outline"
-                                  className="text-[10px] font-normal border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)]"
-                                >
-                                  provider-managed
-                                </Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="align-top text-sm text-muted-foreground">
-                            {truncateDescription(tool.description)}
-                          </TableCell>
-                          <TableCell className="align-top">
-                            {tool.isProviderTool ? (
-                              <span className="text-xs text-muted-foreground/50">Managed by provider</span>
-                            ) : tool.parameters.length > 0 ? (
-                              <div className="space-y-1.5">
-                                {tool.parameters.map((p) => (
-                                  <div key={p.name} className="flex items-start gap-1.5 text-xs">
-                                    <code className="shrink-0 font-medium text-foreground">
-                                      {p.name}
-                                      {p.required && <span className="text-[var(--coral)]">*</span>}
-                                    </code>
-                                    <span className="text-muted-foreground/70">({p.type})</span>
-                                    {p.description && <span className="text-muted-foreground">{p.description}</span>}
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-xs text-muted-foreground/50">No parameters</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-sm tabular-nums">
+                    <span className="text-[var(--accent)]">${m.pricing.inputCostPerMillionTokensUsd}</span>
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-sm tabular-nums">
+                    <span className="text-[var(--destructive)]">${m.pricing.outputCostPerMillionTokensUsd}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {m.webToolVersion}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <BoolBadge value={m.supportsEffort} />
+                  </TableCell>
+                  <TableCell>
+                    <BoolBadge value={m.supportsCodeExecution} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Section>
+
+      {/* Tools by category */}
+      <Section icon={Wrench} label={`Tools · ${data.tools.length}`}>
+        <div className="space-y-3">
+          {toolCategories.map((category) => {
+            const tools = data.tools.filter((t) => t.category === category);
+            return (
+              <div key={category} className="surface-card overflow-hidden">
+                <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+                  <CategoryIcon category={category} />
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground">
+                    {category}
+                  </span>
+                  <Badge variant="outline" className="ml-auto font-mono text-[10px]">
+                    {tools.length}
+                  </Badge>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Skills */}
-        <section className="mb-6">
-          <SectionHeading icon={Sparkles} label={`Skills (${data.skills.length})`} />
-          {data.skills.length > 0 ? (
-            <div className="surface-card overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[180px]">Filename</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="w-[100px]">Priority</TableHead>
-                    <TableHead>Tags</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.skills.map((skill) => (
-                    <TableRow key={skill.filename}>
-                      <TableCell>
-                        <code className="text-xs text-[var(--teal)]">{skill.filename}</code>
-                      </TableCell>
-                      <TableCell className="font-medium text-foreground">{skill.name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{skill.description}</TableCell>
-                      <TableCell className="text-center font-mono text-sm">{skill.priority ?? 0}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {(skill.tags ?? []).map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-[10px]">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[200px]">Tool</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead className="w-[320px]">Parameters</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="surface-card px-6 py-10 text-center">
-              <p className="text-sm text-muted-foreground">
-                No skills configured. Add skill files to the AI config skills directory.
-              </p>
-            </div>
-          )}
-        </section>
+                  </TableHeader>
+                  <TableBody>
+                    {tools.map((tool) => (
+                      <TableRow key={tool.name}>
+                        <TableCell className="align-top">
+                          <code className="font-mono text-sm font-medium text-[var(--accent)]">{tool.name}</code>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {tool.conditional && (
+                              <Badge variant="outline" className="font-normal text-[10px] text-[var(--ink-soft)]">
+                                {tool.conditional}
+                              </Badge>
+                            )}
+                            {tool.isProviderTool && (
+                              <Badge
+                                variant="outline"
+                                className="border-[var(--destructive)]/30 bg-[var(--destructive)]/10 font-normal text-[10px] text-[var(--destructive)]"
+                              >
+                                provider-managed
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="align-top text-sm text-[var(--ink-soft)]">
+                          {truncateDescription(tool.description)}
+                        </TableCell>
+                        <TableCell className="align-top">
+                          {tool.isProviderTool ? (
+                            <span className="text-xs text-[var(--ink-faint)]">Managed by provider</span>
+                          ) : tool.parameters.length > 0 ? (
+                            <div className="space-y-1.5">
+                              {tool.parameters.map((p) => (
+                                <div key={p.name} className="flex items-start gap-1.5 text-xs">
+                                  <code className="shrink-0 font-mono font-medium text-foreground">
+                                    {p.name}
+                                    {p.required && <span className="text-[var(--destructive)]">*</span>}
+                                  </code>
+                                  <span className="text-[var(--ink-faint)]">({p.type})</span>
+                                  {p.description && <span className="text-[var(--ink-soft)]">{p.description}</span>}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[var(--ink-faint)]">No parameters</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            );
+          })}
+        </div>
+      </Section>
 
-        {/* Sub-agents */}
-        <section className="mb-6">
-          <SectionHeading icon={Users} label={`Sub-agents (${data.subAgents.length})`} />
-          {data.subAgents.length > 0 ? (
-            <div className="surface-card overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[180px]">Filename</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="w-[180px]">Model override</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.subAgents.map((subAgent) => (
-                    <TableRow key={subAgent.filename}>
-                      <TableCell>
-                        <code className="text-xs text-[var(--teal)]">{subAgent.filename}</code>
-                      </TableCell>
-                      <TableCell className="font-medium text-foreground">{subAgent.name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{subAgent.description}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {subAgent.model ? <code className="text-xs">{subAgent.model}</code> : "inherit"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="surface-card px-6 py-10 text-center">
-              <p className="text-sm text-muted-foreground">
-                No sub-agents configured. Add sub-agent files to the AI config <code>sub-agents/</code> directory.
-              </p>
-            </div>
-          )}
-          <p className="mt-2 text-xs text-muted-foreground">
-            Sub-agents are spawned in parallel via the <code className="text-[var(--teal)]">spawn_sub_agents</code> tool.
-            Each inherits the parent's tools (minus <code>spawn_sub_agents</code>) and effort; the model is inherited unless
-            overridden in frontmatter.
-          </p>
-        </section>
-
-        {/* Plugins */}
-        <section className="mb-6">
-          <SectionHeading icon={Puzzle} label={`Plugins (${data.plugins.length})`} />
+      {/* Skills */}
+      <Section icon={Sparkles} label={`Skills · ${data.skills.length}`}>
+        {data.skills.length > 0 ? (
           <div className="surface-card overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Plugin</TableHead>
-                  <TableHead>ID</TableHead>
+                  <TableHead className="w-[180px]">Filename</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead className="w-[100px]">Version</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[100px]">Priority</TableHead>
+                  <TableHead>Tags</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.plugins.map((plugin) => (
-                  <TableRow key={plugin.id}>
-                    <TableCell className="font-medium text-foreground">{plugin.name}</TableCell>
+                {data.skills.map((skill) => (
+                  <TableRow key={skill.filename}>
                     <TableCell>
-                      <code className="text-xs text-[var(--teal)]">{plugin.id}</code>
+                      <code className="font-mono text-xs text-[var(--accent)]">{skill.filename}</code>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{plugin.description}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">{plugin.version}</TableCell>
+                    <TableCell className="font-medium text-foreground">{skill.name}</TableCell>
+                    <TableCell className="text-sm text-[var(--ink-soft)]">{skill.description}</TableCell>
+                    <TableCell className="text-center font-mono text-sm tabular-nums">{skill.priority ?? 0}</TableCell>
                     <TableCell>
-                      <BoolBadge value={plugin.enabled} label={plugin.enabled ? "Enabled" : "Disabled"} />
+                      <div className="flex flex-wrap gap-1">
+                        {(skill.tags ?? []).map((tag) => (
+                          <Badge key={tag} variant="outline" className="font-mono text-[10px]">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Plugin tools are namespaced as <code className="text-[var(--teal)]">{"{plugin_id}_{tool_name}"}</code> and only
-            available when the plugin is enabled in user preferences.
-          </p>
-        </section>
-      </div>
-    </main>
+        ) : (
+          <EmptySectionCard text="No skills configured. Add skill files to the AI config skills directory." />
+        )}
+      </Section>
+
+      {/* Sub-agents */}
+      <Section icon={Users} label={`Sub-agents · ${data.subAgents.length}`}>
+        {data.subAgents.length > 0 ? (
+          <div className="surface-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[180px]">Filename</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="w-[180px]">Model override</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.subAgents.map((subAgent) => (
+                  <TableRow key={subAgent.filename}>
+                    <TableCell>
+                      <code className="font-mono text-xs text-[var(--accent)]">{subAgent.filename}</code>
+                    </TableCell>
+                    <TableCell className="font-medium text-foreground">{subAgent.name}</TableCell>
+                    <TableCell className="text-sm text-[var(--ink-soft)]">{subAgent.description}</TableCell>
+                    <TableCell className="text-sm text-[var(--ink-soft)]">
+                      {subAgent.model ? <code className="font-mono text-xs">{subAgent.model}</code> : "inherit"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <EmptySectionCard text="No sub-agents configured. Add sub-agent files to the AI config sub-agents/ directory." />
+        )}
+        <p className="mt-2 text-xs text-[var(--ink-soft)]">
+          Sub-agents are spawned in parallel via the <code className="font-mono text-[var(--accent)]">spawn_sub_agents</code>{" "}
+          tool. Each inherits the parent's tools (minus <code className="font-mono">spawn_sub_agents</code>) and effort; the
+          model is inherited unless overridden in frontmatter.
+        </p>
+      </Section>
+
+      {/* Plugins */}
+      <Section icon={Puzzle} label={`Plugins · ${data.plugins.length}`}>
+        <div className="surface-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Plugin</TableHead>
+                <TableHead>ID</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="w-[100px]">Version</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.plugins.map((plugin) => (
+                <TableRow key={plugin.id}>
+                  <TableCell className="font-medium text-foreground">{plugin.name}</TableCell>
+                  <TableCell>
+                    <code className="font-mono text-xs text-[var(--accent)]">{plugin.id}</code>
+                  </TableCell>
+                  <TableCell className="text-sm text-[var(--ink-soft)]">{plugin.description}</TableCell>
+                  <TableCell className="font-mono text-xs text-[var(--ink-soft)]">{plugin.version}</TableCell>
+                  <TableCell>
+                    <BoolBadge value={plugin.enabled} label={plugin.enabled ? "Enabled" : "Disabled"} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <p className="mt-2 text-xs text-[var(--ink-soft)]">
+          Plugin tools are namespaced as <code className="font-mono text-[var(--accent)]">{"{plugin_id}_{tool_name}"}</code>{" "}
+          and only available when the plugin is enabled in user preferences.
+        </p>
+      </Section>
+    </PageHeader>
   );
 }
 
-/** Truncate long tool descriptions to first sentence or ~120 chars. */
+function Section({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mb-6">
+      <div className="mb-2.5 flex items-center gap-2">
+        <Icon className="size-3.5 text-[var(--accent)]" />
+        <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">{label}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function CategoryIcon({ category }: { category: string }) {
+  switch (category) {
+    case "Web":
+    case "Web (Exa)":
+      return <Bot className="size-4 text-[var(--accent)]" />;
+    case "Obsidian":
+    case "Memory":
+      return <BrainCircuit className="size-4 text-[var(--accent)]" />;
+    case "Code":
+      return <Cpu className="size-4 text-[var(--accent)]" />;
+    case "Skills":
+      return <Sparkles className="size-4 text-[var(--accent)]" />;
+    case "Sub-agents":
+      return <Users className="size-4 text-[var(--accent)]" />;
+    default:
+      return <Wrench className="size-4 text-[var(--accent)]" />;
+  }
+}
+
+function ConfigItem({ label, value, detail }: { label: string; value: boolean; detail?: string }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)]">
+        {label}
+      </span>
+      <div className="flex items-center gap-2">
+        <BoolBadge value={value} label={value ? "Configured" : "Not set"} />
+        {detail && value && <span className="truncate font-mono text-xs text-[var(--ink-soft)]">{detail}</span>}
+      </div>
+    </div>
+  );
+}
+
+function KeyValue({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)]">
+        {label}
+      </span>
+      <span className="font-mono text-sm text-foreground">{value}</span>
+    </div>
+  );
+}
+
+function EmptySectionCard({ text }: { text: string }) {
+  return (
+    <div className="surface-card px-6 py-10 text-center">
+      <p className="text-sm text-[var(--ink-soft)]">{text}</p>
+    </div>
+  );
+}
+
+/** Truncate long tool descriptions to first sentence or ~150 chars. */
 function truncateDescription(desc: string): string {
   if (!desc) return "";
-  // Take first sentence
   const firstSentence = desc.split(/\.\s/)[0];
   if (firstSentence && firstSentence.length < desc.length) {
     return `${firstSentence}.`;
@@ -389,44 +426,4 @@ function truncateDescription(desc: string): string {
     return `${desc.slice(0, 147)}...`;
   }
   return desc;
-}
-
-function SectionHeading({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
-  return (
-    <div className="mb-3 flex items-center gap-2">
-      <Icon className="size-4 text-[var(--teal)]" />
-      <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-foreground">{label}</h2>
-    </div>
-  );
-}
-
-function CategoryIcon({ category }: { category: string }) {
-  switch (category) {
-    case "Web":
-    case "Web (Exa)":
-      return <Bot className="size-4 text-[var(--teal)]" />;
-    case "Obsidian":
-    case "Memory":
-      return <BrainCircuit className="size-4 text-[var(--teal)]" />;
-    case "Code":
-      return <Cpu className="size-4 text-[var(--teal)]" />;
-    case "Skills":
-      return <Sparkles className="size-4 text-[var(--teal)]" />;
-    case "Sub-agents":
-      return <Users className="size-4 text-[var(--teal)]" />;
-    default:
-      return <Wrench className="size-4 text-[var(--teal)]" />;
-  }
-}
-
-function ConfigItem({ label, value, detail }: { label: string; value: boolean; detail?: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-2">
-        <BoolBadge value={value} label={value ? "Configured" : "Not set"} />
-        {detail && value && <span className="truncate text-xs text-muted-foreground/70">{detail}</span>}
-      </div>
-    </div>
-  );
 }

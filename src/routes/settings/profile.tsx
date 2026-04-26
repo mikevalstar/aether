@@ -1,8 +1,10 @@
 import { createFileRoute, getRouteApi, useRouter } from "@tanstack/react-router";
+import { User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { FieldRow } from "#/components/ui/field-row";
 import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
+import { SectionLabel } from "#/components/ui/section-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { updateUserPreferences, updateUserProfile } from "#/lib/preferences.functions";
@@ -37,41 +39,45 @@ function ProfileSection() {
   };
 
   return (
-    <form onSubmit={handleSave} className="surface-card p-6">
-      <h2 className="mb-4 text-lg font-semibold">Profile</h2>
-      <div className="grid gap-4">
-        <div className="grid gap-1.5">
-          <Label htmlFor="pref-name">Name</Label>
-          <Input id="pref-name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
+    <form onSubmit={handleSave} className="surface-card flex flex-col gap-5 p-6">
+      <header className="flex flex-col gap-1.5">
+        <SectionLabel icon={User}>Profile</SectionLabel>
+        <p className="text-sm text-muted-foreground">Your name, email, and timezone.</p>
+      </header>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor="pref-email">Email</Label>
-          <Input id="pref-email" type="email" value={data.email} disabled className="opacity-60" />
-          <p className="text-xs text-muted-foreground">Email cannot be changed.</p>
-        </div>
+      <FieldRow label="NAME" required htmlFor="pref-name">
+        <Input
+          id="pref-name"
+          type="text"
+          className="font-mono text-[12.5px]"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </FieldRow>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor="pref-timezone">Timezone</Label>
-          <Select value={timezone} onValueChange={setTimezone}>
-            <SelectTrigger id="pref-timezone" className="w-full">
-              <SelectValue placeholder="Select timezone" />
-            </SelectTrigger>
-            <SelectContent>
-              {Intl.supportedValuesOf("timeZone").map((tz) => (
-                <SelectItem key={tz} value={tz}>
-                  {tz.replace(/_/g, " ")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">Used for calendar events and time-related AI responses.</p>
-        </div>
+      <FieldRow label="EMAIL" hint={<span>read-only</span>} htmlFor="pref-email">
+        <Input id="pref-email" type="email" className="font-mono text-[12.5px] opacity-60" value={data.email} disabled />
+      </FieldRow>
 
-        <Button type="submit" disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save profile"}
-        </Button>
-      </div>
+      <FieldRow label="TIMEZONE" hint={<span>used for AI + calendar</span>} htmlFor="pref-timezone">
+        <Select value={timezone} onValueChange={setTimezone}>
+          <SelectTrigger id="pref-timezone" className="w-full font-mono text-[12.5px]">
+            <SelectValue placeholder="Select timezone" />
+          </SelectTrigger>
+          <SelectContent>
+            {Intl.supportedValuesOf("timeZone").map((tz) => (
+              <SelectItem key={tz} value={tz}>
+                {tz.replace(/_/g, " ")}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldRow>
+
+      <Button type="submit" disabled={isSaving} className="mt-1 w-fit">
+        {isSaving ? "Saving..." : "Save profile"}
+      </Button>
     </form>
   );
 }

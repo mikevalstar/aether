@@ -2,7 +2,7 @@ import { Check, ChevronsUpDown, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "#/components/ui/command";
-import { Label } from "#/components/ui/label";
+import { FieldRow } from "#/components/ui/field-row";
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
@@ -86,14 +86,16 @@ export function BoardSettingsComponent({
           setIsSaving(false);
         }
       }}
-      className="grid gap-4"
+      className="flex flex-col gap-5"
     >
-      <div className="grid gap-1.5">
-        <Label>Kanban file</Label>
+      <FieldRow label="KANBAN FILE">
         <div className="flex items-center gap-2">
           <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="min-w-0 flex-1 justify-between font-normal">
+              <Button
+                variant="outline"
+                className="min-w-0 flex-1 justify-between bg-background font-mono text-[12.5px] font-normal"
+              >
                 {kanbanFile || "Select a kanban file..."}
                 <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
               </Button>
@@ -131,14 +133,13 @@ export function BoardSettingsComponent({
           )}
         </div>
         <p className="text-xs text-muted-foreground">Choose an Obsidian Kanban plugin file to power the Board page.</p>
-      </div>
+      </FieldRow>
 
       {kanbanFile && columns.length > 0 && (
-        <div className="grid gap-1.5">
-          <Label>Dashboard column</Label>
+        <FieldRow label="DASHBOARD COLUMN" hint={<span>optional</span>}>
           <div className="flex items-center gap-2">
             <Select value={dashboardColumn} onValueChange={setDashboardColumn}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="flex-1 font-mono text-[12.5px]">
                 <SelectValue placeholder="Select a column to show on dashboard..." />
               </SelectTrigger>
               <SelectContent>
@@ -156,10 +157,10 @@ export function BoardSettingsComponent({
             )}
           </div>
           <p className="text-xs text-muted-foreground">Show this column as a read-only widget on the dashboard.</p>
-        </div>
+        </FieldRow>
       )}
 
-      <Button type="submit" disabled={isSaving}>
+      <Button type="submit" disabled={isSaving} className="mt-1 w-fit">
         {isSaving ? "Saving..." : "Save board settings"}
       </Button>
     </form>

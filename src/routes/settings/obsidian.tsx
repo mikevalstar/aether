@@ -1,8 +1,10 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
+import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { FieldRow } from "#/components/ui/field-row";
 import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
+import { SectionLabel } from "#/components/ui/section-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { updateUserPreferences } from "#/lib/preferences.functions";
@@ -26,8 +28,8 @@ function ObsidianSection() {
 
   if (data.obsidianFolders.length === 0) {
     return (
-      <div className="surface-card p-6">
-        <h2 className="mb-2 text-lg font-semibold">Obsidian</h2>
+      <div className="surface-card flex flex-col gap-2 p-6">
+        <SectionLabel icon={BookOpen}>Obsidian</SectionLabel>
         <p className="text-sm text-muted-foreground">
           No Obsidian vault is configured. Set the vault path to enable Obsidian settings.
         </p>
@@ -54,50 +56,51 @@ function ObsidianSection() {
           setIsSaving(false);
         }
       }}
-      className="surface-card p-6"
+      className="surface-card flex flex-col gap-5 p-6"
     >
-      <h2 className="mb-4 text-lg font-semibold">Obsidian</h2>
-      <div className="grid gap-4">
-        <div className="grid gap-1.5">
-          <Label>Templates folder</Label>
-          <Select value={templatesFolder} onValueChange={setTemplatesFolder}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Choose a folder" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NO_TEMPLATES_FOLDER}>Bundled templates (default)</SelectItem>
-              {data.obsidianFolders
-                .filter((f) => f !== "")
-                .map((f) => (
-                  <SelectItem key={f} value={f}>
-                    {f}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            Choose a folder in your Obsidian vault to use as the template source when creating new files.
-          </p>
-        </div>
+      <header className="flex flex-col gap-1.5">
+        <SectionLabel icon={BookOpen}>Obsidian</SectionLabel>
+        <p className="text-sm text-muted-foreground">Vault folders used for templates and exported chat threads.</p>
+      </header>
 
-        <div className="grid gap-1.5">
-          <Label>Chat export folder</Label>
-          <Input
-            value={chatExportFolder}
-            onChange={(e) => setChatExportFolder(e.target.value)}
-            placeholder={DEFAULT_CHAT_EXPORT_FOLDER}
-          />
-          <p className="text-xs text-muted-foreground">
-            Folder path for chat exports. Use placeholders: <code className="rounded bg-muted px-1">{"{YYYY}"}</code> (year),{" "}
-            <code className="rounded bg-muted px-1">{"{MM}"}</code> (month),{" "}
-            <code className="rounded bg-muted px-1">{"{DD}"}</code> (day).
-          </p>
-        </div>
+      <FieldRow label="TEMPLATES FOLDER">
+        <Select value={templatesFolder} onValueChange={setTemplatesFolder}>
+          <SelectTrigger className="w-full font-mono text-[12.5px]">
+            <SelectValue placeholder="Choose a folder" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NO_TEMPLATES_FOLDER}>Bundled templates (default)</SelectItem>
+            {data.obsidianFolders
+              .filter((f) => f !== "")
+              .map((f) => (
+                <SelectItem key={f} value={f}>
+                  {f}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Choose a folder in your Obsidian vault to use as the template source when creating new files.
+        </p>
+      </FieldRow>
 
-        <Button type="submit" disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save preferences"}
-        </Button>
-      </div>
+      <FieldRow label="CHAT EXPORT FOLDER" hint={<span>{"{YYYY} {MM} {DD}"} ok</span>}>
+        <Input
+          className="font-mono text-[12.5px]"
+          value={chatExportFolder}
+          onChange={(e) => setChatExportFolder(e.target.value)}
+          placeholder={DEFAULT_CHAT_EXPORT_FOLDER}
+        />
+        <p className="text-xs text-muted-foreground">
+          Folder path for chat exports. Use placeholders <code className="rounded bg-muted px-1">{"{YYYY}"}</code> (year),{" "}
+          <code className="rounded bg-muted px-1">{"{MM}"}</code> (month),{" "}
+          <code className="rounded bg-muted px-1">{"{DD}"}</code> (day).
+        </p>
+      </FieldRow>
+
+      <Button type="submit" disabled={isSaving} className="mt-1 w-fit">
+        {isSaving ? "Saving..." : "Save preferences"}
+      </Button>
     </form>
   );
 }

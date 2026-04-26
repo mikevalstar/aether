@@ -3,12 +3,14 @@ import { useAtom } from "jotai";
 import {
   Activity,
   AlarmClock,
+  ArrowRight,
   BarChart3,
   Bell,
   BookOpen,
   CheckSquare,
   CircuitBoard,
   Columns3,
+  CornerDownLeft,
   FileText,
   GitBranch,
   LayoutDashboard,
@@ -167,13 +169,27 @@ export default function CommandPalette() {
     });
   }, [navigate]);
 
-  const themeLabel = `Toggle Theme (current: ${themeMode})`;
+  const themeLabel = `Toggle theme (current: ${themeMode})`;
 
+  // Raycast-style palette:
+  // - Wider dialog (sm:max-w-2xl) so longer page / vault titles don't truncate.
+  // - Group headings rendered as uppercase eyebrow labels in `--ink-dim`.
+  // - Selected row gets a 2px `--accent` left-bar via the `palette-cmd` styles
+  //   added in `styles.css` (cmdk applies `data-selected=true` on the focused
+  //   item and `data-[selected=true]:bg-accent` already maps to
+  //   `--accent-subtle` via our token aliases).
+  // - Footer strip with ↵ to open · ⌘K to close — borrowed straight from
+  //   Raycast / Linear.
   return (
-    <CommandDialog open={open} onOpenChange={setOpen} showCloseButton={false}>
-      <CommandInput placeholder="Type a command or search..." value={search} onValueChange={setSearch} />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+    <CommandDialog open={open} onOpenChange={setOpen} showCloseButton={false} className="palette-cmd sm:max-w-2xl">
+      <CommandInput placeholder="Search pages, workflows, vault…" value={search} onValueChange={setSearch} />
+      <CommandList className="max-h-[420px]">
+        <CommandEmpty>
+          <div className="flex flex-col items-center gap-1 py-2">
+            <span className="text-sm text-foreground">No results</span>
+            <span className="text-xs text-muted-foreground">Try a different search term.</span>
+          </div>
+        </CommandEmpty>
 
         {/* Pages */}
         <CommandGroup heading="Pages">
@@ -271,7 +287,7 @@ export default function CommandPalette() {
         <CommandGroup heading="Actions">
           <CommandItem value="action-new-chat" onSelect={() => select("/chat")}>
             <Plus className="mr-2 size-4" />
-            New Chat
+            New chat
           </CommandItem>
           <CommandItem value="action-toggle-theme" onSelect={toggleTheme}>
             <Sun className="mr-2 size-4" />
@@ -279,10 +295,38 @@ export default function CommandPalette() {
           </CommandItem>
           <CommandItem value="action-sign-out" onSelect={signOut}>
             <LogOut className="mr-2 size-4" />
-            Sign Out
+            Sign out
           </CommandItem>
         </CommandGroup>
       </CommandList>
+      {/* Footer hint strip — Raycast / Linear style. */}
+      <div className="flex items-center justify-between gap-3 border-t border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1.5">
+            <kbd className="inline-flex h-4 min-w-4 items-center justify-center rounded border border-border bg-background px-1 font-mono text-[10px] text-foreground">
+              <CornerDownLeft className="size-2.5" />
+            </kbd>
+            <span>open</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <kbd className="inline-flex h-4 items-center justify-center rounded border border-border bg-background px-1 font-mono text-[10px] text-foreground">
+              ↑↓
+            </kbd>
+            <span>navigate</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <kbd className="inline-flex h-4 items-center justify-center rounded border border-border bg-background px-1 font-mono text-[10px] text-foreground">
+              esc
+            </kbd>
+            <span>close</span>
+          </span>
+        </div>
+        <span className="inline-flex items-center gap-1 text-[var(--accent)]">
+          <span className="font-mono">æ</span>
+          <ArrowRight className="size-2.5" />
+          <span className="font-medium tracking-tight">Aether</span>
+        </span>
+      </div>
     </CommandDialog>
   );
 }

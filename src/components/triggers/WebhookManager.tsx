@@ -12,13 +12,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "#/components/ui/alert-dialog";
-import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { DataTable, type DataTableColumn } from "#/components/ui/data-table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { toast } from "#/components/ui/sonner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import { createWebhook, deleteWebhook, regenerateWebhookKey, type WebhookListItem } from "#/lib/triggers/trigger.functions";
 
@@ -39,8 +38,12 @@ function CopyButton({ text }: { text: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="sm" onClick={handleCopy} className="h-7 px-2">
-          {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+        <Button variant="ghost" size="icon-sm" onClick={handleCopy}>
+          {copied ? (
+            <Check className="size-3.5 text-[var(--success)]" />
+          ) : (
+            <Copy className="size-3.5 text-[var(--ink-soft)]" />
+          )}
         </Button>
       </TooltipTrigger>
       <TooltipContent>{copied ? "Copied!" : "Copy URL"}</TooltipContent>
@@ -242,90 +245,100 @@ export function WebhookManager({ initialItems }: { initialItems: WebhookListItem
     );
   }
 
+  const columns: DataTableColumn<WebhookListItem>[] = [
+    {
+      key: "name",
+      header: "Name",
+      cell: (item) => <span className="font-medium text-[var(--ink)]">{item.name}</span>,
+    },
+    {
+      key: "type",
+      header: "Type",
+      mono: true,
+      cell: (item) => (
+        <code className="rounded border border-[var(--line)] bg-[var(--bg)] px-1.5 py-0.5 text-[11px] text-[var(--ink-soft)]">
+          {item.type}
+        </code>
+      ),
+    },
+    {
+      key: "url",
+      header: "Webhook URL",
+      mono: true,
+      cell: (item) => {
+        const url = getWebhookUrl(item.apiKey);
+        return (
+          <div className="flex items-center gap-1">
+            <code className="max-w-[300px] truncate rounded border border-[var(--line)] bg-[var(--bg)] px-1.5 py-0.5 text-[11px] text-[var(--ink-soft)]">
+              {url}
+            </code>
+            <CopyButton text={url} />
+          </div>
+        );
+      },
+    },
+    {
+      key: "last",
+      header: "Last Received",
+      mono: true,
+      cell: (item) =>
+        item.lastReceivedAt ? (
+          <span className="text-[12.5px] text-[var(--ink)]">{formatRelativeTime(item.lastReceivedAt)}</span>
+        ) : (
+          <span className="text-[var(--ink-faint)]">Never</span>
+        ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      cell: (item) => {
+        const isLoading = loading.has(item.id);
+        return (
+          <div className="flex items-center justify-end gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon-sm" disabled={isLoading} onClick={() => setConfirmRegen(item.id)}>
+                  <RefreshCw className="size-3.5 text-[var(--ink-soft)]" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Regenerate API key</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={isLoading}
+                  onClick={() => setConfirmDelete(item.id)}
+                  className="text-[var(--destructive)] hover:text-[var(--destructive)]"
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Delete webhook</TooltipContent>
+            </Tooltip>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <>
-      <div className="mb-4 flex justify-end">
-        <Button onClick={() => setCreateOpen(true)} size="sm">
-          <Plus className="mr-1.5 size-3.5" />
-          Create Webhook
-        </Button>
-      </div>
-
-      <div className="rounded-md border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Webhook URL</TableHead>
-              <TableHead>Last Received</TableHead>
-              <TableHead className="w-[100px]" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((item) => {
-              const url = getWebhookUrl(item.apiKey);
-              const isLoading = loading.has(item.id);
-
-              return (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      {item.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <code className="max-w-[300px] truncate rounded bg-muted px-1.5 py-0.5 text-[11px]">{url}</code>
-                      <CopyButton text={url} />
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {item.lastReceivedAt ? (
-                      formatRelativeTime(item.lastReceivedAt)
-                    ) : (
-                      <span className="text-muted-foreground">Never</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={isLoading}
-                            onClick={() => setConfirmRegen(item.id)}
-                            className="h-7 px-2"
-                          >
-                            <RefreshCw className="size-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Regenerate API key</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={isLoading}
-                            onClick={() => setConfirmDelete(item.id)}
-                            className="h-7 px-2 text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Delete webhook</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        title="Webhooks"
+        count={items.length}
+        data={items}
+        columns={columns}
+        rowKey={(item) => item.id}
+        headerRight={
+          <Button onClick={() => setCreateOpen(true)} size="xs" variant="outline">
+            <Plus className="size-3" />
+            <span className="tracking-[0.12em]">CREATE</span>
+          </Button>
+        }
+      />
 
       <CreateWebhookDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={handleCreated} />
 

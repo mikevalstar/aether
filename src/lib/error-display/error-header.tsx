@@ -20,7 +20,7 @@ export function ErrorHeader({ type, message, url, onCopy, onRetry, onDismiss, co
             onClick={onCopy}
             style={{
               ...headerStyles.button,
-              color: copied ? "var(--teal)" : "var(--ink-soft)",
+              color: copied ? "var(--accent)" : "var(--ink-soft)",
             }}
             title="Copy error to clipboard"
           >

@@ -25,17 +25,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Teal: Story = {
+export const Accent: Story = {
   args: {
-    color: "var(--teal)",
+    color: "var(--accent)",
     size: "size-[600px]",
     position: "-right-40 -top-40",
   },
 };
 
-export const Coral: Story = {
+export const Chart2: Story = {
   args: {
-    color: "var(--coral)",
+    color: "var(--chart-2)",
     size: "size-[400px]",
     position: "-left-32 top-1/3",
   },
@@ -43,14 +43,14 @@ export const Coral: Story = {
 
 export const Combined: Story = {
   args: {
-    color: "var(--teal)",
+    color: "var(--accent)",
     size: "size-[600px]",
     position: "-right-40 -top-40",
   },
   render: () => (
     <div className="relative h-[400px] w-full overflow-hidden rounded-xl border border-border bg-background">
-      <GlowBg color="var(--teal)" size="size-[600px]" position="-right-40 -top-40" />
-      <GlowBg color="var(--coral)" size="size-[400px]" position="-left-32 top-1/3" />
+      <GlowBg color="var(--accent)" size="size-[600px]" position="-right-40 -top-40" />
+      <GlowBg color="var(--chart-2)" size="size-[400px]" position="-left-32 top-1/3" />
       <div className="relative z-10 flex h-full items-center justify-center text-sm text-muted-foreground">
         Two glows layered together
       </div>

@@ -1,5 +1,6 @@
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { CalendarClock, Film, History } from "lucide-react";
+import { WidgetCard } from "#/components/dashboard/WidgetCard";
 import type { AetherPluginClient, PluginWidget } from "../types";
 
 type UpcomingMovie = {
@@ -49,27 +50,19 @@ function nextReleaseDate(m: UpcomingMovie): string | undefined {
 
 function NotConfigured({ title }: { title: string }) {
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Film className="size-4" />
-        {title}
-      </div>
+    <WidgetCard icon={Film} title={title}>
       <p className="text-xs text-muted-foreground">
         Radarr is not configured. Go to Settings &gt; Plugins &gt; Radarr to set up.
       </p>
-    </div>
+    </WidgetCard>
   );
 }
 
 function ErrorBlock({ title, error }: { title: string; error: string }) {
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Film className="size-4" />
-        {title}
-      </div>
+    <WidgetCard icon={Film} title={title}>
       <p className="text-xs text-destructive">{error}</p>
-    </div>
+    </WidgetCard>
   );
 }
 
@@ -87,11 +80,7 @@ function RadarrUpcomingWidget({
   if (error) return <ErrorBlock title="Radarr — Upcoming" error={error} />;
 
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <CalendarClock className="size-4" />
-        Radarr — Upcoming
-      </div>
+    <WidgetCard icon={CalendarClock} title="Radarr — Upcoming">
       {upcoming.length === 0 ? (
         <p className="text-xs text-muted-foreground">No movies releasing in the next 30 days.</p>
       ) : (
@@ -115,7 +104,7 @@ function RadarrUpcomingWidget({
           })}
         </ul>
       )}
-    </div>
+    </WidgetCard>
   );
 }
 
@@ -133,11 +122,7 @@ function RadarrRecentWidget({
   if (error) return <ErrorBlock title="Radarr — Recent" error={error} />;
 
   return (
-    <div className="surface-card rounded-lg p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <History className="size-4" />
-        Radarr — Recent
-      </div>
+    <WidgetCard icon={History} title="Radarr — Recent">
       {recent.length === 0 ? (
         <p className="text-xs text-muted-foreground">No recent activity.</p>
       ) : (
@@ -162,7 +147,7 @@ function RadarrRecentWidget({
           ))}
         </ul>
       )}
-    </div>
+    </WidgetCard>
   );
 }
 

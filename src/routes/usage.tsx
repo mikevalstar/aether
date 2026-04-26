@@ -27,6 +27,7 @@ import { threadIdToSlug } from "#/lib/chat/chat";
 import { formatUsageCurrency, getTaskTypeLabel, normalizeUsageSearch, TASK_TYPES } from "#/lib/chat/chat-usage";
 import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat/chat-usage.functions";
 import { formatDateTime } from "#/lib/date";
+import { Money } from "#/lib/format";
 
 const VIEW_MODES = ["cost", "tokens", "prompts"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];
@@ -94,15 +95,10 @@ function UsagePage() {
     <PageHeader
       icon={ChartLine}
       label="Usage"
-      color="text-[var(--coral)]"
       title="Usage"
       highlight="analytics"
       description="Track spend, token volume, and prompt count across every completed chat exchange."
-      glows={[
-        { color: "var(--coral)", size: "size-[500px]", position: "-right-48 -top-48" },
-        { color: "var(--teal)", size: "size-[350px]", position: "-left-36 top-96" },
-      ]}
-      action={
+      actions={
         <Button asChild variant="outline" className="gap-2">
           <Link to="/chat">
             <MessageSquare className="size-3.5" />
@@ -187,7 +183,7 @@ function UsagePage() {
       </section>
 
       {/* View mode toggle */}
-      <section className="mb-6 flex gap-1 rounded-lg border border-[var(--line)] bg-[var(--muted)] p-1 w-fit">
+      <section className="mb-6 flex w-fit gap-1 rounded-lg border border-[var(--line)] bg-[var(--bg)] p-1">
         <ViewModeButton active={view === "cost"} onClick={() => setView("cost")} icon={CircleDollarSign} label="Cost" />
         <ViewModeButton active={view === "tokens"} onClick={() => setView("tokens")} icon={Coins} label="Tokens" />
         <ViewModeButton active={view === "prompts"} onClick={() => setView("prompts")} icon={Zap} label="Prompts" />
@@ -210,7 +206,7 @@ function UsagePage() {
               title="Recent exchanges"
               subtitle="Latest tracked chat completions in this view."
               icon={MessageSquare}
-              accentColor="var(--coral)"
+              accentColor="var(--chart-2)"
             >
               <div className="grid gap-2">
                 {data.recentEvents.map((event) => (
@@ -221,7 +217,9 @@ function UsagePage() {
                     <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3 text-[var(--ink-soft)]">
                         <span className="shrink-0">{formatDateTime(event.createdAt)}</span>
-                        <span className="shrink-0 text-[var(--ink)]">{event.modelLabel}</span>
+                        <Badge variant="model-name" className="shrink-0">
+                          {event.modelLabel}
+                        </Badge>
                         <Badge variant="outline" className="shrink-0">
                           {getTaskTypeLabel(event.taskType)}
                         </Badge>
@@ -237,7 +235,7 @@ function UsagePage() {
                             </p>
                           </TooltipContent>
                         </Tooltip>
-                        <span className="font-medium text-[var(--ink)]">{formatUsageCurrency(event.estimatedCostUsd)}</span>
+                        <Money usd={event.estimatedCostUsd} className="font-medium text-[var(--ink)]" />
                       </div>
                     </div>
                     {event.threadTitle && (
@@ -246,7 +244,7 @@ function UsagePage() {
                           <Link
                             to="/chat/$threadId"
                             params={{ threadId: threadIdToSlug(event.threadId) }}
-                            className="hover:text-[var(--teal)] transition-colors"
+                            className="hover:text-[var(--accent)] transition-colors"
                           >
                             {event.threadTitle}
                           </Link>
@@ -279,11 +277,11 @@ function UsagePage() {
         </>
       ) : (
         <section className="surface-card flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--coral)]/10 text-[var(--coral)]">
+          <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--chart-2)]/10 text-[var(--chart-2)]">
             <ChartLine className="size-6" strokeWidth={1.5} />
           </div>
           <h2 className="text-lg font-semibold">No usage data yet</h2>
-          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+          <p className="mt-2 max-w-md text-sm text-[var(--ink-soft)]">
             Start chatting and completed responses will appear here with costs, tokens, and model trends.
           </p>
           <Button asChild className="mt-5 gap-2">
@@ -334,7 +332,7 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
           value={Math.round(t.totalTokens).toLocaleString()}
           detail={`${t.events.toLocaleString()} exchanges`}
           icon={Coins}
-          color="var(--teal)"
+          color="var(--accent)"
         />
         <StatCard
           label="Input tokens"
@@ -370,14 +368,14 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
           value={t.events.toLocaleString()}
           detail={`${t.activeDays.toLocaleString()} active days`}
           icon={Zap}
-          color="var(--coral)"
+          color="var(--chart-2)"
         />
         <StatCard
           label="Avg prompts per day"
           value={avgPerDay}
           detail="Across active days only"
           icon={TrendingUp}
-          color="var(--teal)"
+          color="var(--accent)"
         />
         <StatCard
           label="Total tokens used"
@@ -388,8 +386,12 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
         />
         <StatCard
           label="Total cost"
-          value={formatUsageCurrency(t.estimatedCostUsd)}
-          detail={`${formatUsageCurrency(t.averageCostPerEvent)} avg per prompt`}
+          value={<Money usd={t.estimatedCostUsd} />}
+          detail={
+            <>
+              <Money usd={t.averageCostPerEvent} /> avg per prompt
+            </>
+          }
           icon={CircleDollarSign}
           color="var(--chart-4)"
         />
@@ -402,17 +404,17 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
     <>
       <StatCard
         label="Estimated cost"
-        value={formatUsageCurrency(t.estimatedCostUsd)}
+        value={<Money usd={t.estimatedCostUsd} />}
         detail={`${t.events.toLocaleString()} tracked exchanges`}
         icon={CircleDollarSign}
-        color="var(--coral)"
+        color="var(--chart-2)"
       />
       <StatCard
         label="Total tokens"
         value={Math.round(t.totalTokens).toLocaleString()}
         detail={`${Math.round(t.averageTokensPerEvent).toLocaleString()} avg per exchange`}
         icon={Coins}
-        color="var(--teal)"
+        color="var(--accent)"
       />
       <StatCard
         label="Input vs output"
@@ -423,7 +425,7 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
       />
       <StatCard
         label="Average cost"
-        value={formatUsageCurrency(t.averageCostPerEvent)}
+        value={<Money usd={t.averageCostPerEvent} />}
         detail="Average estimated cost per exchange"
         icon={TrendingUp}
         color="var(--chart-4)"
@@ -533,7 +535,7 @@ function ViewModelMix({ data, view }: { data: ChatUsageStatsResult; view: ViewMo
                 <span className="truncate">{item.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">{viewConfig.legendFormatter(itemValue)}</span>
+                <span className="text-[var(--ink-soft)]">{viewConfig.legendFormatter(itemValue)}</span>
                 <span className="font-semibold" style={{ color }}>
                   {share}%
                 </span>
@@ -555,7 +557,7 @@ function getViewConfig(view: ViewMode) {
         chartTitle: "Tokens over time",
         chartSubtitle: "Daily token consumption within the selected range, stacked by model.",
         chartIcon: Coins,
-        chartAccent: "var(--teal)",
+        chartAccent: "var(--accent)",
         mixSubtitle: "Token share by model in the selected range.",
         axisFormatter: formatAxisTokens,
         tooltipFormatter: (v: number) => Math.round(v).toLocaleString(),
@@ -566,7 +568,7 @@ function getViewConfig(view: ViewMode) {
         chartTitle: "Prompts over time",
         chartSubtitle: "Daily prompt count within the selected range, stacked by model.",
         chartIcon: Zap,
-        chartAccent: "var(--coral)",
+        chartAccent: "var(--chart-2)",
         mixSubtitle: "Prompt share by model in the selected range.",
         axisFormatter: (v: number) => Math.round(v).toLocaleString(),
         tooltipFormatter: (v: number) => Math.round(v).toLocaleString(),
@@ -577,7 +579,7 @@ function getViewConfig(view: ViewMode) {
         chartTitle: "Estimated cost over time",
         chartSubtitle: "Daily spend within the selected range, stacked by model.",
         chartIcon: CircleDollarSign,
-        chartAccent: "var(--coral)",
+        chartAccent: "var(--chart-2)",
         mixSubtitle: "Cost share by model in the selected range.",
         axisFormatter: formatAxisCurrency,
         tooltipFormatter: (v: number) => formatUsageCurrency(v),
@@ -591,7 +593,7 @@ function getViewConfig(view: ViewMode) {
 function TrackedField(props: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-[var(--line)] px-3 py-2.5">
-      <p className="font-medium text-[var(--teal)]">{props.label}</p>
+      <p className="font-medium text-[var(--accent)]">{props.label}</p>
       <p className="mt-1">{props.value}</p>
     </div>
   );

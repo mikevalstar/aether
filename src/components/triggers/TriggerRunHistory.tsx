@@ -1,3 +1,4 @@
+import { FileX } from "lucide-react";
 import { RunHistoryTable } from "#/components/shared/RunHistoryTable";
 import { Badge } from "#/components/ui/badge";
 import type { TriggerRunItem } from "#/lib/triggers/trigger.functions";
@@ -23,22 +24,23 @@ export function TriggerRunHistory({
 }) {
   return (
     <div>
-      <div className="mb-6 space-y-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{trigger.type}</code>
-          {trigger.pattern && (
-            <code className="rounded bg-muted px-1.5 py-0.5 text-xs max-w-[300px] truncate">{trigger.pattern}</code>
-          )}
-          <Badge variant="outline" className="text-xs">
-            {trigger.model}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <code className="rounded border border-[var(--line)] bg-[var(--bg)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--ink-soft)]">
+          {trigger.type}
+        </code>
+        {trigger.pattern && (
+          <code className="max-w-[300px] truncate rounded border border-[var(--line)] bg-[var(--bg)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--ink-soft)]">
+            {trigger.pattern}
+          </code>
+        )}
+        <Badge variant="model-name">{trigger.model}</Badge>
+        {!trigger.fileExists && (
+          <Badge variant="warning">
+            <FileX />
+            File removed
           </Badge>
-          {!trigger.fileExists && (
-            <Badge variant="outline" className="border-amber-300 text-amber-600">
-              File removed
-            </Badge>
-          )}
-          {!trigger.enabled && trigger.fileExists && <Badge variant="outline">Paused</Badge>}
-        </div>
+        )}
+        {!trigger.enabled && trigger.fileExists && <Badge variant="ghost">Paused</Badge>}
       </div>
 
       <RunHistoryTable

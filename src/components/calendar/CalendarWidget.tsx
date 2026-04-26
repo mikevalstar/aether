@@ -192,17 +192,17 @@ export function CalendarWidget({ events, children, selectedDate: controlledDate,
                 aria-selected={selected}
                 onClick={() => setSelectedDate(day)}
                 className={cn(
-                  "relative flex min-h-[2.5rem] flex-col items-center gap-0.5 rounded-md p-1 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal)] focus-visible:ring-offset-1",
+                  "relative flex min-h-[2.5rem] flex-col items-center gap-0.5 rounded-md p-1 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1",
                   !inMonth && "text-muted-foreground/40",
                   today && "font-bold",
-                  selected && !today && "bg-accent ring-1 ring-[var(--teal)]",
-                  selected && today && "ring-1 ring-[var(--teal)] ring-offset-1 ring-offset-card",
+                  selected && !today && "bg-accent ring-1 ring-[var(--accent)]",
+                  selected && today && "ring-1 ring-[var(--accent)] ring-offset-1 ring-offset-card",
                 )}
               >
                 <span
                   className={cn(
                     "flex size-6 items-center justify-center rounded-full text-xs",
-                    today && "bg-[var(--teal)] text-white",
+                    today && "bg-[var(--accent)] text-white",
                   )}
                 >
                   {format(day, "d")}

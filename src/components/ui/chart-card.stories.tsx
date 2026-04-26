@@ -19,7 +19,7 @@ export const WithIcon: Story = {
     title: "Estimated cost over time",
     subtitle: "Daily spend within the selected range.",
     icon: CircleDollarSign,
-    accentColor: "var(--coral)",
+    accentColor: "var(--chart-2)",
   },
   render: (args) => (
     <ChartCard {...args}>
@@ -30,12 +30,12 @@ export const WithIcon: Story = {
   ),
 };
 
-export const TealAccent: Story = {
+export const PrimaryAccent: Story = {
   args: {
     title: "Daily token flow",
     subtitle: "Input and output tokens by day.",
     icon: ChartLine,
-    accentColor: "var(--teal)",
+    accentColor: "var(--accent)",
   },
   render: (args) => (
     <ChartCard {...args}>
@@ -63,7 +63,7 @@ export const Grid: Story = {
     title: "Cost over time",
     subtitle: "Daily spend.",
     icon: CircleDollarSign,
-    accentColor: "var(--coral)",
+    accentColor: "var(--chart-2)",
   },
   render: () => (
     <div className="grid gap-4 xl:grid-cols-2">
@@ -71,7 +71,7 @@ export const Grid: Story = {
         title="Cost over time"
         subtitle="Daily spend within the selected range."
         icon={CircleDollarSign}
-        accentColor="var(--coral)"
+        accentColor="var(--chart-2)"
       >
         <div className="flex h-48 items-center justify-center rounded-md border border-dashed border-[var(--line)] text-sm text-muted-foreground">
           Area chart
@@ -86,7 +86,7 @@ export const Grid: Story = {
         title="Recent exchanges"
         subtitle="Latest tracked completions."
         icon={MessageSquare}
-        accentColor="var(--coral)"
+        accentColor="var(--chart-2)"
       >
         <div className="flex h-48 items-center justify-center rounded-md border border-dashed border-[var(--line)] text-sm text-muted-foreground">
           Table

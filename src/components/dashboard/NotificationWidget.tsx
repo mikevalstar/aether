@@ -35,12 +35,12 @@ export function NotificationWidget({ notifications }: Props) {
         <div className="flex items-center gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Notifications</h3>
           {unreadTotal > 0 && (
-            <span className="flex size-4 items-center justify-center rounded-full bg-[var(--coral)] text-[10px] font-bold text-white">
+            <span className="flex size-4 items-center justify-center rounded-full bg-[var(--destructive)] text-[10px] font-bold text-white">
               {unreadTotal > 9 ? "9+" : unreadTotal}
             </span>
           )}
         </div>
-        <Link to="/notifications" className="text-xs text-[var(--teal)] no-underline hover:underline">
+        <Link to="/notifications" className="text-xs text-[var(--accent)] no-underline hover:underline">
           View all
         </Link>
       </div>
@@ -76,7 +76,7 @@ export function NotificationWidget({ notifications }: Props) {
             <div
               key={n.id}
               className={`flex items-start gap-2.5 rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted/50 ${
-                !n.read ? "bg-[var(--teal-subtle)]" : ""
+                !n.read ? "bg-[var(--accent-subtle)]" : ""
               }`}
             >
               <Icon className={`mt-0.5 size-3 shrink-0 ${config.color}`} />

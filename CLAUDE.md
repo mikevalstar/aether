@@ -135,7 +135,7 @@ Architecture decisions are documented in `docs/decisions/`. When making signific
 - **Linting/Formatting**: Biome (replaces ESLint + Prettier)
 
 ### Code Design
-- We prefer to use libraries; this project is about the functionality not the code 
+- We prefer to use libraries; this project is about the functionality not the code
 - We prefer Shadcn or 3rd party Shadcn type components for the UI when available
 - We like to have reusable components where possible
 
@@ -202,15 +202,14 @@ Prisma client is a singleton in `src/db.ts` using the `PrismaBetterSqlite3` adap
 - Protected routes use `ensureSession()` in loaders to redirect unauthenticated users
 
 ### Styling
-Tailwind CSS v4 with custom CSS variables for theming in `src/styles.css`. Light/dark/auto theme managed via Jotai atom in `src/lib/theme.ts`, toggled in `src/components/ThemeToggle.tsx` and persisted to localStorage. Custom fonts: Manrope (sans), Fraunces (display).
+Tailwind CSS v4 with custom CSS variables for theming in `src/styles.css`. Light/dark/auto theme managed via Jotai atom in `src/lib/theme.ts`, toggled in `src/components/ThemeToggle.tsx` and persisted to localStorage. Custom fonts: Inter (sans), Fraunces (display), JetBrains Mono (mono).
 
-**Color Palette — Teal + Coral:**
-- **Primary (Teal)**: `--teal` — used for links, primary buttons, active nav indicators, brand identity. `oklch(0.55 0.15 180)` light / `oklch(0.65 0.13 180)` dark.
-- **Accent (Coral)**: `--coral` — used for secondary highlights, chart accents, attention-drawing elements. `oklch(0.70 0.14 25)` light / `oklch(0.72 0.12 25)` dark.
-- **Teal Subtle**: `--teal-subtle` — tinted backgrounds for secondary/accent surfaces. `oklch(0.94 0.03 180)` light / `oklch(0.22 0.03 180)` dark.
-- **Neutrals**: Warm-tinted (hue 80/180) rather than pure gray — gives surfaces subtle warmth.
-- **Destructive**: Red tones for errors/danger actions.
-- Tailwind theme tokens: `teal`, `teal-subtle`, `coral` available via `bg-teal`, `text-coral`, etc.
+**Color Palette — single accent system** (see `docs/redesign/tokens.md`):
+- **Accent**: `--accent` / `--accent-hover` / `--accent-subtle` / `--accent-foreground` — the single brand accent. `oklch(0.58 0.16 255)` light (`#3d7fd9`) / `oklch(0.76 0.13 255)` dark (`#7cb0ff`). Drives primary buttons, links, focus rings, active nav, brand identity, chart-1.
+- **Surfaces**: `--bg` (page) → `--surface` (card) → `--raised` (popover) on the warm "paper" palette in light, near-black blueprint palette in dark.
+- **Ink**: `--ink` / `--ink-soft` / `--ink-dim` / `--ink-faint` for the four text levels.
+- **Status**: `--destructive`, `--success`, `--warning` (each with matching `-subtle` token). There is no secondary accent — destructive / success / warning cover everything else semantically.
+- **Charts**: `--chart-1` through `--chart-5`, accent-anchored sequence used by `recharts` surfaces.
 
 ### Demo Files
 Files/directories prefixed with `demo` (e.g., `src/routes/demo/`, `src/components/demo.*`, `src/hooks/demo.*`) are starter examples that can be deleted once real features replace them.
@@ -227,11 +226,13 @@ Solo personal dashboard — Mike is the only user. The context is daily workflow
 - **Sharp & efficient** — information-dense, fast, get-in-get-out. Prioritize scannability and keyboard-driven interaction.
 - **Reference apps**: Linear, Raycast — fast developer tools that are dark-mode-friendly, keyboard-first, and respect the user's time.
 - **Anti-patterns**: Overly spacious/airy layouts, large hero sections with wasted space, decorative elements that don't serve function, generic SaaS marketing aesthetics.
-- **Theme**: Light + dark mode (both supported). Warm neutrals with teal primary and coral accent. Fraunces for display headings, Manrope for everything else.
+- **Theme**: Light + dark mode (both supported). Single soft-blue accent (`oklch(0.58 0.16 255)` light / `oklch(0.76 0.13 255)` dark) on warm "paper" surfaces in light and a near-black blueprint palette in dark. Inter everywhere; Fraunces reserved for display headings; JetBrains Mono for code. See `docs/redesign/tokens.md` and `docs/decisions/005-aether-redesign.md`.
 
 ### Design Principles
 1. **Density over whitespace** — Pack useful information into views. Avoid padding-heavy layouts. Every pixel should serve a purpose.
 2. **Speed is a feature** — Interactions should feel instant. Favor lightweight animations (150ms transitions), skeleton states, and optimistic UI over loading spinners.
-3. **Warm precision** — Clean and structured, but never sterile. Warm-tinted neutrals, subtle teal accents, and considered typography give it soul.
+3. **Warm precision** — Clean and structured, but never sterile. Warm-tinted neutrals, a single soft-blue accent, and considered typography give it soul.
 4. **Function first, beauty follows** — Never sacrifice usability for aesthetics. If something looks good but slows the user down, simplify it.
 5. **Keyboard-friendly** — Design with keyboard navigation in mind. Actions should be reachable without a mouse where possible.
+
+@FP_CLAUDE.md

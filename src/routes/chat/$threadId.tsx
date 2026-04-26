@@ -1,7 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeftIcon, UsersIcon } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useTransition } from "react";
-import { ChatHeader } from "#/components/chat/ChatHeader";
+import { ChatRunHeader } from "#/components/chat/ChatRunHeader";
 import { ChatWorkspace } from "#/components/chat/ChatWorkspace";
 import { toast } from "#/components/ui/sonner";
 import { DEFAULT_CHAT_EFFORT, DEFAULT_CHAT_MODEL, slugToThreadId, threadIdToSlug } from "#/lib/chat/chat";
@@ -27,14 +26,13 @@ export const Route = createFileRoute("/chat/$threadId")({
 function ChatThreadPage() {
   const data = Route.useLoaderData();
   const { threadId: slug } = Route.useParams();
-  const { isBusy, refreshPage, handleRequestDelete, openMobileDrawer, threads } = useChatLayout();
+  const { refreshPage, handleRequestDelete, openMenu, threads } = useChatLayout();
   const [, startTransition] = useTransition();
 
   const fullThreadId = slugToThreadId(slug);
   const selectedThread = threads.find((t) => t.id === fullThreadId) ?? data.selectedThread;
   const subAgentContext = data.subAgentContext;
 
-  // Hooks must be called before any early return
   const consumedThreadRef = useRef<string | null>(null);
   const initialMessageRef = useRef<string | undefined>(undefined);
   if (typeof window !== "undefined" && selectedThread && consumedThreadRef.current !== selectedThread.id) {
@@ -49,30 +47,32 @@ function ChatThreadPage() {
   const initialMessage = initialMessageRef.current;
 
   if (!selectedThread) {
+    const now = new Date();
     return (
-      <>
-        <ChatHeader
-          title="Thread not found"
-          model={DEFAULT_CHAT_MODEL}
-          effort={DEFAULT_CHAT_EFFORT}
-          showStats={false}
-          disabled
-          editable={false}
-        />
-        <div className="flex min-h-0 flex-1 items-center justify-center">
-          <p className="text-sm text-[var(--ink-soft)]">This thread could not be found.</p>
-        </div>
-      </>
+      <ChatRunHeader
+        threadId={fullThreadId}
+        title="Thread not found"
+        model={DEFAULT_CHAT_MODEL}
+        effort={DEFAULT_CHAT_EFFORT}
+        startedAt={now}
+        endedAt={now}
+        status="error"
+        inputTokens={0}
+        outputTokens={0}
+        toolCalls={0}
+        writes={0}
+        costUsd={0}
+        editable={false}
+        onMenuOpen={openMenu}
+      />
     );
   }
 
   const selectedModel = selectedThread.model ?? DEFAULT_CHAT_MODEL;
   const selectedEffort = selectedThread.effort ?? DEFAULT_CHAT_EFFORT;
-  // When a cost breakdown is available (chat threads with 0+ sub-agents),
-  // display the aggregate as the headline number. Sub-agent views fall back
-  // to the thread's own totals.
+
   const aggregate = data.costBreakdown?.aggregate;
-  const selectedUsageTotals = aggregate
+  const baselineUsage = aggregate
     ? {
         inputTokens: aggregate.inputTokens,
         outputTokens: aggregate.outputTokens,
@@ -83,94 +83,63 @@ function ChatThreadPage() {
         outputTokens: selectedThread.totalOutputTokens ?? 0,
         estimatedCostUsd: selectedThread.totalEstimatedCostUsd ?? 0,
       };
-  const selectedCostLabel =
-    selectedUsageTotals.estimatedCostUsd > 0 && selectedUsageTotals.estimatedCostUsd < 0.0001
-      ? "<$0.0001"
-      : `$${selectedUsageTotals.estimatedCostUsd.toFixed(4)}`;
 
   return (
-    <>
-      {subAgentContext && (
-        <div className="flex items-center gap-3 border-b border-border/60 bg-[var(--teal-subtle)] px-4 py-2 text-xs">
-          <UsersIcon className="size-3.5 text-[var(--teal)]" aria-hidden />
-          <span className="font-medium uppercase tracking-[0.12em] text-[var(--teal)]">Sub-agent thread</span>
-          {subAgentContext.subAgentFilename && (
-            <code className="rounded border border-[var(--teal)]/30 bg-background/50 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-              {subAgentContext.subAgentFilename}
-            </code>
-          )}
-          <Link
-            to="/chat/$threadId"
-            params={{ threadId: threadIdToSlug(subAgentContext.parentThreadId) }}
-            className="ml-auto inline-flex items-center gap-1 rounded-md border border-border/60 bg-background px-2 py-1 font-medium text-muted-foreground hover:border-[var(--teal)]/40 hover:text-[var(--teal)]"
-          >
-            <ArrowLeftIcon className="size-3" />
-            Parent thread
-            {subAgentContext.parentThreadTitle && (
-              <span className="ml-1 max-w-[24ch] truncate text-muted-foreground/80">
-                {subAgentContext.parentThreadTitle}
-              </span>
-            )}
-          </Link>
-        </div>
-      )}
-      <ChatHeader
-        title={selectedThread.title}
-        model={selectedModel}
-        effort={selectedEffort}
-        inputTokens={selectedUsageTotals.inputTokens}
-        outputTokens={selectedUsageTotals.outputTokens}
-        costLabel={selectedCostLabel}
-        costBreakdown={data.costBreakdown ?? undefined}
-        showStats
-        disabled={isBusy}
-        editable
-        showMobileMenu
-        onMobileMenuClick={openMobileDrawer}
-        onEffortChange={(value) => {
+    <ChatWorkspace
+      key={`${selectedThread.id}:${selectedModel}:${selectedEffort}`}
+      threadId={selectedThread.id}
+      model={selectedModel}
+      effort={selectedEffort}
+      messagesJson={data.messagesJson}
+      initialMessage={initialMessage}
+      onFinish={() => {
+        void refreshPage();
+      }}
+      baselineUsage={baselineUsage}
+      costBreakdown={data.costBreakdown ?? undefined}
+      header={{
+        threadId: selectedThread.id,
+        title: selectedThread.title,
+        model: selectedModel,
+        effort: selectedEffort,
+        startedAt: selectedThread.createdAt,
+        endedAt: selectedThread.updatedAt,
+        editable: true,
+        parentLink: subAgentContext
+          ? {
+              href: `/chat/${threadIdToSlug(subAgentContext.parentThreadId)}`,
+              title: subAgentContext.parentThreadTitle ?? undefined,
+              subAgentFile: subAgentContext.subAgentFilename ?? undefined,
+            }
+          : undefined,
+        onMenuOpen: openMenu,
+        onEffortChange: (value) => {
           startTransition(() => {
-            void updateChatThreadEffort({
-              data: {
-                threadId: selectedThread.id,
-                effort: value,
-              },
-            }).then(() => {
+            void updateChatThreadEffort({ data: { threadId: selectedThread.id, effort: value } }).then(() => {
               toast.success("Effort updated");
               return refreshPage();
             });
           });
-        }}
-        onTitleChange={(newTitle) => {
+        },
+        onTitleChange: (newTitle) => {
           startTransition(() => {
-            void updateChatThreadTitle({
-              data: {
-                threadId: selectedThread.id,
-                title: newTitle,
-              },
-            }).then(() => {
+            void updateChatThreadTitle({ data: { threadId: selectedThread.id, title: newTitle } }).then(() => {
               toast.success("Title updated");
               return refreshPage();
             });
           });
-        }}
-        onModelChange={(value) => {
+        },
+        onModelChange: (value) => {
           startTransition(() => {
-            void updateChatThreadModel({
-              data: {
-                threadId: selectedThread.id,
-                model: value,
-              },
-            }).then(() => {
+            void updateChatThreadModel({ data: { threadId: selectedThread.id, model: value } }).then(() => {
               toast.success("Model updated");
               return refreshPage();
             });
           });
-        }}
-        onExport={() => {
+        },
+        onExport: () => {
           startTransition(() => {
-            void exportChatThreadToObsidian({
-              data: { threadId: selectedThread.id },
-            })
+            void exportChatThreadToObsidian({ data: { threadId: selectedThread.id } })
               .then((result) => {
                 toast.success(`Exported to ${result.relativePath}`);
               })
@@ -178,22 +147,9 @@ function ChatThreadPage() {
                 toast.error(err instanceof Error ? err.message : "Export failed");
               });
           });
-        }}
-        onDelete={() => handleRequestDelete(selectedThread)}
-      />
-      <div className="min-h-0 flex-1">
-        <ChatWorkspace
-          key={`${selectedThread.id}:${selectedModel}:${selectedEffort}`}
-          threadId={selectedThread.id}
-          model={selectedModel}
-          effort={selectedEffort}
-          messagesJson={data.messagesJson}
-          initialMessage={initialMessage}
-          onFinish={() => {
-            void refreshPage();
-          }}
-        />
-      </div>
-    </>
+        },
+        onDelete: () => handleRequestDelete(selectedThread),
+      }}
+    />
   );
 }

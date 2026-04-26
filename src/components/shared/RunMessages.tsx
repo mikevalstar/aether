@@ -38,18 +38,19 @@ function truncateJson(value: unknown, maxLength = 500): string {
   return `${str.slice(0, maxLength)}…`;
 }
 
+const codeBlockClass =
+  "mt-1.5 max-h-48 overflow-x-auto overflow-y-auto rounded-md border border-[var(--line)] bg-[var(--surface)] p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--ink)]";
+
 function ToolCallBlock({ toolName, input }: { toolName: string; input: unknown }) {
   return (
     <Collapsible>
-      <CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground py-1">
+      <CollapsibleTrigger className="flex items-center gap-1.5 py-1 text-xs font-medium text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]">
         <Wrench className="size-3" />
         <span className="font-mono">{toolName}</span>
         <ChevronRight className="size-3 transition-transform [[data-state=open]>&]:rotate-90" />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <pre className="mt-1 rounded bg-muted p-2 text-xs overflow-x-auto max-h-48 overflow-y-auto">
-          {truncateJson(input)}
-        </pre>
+        <pre className={codeBlockClass}>{truncateJson(input)}</pre>
       </CollapsibleContent>
     </Collapsible>
   );
@@ -58,15 +59,13 @@ function ToolCallBlock({ toolName, input }: { toolName: string; input: unknown }
 function ToolResultBlock({ toolName, output }: { toolName: string; output: unknown }) {
   return (
     <Collapsible>
-      <CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-foreground py-1">
+      <CollapsibleTrigger className="flex items-center gap-1.5 py-1 text-xs font-medium text-[var(--accent)] transition-colors hover:text-[var(--accent-hover)]">
         <ChevronRight className="size-3 transition-transform [[data-state=open]>&]:rotate-90" />
         <span className="font-mono">{toolName}</span>
-        <span className="text-muted-foreground">result</span>
+        <span className="text-[var(--ink-soft)]">result</span>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <pre className="mt-1 rounded bg-muted p-2 text-xs overflow-x-auto max-h-48 overflow-y-auto">
-          {truncateJson(output, 1000)}
-        </pre>
+        <pre className={codeBlockClass}>{truncateJson(output, 1000)}</pre>
       </CollapsibleContent>
     </Collapsible>
   );
@@ -84,13 +83,13 @@ function SystemPromptBlock({ json }: { json: string }) {
     const text = typeof prompt === "string" ? prompt : JSON.stringify(prompt, null, 2);
     return (
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground py-1">
+        <CollapsibleTrigger className="flex items-center gap-1.5 py-1 text-xs font-medium text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]">
           <FileText className="size-3" />
           <span>System Prompt</span>
           <ChevronRight className="size-3 transition-transform [[data-state=open]>&]:rotate-90" />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <pre className="mt-1 rounded bg-muted p-2 text-xs overflow-x-auto max-h-64 overflow-y-auto whitespace-pre-wrap">
+          <pre className="mt-1.5 max-h-64 overflow-x-auto overflow-y-auto whitespace-pre-wrap rounded-md border border-[var(--line)] bg-[var(--surface)] p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--ink)]">
             {text}
           </pre>
         </CollapsibleContent>
@@ -107,15 +106,18 @@ function AvailableToolsBlock({ json }: { json: string }) {
     if (!Array.isArray(tools) || tools.length === 0) return null;
     return (
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground py-1">
+        <CollapsibleTrigger className="flex items-center gap-1.5 py-1 text-xs font-medium text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]">
           <Settings className="size-3" />
           <span>Available Tools ({tools.length})</span>
           <ChevronRight className="size-3 transition-transform [[data-state=open]>&]:rotate-90" />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="mt-1 flex flex-wrap gap-1">
+          <div className="mt-1.5 flex flex-wrap gap-1">
             {tools.map((tool: string) => (
-              <span key={tool} className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground">
+              <span
+                key={tool}
+                className="rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--ink-soft)]"
+              >
                 {tool}
               </span>
             ))}
@@ -132,13 +134,13 @@ export function RunMessages({ messagesJson, systemPromptJson, availableToolsJson
   const messages = parseMessages(messagesJson);
 
   if (messages.length === 0 && !systemPromptJson && !availableToolsJson) {
-    return <p className="text-muted-foreground italic text-sm">No messages recorded</p>;
+    return <p className="text-sm italic text-[var(--ink-soft)]">No messages recorded</p>;
   }
 
   return (
-    <div className="text-sm space-y-3">
+    <div className="space-y-3 text-sm text-[var(--ink)]">
       {(systemPromptJson || availableToolsJson) && (
-        <div className="space-y-1 border-b border-border pb-2 mb-2">
+        <div className="mb-2 space-y-1 border-b border-[var(--line)] pb-2">
           {systemPromptJson && <SystemPromptBlock json={systemPromptJson} />}
           {availableToolsJson && <AvailableToolsBlock json={availableToolsJson} />}
         </div>
@@ -159,14 +161,14 @@ export function RunMessages({ messagesJson, systemPromptJson, availableToolsJson
 
           return (
             <div key={msgKey} className="space-y-1">
-              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+              <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--ink-soft)]">
                 <Bot className="size-3" />
                 <span>Assistant</span>
               </div>
               {content.map((block) => {
                 if (block.type === "text") {
                   return (
-                    <div key={`${msgKey}-text`} className="whitespace-pre-wrap text-sm">
+                    <div key={`${msgKey}-text`} className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--ink)]">
                       {block.text}
                     </div>
                   );
@@ -185,7 +187,7 @@ export function RunMessages({ messagesJson, systemPromptJson, availableToolsJson
           if (content.length === 0) return null;
 
           return (
-            <div key={msgKey} className="space-y-1 pl-4 border-l-2 border-emerald-200 dark:border-emerald-800">
+            <div key={msgKey} className="space-y-1 border-l-2 border-[var(--accent)]/40 pl-4">
               {content.map((block) => {
                 if (block.type === "tool-result") {
                   return (

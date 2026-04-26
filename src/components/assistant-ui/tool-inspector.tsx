@@ -396,7 +396,7 @@ function getActionCopy(kind: MarkdownToolKind) {
       title: "Read markdown note",
       action: "View note",
       description: "Opened from the tool result",
-      tone: "border-[var(--teal)]/25 bg-[var(--teal-subtle)]/45 text-[var(--teal)]",
+      tone: "border-[var(--accent)]/25 bg-[var(--accent-subtle)]/45 text-[var(--accent)]",
       Icon: FileTextIcon,
     };
   }
@@ -406,7 +406,7 @@ function getActionCopy(kind: MarkdownToolKind) {
       title: "Wrote markdown note",
       action: "View written note",
       description: "Previewing the written content",
-      tone: "border-[var(--coral)]/25 bg-[var(--coral)]/10 text-[var(--coral)]",
+      tone: "border-[var(--destructive)]/25 bg-[var(--destructive)]/10 text-[var(--destructive)]",
       Icon: PencilLineIcon,
     };
   }
@@ -606,9 +606,9 @@ function MarkdownDocumentDialog({
 
   return (
     <DialogContent className="grid h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-none grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden p-0 sm:h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)] sm:max-w-none xl:h-[min(94vh,1080px)] xl:w-[min(98vw,1680px)]">
-      <DialogHeader className="border-b border-border/70 px-5 py-4 pr-12">
+      <DialogHeader className="border-b border-[var(--line)] px-5 py-4 pr-12">
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[var(--teal)]/25 bg-[var(--teal-subtle)] text-[var(--teal)]">
+          <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[var(--accent)]/25 bg-[var(--accent-subtle)] text-[var(--accent)]">
             <FileTextIcon className="size-4" />
           </span>
           <div className="min-w-0">
@@ -658,9 +658,9 @@ export const ToolInspectorDrawer: FC = () => {
       }}
     >
       <DrawerContent className="w-full max-w-none data-[vaul-drawer-direction=right]:w-screen sm:data-[vaul-drawer-direction=right]:w-[min(94vw,40rem)] lg:data-[vaul-drawer-direction=right]:w-[min(80vw,48rem)]">
-        <DrawerHeader className="border-b border-border/70 px-4 py-4 text-left sm:px-5">
+        <DrawerHeader className="border-b border-[var(--line)] px-4 py-4 text-left sm:px-5">
           <DrawerTitle className="flex items-center gap-3 text-lg tracking-tight">
-            <span className="inline-flex size-8 items-center justify-center rounded-full border border-border/70 bg-muted/50 text-muted-foreground">
+            <span className="inline-flex size-8 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--bg)] text-muted-foreground">
               <WrenchIcon className="size-4" />
             </span>
             Tool inspection
@@ -686,7 +686,7 @@ export const ToolInspectorDrawer: FC = () => {
           </div>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="border-b border-border/70 px-4 py-4 sm:px-5">
+            <div className="border-b border-[var(--line)] px-4 py-4 sm:px-5">
               <div className="flex items-center gap-3">
                 <ToolStatusGlyph status={statusMeta.type} />
                 <div className="min-w-0 flex-1">
@@ -703,7 +703,7 @@ export const ToolInspectorDrawer: FC = () => {
                   <ToolPayloadCard title="Input" value={selectedTool.argsText} />
                   <ToolPayloadCard title={selectedTool.status?.type === "incomplete" ? "Error" : "Output"} value={output} />
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-background p-4">
+                <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <h3 className="font-medium text-sm text-foreground">Meta</h3>
                   </div>
@@ -739,7 +739,7 @@ function ToolPayloadCard({ title, value }: { title: string; value: string }) {
   const formatted = formatIfJson(value);
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-background p-4">
+    <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h3 className="font-medium text-sm text-foreground">{title}</h3>
         <Badge variant="outline" className="text-[11px] text-muted-foreground">

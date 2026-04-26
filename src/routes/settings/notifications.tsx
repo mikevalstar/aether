@@ -1,8 +1,10 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
+import { Bell } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { FieldRow } from "#/components/ui/field-row";
 import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
+import { SectionLabel } from "#/components/ui/section-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { testPushoverNotification } from "#/lib/notifications.functions";
@@ -69,55 +71,65 @@ function NotificationsSection() {
   };
 
   return (
-    <form onSubmit={handleSave} className="surface-card p-6">
-      <h2 className="mb-4 text-lg font-semibold">Push Notifications</h2>
-      <div className="grid gap-4">
-        <div className="grid gap-1.5">
-          <Label htmlFor="pref-pushover-key">Pushover User Key</Label>
-          <Input
-            id="pref-pushover-key"
-            type="text"
-            value={pushoverKey}
-            onChange={(e) => setPushoverKey(e.target.value)}
-            placeholder="Your Pushover user key"
-          />
-          <p className="text-xs text-muted-foreground">
-            Get your user key from{" "}
-            <a href="https://pushover.net" target="_blank" rel="noopener noreferrer" className="underline">
-              pushover.net
-            </a>
-            . Leave blank to disable phone push notifications.
-          </p>
-        </div>
+    <form onSubmit={handleSave} className="surface-card flex flex-col gap-5 p-6">
+      <header className="flex flex-col gap-1.5">
+        <SectionLabel icon={Bell}>Push Notifications</SectionLabel>
+        <p className="text-sm text-muted-foreground">
+          Configure Pushover for phone delivery and pick the minimum level that triggers a push.
+        </p>
+      </header>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor="pref-push-min-level">Minimum Level for Push</Label>
-          <Select value={pushMinLevel} onValueChange={setPushMinLevel}>
-            <SelectTrigger id="pref-push-min-level" className="w-full max-w-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PUSH_LEVEL_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            Notifications at or above this level will automatically push to your phone. Tasks and workflows can also force
-            push regardless of this setting.
-          </p>
-        </div>
+      <FieldRow
+        label="PUSHOVER USER KEY"
+        htmlFor="pref-pushover-key"
+        hint={
+          <a
+            href="https://pushover.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-[var(--accent)]"
+          >
+            pushover.net
+          </a>
+        }
+      >
+        <Input
+          id="pref-pushover-key"
+          type="text"
+          className="font-mono text-[12.5px]"
+          value={pushoverKey}
+          onChange={(e) => setPushoverKey(e.target.value)}
+          placeholder="Your Pushover user key"
+        />
+        <p className="text-xs text-muted-foreground">Leave blank to disable phone push notifications.</p>
+      </FieldRow>
 
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
-          <Button type="button" variant="outline" disabled={isTesting || !pushoverKey.trim()} onClick={handleTest}>
-            {isTesting ? "Sending..." : "Test send"}
-          </Button>
-        </div>
+      <FieldRow label="MINIMUM LEVEL FOR PUSH" htmlFor="pref-push-min-level">
+        <Select value={pushMinLevel} onValueChange={setPushMinLevel}>
+          <SelectTrigger id="pref-push-min-level" className="w-full max-w-md font-mono text-[12.5px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PUSH_LEVEL_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Notifications at or above this level will automatically push to your phone. Tasks and workflows can also force push
+          regardless of this setting.
+        </p>
+      </FieldRow>
+
+      <div className="mt-1 flex flex-wrap gap-2">
+        <Button type="submit" disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save"}
+        </Button>
+        <Button type="button" variant="outline" disabled={isTesting || !pushoverKey.trim()} onClick={handleTest}>
+          {isTesting ? "Sending..." : "Test send"}
+        </Button>
       </div>
     </form>
   );

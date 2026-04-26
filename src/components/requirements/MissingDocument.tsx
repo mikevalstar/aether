@@ -20,7 +20,7 @@ export function MissingDocument({ requestedPath }: MissingDocumentProps) {
       action={
         <RequirementNavLink
           routePath=""
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--teal)] px-5 py-2.5 text-sm font-medium text-white no-underline shadow-sm hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] no-underline hover:bg-[var(--accent-hover)]"
         >
           <BookOpenTextIcon className="size-4" />
           Open requirements index

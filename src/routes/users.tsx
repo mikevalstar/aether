@@ -1,6 +1,8 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { EyeIcon, Trash2 } from "lucide-react";
+import { EyeIcon, Trash2, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
+import { PageHeader } from "#/components/PageHeader";
+import { Alert, AlertDescription, AlertHeader } from "#/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +15,9 @@ import {
   AlertDialogTrigger,
 } from "#/components/ui/alert-dialog";
 import { Button } from "#/components/ui/button";
+import { FieldRow } from "#/components/ui/field-row";
 import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
+import { SectionLabel } from "#/components/ui/section-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { toast } from "#/components/ui/sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
@@ -48,13 +51,11 @@ function UsersPage() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<ManagedUserRole>("user");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-    setSuccess("");
     setIsSubmitting(true);
 
     try {
@@ -65,7 +66,6 @@ function UsersPage() {
       setEmail("");
       setPassword("");
       setRole("user");
-      setSuccess("");
       toast.success("User added", {
         description: "Share the email and temporary password with them.",
       });
@@ -78,104 +78,96 @@ function UsersPage() {
   };
 
   return (
-    <main className="page-wrap px-4 pb-12 pt-10">
-      <section className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">Invite-only Access</p>
-          <h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl">Users</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Accounts are created by admins here instead of public signup. If someone does not have a real inbox yet, use a
-            placeholder like `name@local.test` and have them change their password after first login.
-          </p>
+    <PageHeader
+      icon={Users}
+      label="Invite-only Access"
+      title="Users"
+      description="Accounts are created by admins here instead of public signup. If someone does not have a real inbox yet, use a placeholder like name@local.test and have them change their password after first login."
+      actions={
+        <div className="rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-mono text-[11px] tracking-wide text-[var(--ink-dim)]">
+          SIGNED IN AS <span className="font-semibold text-[var(--ink)]">{currentUser.email}</span>
         </div>
-        <div className="rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
-          Signed in as <span className="font-semibold text-foreground">{currentUser.email}</span>
-        </div>
-      </section>
+      }
+    >
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+        <form onSubmit={handleSubmit} className="surface-card flex flex-col gap-4 p-6">
+          <header className="flex flex-col gap-1.5">
+            <SectionLabel icon={UserPlus}>ADD USER</SectionLabel>
+            <p className="text-sm text-muted-foreground">
+              New accounts start as invite-only users with a temporary password.
+            </p>
+          </header>
 
-      <section className="mb-8 grid gap-8 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        <form onSubmit={handleSubmit} className="surface-card p-6">
-          <h2 className="text-lg font-semibold">Add user</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            New accounts start as invite-only users with a temporary password.
-          </p>
+          <FieldRow label="NAME" required>
+            <Input
+              id="name"
+              type="text"
+              className="font-mono text-[12.5px]"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              placeholder="Taylor Smith"
+            />
+          </FieldRow>
 
-          <div className="mt-5 grid gap-4">
-            <div className="grid gap-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-                placeholder="Taylor Smith"
-              />
-            </div>
+          <FieldRow label="EMAIL" required>
+            <Input
+              id="email"
+              type="email"
+              className="font-mono text-[12.5px]"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              placeholder="taylor@local.test"
+            />
+          </FieldRow>
 
-            <div className="grid gap-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                placeholder="taylor@local.test"
-              />
-            </div>
+          <FieldRow label="TEMPORARY PASSWORD" required hint={<span>min 8 chars</span>}>
+            <Input
+              id="password"
+              type="password"
+              className="font-mono text-[12.5px]"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              minLength={8}
+              placeholder="••••••••"
+            />
+          </FieldRow>
 
-            <div className="grid gap-1.5">
-              <Label htmlFor="password">Temporary password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                minLength={8}
-                placeholder="At least 8 characters"
-              />
-            </div>
+          <FieldRow label="ROLE">
+            <Select value={role} onValueChange={(v) => setRole(v as ManagedUserRole)}>
+              <SelectTrigger id="role" className="w-full font-mono text-[12.5px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">Member</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </FieldRow>
 
-            <div className="grid gap-1.5">
-              <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={(v) => setRole(v as ManagedUserRole)}>
-                <SelectTrigger id="role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">Member</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertHeader label="Error" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-            {error ? (
-              <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </div>
-            ) : null}
-
-            {success ? (
-              <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                {success}
-              </div>
-            ) : null}
-
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Adding user..." : "Add user"}
-            </Button>
-          </div>
+          <Button type="submit" disabled={isSubmitting} className="mt-1 w-full">
+            {isSubmitting ? "Adding user..." : "Add user"}
+          </Button>
         </form>
 
         <section className="surface-card overflow-hidden">
-          <div className="border-b border-border px-6 py-4">
-            <h2 className="text-lg font-semibold">Current users</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {users.length} total account{users.length === 1 ? "" : "s"}
-            </p>
-          </div>
+          <header className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-6 py-4">
+            <div className="flex flex-col gap-1.5">
+              <SectionLabel icon={Users}>CURRENT USERS</SectionLabel>
+              <p className="text-sm text-muted-foreground">
+                {users.length} total account{users.length === 1 ? "" : "s"}
+              </p>
+            </div>
+          </header>
 
           <Table>
             <TableHeader>
@@ -213,7 +205,7 @@ function UsersPage() {
           </Table>
         </section>
       </section>
-    </main>
+    </PageHeader>
   );
 }
 
@@ -248,7 +240,7 @@ function ImpersonateButton({ userId, userName }: { userId: string; userName: str
       <Tooltip>
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8 text-teal hover:text-teal">
+            <Button variant="ghost" size="icon" className="size-8 text-[var(--accent)] hover:text-[var(--accent-hover)]">
               <EyeIcon className="size-4" />
               <span className="sr-only">Impersonate {userName}</span>
             </Button>

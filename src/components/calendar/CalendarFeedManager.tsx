@@ -1,8 +1,8 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { FieldRow } from "#/components/ui/field-row";
 import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import type { CalendarFeed } from "#/lib/calendar/types";
 
@@ -58,7 +58,7 @@ export function CalendarFeedManager({ feeds, onChange }: Props) {
   };
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3">
       {feeds.map((feed, index) => (
         <FeedEntry
           key={feed.id}
@@ -89,7 +89,7 @@ function FeedEntry({
   onRemove: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-border p-4">
+    <div className="rounded-md border border-[var(--line)] bg-[var(--surface)] p-4">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <input
@@ -99,7 +99,9 @@ function FeedEntry({
             className="size-6 cursor-pointer rounded border-none bg-transparent"
             title="Feed color"
           />
-          <span className="text-sm font-medium">{feed.name || "New feed"}</span>
+          <span className="font-mono text-[12px] font-medium tracking-wide text-[var(--ink)]">
+            {feed.name || "New feed"}
+          </span>
         </div>
         <Button
           type="button"
@@ -113,31 +115,30 @@ function FeedEntry({
       </div>
 
       <div className="grid gap-3">
-        <div className="grid gap-1.5">
-          <Label className="text-xs">Display name</Label>
+        <FieldRow label="DISPLAY NAME">
           <Input
             type="text"
+            className="font-mono text-[12.5px]"
             value={feed.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
             placeholder="Work calendar"
             autoFocus={autoFocus}
           />
-        </div>
+        </FieldRow>
 
-        <div className="grid gap-1.5">
-          <Label className="text-xs">iCal URL</Label>
+        <FieldRow label="ICAL URL">
           <Input
             type="url"
+            className="font-mono text-[12.5px]"
             value={feed.url}
             onChange={(e) => onUpdate({ url: e.target.value })}
             placeholder="https://calendar.google.com/calendar/ical/..."
           />
-        </div>
+        </FieldRow>
 
-        <div className="grid gap-1.5">
-          <Label className="text-xs">Sync interval</Label>
+        <FieldRow label="SYNC INTERVAL">
           <Select value={String(feed.syncInterval)} onValueChange={(v) => onUpdate({ syncInterval: Number(v) })}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full font-mono text-[12.5px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -148,7 +149,7 @@ function FeedEntry({
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </FieldRow>
       </div>
     </div>
   );

@@ -48,7 +48,10 @@ function ToolFallbackRoot({
       data-slot="tool-fallback-root"
       open={isOpen}
       onOpenChange={handleOpenChange}
-      className={cn("aui-tool-fallback-root group/tool-fallback-root w-full rounded-lg border py-3", className)}
+      className={cn(
+        "aui-tool-fallback-root group/tool-fallback-root w-full rounded-md border border-[var(--line)] bg-[var(--surface)] py-3",
+        className,
+      )}
       style={
         {
           "--animation-duration": `${ANIMATION_DURATION}ms`,
@@ -153,7 +156,7 @@ function ToolFallbackContent({ className, children, ...props }: React.ComponentP
       )}
       {...props}
     >
-      <div className="mt-3 flex flex-col gap-2 border-t pt-2">{children}</div>
+      <div className="mt-3 flex flex-col gap-2 border-t border-[var(--line)] pt-2">{children}</div>
     </CollapsibleContent>
   );
 }
@@ -186,7 +189,7 @@ function ToolFallbackResult({
   return (
     <div
       data-slot="tool-fallback-result"
-      className={cn("aui-tool-fallback-result border-t border-dashed px-4 pt-2", className)}
+      className={cn("aui-tool-fallback-result border-t border-dashed border-[var(--line)] px-4 pt-2", className)}
       {...props}
     >
       <p className="aui-tool-fallback-result-header font-semibold">Result:</p>

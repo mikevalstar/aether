@@ -78,7 +78,7 @@ export function CalendarEventDialog({ event, open, onClose }: Props) {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-[var(--teal)] hover:underline"
+                    className="flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
                   >
                     Join {link.type === "teams" ? "Teams" : "Google Meet"} meeting
                     <ExternalLink className="size-3" />
@@ -95,7 +95,7 @@ export function CalendarEventDialog({ event, open, onClose }: Props) {
                 href={event.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm text-[var(--teal)] hover:underline"
+                className="flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
               >
                 View in calendar
                 <ExternalLink className="size-3" />
@@ -138,7 +138,7 @@ export function CalendarEventDialog({ event, open, onClose }: Props) {
                         style={{
                           backgroundColor:
                             attendee.status === "ACCEPTED"
-                              ? "var(--teal)"
+                              ? "var(--accent)"
                               : attendee.status === "DECLINED"
                                 ? "var(--destructive)"
                                 : "var(--muted-foreground)",

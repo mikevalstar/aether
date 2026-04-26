@@ -1,4 +1,5 @@
 import cronstrue from "cronstrue";
+import { FileX } from "lucide-react";
 import { RunHistoryTable } from "#/components/shared/RunHistoryTable";
 import { Badge } from "#/components/ui/badge";
 import type { TaskRunItem } from "#/lib/tasks/task.functions";
@@ -31,25 +32,20 @@ export function TaskRunHistory({
 
   return (
     <div>
-      <div className="mb-6 space-y-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground">{cronHuman}</span>
-          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{task.cron}</code>
-          <Badge variant="outline" className="text-xs">
-            {task.model}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <span className="text-sm text-[var(--ink-soft)]">{cronHuman}</span>
+        <code className="rounded border border-[var(--line)] bg-[var(--bg)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--ink-soft)]">
+          {task.cron}
+        </code>
+        <Badge variant="model-name">{task.model}</Badge>
+        {task.timezone && <Badge variant="outline">{task.timezone}</Badge>}
+        {!task.fileExists && (
+          <Badge variant="warning">
+            <FileX />
+            File removed
           </Badge>
-          {task.timezone && (
-            <Badge variant="outline" className="text-xs">
-              {task.timezone}
-            </Badge>
-          )}
-          {!task.fileExists && (
-            <Badge variant="outline" className="border-amber-300 text-amber-600">
-              File removed
-            </Badge>
-          )}
-          {!task.enabled && task.fileExists && <Badge variant="outline">Paused</Badge>}
-        </div>
+        )}
+        {!task.enabled && task.fileExists && <Badge variant="ghost">Paused</Badge>}
       </div>
 
       <RunHistoryTable

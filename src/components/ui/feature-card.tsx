@@ -7,11 +7,11 @@ export interface FeatureCardProps {
   title: string;
   /** Card description text */
   description: string;
-  /** Tailwind text color class for the icon (e.g. "text-[var(--teal)]") */
+  /** Tailwind text color class for the icon (e.g. "text-[var(--accent)]") */
   color?: string;
-  /** Tailwind background class for the icon well and card tint (e.g. "bg-[var(--teal-subtle)]") */
+  /** Tailwind background class for the icon well and card tint (e.g. "bg-[var(--accent-subtle)]") */
   bg?: string;
-  /** Tailwind border color class (e.g. "border-[var(--teal)]/20") */
+  /** Tailwind border color class (e.g. "border-[var(--accent)]/20") */
   border?: string;
 }
 

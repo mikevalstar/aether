@@ -9,7 +9,7 @@ export type ChatLayoutContext = {
   refreshPage: () => Promise<void>;
   handleCreateThread: (model: string, firstMessage?: string, effort?: string) => Promise<void>;
   handleRequestDelete: (thread: ChatThreadSummary) => void;
-  openMobileDrawer: () => void;
+  openMenu: () => void;
 };
 
 export const ChatLayoutCtx = createContext<ChatLayoutContext | null>(null);
