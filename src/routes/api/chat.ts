@@ -338,6 +338,17 @@ export const Route = createFileRoute("/api/chat")({
         const isAnthropic = modelDef?.provider === "anthropic";
         const isOpenRouter = modelDef?.provider === "openrouter";
         const maxOutputTokens = modelDef?.supportsEffort ? getDefaultMaxTokensForEffort(effort) : undefined;
+        logger.info(
+          {
+            threadId: thread.id,
+            model,
+            provider: modelDef?.provider ?? "unknown",
+            supportsEffort: modelDef?.supportsEffort ?? false,
+            effort,
+            maxOutputTokens,
+          },
+          "Chat streamText starting",
+        );
         const result = streamText({
           model: getModel(model),
           system: systemPrompt,
@@ -356,10 +367,27 @@ export const Route = createFileRoute("/api/chat")({
               openrouter: { reasoning: { effort } },
             }),
           },
+          onError: ({ error }) => {
+            logger.error(
+              {
+                threadId: thread.id,
+                model,
+                provider: modelDef?.provider,
+                err: error instanceof Error ? { message: error.message, stack: error.stack } : error,
+              },
+              "Chat streamText error",
+            );
+          },
         });
 
         return result.toUIMessageStreamResponse({
           originalMessages: incomingMessages,
+          sendReasoning: true,
+          onError: (error) => {
+            const message = error instanceof Error ? error.message : String(error);
+            logger.error({ threadId: thread.id, model, err: message }, "Chat UI stream error");
+            return message;
+          },
           generateMessageId: createIdGenerator({
             prefix: "msg",
             size: 16,

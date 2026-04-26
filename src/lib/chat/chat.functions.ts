@@ -11,7 +11,6 @@ import {
   CHAT_EFFORT_LEVELS,
   CHAT_MODELS,
   type ChatEffort,
-  type ChatModel,
   type ChatThreadSummary,
   DEFAULT_CHAT_EFFORT,
   DEFAULT_CHAT_MODEL,
@@ -29,8 +28,16 @@ import { OBSIDIAN_DIR } from "#/lib/obsidian/obsidian";
 import { getUserPreference } from "#/lib/preferences.server";
 import { threadIdInputSchema } from "#/lib/shared-schemas";
 
-const chatModelIds = CHAT_MODELS.map((model) => model.id) as [ChatModel, ...ChatModel[]];
 const chatEffortLevels = [...CHAT_EFFORT_LEVELS] as [ChatEffort, ...ChatEffort[]];
+
+// Accepts any built-in id, built-in alias, or well-formed provider/model id.
+// User-selected OpenRouter rows are validated downstream when the call hits
+// the provider — a bad id surfaces as an OpenRouter 4xx, not a schema error.
+const chatModelIdSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .refine((v) => resolveModelId(v) !== undefined, "Invalid model id");
 
 const chatThreadInputSchema = z
   .object({
@@ -40,7 +47,7 @@ const chatThreadInputSchema = z
 
 const createChatThreadInputSchema = z
   .object({
-    model: z.enum(chatModelIds).optional(),
+    model: chatModelIdSchema.optional(),
     effort: z.enum(chatEffortLevels).optional(),
   })
   .strict();
@@ -48,7 +55,7 @@ const createChatThreadInputSchema = z
 const updateChatThreadModelInputSchema = z
   .object({
     threadId: z.string().trim().min(1, "Thread ID is required"),
-    model: z.enum(chatModelIds),
+    model: chatModelIdSchema,
   })
   .strict();
 

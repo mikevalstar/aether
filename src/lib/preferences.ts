@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { CalendarFeed } from "#/lib/calendar/types";
 import type { ChatModel } from "#/lib/chat/chat-models";
-import { CHAT_MODELS } from "#/lib/chat/chat-models";
+import { resolveModelId } from "#/lib/chat/chat-models";
 
 export type UserPreferences = {
   obsidianTemplatesFolder?: string;
@@ -22,7 +22,14 @@ export type UserPreferences = {
 export type UserPreferencesPatch = Partial<UserPreferences>;
 export type UserPreferenceKey = keyof UserPreferences;
 
-const chatModelIds = CHAT_MODELS.map((model) => model.id) as [ChatModel, ...ChatModel[]];
+// Built-in id, alias, or well-formed provider/model id (e.g. user-selected
+// OpenRouter pick). Existence in the user's UserSelectedModel table is
+// validated at the use site, not here.
+const chatModelIdSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .refine((v) => resolveModelId(v) !== undefined, "Invalid model id");
 
 const calendarFeedSchema = z
   .object({
@@ -53,7 +60,7 @@ export const userPreferencesSchema = z
     kanbanFile: z.string().trim().optional(),
     dashboardBoardColumn: z.string().trim().optional(),
     timezone: z.string().trim().optional(),
-    defaultChatModel: z.enum(chatModelIds).optional(),
+    defaultChatModel: chatModelIdSchema.optional(),
     enabledPlugins: z.array(z.string().trim().min(1)).optional(),
     pluginOptions: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
     dashboardLayouts: z.record(z.string(), z.array(dashboardLayoutItemSchema)).optional(),
