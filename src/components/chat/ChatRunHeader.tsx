@@ -218,6 +218,8 @@ export function ChatRunHeader(props: ChatRunHeaderProps) {
             <ModelEffortSelector
               model={model}
               effort={effort}
+              modelLabel={modelDef?.label}
+              modelDescription={modelDef?.description}
               disabled={busy}
               modelClassName="lg:min-w-40"
               onModelChange={onModelChange}

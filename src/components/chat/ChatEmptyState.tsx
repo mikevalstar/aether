@@ -61,6 +61,7 @@ export function ChatEmptyState({
           <ModelEffortSelector
             model={model}
             effort={effort}
+            modelLabel={modelLabel}
             disabled={disabled}
             modelClassName="min-w-48"
             onModelChange={onModelChange}
