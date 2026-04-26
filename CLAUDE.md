@@ -10,7 +10,7 @@ we are using the latest version of most libraries, these tend to be newer then t
 
 ## Redesign
 
-We are currently in the middle of a redesign; attempting to move the design closer to that of the referecne design: docs/aether-redesign/index.html
+We are currently in the middle of a redesign; attempting to move the design closer to that of the referecne design: docs/aether-redesign2/index.html and a redesign of the chat page specifically docs/aether-redesign/index.html
 
 ## Documentation
 

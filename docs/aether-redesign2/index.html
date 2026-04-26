@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aether — Workflows (redesign2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #0A1830; font-family: 'Inter', system-ui, sans-serif; color: #fff; overflow: hidden; }
+  #root { height: 100%; }
+  button { font-family: inherit; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<!-- tokens / data first -->
+<script type="text/babel" src="tokens.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+
+<!-- atoms / leaf components -->
+<script type="text/babel" src="components/Atoms.jsx"></script>
+<script type="text/babel" src="components/Alert.jsx"></script>
+<script type="text/babel" src="components/Form.jsx"></script>
+<script type="text/babel" src="components/SectionLabel.jsx"></script>
+<script type="text/babel" src="components/PageHeader.jsx"></script>
+<script type="text/babel" src="components/StatsStrip.jsx"></script>
+<script type="text/babel" src="components/TopBar.jsx"></script>
+
+<!-- composed -->
+<script type="text/babel" src="components/WorkflowCard.jsx"></script>
+<script type="text/babel" src="components/RunTable.jsx"></script>
+<script type="text/babel" src="components/RunWorkflowForm.jsx"></script>
+
+<!-- app last -->
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
