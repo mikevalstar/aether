@@ -3,7 +3,6 @@ import { ArrowRight, Lock, LogIn } from "lucide-react";
 import { AppLogo } from "#/components/AppLogo";
 import ThemeToggle from "#/components/ThemeToggle";
 import { Button } from "#/components/ui/button";
-import { SectionLabel } from "#/components/ui/section-label";
 import { authClient } from "#/lib/auth-client";
 
 export const Route = createFileRoute("/")({ component: HomePage });
@@ -23,8 +22,6 @@ function HomePage() {
       </div>
 
       <div className="flex w-full max-w-[640px] flex-col items-center gap-7 text-center">
-        <SectionLabel>◆ PRIVATE INSTANCE</SectionLabel>
-
         <h1 className="display-title border-l-[3px] border-[var(--accent)] pl-5 text-left text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl md:text-6xl">
           A quiet console for the work you actually do.
         </h1>
