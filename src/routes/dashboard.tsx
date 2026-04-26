@@ -1,7 +1,9 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
+import { LayoutDashboard } from "lucide-react";
 import { useEffect } from "react";
 import { DashboardGrid } from "#/components/dashboard/DashboardGrid";
+import { SectionLabel } from "#/components/ui/section-label";
 import { Skeleton } from "#/components/ui/skeleton";
 import { Spinner } from "#/components/ui/spinner";
 import { getSession } from "#/lib/auth.functions";
@@ -38,25 +40,65 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardPending() {
   return (
-    <main className="page-wrap px-4 pb-16 pt-8 sm:pt-10">
-      <header className="mb-8 flex items-baseline justify-between">
-        <h1 className="display-title text-2xl font-bold tracking-tight sm:text-3xl">
-          <span className="inline-flex items-center gap-3">
-            Loading dashboard
+    <main className="page-wrap px-4 pb-16 pt-6 sm:pt-8">
+      <DashboardHeader
+        eyebrow={
+          <span className="inline-flex items-center gap-2">
+            FETCHING WIDGETS
             <Spinner size="sm" />
           </span>
-        </h1>
-        <span className="hidden font-mono text-[10.5px] uppercase tracking-[0.15em] text-muted-foreground sm:inline">
-          ◆ FETCHING WIDGETS
-        </span>
-      </header>
-
+        }
+        title="Loading dashboard"
+      />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DASHBOARD_SKELETON_CARDS.map((card) => (
           <DashboardSkeletonCard key={card.key} rows={card.rows} />
         ))}
       </div>
     </main>
+  );
+}
+
+/**
+ * Dashboard header — eyebrow + accent rule + display title, matching the
+ * Console redesign's PageHeader pattern. Lives here (rather than reusing
+ * the global `PageHeader`) because the dashboard has a unique greeting +
+ * date layout and skips the description / action slots.
+ */
+function DashboardHeader({
+  eyebrow,
+  title,
+  highlight,
+  date,
+}: {
+  eyebrow: React.ReactNode;
+  title: string;
+  highlight?: string;
+  date?: Date;
+}) {
+  return (
+    <header className="mb-6 flex flex-col gap-3 border-b border-border-strong pb-5 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+      <div className="relative pl-4">
+        <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
+        <SectionLabel icon={LayoutDashboard}>{eyebrow}</SectionLabel>
+        <h1 className="display-title mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+          {title}
+          {highlight && (
+            <>
+              , <span className="text-[var(--accent)]">{highlight}</span>
+            </>
+          )}
+        </h1>
+      </div>
+      {date && (
+        <time
+          dateTime={format(date, "yyyy-MM-dd")}
+          className="font-mono text-[11px] uppercase tracking-[0.15em] tabular-nums text-muted-foreground sm:text-[12px]"
+        >
+          {format(date, "EEEE · MMMM d")}
+        </time>
+      )}
+    </header>
   );
 }
 
@@ -111,21 +153,8 @@ function DashboardPage() {
   const today = new Date();
 
   return (
-    <main className="page-wrap px-4 pb-16 pt-8 sm:pt-10">
-      {/* Compact header — greeting + date on one line */}
-      <header className="mb-8 flex items-baseline justify-between">
-        <h1 className="display-title text-2xl font-bold tracking-tight sm:text-3xl">
-          {greeting}
-          {firstName && (
-            <>
-              , <span className="text-[var(--teal)]">{firstName}</span>
-            </>
-          )}
-        </h1>
-        <time dateTime={format(today, "yyyy-MM-dd")} className="hidden text-sm tabular-nums text-muted-foreground sm:block">
-          {format(today, "EEEE, MMMM d")}
-        </time>
-      </header>
+    <main className="page-wrap px-4 pb-16 pt-6 sm:pt-8">
+      <DashboardHeader eyebrow="DASHBOARD" title={greeting} highlight={firstName ?? undefined} date={today} />
 
       {/* Masonry grid layout */}
       <DashboardGrid

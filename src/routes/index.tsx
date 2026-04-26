@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Lock, LogIn } from "lucide-react";
+import { ArrowRight, Lock, LogIn, Terminal } from "lucide-react";
 import { AppLogo } from "#/components/AppLogo";
 import ThemeToggle from "#/components/ThemeToggle";
 import { Button } from "#/components/ui/button";
+import { SectionLabel } from "#/components/ui/section-label";
 import { authClient } from "#/lib/auth-client";
 
 export const Route = createFileRoute("/")({ component: HomePage });
@@ -21,7 +22,11 @@ function HomePage() {
         <span className="text-[15px] font-semibold tracking-tight">aether</span>
       </div>
 
-      <div className="flex w-full max-w-[640px] flex-col items-center gap-7 text-center">
+      <div className="flex w-full max-w-[640px] flex-col items-start gap-6">
+        <div className="self-start">
+          <SectionLabel icon={Terminal}>AETHER · CONSOLE</SectionLabel>
+        </div>
+
         <h1 className="display-title border-l-[3px] border-[var(--accent)] pl-5 text-left text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl md:text-6xl">
           A quiet console for the work you actually do.
         </h1>
@@ -31,7 +36,7 @@ function HomePage() {
           so you can think clearly and act deliberately.
         </p>
 
-        <div className="mt-2 flex w-full flex-wrap items-center justify-center gap-4">
+        <div className="mt-2 flex w-full flex-wrap items-center justify-start gap-4">
           {session?.user ? (
             <Button asChild size="lg" className="gap-2 pr-5">
               <Link to="/dashboard" className="no-underline">

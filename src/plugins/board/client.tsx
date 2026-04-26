@@ -2,6 +2,7 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { ArrowRight, Columns3, Settings } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { BoardView } from "#/components/board/BoardView";
+import { WidgetCard } from "#/components/dashboard/WidgetCard";
 import { toast } from "#/components/ui/sonner";
 import { addBoardTask, getBoardData, moveBoardTask, removeBoardTask } from "#/lib/board/board.functions";
 import type { KanbanColumn } from "#/lib/board/kanban-parser";
@@ -112,39 +113,36 @@ function BoardColumnWidget({
 
   if (!configured || !dashboardColumn) {
     return (
-      <div className="surface-card rounded-lg p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Columns3 className="size-4" />
-          Board
-        </div>
+      <WidgetCard icon={Columns3} title="Board">
         <p className="text-xs text-muted-foreground">
           {!configured
             ? "Not configured. Go to Settings > Plugins > Board to set up."
             : "No dashboard column selected. Go to Settings > Plugins > Board to choose one."}
         </p>
-      </div>
+      </WidgetCard>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col rounded-xl border border-[var(--teal)]/20 bg-[var(--teal-subtle)] p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="inline-flex size-7 items-center justify-center rounded-lg bg-[var(--teal-subtle)] text-[var(--teal)]">
-            <Columns3 className="size-3.5" strokeWidth={1.75} />
-          </div>
-          <h3 className="text-sm font-bold tracking-tight text-foreground">{dashboardColumn.name}</h3>
-          <span className="text-xs text-muted-foreground">({dashboardColumn.tasks.length})</span>
-        </div>
+    <WidgetCard
+      icon={Columns3}
+      title={
+        <span className="flex items-baseline gap-1.5">
+          <span className="font-semibold text-foreground">{dashboardColumn.name}</span>
+          <span className="text-xs text-muted-foreground tabular-nums">({dashboardColumn.tasks.length})</span>
+        </span>
+      }
+      action={
         <Link
           to="/p/$pluginId"
           params={{ pluginId: "board" }}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--teal)] no-underline"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--accent)] no-underline"
         >
           Board
           <ArrowRight className="size-3" />
         </Link>
-      </div>
+      }
+    >
       {dashboardColumn.tasks.length === 0 ? (
         <p className="text-xs text-muted-foreground">No tasks in this column.</p>
       ) : (
@@ -176,7 +174,7 @@ function BoardColumnWidget({
           ))}
         </ul>
       )}
-    </div>
+    </WidgetCard>
   );
 }
 
