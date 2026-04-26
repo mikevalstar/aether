@@ -8,6 +8,8 @@ export type ChatModelOption = {
   description: string;
   supportsEffort: boolean;
   provider: string;
+  inputCostPerMillionTokensUsd?: number;
+  outputCostPerMillionTokensUsd?: number;
 };
 
 export const listChatModels = createServerFn({ method: "GET" }).handler(async (): Promise<ChatModelOption[]> => {
@@ -18,5 +20,7 @@ export const listChatModels = createServerFn({ method: "GET" }).handler(async ()
     description: m.description,
     supportsEffort: m.supportsEffort,
     provider: m.provider,
+    inputCostPerMillionTokensUsd: m.pricing.inputCostPerMillionTokensUsd,
+    outputCostPerMillionTokensUsd: m.pricing.outputCostPerMillionTokensUsd,
   }));
 });

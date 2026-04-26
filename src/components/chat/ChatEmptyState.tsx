@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ModelEffortSelector } from "#/components/chat/ModelEffortSelector";
+import { ModelSelector } from "#/components/chat/ModelSelector";
 import { MentionPopover } from "#/components/mentions/MentionPopover";
 import { Button } from "#/components/ui/button";
 import { useMentionAutocomplete } from "#/hooks/useMentionAutocomplete";
@@ -58,12 +58,11 @@ export function ChatEmptyState({
         </p>
 
         <div className="mt-6 flex items-center gap-2">
-          <ModelEffortSelector
+          <ModelSelector
             model={model}
             effort={effort}
             modelLabel={modelLabel}
             disabled={disabled}
-            modelClassName="min-w-48"
             onModelChange={onModelChange}
             onEffortChange={onEffortChange}
           />
@@ -75,6 +74,8 @@ export function ChatEmptyState({
             <MentionPopover state={mentionState} onSelect={selectMention} />
             <textarea
               ref={textareaRef}
+              // biome-ignore lint/a11y/noAutofocus: chat is the primary action on this page
+              autoFocus
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               onKeyDown={(event) => {

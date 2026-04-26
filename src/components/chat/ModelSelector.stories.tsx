@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
+import type { ChatEffort } from "#/lib/chat/chat-models";
 import type { ChatModelOption } from "#/lib/chat/chat-models.functions";
 import { ModelSelector } from "./ModelSelector";
 
@@ -10,6 +11,8 @@ const SAMPLE_MODELS: ChatModelOption[] = [
     description: "Fastest",
     supportsEffort: false,
     provider: "anthropic",
+    inputCostPerMillionTokensUsd: 1,
+    outputCostPerMillionTokensUsd: 5,
   },
   {
     id: "claude-sonnet-4-6",
@@ -17,14 +20,26 @@ const SAMPLE_MODELS: ChatModelOption[] = [
     description: "Balanced",
     supportsEffort: true,
     provider: "anthropic",
+    inputCostPerMillionTokensUsd: 3,
+    outputCostPerMillionTokensUsd: 15,
   },
-  { id: "claude-opus-4-6", label: "Claude Opus 4.6", description: "Strongest", supportsEffort: true, provider: "anthropic" },
   {
-    id: "moonshotai/kimi-k2.5",
-    label: "Kimi K2.5",
-    description: "Low-cost reasoning",
+    id: "claude-opus-4-6",
+    label: "Claude Opus 4.6",
+    description: "Strongest",
+    supportsEffort: true,
+    provider: "anthropic",
+    inputCostPerMillionTokensUsd: 5,
+    outputCostPerMillionTokensUsd: 25,
+  },
+  {
+    id: "MiniMax-M2.7",
+    label: "MiniMax M2.7",
+    description: "Agentic, autonomous",
     supportsEffort: false,
-    provider: "openrouter",
+    provider: "minimax",
+    inputCostPerMillionTokensUsd: 0.3,
+    outputCostPerMillionTokensUsd: 1.2,
   },
   {
     id: "z-ai/glm-5.1",
@@ -32,25 +47,47 @@ const SAMPLE_MODELS: ChatModelOption[] = [
     description: "Complex systems engineering",
     supportsEffort: false,
     provider: "openrouter",
+    inputCostPerMillionTokensUsd: 1.26,
+    outputCostPerMillionTokensUsd: 3.96,
+  },
+  {
+    id: "moonshotai/kimi-k2.5",
+    label: "Kimi K2.5",
+    description: "Low-cost reasoning",
+    supportsEffort: false,
+    provider: "openrouter",
+    inputCostPerMillionTokensUsd: 0.44,
+    outputCostPerMillionTokensUsd: 2.2,
+  },
+  {
+    id: "moonshotai/kimi-k2.6",
+    label: "Kimi K2.6",
+    description: "Agentic coding",
+    supportsEffort: false,
+    provider: "openrouter",
+    inputCostPerMillionTokensUsd: 0.75,
+    outputCostPerMillionTokensUsd: 3.5,
   },
 ];
 
-const noop = () => {};
+const MANY_MODELS: ChatModelOption[] = [
+  ...SAMPLE_MODELS,
+  ...Array.from({ length: 24 }, (_, i) => ({
+    id: `acme/test-model-${i + 1}`,
+    label: `StepFun: Step 3.5 Flash variant ${i + 1}`,
+    description: i % 3 === 0 ? "Reasoning" : i % 3 === 1 ? "Coding" : "General",
+    supportsEffort: i % 4 === 0,
+    provider: i % 2 === 0 ? "openrouter" : "anthropic",
+    inputCostPerMillionTokensUsd: 0.5 + (i % 5),
+    outputCostPerMillionTokensUsd: 2 + (i % 7),
+  })),
+];
 
 const meta = {
   title: "Features/Chat/Model Selector",
   tags: ["autodocs"],
   component: ModelSelector,
-  args: {
-    onModelChange: noop,
-  },
-  decorators: [
-    (Story) => (
-      <div className="flex min-h-32 items-start p-4">
-        <Story />
-      </div>
-    ),
-  ],
+  parameters: { layout: "padded" },
 } satisfies Meta<typeof ModelSelector>;
 
 export default meta;
@@ -58,103 +95,113 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    model: "claude-haiku-4-5",
-    modelLabel: "Claude Haiku 4.5",
-    modelDescription: "Fastest",
-    models: SAMPLE_MODELS,
-    className: "min-w-48",
-  },
-};
-
-export const Sonnet: Story = {
-  args: {
     model: "claude-sonnet-4-6",
+    effort: "low",
     modelLabel: "Claude Sonnet 4.6",
     modelDescription: "Balanced",
     models: SAMPLE_MODELS,
-    className: "min-w-48",
+  },
+};
+
+export const NoEffortSupport: Story = {
+  args: {
+    model: "claude-haiku-4-5",
+    effort: "low",
+    modelLabel: "Claude Haiku 4.5",
+    modelDescription: "Fastest",
+    models: SAMPLE_MODELS,
   },
 };
 
 export const Disabled: Story = {
   args: {
-    model: "claude-haiku-4-5",
-    modelLabel: "Claude Haiku 4.5",
-    modelDescription: "Fastest",
-    models: SAMPLE_MODELS,
-    disabled: true,
-    className: "min-w-48",
-  },
-};
-
-export const NoBadges: Story = {
-  args: {
     model: "claude-sonnet-4-6",
+    effort: "medium",
     modelLabel: "Claude Sonnet 4.6",
     models: SAMPLE_MODELS,
-    showBadges: false,
-    className: "min-w-48",
+    disabled: true,
   },
 };
 
-/** Models prop omitted — simulates the loading state where only the seeded prop renders. */
 export const Loading: Story = {
   args: {
-    model: "claude-haiku-4-5",
-    modelLabel: "Claude Haiku 4.5",
-    modelDescription: "Fastest",
+    model: "claude-sonnet-4-6",
+    effort: "low",
+    modelLabel: "Claude Sonnet 4.6",
+    modelDescription: "Balanced",
     models: undefined,
-    className: "min-w-48",
   },
   parameters: {
     docs: {
       description: {
         story:
-          "Without a `models` override and no working server function, only the seed (label/description from props) renders. This is the brief flash users see before the list arrives — and the permanent state if the fetch fails.",
+          "No `models` override and the server fn isn't reachable from Storybook — the trigger renders from the seeded label and the panel shows a loading message.",
       },
     },
   },
 };
 
-/** Selected model is not in the loaded list — appended as "unavailable" so it stays selectable. */
 export const RemovedModel: Story = {
   args: {
     model: "claude-some-retired-model",
+    effort: "low",
     modelLabel: "Claude Retired 3.0",
     modelDescription: "Removed",
     models: SAMPLE_MODELS,
-    className: "min-w-56",
   },
   parameters: {
     docs: {
       description: {
         story:
-          "If the configured model is no longer in the list, the trigger still renders the seeded label and the dropdown appends an `unavailable` entry so the user can switch off it without losing context.",
+          "Selected model isn't in the loaded list — it appears at the top of the panel as `unavailable` so the user can switch off it.",
       },
     },
   },
 };
 
-/** Interactive: state is owned by the story so changes show in the trigger. */
+export const ManyModels: Story = {
+  args: {
+    model: "claude-sonnet-4-6",
+    effort: "low",
+    modelLabel: "Claude Sonnet 4.6",
+    models: MANY_MODELS,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '32 models, including long names (e.g. "StepFun: Step 3.5 Flash variant N") to verify the trigger width and search.',
+      },
+    },
+  },
+};
+
 export const Interactive: Story = {
   args: {
-    model: "claude-haiku-4-5",
-    modelLabel: "Claude Haiku 4.5",
-    modelDescription: "Fastest",
+    model: "claude-sonnet-4-6",
+    effort: "low",
     models: SAMPLE_MODELS,
-    className: "min-w-48",
   },
   render: (args) => {
     const [model, setModel] = useState(args.model);
+    const [effort, setEffort] = useState<ChatEffort>(args.effort);
     const resolved = args.models?.find((m) => m.id === model);
     return (
-      <ModelSelector
-        {...args}
-        model={model}
-        modelLabel={resolved?.label ?? args.modelLabel}
-        modelDescription={resolved?.description ?? args.modelDescription}
-        onModelChange={setModel}
-      />
+      <div className="space-y-3">
+        <ModelSelector
+          {...args}
+          model={model}
+          effort={effort}
+          modelLabel={resolved?.label}
+          modelDescription={resolved?.description}
+          onModelChange={setModel}
+          onEffortChange={(e) => setEffort(e as ChatEffort)}
+        />
+        <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">
+          Selected: <span className="text-[var(--ink)]">{model}</span> · Effort:{" "}
+          <span className="text-[var(--ink)]">{effort}</span>
+        </div>
+      </div>
     );
   },
 };
