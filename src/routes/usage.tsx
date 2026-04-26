@@ -187,7 +187,7 @@ function UsagePage() {
       </section>
 
       {/* View mode toggle */}
-      <section className="mb-6 flex gap-1 rounded-lg border border-[var(--line)] bg-[var(--muted)] p-1 w-fit">
+      <section className="mb-6 flex w-fit gap-1 rounded-lg border border-[var(--line)] bg-[var(--bg)] p-1">
         <ViewModeButton active={view === "cost"} onClick={() => setView("cost")} icon={CircleDollarSign} label="Cost" />
         <ViewModeButton active={view === "tokens"} onClick={() => setView("tokens")} icon={Coins} label="Tokens" />
         <ViewModeButton active={view === "prompts"} onClick={() => setView("prompts")} icon={Zap} label="Prompts" />
@@ -283,7 +283,7 @@ function UsagePage() {
             <ChartLine className="size-6" strokeWidth={1.5} />
           </div>
           <h2 className="text-lg font-semibold">No usage data yet</h2>
-          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+          <p className="mt-2 max-w-md text-sm text-[var(--ink-soft)]">
             Start chatting and completed responses will appear here with costs, tokens, and model trends.
           </p>
           <Button asChild className="mt-5 gap-2">
@@ -533,7 +533,7 @@ function ViewModelMix({ data, view }: { data: ChatUsageStatsResult; view: ViewMo
                 <span className="truncate">{item.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">{viewConfig.legendFormatter(itemValue)}</span>
+                <span className="text-[var(--ink-soft)]">{viewConfig.legendFormatter(itemValue)}</span>
                 <span className="font-semibold" style={{ color }}>
                   {share}%
                 </span>

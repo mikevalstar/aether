@@ -1,6 +1,6 @@
 import { Bell, Bot, Clock, Cog, FileText, History, PenLine, Play, Puzzle, Timer } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { DataTable, type DataTableColumn } from "#/components/ui/data-table";
 import type { ActivityListItem } from "#/lib/activity.functions";
 import { getPlugin } from "#/plugins";
 import { formatRelativeTime } from "./format-relative-time";
@@ -10,39 +10,55 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
     return <ActivityEmptyState />;
   }
 
+  const columns: DataTableColumn<ActivityListItem>[] = [
+    {
+      key: "when",
+      header: "When",
+      mono: true,
+      headerClassName: "w-[170px]",
+      cell: (item) => (
+        <span className="inline-flex items-center gap-1.5 text-[12.5px] text-[var(--ink)]">
+          <Clock className="size-3 text-[var(--ink-soft)]" />
+          {formatRelativeTime(item.createdAt)}
+        </span>
+      ),
+    },
+    {
+      key: "type",
+      header: "Type",
+      headerClassName: "w-[120px]",
+      cell: (item) => <TypeBadge type={item.type} />,
+    },
+    {
+      key: "summary",
+      header: "Summary",
+      cell: (item) => (
+        <div className="min-w-0">
+          <span className="font-medium text-[var(--ink)]">{item.summary}</span>
+          {item.fileChangeDetail && (
+            <span className="ml-2 font-mono text-[11px] text-[var(--ink-soft)]">{item.fileChangeDetail.filePath}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "source",
+      header: "Source",
+      headerClassName: "w-[110px]",
+      cell: (item) => (item.fileChangeDetail ? <SourceBadge source={item.fileChangeDetail.changeSource} /> : null),
+    },
+  ];
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[180px]">When</TableHead>
-          <TableHead className="w-[100px]">Type</TableHead>
-          <TableHead>Summary</TableHead>
-          <TableHead className="w-[120px]">Source</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {items.map((item) => (
-          <TableRow key={item.id} className="cursor-pointer" onClick={() => onItemClick(item.id)}>
-            <TableCell className="text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <Clock className="size-3.5" />
-                {formatRelativeTime(item.createdAt)}
-              </div>
-            </TableCell>
-            <TableCell>
-              <TypeBadge type={item.type} />
-            </TableCell>
-            <TableCell>
-              <span className="font-medium">{item.summary}</span>
-              {item.fileChangeDetail && (
-                <span className="ml-2 font-mono text-xs text-muted-foreground">{item.fileChangeDetail.filePath}</span>
-              )}
-            </TableCell>
-            <TableCell>{item.fileChangeDetail && <SourceBadge source={item.fileChangeDetail.changeSource} />}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      title="Activity"
+      count={items.length}
+      data={items}
+      columns={columns}
+      rowKey={(item) => item.id}
+      showChevron
+      onRowClick={(item) => onItemClick(item.id)}
+    />
   );
 }
 
@@ -54,13 +70,12 @@ const TYPE_CONFIG: Record<string, { icon: typeof FileText; label: string; color:
   ai_notification: { icon: Bell, label: "Notification", color: "oklch(0.65 0.14 25)" },
 };
 
-/** Palette of colors assigned to plugins by index for consistent badge styling. */
 const PLUGIN_COLORS = [
-  "oklch(0.65 0.15 300)", // purple
-  "oklch(0.65 0.14 200)", // cyan
-  "oklch(0.60 0.16 50)", // amber
-  "oklch(0.65 0.13 160)", // green
-  "oklch(0.60 0.15 350)", // pink
+  "oklch(0.65 0.15 300)",
+  "oklch(0.65 0.14 200)",
+  "oklch(0.60 0.16 50)",
+  "oklch(0.65 0.13 160)",
+  "oklch(0.60 0.15 350)",
 ];
 
 function resolvePluginType(type: string): { icon: typeof FileText; label: string; color: string } | null {
@@ -76,7 +91,6 @@ function resolvePluginType(type: string): { icon: typeof FileText; label: string
   const label = activityDef?.label ?? actType;
   const icon = activityDef?.icon ?? plugin.meta.icon ?? Puzzle;
 
-  // Deterministic color from plugin id
   let hash = 0;
   for (let i = 0; i < pluginId.length; i++) hash = (hash * 31 + pluginId.charCodeAt(i)) | 0;
   const color = PLUGIN_COLORS[Math.abs(hash) % PLUGIN_COLORS.length];
@@ -132,7 +146,7 @@ function ActivityEmptyState() {
         <History className="size-6" strokeWidth={1.5} />
       </div>
       <h2 className="text-lg font-semibold">No activity yet</h2>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+      <p className="mt-2 max-w-md text-sm text-[var(--ink-soft)]">
         File changes from AI tools and manual edits will appear here.
       </p>
     </section>

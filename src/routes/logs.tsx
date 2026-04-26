@@ -159,9 +159,9 @@ function LogsPage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-3" align="start">
-                <div className="mb-3 flex items-center justify-between gap-3 px-1 text-xs text-muted-foreground">
+                <div className="mb-3 flex items-center justify-between gap-3 px-1 text-xs text-[var(--ink-soft)]">
                   <div>
-                    <p className="font-semibold uppercase tracking-[0.12em] text-foreground">Select day</p>
+                    <p className="font-semibold uppercase tracking-[0.12em] text-[var(--ink)]">Select day</p>
                     <p>Highlighted days have logs</p>
                   </div>
                   <Badge variant="outline" className="gap-2 rounded-md px-2 py-1 font-normal">
@@ -234,7 +234,7 @@ function LogsPage() {
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Search</p>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--ink-soft)]" />
               <Input
                 value={queryInput}
                 onChange={(event) => setQueryInput(event.target.value)}
@@ -284,12 +284,11 @@ function LogsPage() {
             >
               {autoPoll && <PollShrinkBar key={pollCycle} duration={POLL_INTERVAL_MS} />}
             </div>
-            <div className="flex flex-col gap-2 border-b border-border px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                Showing {startCount.toLocaleString()}-{endCount.toLocaleString()} of {data.totalMatched.toLocaleString()}{" "}
-                matched entries.
+            <div className="flex flex-col gap-2 border-b border-[var(--line)] px-4 py-3 text-xs text-[var(--ink-soft)] sm:flex-row sm:items-center sm:justify-between">
+              <div className="font-mono tabular-nums">
+                {startCount.toLocaleString()}–{endCount.toLocaleString()} of {data.totalMatched.toLocaleString()} matched
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {LEVEL_OPTIONS.filter(isSpecificLevelOption).map((option) => {
                   const isActive = activeLevel === option.value;
                   return (
@@ -305,12 +304,17 @@ function LogsPage() {
                         })
                       }
                       title={isActive ? `Clear ${option.label} filter` : `Filter by ${option.label}`}
-                      className={`inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-normal transition-colors ${
-                        isActive ? "border-foreground/40 bg-muted text-foreground" : "border-border hover:bg-muted/60"
+                      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                        isActive
+                          ? "border-[var(--ink)]/40 bg-[var(--bg)] text-[var(--ink)]"
+                          : "border-[var(--line)] text-[var(--ink-soft)] hover:bg-[var(--bg)]"
                       }`}
                     >
                       <span className={levelDotClass(option.value)} />
-                      {option.label} {data.matchedLevelCounts[option.value].toLocaleString()}
+                      {option.label}
+                      <span className="tabular-nums opacity-70">
+                        {data.matchedLevelCounts[option.value].toLocaleString()}
+                      </span>
                     </button>
                   );
                 })}
@@ -349,9 +353,9 @@ function LogsPage() {
                           isFresh ? "log-row-fresh" : ""
                         }`}
                       >
-                        <TableCell className="align-top text-xs text-muted-foreground">
-                          <div className="font-medium text-foreground">{formatLogTime(entry.timestamp)}</div>
-                          <div>
+                        <TableCell className="align-top font-mono text-[11px] text-[var(--ink-soft)]">
+                          <div className="font-medium tabular-nums text-[var(--ink)]">{formatLogTime(entry.timestamp)}</div>
+                          <div className="opacity-80">
                             {entry.sourceFile}:{entry.line}
                           </div>
                         </TableCell>
@@ -362,20 +366,22 @@ function LogsPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="max-w-0 align-top whitespace-normal">
-                          <div className="font-medium text-foreground">{entry.message}</div>
+                          <div className="text-[13px] font-medium text-[var(--ink)]">{entry.message}</div>
                           {entry.contextItems.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] text-[var(--ink-soft)]">
                               {entry.contextItems.map((item) => (
                                 <span
                                   key={`${entry.id}:${item.key}`}
-                                  className="rounded-md border border-border bg-muted/40 px-2 py-1"
+                                  className="rounded-md border border-[var(--line)] bg-[var(--bg)] px-1.5 py-0.5 font-mono"
                                 >
-                                  <span className="font-medium text-foreground">{item.key}</span>: {item.value}
+                                  <span className="font-medium text-[var(--ink)]">{item.key}</span>: {item.value}
                                 </span>
                               ))}
                             </div>
                           )}
-                          {entry.errorMessage && <p className="mt-2 text-sm text-destructive">{entry.errorMessage}</p>}
+                          {entry.errorMessage && (
+                            <p className="mt-2 text-sm text-[var(--destructive)]">{entry.errorMessage}</p>
+                          )}
                           {isExpanded && <JsonBlock json={entry.detailsJson} />}
                         </TableCell>
                       </TableRow>
@@ -385,8 +391,8 @@ function LogsPage() {
               </Table>
             ) : (
               <div className="px-6 py-16 text-center">
-                <h2 className="text-lg font-semibold text-foreground">No matching entries</h2>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <h2 className="text-lg font-semibold text-[var(--ink)]">No matching entries</h2>
+                <p className="mt-2 text-sm text-[var(--ink-soft)]">
                   Try a different day, clear the search, or widen the level filter.
                 </p>
               </div>
@@ -408,8 +414,8 @@ function LogsPage() {
         </>
       ) : (
         <section className="surface-card px-6 py-16 text-center">
-          <h2 className="text-lg font-semibold text-foreground">No log files yet</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <h2 className="text-lg font-semibold text-[var(--ink)]">No log files yet</h2>
+          <p className="mt-2 text-sm text-[var(--ink-soft)]">
             Aether is configured to rotate structured logs into `./logs` once the app starts writing them.
           </p>
         </section>
@@ -431,13 +437,15 @@ function HourSparkline({
   const indexed = buckets.map((b, i) => ({ ...b, hour: i }));
   return (
     <section className="surface-card mt-6 px-4 py-3">
-      <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-        <span className="font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]">Volume by hour</span>
+      <div className="mb-2 flex items-center justify-between text-xs text-[var(--ink-soft)]">
+        <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.15em] text-[var(--ink-soft)]">
+          Volume by hour
+        </span>
         {activeHour !== null && (
           <button
             type="button"
             onClick={() => onSelectHour(null)}
-            className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs hover:bg-muted/60"
+            className="inline-flex items-center gap-1 rounded-md border border-[var(--line)] px-2 py-0.5 font-mono text-[11px] hover:bg-[var(--bg)]"
           >
             <X className="size-3" />
             Filter: {String(activeHour).padStart(2, "0")}:00
@@ -475,7 +483,7 @@ function HourSparkline({
           );
         })}
       </div>
-      <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+      <div className="mt-1 flex justify-between font-mono text-[10px] tabular-nums text-[var(--ink-soft)]">
         <span>00</span>
         <span>06</span>
         <span>12</span>
@@ -503,7 +511,7 @@ function JsonBlock({ json }: { json: string }) {
           }
         }}
         title="Copy JSON"
-        className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-border bg-background/90 px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--line)] bg-[var(--surface)]/90 px-2 py-1 font-mono text-[11px] text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]"
       >
         {copied ? <Check className="size-3 text-[var(--teal)]" /> : <Copy className="size-3" />}
         {copied ? "Copied" : "Copy"}
@@ -511,7 +519,7 @@ function JsonBlock({ json }: { json: string }) {
       <pre
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
-        className="max-h-72 cursor-text overflow-auto rounded-md border border-border bg-background/80 p-3 pr-16 text-xs leading-5 text-muted-foreground"
+        className="max-h-72 cursor-text overflow-auto rounded-md border border-[var(--line)] bg-[var(--bg)] p-3 pr-16 font-mono text-[11px] leading-5 text-[var(--ink-soft)]"
       >
         {json}
       </pre>
@@ -554,23 +562,23 @@ function formatLogTime(timestamp: string) {
 
 function levelBadgeClass(level: LogLevel) {
   if (level === "fatal" || level === "error") {
-    return "border-destructive/30 bg-destructive/10 text-destructive";
+    return "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
   }
 
   if (level === "warn") {
-    return "border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)]";
+    return "border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
   }
 
   if (level === "debug" || level === "trace") {
-    return "border-border bg-muted/60 text-muted-foreground";
+    return "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
   }
 
-  return "border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)]";
+  return "border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
 }
 
 function levelDotClass(level: LogLevel) {
   if (level === "fatal" || level === "error") {
-    return "size-2 rounded-full bg-destructive";
+    return "size-2 rounded-full bg-[var(--destructive)]";
   }
 
   if (level === "warn") {
@@ -578,7 +586,7 @@ function levelDotClass(level: LogLevel) {
   }
 
   if (level === "debug" || level === "trace") {
-    return "size-2 rounded-full bg-muted-foreground";
+    return "size-2 rounded-full bg-[var(--ink-soft)]";
   }
 
   return "size-2 rounded-full bg-[var(--teal)]";
