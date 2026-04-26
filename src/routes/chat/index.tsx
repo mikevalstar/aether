@@ -41,7 +41,7 @@ function ChatIndex() {
         effort={draftEffort}
         inputTokens={0}
         outputTokens={0}
-        costLabel="$0.0000"
+        costUsd={0}
         showStats={false}
         disabled={isBusy}
         editable={false}

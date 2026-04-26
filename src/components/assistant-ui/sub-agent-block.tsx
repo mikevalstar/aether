@@ -6,7 +6,8 @@ import remarkGfm from "remark-gfm";
 import { createMarkdownComponents } from "#/components/markdown/markdown-components";
 import { Badge } from "#/components/ui/badge";
 import { threadIdToSlug } from "#/lib/chat/chat";
-import { formatUsageCurrency, getChatModelLabel } from "#/lib/chat/chat-usage";
+import { getChatModelLabel } from "#/lib/chat/chat-usage";
+import { Money } from "#/lib/format";
 import { cn } from "#/lib/utils";
 
 const markdownComponents = createMarkdownComponents("compact");
@@ -170,7 +171,7 @@ function SpawnCard({ spawn }: { spawn: SpawnState }) {
           <span>
             <span className="font-medium text-foreground">{formatTokens(spawn.outputTokens)}</span> out
           </span>
-          <span className="ml-auto font-medium text-foreground">{formatUsageCurrency(spawn.estimatedCostUsd)}</span>
+          <Money usd={spawn.estimatedCostUsd} className="ml-auto font-medium text-foreground" />
         </footer>
       )}
     </article>

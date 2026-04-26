@@ -33,7 +33,7 @@ export const WithThread: Story = {
     showStats: true,
     inputTokens: 1_243,
     outputTokens: 3_891,
-    costLabel: "$0.0207",
+    costUsd: 0.0207,
   },
 };
 
@@ -53,7 +53,7 @@ export const SonnetModel: Story = {
     showStats: true,
     inputTokens: 8_402,
     outputTokens: 12_150,
-    costLabel: "$0.2074",
+    costUsd: 0.2074,
   },
 };
 
@@ -64,7 +64,7 @@ export const OpusModel: Story = {
     showStats: true,
     inputTokens: 24_800,
     outputTokens: 45_230,
-    costLabel: "$1.2548",
+    costUsd: 1.2548,
   },
 };
 
@@ -75,7 +75,7 @@ export const LowUsage: Story = {
     showStats: true,
     inputTokens: 42,
     outputTokens: 187,
-    costLabel: "<$0.0001",
+    costUsd: 0.00005,
   },
 };
 
@@ -86,7 +86,7 @@ export const Disabled: Story = {
     showStats: true,
     inputTokens: 500,
     outputTokens: 1_200,
-    costLabel: "$0.0065",
+    costUsd: 0.0065,
     disabled: true,
   },
 };
@@ -98,7 +98,7 @@ export const WithMobileMenu: Story = {
     showStats: true,
     inputTokens: 2_100,
     outputTokens: 5_400,
-    costLabel: "$0.0291",
+    costUsd: 0.0291,
     showMobileMenu: true,
   },
 };
@@ -110,6 +110,6 @@ export const LongTitle: Story = {
     showStats: true,
     inputTokens: 3_200,
     outputTokens: 7_800,
-    costLabel: "$0.1266",
+    costUsd: 0.1266,
   },
 };

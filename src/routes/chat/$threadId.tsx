@@ -83,10 +83,6 @@ function ChatThreadPage() {
         outputTokens: selectedThread.totalOutputTokens ?? 0,
         estimatedCostUsd: selectedThread.totalEstimatedCostUsd ?? 0,
       };
-  const selectedCostLabel =
-    selectedUsageTotals.estimatedCostUsd > 0 && selectedUsageTotals.estimatedCostUsd < 0.0001
-      ? "<$0.0001"
-      : `$${selectedUsageTotals.estimatedCostUsd.toFixed(4)}`;
 
   return (
     <>
@@ -120,7 +116,7 @@ function ChatThreadPage() {
         effort={selectedEffort}
         inputTokens={selectedUsageTotals.inputTokens}
         outputTokens={selectedUsageTotals.outputTokens}
-        costLabel={selectedCostLabel}
+        costUsd={selectedUsageTotals.estimatedCostUsd}
         costBreakdown={data.costBreakdown ?? undefined}
         showStats
         disabled={isBusy}

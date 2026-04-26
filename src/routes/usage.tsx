@@ -27,6 +27,7 @@ import { threadIdToSlug } from "#/lib/chat/chat";
 import { formatUsageCurrency, getTaskTypeLabel, normalizeUsageSearch, TASK_TYPES } from "#/lib/chat/chat-usage";
 import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat/chat-usage.functions";
 import { formatDateTime } from "#/lib/date";
+import { Money } from "#/lib/format";
 
 const VIEW_MODES = ["cost", "tokens", "prompts"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];
@@ -94,14 +95,9 @@ function UsagePage() {
     <PageHeader
       icon={ChartLine}
       label="Usage"
-      color="text-[var(--coral)]"
       title="Usage"
       highlight="analytics"
       description="Track spend, token volume, and prompt count across every completed chat exchange."
-      glows={[
-        { color: "var(--coral)", size: "size-[500px]", position: "-right-48 -top-48" },
-        { color: "var(--teal)", size: "size-[350px]", position: "-left-36 top-96" },
-      ]}
       actions={
         <Button asChild variant="outline" className="gap-2">
           <Link to="/chat">
@@ -221,7 +217,9 @@ function UsagePage() {
                     <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3 text-[var(--ink-soft)]">
                         <span className="shrink-0">{formatDateTime(event.createdAt)}</span>
-                        <span className="shrink-0 text-[var(--ink)]">{event.modelLabel}</span>
+                        <Badge variant="model-name" className="shrink-0">
+                          {event.modelLabel}
+                        </Badge>
                         <Badge variant="outline" className="shrink-0">
                           {getTaskTypeLabel(event.taskType)}
                         </Badge>
@@ -237,7 +235,7 @@ function UsagePage() {
                             </p>
                           </TooltipContent>
                         </Tooltip>
-                        <span className="font-medium text-[var(--ink)]">{formatUsageCurrency(event.estimatedCostUsd)}</span>
+                        <Money usd={event.estimatedCostUsd} className="font-medium text-[var(--ink)]" />
                       </div>
                     </div>
                     {event.threadTitle && (
@@ -388,8 +386,12 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
         />
         <StatCard
           label="Total cost"
-          value={formatUsageCurrency(t.estimatedCostUsd)}
-          detail={`${formatUsageCurrency(t.averageCostPerEvent)} avg per prompt`}
+          value={<Money usd={t.estimatedCostUsd} />}
+          detail={
+            <>
+              <Money usd={t.averageCostPerEvent} /> avg per prompt
+            </>
+          }
           icon={CircleDollarSign}
           color="var(--chart-4)"
         />
@@ -402,7 +404,7 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
     <>
       <StatCard
         label="Estimated cost"
-        value={formatUsageCurrency(t.estimatedCostUsd)}
+        value={<Money usd={t.estimatedCostUsd} />}
         detail={`${t.events.toLocaleString()} tracked exchanges`}
         icon={CircleDollarSign}
         color="var(--coral)"
@@ -423,7 +425,7 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
       />
       <StatCard
         label="Average cost"
-        value={formatUsageCurrency(t.averageCostPerEvent)}
+        value={<Money usd={t.averageCostPerEvent} />}
         detail="Average estimated cost per exchange"
         icon={TrendingUp}
         color="var(--chart-4)"

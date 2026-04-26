@@ -6,7 +6,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "#/components/ui/h
 import type { ChatEffort, ChatModel } from "#/lib/chat/chat";
 import { CHAT_MODELS } from "#/lib/chat/chat";
 import type { CostBreakdown } from "#/lib/chat/chat-cost-aggregation";
-import { formatUsageCurrency, getChatModelLabel } from "#/lib/chat/chat-usage";
+import { getChatModelLabel } from "#/lib/chat/chat-usage";
+import { Money } from "#/lib/format";
 
 export interface ChatHeaderProps {
   title: string;
@@ -14,7 +15,7 @@ export interface ChatHeaderProps {
   effort: ChatEffort;
   inputTokens?: number;
   outputTokens?: number;
-  costLabel?: string;
+  costUsd?: number;
   /** When present, the stats row renders aggregate (parent + sub-agents) with a hover breakdown. */
   costBreakdown?: CostBreakdown;
   showStats?: boolean;
@@ -35,7 +36,7 @@ export function ChatHeader({
   effort,
   inputTokens = 0,
   outputTokens = 0,
-  costLabel = "$0.0000",
+  costUsd = 0,
   costBreakdown,
   showStats = false,
   disabled = false,
@@ -241,7 +242,7 @@ export function ChatHeader({
             <StatsRow
               inputTokens={inputTokens}
               outputTokens={outputTokens}
-              costLabel={costLabel}
+              costUsd={costUsd}
               costBreakdown={costBreakdown}
               className="flex items-center gap-3 pt-2 text-xs text-[var(--ink-soft)]"
               inputSuffix="in"
@@ -256,7 +257,7 @@ export function ChatHeader({
         <StatsRow
           inputTokens={inputTokens}
           outputTokens={outputTokens}
-          costLabel={costLabel}
+          costUsd={costUsd}
           costBreakdown={costBreakdown}
           className="mt-2 hidden items-center gap-3 text-xs text-[var(--ink-soft)] lg:flex"
           inputSuffix="input tokens"
@@ -270,7 +271,7 @@ export function ChatHeader({
 type StatsRowProps = {
   inputTokens: number;
   outputTokens: number;
-  costLabel: string;
+  costUsd: number;
   costBreakdown?: CostBreakdown;
   className: string;
   inputSuffix: string;
@@ -280,7 +281,7 @@ type StatsRowProps = {
 function StatsRow({
   inputTokens,
   outputTokens,
-  costLabel,
+  costUsd,
   costBreakdown,
   className,
   inputSuffix,
@@ -296,7 +297,7 @@ function StatsRow({
         <span className="font-medium text-[var(--ink)]">{outputTokens.toLocaleString()}</span> {outputSuffix}
       </span>
       <span className="text-[var(--line)]">/</span>
-      <span className="font-medium text-[var(--teal)]">{costLabel}</span>
+      <Money usd={costUsd} className="font-medium text-[var(--teal)]" />
     </div>
   );
 
@@ -375,7 +376,7 @@ function BreakdownRow({
       <span className="truncate text-foreground">{label}</span>
       <span className="whitespace-nowrap tabular-nums text-muted-foreground">
         {inputTokens.toLocaleString()} / {outputTokens.toLocaleString()}{" "}
-        <span className="ml-1 font-medium text-[var(--teal)]">{formatUsageCurrency(cost)}</span>
+        <Money usd={cost} className="ml-1 font-medium text-[var(--teal)]" />
       </span>
     </div>
   );

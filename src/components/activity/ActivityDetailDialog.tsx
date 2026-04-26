@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import type { ActivityChatThread, ActivityDetail } from "#/lib/activity.functions";
 import { formatDateTime } from "#/lib/date";
-import { formatCost } from "#/lib/format";
+import { Money } from "#/lib/format";
 import { ContentView } from "./ContentView";
 import { DiffView } from "./DiffView";
 import { formatRelativeTime } from "./format-relative-time";
@@ -259,7 +259,7 @@ function ChatThreadMeta({ thread }: { thread: ActivityChatThread }) {
           +{thread.subAgentCount} sub-agent{thread.subAgentCount === 1 ? "" : "s"}
         </span>
       ) : null}
-      {costUsd > 0 && <span className="tabular-nums">{formatCost(costUsd)}</span>}
+      {costUsd > 0 && <Money usd={costUsd} />}
     </div>
   );
 }
