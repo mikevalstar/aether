@@ -117,9 +117,7 @@ export function WorkflowForm({
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
-              Run Workflow
-            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">Run Workflow</span>
             <span className="text-[var(--ink-faint)]">·</span>
             <h2 className="font-display text-md font-semibold tracking-tight text-[var(--ink)]">{title}</h2>
             <Badge variant="model-name">{model}</Badge>
@@ -159,7 +157,10 @@ export function WorkflowForm({
                   onValueChange={(v) => setValue(field.name, v)}
                   required={field.required}
                 >
-                  <SelectTrigger id={id} className="w-full bg-[var(--bg)] dark:bg-[var(--bg)] dark:hover:bg-[var(--surface)]">
+                  <SelectTrigger
+                    id={id}
+                    className="w-full bg-[var(--bg)] dark:bg-[var(--bg)] dark:hover:bg-[var(--surface)]"
+                  >
                     <SelectValue placeholder={field.placeholder ?? "Select..."} />
                   </SelectTrigger>
                   <SelectContent>

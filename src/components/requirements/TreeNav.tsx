@@ -14,9 +14,7 @@ export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
   return (
     <div className="surface-card lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:flex lg:flex-col overflow-hidden">
       <div className="border-b border-[var(--line)] px-3 py-2.5">
-        <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em] text-[var(--ink-dim)]">
-          Index
-        </p>
+        <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em] text-[var(--ink-dim)]">Index</p>
       </div>
 
       <nav className="min-h-0 flex-1 overflow-y-auto p-2">

@@ -178,7 +178,12 @@ export function createMarkdownComponents(
     blockquote: ({ className, ...props }) => <blockquote className={cn(s.blockquote, className)} {...props} />,
     hr: ({ className, ...props }) => <hr className={cn(s.hr, className)} {...props} />,
     table: ({ className, ...props }) => (
-      <div className={cn(s.tableWrap, "relative w-full overflow-x-auto overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface)]")}>
+      <div
+        className={cn(
+          s.tableWrap,
+          "relative w-full overflow-x-auto overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface)]",
+        )}
+      >
         <table className={cn(s.table, className)} {...props} />
       </div>
     ),

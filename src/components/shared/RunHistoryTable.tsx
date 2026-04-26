@@ -6,7 +6,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
-import { Money, formatDateTime } from "#/lib/format";
+import { formatDateTime, Money } from "#/lib/format";
 
 export type RunItem = {
   id: string;
