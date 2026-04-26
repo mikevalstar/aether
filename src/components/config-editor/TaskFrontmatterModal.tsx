@@ -340,7 +340,10 @@ function EndDatePicker({ value, onChange }: { value: string; onChange: (v: strin
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={cn("w-full justify-start text-left font-normal text-sm", !value && "text-muted-foreground")}
+            className={cn(
+              "h-9 w-full justify-start border-input bg-background px-3 text-left text-sm font-normal hover:bg-background dark:bg-background dark:hover:bg-background",
+              !value && "text-muted-foreground",
+            )}
           >
             <CalendarIcon className="mr-2 size-4" />
             {value || "No end date"}

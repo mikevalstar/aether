@@ -134,7 +134,7 @@ export function DateRangePicker({ from, to, showPresets = true, defaultPreset = 
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start gap-2 text-left font-normal",
+            "h-9 w-full justify-start gap-2 border-input bg-background px-3 text-left text-sm font-normal hover:bg-background dark:bg-background dark:hover:bg-background",
             !from && !to && !activePreset && "text-muted-foreground",
           )}
         >
