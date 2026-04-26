@@ -1,63 +1,40 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, CalendarCheck, Lock, Sparkles } from "lucide-react";
+import { ArrowRight, Lock, LogIn } from "lucide-react";
+import { AppLogo } from "#/components/AppLogo";
+import ThemeToggle from "#/components/ThemeToggle";
 import { Button } from "#/components/ui/button";
-import { FeatureCard } from "#/components/ui/feature-card";
-import { GlowBg } from "#/components/ui/glow-bg";
 import { SectionLabel } from "#/components/ui/section-label";
 import { authClient } from "#/lib/auth-client";
 
 export const Route = createFileRoute("/")({ component: HomePage });
 
-const features = [
-  {
-    icon: Sparkles,
-    title: "AI Chat",
-    description:
-      "Ask questions about your notes in natural language. Claude understands context, connects ideas, and helps you think.",
-    color: "text-[var(--teal)]",
-    bg: "bg-[var(--teal-subtle)]",
-    border: "border-[var(--teal)]/20",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Daily Planner",
-    description: "Organise your tasks and goals for each day. Stay focused on what matters most.",
-    color: "text-[var(--coral)]",
-    bg: "bg-[var(--coral)]/8",
-    border: "border-[var(--coral)]/20",
-  },
-  {
-    icon: BookOpen,
-    title: "Linked Notes",
-    description: "Browse and connect ideas across your entire vault. See relationships you didn't know existed.",
-    color: "text-[var(--chart-3)]",
-    bg: "bg-[var(--chart-3)]/8",
-    border: "border-[var(--chart-3)]/20",
-  },
-] as const;
-
 function HomePage() {
   const { data: session } = authClient.useSession();
 
   return (
-    <main className="relative overflow-hidden">
-      <GlowBg color="var(--teal)" size="size-[600px]" position="-right-40 -top-40" />
-      <GlowBg color="var(--coral)" size="size-[400px]" position="-left-32 top-1/3" />
+    <main className="auth-grid-bg relative grid min-h-dvh place-items-center bg-background px-5 py-12 text-foreground">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
 
-      {/* Hero */}
-      <section className="page-wrap relative px-4 pb-24 pt-20 sm:pt-28">
-        <SectionLabel icon={Sparkles}>Personal Dashboard</SectionLabel>
+      <div className="absolute top-5 left-5 flex items-center gap-2.5 md:top-7 md:left-7">
+        <AppLogo markClassName="size-7" />
+        <span className="text-[15px] font-semibold tracking-tight">aether</span>
+      </div>
 
-        <h1 className="display-title mt-6 mb-6 max-w-2xl text-5xl font-bold leading-[1.1] tracking-tight sm:text-6xl lg:text-7xl">
-          Your life, <span className="text-[var(--teal)]">organised.</span>
+      <div className="flex w-full max-w-[640px] flex-col items-center gap-7 text-center">
+        <SectionLabel>◆ PRIVATE INSTANCE</SectionLabel>
+
+        <h1 className="display-title border-l-[3px] border-[var(--accent)] pl-5 text-left text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl md:text-6xl">
+          A quiet console for the work you actually do.
         </h1>
 
-        <p className="mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground">
-          Aether brings together your notes, tasks, and AI assistant in one calm, focused space — so you can think clearly
-          and act deliberately.
+        <p className="max-w-[480px] text-left text-[14px] leading-relaxed text-[var(--ink-dim)] sm:text-[15px]">
+          Your vault, your agents, your schedule — wired together. Aether brings notes, tasks, and AI into one focused space
+          so you can think clearly and act deliberately.
         </p>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="mt-2 flex w-full flex-wrap items-center justify-center gap-4">
           {session?.user ? (
             <Button asChild size="lg" className="gap-2 pr-5">
               <Link to="/dashboard" className="no-underline">
@@ -69,25 +46,20 @@ function HomePage() {
             <Button asChild size="lg" className="gap-2 pr-5">
               <Link to="/login" className="no-underline">
                 Sign in
-                <ArrowRight className="size-4" />
+                <LogIn className="size-4" />
               </Link>
             </Button>
           )}
-          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Lock className="size-3.5" />
-            Invite-only
+          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-wider text-[var(--ink-faint)]">
+            <Lock className="size-3" />
+            INVITE-ONLY
           </span>
         </div>
-      </section>
+      </div>
 
-      {/* Features */}
-      <section className="page-wrap px-4 pb-28">
-        <div className="grid gap-6 sm:grid-cols-3">
-          {features.map((feature) => (
-            <FeatureCard key={feature.title} {...feature} />
-          ))}
-        </div>
-      </section>
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-wider text-[var(--ink-faint)]">
+        NEED ACCESS? ASK AN ADMIN
+      </div>
     </main>
   );
 }
