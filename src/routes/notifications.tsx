@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
+import type { VariantProps } from "class-variance-authority";
 import {
   AlertTriangle,
   Archive,
@@ -16,9 +17,10 @@ import { useState } from "react";
 import { z } from "zod";
 import { PageHeader } from "#/components/PageHeader";
 import { PaginationControls } from "#/components/PaginationControls";
-import { Badge } from "#/components/ui/badge";
+import { Badge, type badgeVariants } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Checkbox } from "#/components/ui/checkbox";
+import { DataTableHeader } from "#/components/ui/data-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "#/components/ui/dropdown-menu";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
@@ -84,42 +86,37 @@ const STATUS_FILTERS = [
   { value: "archived", label: "Archived" },
 ];
 
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
+
 type LevelConfig = {
   icon: typeof Info;
-  color: string;
-  bg: string;
   label: string;
+  variant: BadgeVariant;
 };
 
 const LEVEL_CONFIG: Record<string, LevelConfig> = {
-  info: { icon: Info, color: "text-blue-500", bg: "bg-blue-500/10", label: "Info" },
-  low: { icon: BellRing, color: "text-slate-500", bg: "bg-slate-500/10", label: "Low" },
-  medium: { icon: Bell, color: "text-yellow-500", bg: "bg-yellow-500/10", label: "Medium" },
-  high: { icon: AlertTriangle, color: "text-orange-500", bg: "bg-orange-500/10", label: "High" },
-  critical: { icon: OctagonAlert, color: "text-red-500", bg: "bg-red-500/10", label: "Critical" },
-  error: { icon: ShieldAlert, color: "text-red-700 dark:text-red-400", bg: "bg-red-700/10", label: "Error" },
+  info: { icon: Info, label: "Info", variant: "info" },
+  low: { icon: BellRing, label: "Low", variant: "ghost" },
+  medium: { icon: Bell, label: "Medium", variant: "warning" },
+  high: { icon: AlertTriangle, label: "High", variant: "warning" },
+  critical: { icon: OctagonAlert, label: "Critical", variant: "destructive" },
+  error: { icon: ShieldAlert, label: "Error", variant: "destructive" },
 };
 
 function LevelBadge({ level }: { level: string }) {
   const config = LEVEL_CONFIG[level] ?? LEVEL_CONFIG.info;
   const Icon = config.icon;
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium ${config.bg} ${config.color}`}
-    >
-      <Icon className="size-3" />
+    <Badge variant={config.variant}>
+      <Icon />
       {config.label}
-    </span>
+    </Badge>
   );
 }
 
 function CategoryBadge({ category }: { category: string | null }) {
   if (!category) return null;
-  return (
-    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-      {category}
-    </Badge>
-  );
+  return <Badge variant="outline">{category}</Badge>;
 }
 
 function timeAgo(dateStr: string): string {
@@ -200,7 +197,6 @@ function NotificationsPage() {
           break;
       }
       setSelected(new Set());
-      // Re-navigate to trigger loader refresh
       void navigate({ search: { ...search }, replace: true });
     } catch (err) {
       console.error("Notification bulk action failed:", err);
@@ -227,33 +223,32 @@ function NotificationsPage() {
       icon={Bell}
       label="Notifications"
       title="Notification"
-      highlight="center"
+      highlight="inbox"
       description="View and manage all your notifications."
     >
-      {/* Filters + bulk actions row */}
-      <section className="mb-4 flex flex-wrap items-center gap-2">
-        {/* Status filter — segmented/split button */}
-        <div className="inline-flex rounded-md border border-border overflow-hidden">
-          {STATUS_FILTERS.map((filter) => (
-            <button
+      {/* Status filter chips */}
+      <section className="mb-3 flex flex-wrap gap-1.5">
+        {STATUS_FILTERS.map((filter) => {
+          const active = activeStatus === filter.value;
+          return (
+            <Button
               key={filter.value}
-              type="button"
-              className={`px-3 py-1 text-sm font-medium transition-colors border-r border-border last:border-r-0 ${
-                activeStatus === filter.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+              variant={active ? "default" : "outline"}
+              size="xs"
               onClick={() => setFilter("status", filter.value)}
+              className="tracking-[0.06em]"
             >
               {filter.label}
-            </button>
-          ))}
-        </div>
+            </Button>
+          );
+        })}
+      </section>
 
-        {/* Level filter */}
+      {/* Secondary filters + bulk actions */}
+      <section className="mb-4 flex flex-wrap items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1">
+            <Button variant="outline" size="xs" className="gap-1">
               {LEVEL_FILTERS.find((f) => f.value === activeLevel)?.label ?? "All Levels"}
               <ChevronDown className="size-3" />
             </Button>
@@ -261,17 +256,15 @@ function NotificationsPage() {
           <DropdownMenuContent align="start">
             {LEVEL_FILTERS.map((filter) => (
               <DropdownMenuItem key={filter.value} onClick={() => setFilter("level", filter.value)}>
-                {filter.value !== "all" && <LevelBadge level={filter.value} />}
-                {filter.value === "all" && filter.label}
+                {filter.value !== "all" ? <LevelBadge level={filter.value} /> : filter.label}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Category filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1">
+            <Button variant="outline" size="xs" className="gap-1">
               {CATEGORY_FILTERS.find((f) => f.value === activeCategory)?.label ?? "All Sources"}
               <ChevronDown className="size-3" />
             </Button>
@@ -285,30 +278,31 @@ function NotificationsPage() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Bulk actions — right-aligned */}
         {someSelected && (
           <div className="ml-auto flex items-center gap-1">
-            <span className="mr-1 text-xs text-muted-foreground">{selected.size} selected</span>
-            <Button variant="ghost" size="sm" disabled={loading} onClick={() => void bulkAction("read")}>
-              <Eye className="mr-1 size-3" />
+            <span className="mr-1 font-mono text-[10.5px] uppercase tracking-[0.15em] text-[var(--ink-soft)]">
+              {selected.size} selected
+            </span>
+            <Button variant="ghost" size="xs" disabled={loading} onClick={() => void bulkAction("read")}>
+              <Eye />
               Read
             </Button>
-            <Button variant="ghost" size="sm" disabled={loading} onClick={() => void bulkAction("unread")}>
-              <EyeOff className="mr-1 size-3" />
+            <Button variant="ghost" size="xs" disabled={loading} onClick={() => void bulkAction("unread")}>
+              <EyeOff />
               Unread
             </Button>
-            <Button variant="ghost" size="sm" disabled={loading} onClick={() => void bulkAction("archive")}>
-              <Archive className="mr-1 size-3" />
+            <Button variant="ghost" size="xs" disabled={loading} onClick={() => void bulkAction("archive")}>
+              <Archive />
               Archive
             </Button>
             <Button
               variant="ghost"
-              size="sm"
-              className="text-destructive"
+              size="xs"
+              className="text-destructive hover:text-destructive"
               disabled={loading}
               onClick={() => void bulkAction("delete")}
             >
-              <Trash2 className="mr-1 size-3" />
+              <Trash2 />
               Delete
             </Button>
           </div>
@@ -316,17 +310,17 @@ function NotificationsPage() {
       </section>
 
       {/* Notification list */}
-      <div className="rounded-lg border border-border bg-card">
-        {/* Header row */}
-        <div className="flex items-center gap-3 border-b border-border px-3 py-2">
+      <DataTableHeader title="Inbox" count={data.total} />
+      <div className="surface-card overflow-hidden">
+        <div className="flex items-center gap-3 border-b border-[var(--line)] bg-[var(--bg)]/40 px-3 py-2">
           <Checkbox checked={allSelected} onCheckedChange={toggleAll} aria-label="Select all" />
-          <span className="text-xs text-muted-foreground">
+          <span className="font-mono text-[10.5px] uppercase tracking-[0.15em] text-[var(--ink-soft)]">
             {data.total} notification{data.total !== 1 ? "s" : ""}
           </span>
         </div>
 
         {data.items.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-muted-foreground">No notifications found.</div>
+          <div className="px-4 py-12 text-center text-sm text-[var(--ink-soft)]">No notifications found.</div>
         ) : (
           data.items.map((n) => (
             <NotificationRow
@@ -361,33 +355,35 @@ function NotificationRow({
   onClick: () => void;
 }) {
   const rowBody = (
-    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-      <div className="flex items-center gap-2">
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <div className="flex items-center gap-1.5">
         <LevelBadge level={n.level} />
         <CategoryBadge category={n.category} />
-        {!n.read && <span className="size-1.5 rounded-full bg-[var(--teal)]" />}
+        {!n.read && <span aria-hidden className="size-1.5 rounded-full bg-[var(--accent)]" />}
       </div>
       <div className="flex items-start justify-between gap-2">
-        <span className={`text-sm ${!n.read ? "font-semibold" : "font-medium"}`}>{n.title}</span>
-        <span className="shrink-0 text-[10px] text-muted-foreground">{timeAgo(n.createdAt)}</span>
+        <span className={`text-sm text-[var(--ink)] ${!n.read ? "font-semibold" : "font-medium"}`}>{n.title}</span>
+        <span className="shrink-0 font-mono text-[10.5px] tabular-nums text-[var(--ink-faint)]">{timeAgo(n.createdAt)}</span>
       </div>
-      {n.body && <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>}
-      {n.source && <span className="text-[10px] text-muted-foreground">Source: {n.source}</span>}
+      {n.body && <p className="line-clamp-2 text-xs text-[var(--ink-soft)]">{n.body}</p>}
+      {n.source && (
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">source: {n.source}</span>
+      )}
     </div>
   );
 
   return (
     <div
-      className={`flex items-start gap-3 border-b border-border px-3 py-2.5 transition-colors ${
-        !n.read ? "bg-[var(--teal-subtle)]" : ""
-      } ${selected ? "bg-muted/60" : ""} hover:bg-muted/40`}
+      className={`flex items-start gap-3 border-b border-[var(--line)] px-3 py-2.5 transition-colors last:border-b-0 ${
+        !n.read ? "bg-[var(--accent-subtle)]/40" : ""
+      } ${selected ? "bg-[var(--accent-subtle)]/70" : ""} hover:bg-[var(--bg)]/60`}
     >
       <div className="pt-0.5">
         <Checkbox checked={selected} onCheckedChange={onToggle} aria-label={`Select ${n.title}`} />
       </div>
 
       {n.link ? (
-        <Link to={n.link} className="no-underline text-inherit flex min-w-0 flex-1" onClick={onClick}>
+        <Link to={n.link} className="flex min-w-0 flex-1 text-inherit no-underline" onClick={onClick}>
           {rowBody}
         </Link>
       ) : (
