@@ -1,7 +1,7 @@
 import cronstrue from "cronstrue";
 import { FileX } from "lucide-react";
-import { Badge } from "#/components/ui/badge";
 import { RunHistoryTable } from "#/components/shared/RunHistoryTable";
+import { Badge } from "#/components/ui/badge";
 import type { TaskRunItem } from "#/lib/tasks/task.functions";
 import { convertTaskToChat, deleteTaskRun } from "#/lib/tasks/task.functions";
 

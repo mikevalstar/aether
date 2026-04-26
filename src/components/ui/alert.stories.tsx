@@ -9,14 +9,7 @@ import {
   RefreshCw,
   X,
 } from "lucide-react";
-import {
-  Alert,
-  AlertAction,
-  AlertActions,
-  AlertDescription,
-  AlertHeader,
-  AlertTitle,
-} from "./alert";
+import { Alert, AlertAction, AlertActions, AlertDescription, AlertHeader, AlertTitle } from "./alert";
 
 const meta = {
   title: "Design System/Feedback/Alert",

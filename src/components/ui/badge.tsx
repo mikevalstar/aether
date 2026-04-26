@@ -10,7 +10,8 @@ const badgeVariants = cva(
     variants: {
       variant: {
         // Solid — use for SOLID ACCENT-style emphasis chips
-        default: "bg-primary text-primary-foreground font-semibold uppercase tracking-wider [a&]:hover:bg-[var(--accent-hover)]",
+        default:
+          "bg-primary text-primary-foreground font-semibold uppercase tracking-wider [a&]:hover:bg-[var(--accent-hover)]",
         // Subtle accent surface — soft alt
         secondary: "bg-secondary text-secondary-foreground border-[var(--line)] [a&]:hover:bg-secondary/90",
         // Outlined error (matches design's "ERROR" chip)
@@ -23,8 +24,7 @@ const badgeVariants = cva(
         warning:
           "border-[var(--warning)]/40 bg-[var(--warning-subtle)] text-[var(--warning)] font-semibold uppercase tracking-wider",
         // Outlined info / "NEW" chip
-        info:
-          "border-[var(--accent)]/40 bg-[var(--accent-subtle)] text-[var(--accent)] font-semibold uppercase tracking-wider",
+        info: "border-[var(--accent)]/40 bg-[var(--accent-subtle)] text-[var(--accent)] font-semibold uppercase tracking-wider",
         // Solid green ("SOLID ADD")
         "solid-success":
           "bg-[var(--success)] text-white font-semibold uppercase tracking-wider [a&]:hover:bg-[var(--success)]/90",

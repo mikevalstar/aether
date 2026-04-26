@@ -6,7 +6,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
-import { formatCost, formatDateTime } from "#/lib/format";
+import { Money, formatDateTime } from "#/lib/format";
 
 export type RunItem = {
   id: string;
@@ -113,8 +113,8 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
           <TableHead className="w-8" />
           <TableHead>Time</TableHead>
           <TableHead>Model</TableHead>
-          <TableHead>Tokens</TableHead>
-          <TableHead>Cost</TableHead>
+          <TableHead className="text-right">Tokens</TableHead>
+          <TableHead className="text-right">Cost</TableHead>
           <TableHead className="w-[120px]" />
         </TableRow>
       </TableHeader>
@@ -144,7 +144,7 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                 <TableCell>
                   <Badge variant="model-name">{run.model}</Badge>
                 </TableCell>
-                <TableCell className="text-sm tabular-nums text-[var(--ink)]">
+                <TableCell className="text-right text-sm tabular-nums text-[var(--ink)]">
                   {(
                     (run.aggregateInputTokens ?? run.totalInputTokens) + (run.aggregateOutputTokens ?? run.totalOutputTokens)
                   ).toLocaleString()}
@@ -154,8 +154,8 @@ export function RunHistoryTable({ runs, onDelete, onConvertToChat, emptyLabel = 
                     </span>
                   ) : null}
                 </TableCell>
-                <TableCell className="text-sm tabular-nums text-[var(--ink)]">
-                  {formatCost(run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd)}
+                <TableCell className="text-right text-sm text-[var(--ink)]">
+                  <Money usd={run.aggregateEstimatedCostUsd ?? run.totalEstimatedCostUsd} />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-0.5">

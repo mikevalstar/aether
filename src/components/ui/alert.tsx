@@ -22,11 +22,7 @@ const alertVariants = cva(
 
 type AlertVariantProps = VariantProps<typeof alertVariants>;
 
-function Alert({
-  className,
-  variant,
-  ...props
-}: React.ComponentProps<"div"> & AlertVariantProps) {
+function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & AlertVariantProps) {
   return (
     <div
       data-slot="alert"
@@ -87,10 +83,7 @@ function AlertLabel({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
       data-slot="alert-label"
-      className={cn(
-        "text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-[var(--alert-accent)]",
-        className,
-      )}
+      className={cn("text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-[var(--alert-accent)]", className)}
       {...props}
     />
   );
@@ -101,10 +94,7 @@ function AlertRule({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="alert-rule"
       aria-hidden
-      className={cn(
-        "h-px flex-1 border-t border-dotted border-[var(--line-strong)] opacity-70",
-        className,
-      )}
+      className={cn("h-px flex-1 border-t border-dotted border-[var(--line-strong)] opacity-70", className)}
       {...props}
     />
   );
@@ -135,11 +125,7 @@ function AlertDescription({ className, ...props }: React.ComponentProps<"div">) 
 
 function AlertActions({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
-      data-slot="alert-actions"
-      className={cn("flex flex-wrap items-center gap-1.5 pt-0.5", className)}
-      {...props}
-    />
+    <div data-slot="alert-actions" className={cn("flex flex-wrap items-center gap-1.5 pt-0.5", className)} {...props} />
   );
 }
 
@@ -150,10 +136,8 @@ const alertActionVariants = cva(
       tone: {
         primary:
           "border-[var(--alert-accent)]/50 bg-[var(--alert-accent)]/10 text-[var(--alert-accent)] hover:bg-[var(--alert-accent)]/15",
-        secondary:
-          "border-[var(--line-strong)] bg-transparent text-foreground hover:bg-[var(--line)]",
-        ghost:
-          "border-transparent bg-transparent text-muted-foreground hover:bg-[var(--line)] hover:text-foreground",
+        secondary: "border-[var(--line-strong)] bg-transparent text-foreground hover:bg-[var(--line)]",
+        ghost: "border-transparent bg-transparent text-muted-foreground hover:bg-[var(--line)] hover:text-foreground",
       },
     },
     defaultVariants: { tone: "secondary" },
@@ -166,23 +150,8 @@ function AlertAction({
   ...props
 }: React.ComponentProps<"button"> & VariantProps<typeof alertActionVariants>) {
   return (
-    <button
-      type="button"
-      data-slot="alert-action"
-      className={cn(alertActionVariants({ tone }), className)}
-      {...props}
-    />
+    <button type="button" data-slot="alert-action" className={cn(alertActionVariants({ tone }), className)} {...props} />
   );
 }
 
-export {
-  Alert,
-  AlertHeader,
-  AlertIcon,
-  AlertLabel,
-  AlertRule,
-  AlertTitle,
-  AlertDescription,
-  AlertActions,
-  AlertAction,
-};
+export { Alert, AlertAction, AlertActions, AlertDescription, AlertHeader, AlertIcon, AlertLabel, AlertRule, AlertTitle };
