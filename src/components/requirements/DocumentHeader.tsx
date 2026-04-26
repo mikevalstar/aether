@@ -9,28 +9,20 @@ type DocumentHeaderProps = {
 
 export function DocumentHeader({ document }: DocumentHeaderProps) {
   return (
-    <div className="relative overflow-hidden border-b border-[var(--line)]">
-      {/* Subtle teal gradient band along the top */}
-      <div
-        className="absolute inset-x-0 top-0 h-1"
-        style={{
-          background: "linear-gradient(90deg, var(--teal), var(--coral))",
-        }}
-      />
-
-      <div className="px-6 pb-5 pt-6 sm:px-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Requirements doc</p>
-            <h2 className="display-title mt-2 text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">
+    <div className="border-b border-[var(--line)] bg-[var(--surface)]">
+      <div className="px-5 pb-4 pt-5 sm:px-7">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="relative min-w-0 flex-1 pl-3">
+            <span aria-hidden className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-(--accent)" />
+            <h2 className="display-title text-xl font-semibold tracking-tight text-[var(--ink)] sm:text-2xl">
               {document.title}
             </h2>
-            <p className="mt-2 font-mono text-[13px] text-[var(--ink-soft)]/60">
+            <p className="mt-1.5 font-mono text-[12px] text-[var(--ink-dim)]">
               {document.canonicalFile ?? `docs/requirements/${document.relativePath}`}
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             {document.status ? <StatusBadge status={document.status} /> : null}
             {document.owner ? <MetaPill icon={<UserRoundIcon className="size-3.5" />}>{document.owner}</MetaPill> : null}
             {document.lastUpdated ? (

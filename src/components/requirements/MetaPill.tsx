@@ -11,7 +11,7 @@ export function MetaPill({ icon, children, className }: MetaPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--bg)] px-2.5 py-1 text-xs text-[var(--ink-soft)]",
+        "inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-transparent px-2.5 py-1 text-xs text-[var(--ink-dim)]",
         className,
       )}
     >

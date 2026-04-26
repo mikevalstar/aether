@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { FileTextIcon, FolderTreeIcon } from "lucide-react";
+import { FileTextIcon, FolderIcon } from "lucide-react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { getRequirementHref, type RequirementTreeNode } from "#/lib/requirements";
 import { cn } from "#/lib/utils";
@@ -13,18 +13,13 @@ type TreeNavProps = {
 export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
   return (
     <div className="surface-card lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:flex lg:flex-col overflow-hidden">
-      <div className="border-b border-[var(--line)] bg-[var(--teal-subtle)] px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--teal)]">Requirements</p>
-        <h1 className="mt-2 flex items-center gap-2 text-lg font-semibold text-[var(--ink)]">
-          <FolderTreeIcon className="size-4 text-[var(--teal)]" />
-          Viewer
-        </h1>
-        <p className="mt-1 text-sm text-[var(--ink-soft)]">
-          Browse the docs in <code className="text-[12px]">docs/requirements/</code> without leaving Aether.
+      <div className="border-b border-[var(--line)] px-3 py-2.5">
+        <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em] text-[var(--ink-dim)]">
+          Index
         </p>
       </div>
 
-      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+      <nav className="min-h-0 flex-1 overflow-y-auto p-2">
         <TreeList nodes={nodes} currentRoutePath={currentRoutePath} />
       </nav>
     </div>
@@ -33,18 +28,18 @@ export function TreeNav({ nodes, currentRoutePath }: TreeNavProps) {
 
 function TreeList(props: { nodes: RequirementTreeNode[]; currentRoutePath: string; depth?: number }) {
   return (
-    <ul className={cn("space-y-0.5", props.depth ? "mt-0.5" : "")}>
+    <ul className={cn("space-y-px", props.depth ? "mt-px" : "")}>
       {props.nodes.map((node) => (
         <li key={node.type === "folder" ? node.path : node.relativePath}>
           {node.type === "folder" ? (
             <div>
               <div
-                className="flex items-center gap-2 rounded-md px-2.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]"
+                className="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--ink-dim)]"
                 style={{
-                  paddingLeft: `${(props.depth ?? 0) * 14 + 10}px`,
+                  paddingLeft: `${(props.depth ?? 0) * 12 + 8}px`,
                 }}
               >
-                <FolderTreeIcon className="size-3.5 text-[var(--teal)]/50" />
+                <FolderIcon className="size-3 text-[var(--ink-faint)]" />
                 <span>{node.name}</span>
               </div>
               <TreeList nodes={node.children} currentRoutePath={props.currentRoutePath} depth={(props.depth ?? 0) + 1} />
@@ -69,22 +64,22 @@ function TreeNavLink(props: { routePath: string; isActive: boolean; depth: numbe
     <Link
       to={getRequirementHref(props.routePath)}
       className={cn(
-        "group relative flex items-center gap-2 rounded-md px-2.5 py-2 text-sm no-underline transition-colors",
+        "group relative flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] no-underline transition-colors",
         props.isActive
-          ? "bg-[var(--teal)]/10 font-medium text-[var(--teal)]"
-          : "text-[var(--ink-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink)]",
+          ? "bg-[var(--accent)]/10 font-medium text-[var(--ink)]"
+          : "text-[var(--ink-soft)] hover:bg-[var(--accent)]/5 hover:text-[var(--ink)]",
       )}
       style={{
-        paddingLeft: `${props.depth * 14 + 10}px`,
+        paddingLeft: `${props.depth * 12 + 8}px`,
       }}
     >
       {props.isActive && (
-        <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--teal)]" aria-hidden />
+        <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-(--accent)" aria-hidden />
       )}
       <FileTextIcon
         className={cn(
-          "size-4 shrink-0",
-          props.isActive ? "text-[var(--teal)]" : "text-[var(--ink-soft)]/50 group-hover:text-[var(--ink-soft)]",
+          "size-3.5 shrink-0",
+          props.isActive ? "text-[var(--accent)]" : "text-[var(--ink-faint)] group-hover:text-[var(--ink-soft)]",
         )}
       />
       <span className="truncate">{props.title}</span>

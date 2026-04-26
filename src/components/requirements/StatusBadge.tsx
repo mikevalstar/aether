@@ -3,8 +3,8 @@ import { cn } from "#/lib/utils";
 const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
   done: {
     label: "Done",
-    className: "border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)]",
-    dot: "bg-[var(--teal)]",
+    className: "border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]",
+    dot: "bg-[var(--accent)]",
   },
   "in-progress": {
     label: "In Progress",
@@ -13,8 +13,8 @@ const statusConfig: Record<string, { label: string; className: string; dot: stri
   },
   todo: {
     label: "To Do",
-    className: "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]",
-    dot: "bg-[var(--ink-soft)]/40",
+    className: "border-[var(--line)] bg-transparent text-[var(--ink-dim)]",
+    dot: "bg-[var(--ink-faint)]",
   },
 };
 
@@ -27,8 +27,8 @@ type StatusBadgeProps = {
 export function StatusBadge({ status, size = "md", className }: StatusBadgeProps) {
   const config = statusConfig[status.toLowerCase()] ?? {
     label: status,
-    className: "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)]",
-    dot: "bg-[var(--ink-soft)]/40",
+    className: "border-[var(--line)] bg-transparent text-[var(--ink-dim)]",
+    dot: "bg-[var(--ink-faint)]",
   };
 
   return (
