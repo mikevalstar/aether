@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "#/components/ui/alert-dialog";
 import { Button } from "#/components/ui/button";
+import { FieldRow } from "#/components/ui/field-row";
 import { Input } from "#/components/ui/input";
 import { SectionLabel } from "#/components/ui/section-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
@@ -205,33 +206,6 @@ function UsersPage() {
         </section>
       </section>
     </PageHeader>
-  );
-}
-
-function FieldRow({
-  label,
-  required,
-  hint,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  hint?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-baseline gap-2">
-        <span className="font-mono text-[10px] font-semibold tracking-[0.15em] text-[var(--ink-soft)]">{label}</span>
-        {required && <span className="font-mono text-[11px] leading-none text-[var(--destructive)]">*</span>}
-        <span
-          className="h-px flex-1 self-center border-t border-dashed border-[var(--line-strong)] opacity-70"
-          aria-hidden
-        />
-        {hint && <span className="font-mono text-[10px] tracking-wider text-[var(--ink-faint)]">{hint}</span>}
-      </div>
-      {children}
-    </div>
   );
 }
 

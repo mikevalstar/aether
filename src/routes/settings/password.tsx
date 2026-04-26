@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { KeyRound } from "lucide-react";
 import { useState } from "react";
+import { Alert, AlertDescription, AlertHeader } from "#/components/ui/alert";
 import { Button } from "#/components/ui/button";
+import { FieldRow } from "#/components/ui/field-row";
 import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
+import { SectionLabel } from "#/components/ui/section-label";
 import { toast } from "#/components/ui/sonner";
 import { changeOwnPassword, getPasswordSettingsData } from "#/lib/user-management.functions";
 
@@ -17,13 +20,11 @@ function PasswordSection() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-    setSuccess("");
 
     if (newPassword !== confirmPassword) {
       setError("New passwords do not match");
@@ -43,7 +44,6 @@ function PasswordSection() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setSuccess("");
       toast.success("Password updated");
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : "Failed to change password");
@@ -53,67 +53,70 @@ function PasswordSection() {
   };
 
   return (
-    <div>
-      {settings.mustChangePassword ? (
-        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
-          This account is still using a temporary password. Change it now to finish setup.
-        </div>
-      ) : null}
+    <div className="flex flex-col gap-4">
+      {settings.mustChangePassword && (
+        <Alert variant="warning">
+          <AlertHeader label="Temporary password" />
+          <AlertDescription>
+            This account is still using a temporary password. Change it now to finish setup.
+          </AlertDescription>
+        </Alert>
+      )}
 
-      <form onSubmit={handleSubmit} className="surface-card p-6">
-        <h2 className="mb-4 text-lg font-semibold">Change Password</h2>
-        <div className="grid gap-4">
-          <div className="grid gap-1.5">
-            <Label htmlFor="current-password">Current password</Label>
-            <Input
-              id="current-password"
-              type="password"
-              value={currentPassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-              required
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="surface-card flex flex-col gap-5 p-6">
+        <header className="flex flex-col gap-1.5">
+          <SectionLabel icon={KeyRound}>Change Password</SectionLabel>
+          <p className="text-sm text-muted-foreground">Updating will sign you out of any other active sessions.</p>
+        </header>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="new-password">New password</Label>
-            <Input
-              id="new-password"
-              type="password"
-              value={newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-              required
-              minLength={8}
-            />
-          </div>
+        <FieldRow label="CURRENT PASSWORD" required htmlFor="current-password">
+          <Input
+            id="current-password"
+            type="password"
+            className="font-mono text-[12.5px]"
+            value={currentPassword}
+            onChange={(event) => setCurrentPassword(event.target.value)}
+            required
+            placeholder="••••••••"
+          />
+        </FieldRow>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="confirm-password">Confirm new password</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              required
-              minLength={8}
-            />
-          </div>
+        <FieldRow label="NEW PASSWORD" required hint={<span>min 8 chars</span>} htmlFor="new-password">
+          <Input
+            id="new-password"
+            type="password"
+            className="font-mono text-[12.5px]"
+            value={newPassword}
+            onChange={(event) => setNewPassword(event.target.value)}
+            required
+            minLength={8}
+            placeholder="••••••••"
+          />
+        </FieldRow>
 
-          {error ? (
-            <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
-            </div>
-          ) : null}
+        <FieldRow label="CONFIRM NEW PASSWORD" required htmlFor="confirm-password">
+          <Input
+            id="confirm-password"
+            type="password"
+            className="font-mono text-[12.5px]"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            required
+            minLength={8}
+            placeholder="••••••••"
+          />
+        </FieldRow>
 
-          {success ? (
-            <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-              {success}
-            </div>
-          ) : null}
+        {error && (
+          <Alert variant="destructive">
+            <AlertHeader label="Error" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Updating password..." : "Update password"}
-          </Button>
-        </div>
+        <Button type="submit" disabled={isSubmitting} className="mt-1 w-fit">
+          {isSubmitting ? "Updating password..." : "Update password"}
+        </Button>
       </form>
     </div>
   );
