@@ -1,11 +1,8 @@
 import { createFileRoute, Outlet, redirect, useNavigate, useRouter } from "@tanstack/react-router";
-import { GripVerticalIcon, MessageSquarePlusIcon, XIcon } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { ChatThreadItem } from "#/components/chat/ChatThreadItem";
-import { ChatThreadSearchInput, useChatThreadSearch } from "#/components/chat/ChatThreadSearch";
+import { useCallback, useEffect, useState, useTransition } from "react";
+import { ChatMenuOverlay } from "#/components/chat/ChatMenuOverlay";
 import { Button } from "#/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "#/components/ui/dialog";
-import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "#/components/ui/drawer";
 import { toast } from "#/components/ui/sonner";
 import { getSession } from "#/lib/auth.functions";
 import type { ChatThreadSummary } from "#/lib/chat/chat";
@@ -15,10 +12,6 @@ import type { ChatLayoutContext } from "#/lib/chat/chat-layout-context";
 import { ChatLayoutCtx } from "#/lib/chat/chat-layout-context";
 
 const PENDING_MESSAGE_KEY = "aether:pending-chat-message";
-const SIDEBAR_WIDTH_KEY = "aether:chat-sidebar-width";
-const DEFAULT_SIDEBAR_WIDTH = 320;
-const MIN_SIDEBAR_WIDTH = 280;
-const MAX_SIDEBAR_WIDTH = 460;
 
 export const Route = createFileRoute("/chat")({
   beforeLoad: async () => {
@@ -37,18 +30,10 @@ function ChatLayout() {
   const data = Route.useLoaderData();
   const navigate = useNavigate();
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
   const [pendingDeleteThread, setPendingDeleteThread] = useState<ChatThreadSummary | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const [isMutating, startTransition] = useTransition();
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const {
-    query: threadSearchQuery,
-    setQuery: setThreadSearchQuery,
-    filtered: filteredThreads,
-    isSearching,
-  } = useChatThreadSearch(data.threads);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const selectedThreadId = data.selectedThreadId;
 
@@ -93,45 +78,18 @@ function ChatLayout() {
 
   const isBusy = isMutating || pendingThreadId !== null;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const storedWidth = window.localStorage.getItem(SIDEBAR_WIDTH_KEY);
-    if (!storedWidth) return;
-
-    const parsedWidth = Number.parseInt(storedWidth, 10);
-    if (Number.isNaN(parsedWidth)) return;
-
-    setSidebarWidth(Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, parsedWidth)));
-  }, []);
+  const openMenu = useCallback(() => setMenuOpen(true), []);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(SIDEBAR_WIDTH_KEY, String(sidebarWidth));
-  }, [sidebarWidth]);
-
-  const handleResizeStart = useCallback(() => {
-    if (typeof window === "undefined") return;
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const containerRect = containerRef.current?.getBoundingClientRect();
-      if (!containerRect) return;
-
-      const nextWidth = Math.round(containerRect.right - event.clientX);
-      setSidebarWidth(Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, nextWidth)));
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        setMenuOpen((v) => !v);
+      }
     };
-
-    const handlePointerUp = () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp, { once: true });
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   function handleRequestDelete(thread: ChatThreadSummary) {
@@ -148,13 +106,6 @@ function ChatLayout() {
     });
   }
 
-  function handleMobileThreadSelect(threadId: string) {
-    setMobileDrawerOpen(false);
-    void navigate({ to: "/chat/$threadId", params: { threadId: threadIdToSlug(threadId) } });
-  }
-
-  const openMobileDrawer = useCallback(() => setMobileDrawerOpen(true), []);
-
   const ctxValue: ChatLayoutContext = {
     threads: data.threads,
     selectedThreadId,
@@ -163,127 +114,38 @@ function ChatLayout() {
     refreshPage,
     handleCreateThread,
     handleRequestDelete,
-    openMobileDrawer,
+    openMenu,
   };
-
-  const threadListContent = (
-    <>
-      <div className="px-2 pb-2">
-        <ChatThreadSearchInput value={threadSearchQuery} onChange={setThreadSearchQuery} isSearching={isSearching} />
-      </div>
-      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-        {filteredThreads.map((thread: ChatThreadSummary) => (
-          <ChatThreadItem
-            key={thread.id}
-            title={thread.title}
-            preview={thread.preview}
-            updatedAt={thread.updatedAt}
-            isActive={thread.id === selectedThreadId}
-            disabled={isBusy}
-            onClick={() => handleMobileThreadSelect(thread.id)}
-            onDelete={() => handleRequestDelete(thread)}
-          />
-        ))}
-
-        {data.threads.length === 0 && (
-          <div className="px-3 py-8 text-center">
-            <p className="text-sm text-[var(--ink-soft)]">No threads yet</p>
-            <p className="mt-1 text-xs text-[var(--ink-soft)]">Start a conversation to begin</p>
-          </div>
-        )}
-
-        {data.threads.length > 0 && filteredThreads.length === 0 && (
-          <div className="px-3 py-6 text-center">
-            <p className="text-xs text-[var(--ink-soft)]">No matching threads</p>
-          </div>
-        )}
-      </div>
-    </>
-  );
 
   return (
     <ChatLayoutCtx.Provider value={ctxValue}>
-      <main className="page-wrap flex h-[calc(100svh-1.75rem-env(safe-area-inset-top))] min-h-0 px-0 py-0 lg:h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] lg:min-h-[500px] lg:px-4 lg:py-2">
-        <div ref={containerRef} className="flex min-h-0 w-full flex-col gap-0 lg:flex-row lg:gap-0">
-          {/* Main chat area — rendered by child route */}
-          <section className="order-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-[var(--surface)] lg:rounded-xl lg:border lg:border-[var(--line)] lg:rounded-r-none lg:border-r-0">
-            <Outlet />
-          </section>
+      <main className="page-wrap relative flex h-[calc(100svh-1.75rem-env(safe-area-inset-top))] min-h-0 px-0 py-0 lg:h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] lg:min-h-[500px]">
+        {/* Faint grid backdrop — chat showcase only */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--line-strong) 1px, transparent 1px), linear-gradient(90deg, var(--line-strong) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
 
-          {/* Desktop resize handle */}
-          <div className="order-2 hidden w-3 items-stretch justify-center lg:flex">
-            <button
-              type="button"
-              className="group flex w-full cursor-col-resize items-center justify-center rounded-none text-[var(--ink-soft)] transition hover:bg-[var(--teal-subtle)] hover:text-[var(--teal)] focus-visible:bg-[var(--teal-subtle)] focus-visible:outline-none"
-              onPointerDown={(event) => {
-                event.preventDefault();
-                handleResizeStart();
-              }}
-              onDoubleClick={() => {
-                setSidebarWidth(DEFAULT_SIDEBAR_WIDTH);
-              }}
-              aria-label="Resize thread sidebar"
-            >
-              <GripVerticalIcon className="size-4 transition group-hover:scale-110" />
-            </button>
-          </div>
+        <section className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[var(--bg)]">
+          <Outlet />
+        </section>
 
-          {/* Desktop sidebar */}
-          <aside
-            className="order-3 hidden min-h-0 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] lg:flex lg:rounded-l-none"
-            style={{ width: `${sidebarWidth}px` }}
-          >
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-3">
-              <h2 className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">Threads</h2>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => {
-                  void navigate({ to: "/chat" });
-                }}
-                disabled={isBusy || !selectedThreadId}
-                className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
-              >
-                <MessageSquarePlusIcon className="size-4" />
-                New
-              </Button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
-          </aside>
-
-          {/* Mobile drawer */}
-          <Drawer open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen} direction="right">
-            <DrawerContent className="h-full pt-[env(safe-area-inset-top)]">
-              <DrawerHeader className="flex flex-row items-center justify-between border-b border-[var(--line)]">
-                <DrawerTitle className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--ink-soft)]">
-                  Threads
-                </DrawerTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => {
-                      setMobileDrawerOpen(false);
-                      void navigate({ to: "/chat" });
-                    }}
-                    disabled={isBusy || !selectedThreadId}
-                    className="bg-[var(--teal)] text-white hover:bg-[var(--teal-hover)]"
-                  >
-                    <MessageSquarePlusIcon className="size-4" />
-                    New
-                  </Button>
-                  <DrawerClose asChild>
-                    <Button variant="ghost" size="icon-sm">
-                      <XIcon className="size-4" />
-                    </Button>
-                  </DrawerClose>
-                </div>
-              </DrawerHeader>
-              <div className="flex-1 overflow-y-auto p-2">{threadListContent}</div>
-            </DrawerContent>
-          </Drawer>
-        </div>
+        <ChatMenuOverlay
+          open={menuOpen}
+          threads={data.threads}
+          selectedThreadId={selectedThreadId}
+          busy={isBusy}
+          onClose={closeMenu}
+          onNewChat={() => {
+            void navigate({ to: "/chat" });
+          }}
+          onDeleteThread={handleRequestDelete}
+        />
 
         <Dialog
           open={pendingDeleteThread !== null}

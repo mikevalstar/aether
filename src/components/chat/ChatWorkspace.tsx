@@ -2,16 +2,38 @@ import { useChat } from "@ai-sdk/react";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useAISDKRuntime } from "@assistant-ui/react-ai-sdk";
 import { DefaultChatTransport } from "ai";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Thread } from "#/components/assistant-ui/thread";
+import { ChatRunHeader, type ChatRunHeaderProps } from "#/components/chat/ChatRunHeader";
 import {
   type AppChatMessage,
   type ChatEffort,
   type ChatModel,
   DEFAULT_CHAT_EFFORT,
   DEFAULT_CHAT_MODEL,
+  estimateChatUsageCostUsd,
   parseStoredMessages,
 } from "#/lib/chat/chat";
+import type { CostBreakdown } from "#/lib/chat/chat-cost-aggregation";
+import { computeRunStats } from "#/lib/chat/chat-run";
+
+type HeaderProps = Pick<
+  ChatRunHeaderProps,
+  | "threadId"
+  | "title"
+  | "model"
+  | "effort"
+  | "startedAt"
+  | "endedAt"
+  | "editable"
+  | "parentLink"
+  | "onTitleChange"
+  | "onModelChange"
+  | "onEffortChange"
+  | "onDelete"
+  | "onExport"
+  | "onMenuOpen"
+>;
 
 type ChatWorkspaceProps = {
   threadId: string;
@@ -20,9 +42,22 @@ type ChatWorkspaceProps = {
   messagesJson: string;
   initialMessage?: string;
   onFinish?: () => void;
+  header: HeaderProps;
+  baselineUsage: { inputTokens: number; outputTokens: number; estimatedCostUsd: number };
+  costBreakdown?: CostBreakdown;
 };
 
-export function ChatWorkspace({ threadId, model, effort, messagesJson, initialMessage, onFinish }: ChatWorkspaceProps) {
+export function ChatWorkspace({
+  threadId,
+  model,
+  effort,
+  messagesJson,
+  initialMessage,
+  onFinish,
+  header,
+  baselineUsage,
+  costBreakdown,
+}: ChatWorkspaceProps) {
   const hasBootstrappedMessage = useRef(false);
 
   const chat = useChat<AppChatMessage>({
@@ -58,11 +93,45 @@ export function ChatWorkspace({ threadId, model, effort, messagesJson, initialMe
 
   const runtime = useAISDKRuntime(chat);
 
+  // Live clock so the duration updates while streaming
+  const [now, setNow] = useState(() => Date.now());
+  const isRunning = chat.status === "streaming" || chat.status === "submitted";
+  useEffect(() => {
+    if (!isRunning) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [isRunning]);
+
+  const status: ChatRunHeaderProps["status"] = chat.error ? "error" : isRunning ? "streaming" : "settled";
+
+  const liveStats = useMemo(() => computeRunStats(chat.messages), [chat.messages]);
+
+  // Pick the higher of baseline (loader) and live (streaming message metadata)
+  const inputTokens = Math.max(baselineUsage.inputTokens, liveStats.inputTokens);
+  const outputTokens = Math.max(baselineUsage.outputTokens, liveStats.outputTokens);
+
+  const liveCost = estimateChatUsageCostUsd(model, { inputTokens, outputTokens });
+  const costUsd = Math.max(baselineUsage.estimatedCostUsd, liveCost);
+
+  const endedAt = isRunning ? new Date(now) : new Date(header.endedAt);
+
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <div className="flex h-full min-h-0 flex-col">
+      <div className="relative flex h-full min-h-0 flex-col">
+        <ChatRunHeader
+          {...header}
+          endedAt={endedAt}
+          status={status}
+          inputTokens={inputTokens}
+          outputTokens={outputTokens}
+          toolCalls={liveStats.toolCalls}
+          writes={liveStats.writes}
+          costUsd={costUsd}
+          costBreakdown={costBreakdown}
+          busy={isRunning}
+        />
         {chat.error ? (
-          <div className="mx-4 mt-4 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-700 dark:text-red-200">
+          <div className="mx-4 mt-4 rounded-md border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm text-destructive dark:text-red-200">
             {chat.error.message}
           </div>
         ) : null}
