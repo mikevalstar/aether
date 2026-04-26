@@ -39,7 +39,7 @@ function InboxWidget({
       title="Inbox"
       action={
         unreadCount > 0 ? (
-          <span className="rounded-full bg-[var(--coral)] px-2 py-0.5 text-xs font-semibold text-white">
+          <span className="rounded-full bg-[var(--destructive)] px-2 py-0.5 text-xs font-semibold text-white">
             {unreadCount} unread
           </span>
         ) : null
@@ -52,7 +52,7 @@ function InboxWidget({
           {recentEmails.map((email) => (
             <li key={email.uid} className="flex items-start gap-2">
               {email.unread ? (
-                <Mail className="mt-0.5 size-3.5 shrink-0 text-[var(--teal)]" />
+                <Mail className="mt-0.5 size-3.5 shrink-0 text-[var(--accent)]" />
               ) : (
                 <MailOpen className="mt-0.5 size-3.5 shrink-0 text-muted-foreground/50" />
               )}

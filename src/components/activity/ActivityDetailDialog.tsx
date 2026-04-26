@@ -51,7 +51,7 @@ export function ActivityDetailDialog({
         ) : detail ? (
           <>
             {/* Header block — tinted background, clear visual separation */}
-            <DialogHeader className="shrink-0 border-b border-border bg-[var(--teal-subtle)]/40 px-6 pt-6 pb-4">
+            <DialogHeader className="shrink-0 border-b border-border bg-[var(--accent-subtle)]/40 px-6 pt-6 pb-4">
               {/* Row 1: Summary title + revert */}
               <div className="flex items-start justify-between gap-4 pr-4">
                 <DialogTitle className="text-lg font-semibold leading-tight">{detail.summary}</DialogTitle>
@@ -201,14 +201,14 @@ function CopyablePath({ path }: { path: string }) {
 function SourceBadge({ source }: { source: string }) {
   if (source === "ai") {
     return (
-      <Badge className="gap-1 border-[var(--teal)]/20 bg-[var(--teal)]/10 px-2 py-1 text-xs text-[var(--teal)] hover:bg-[var(--teal)]/15">
+      <Badge className="gap-1 border-[var(--accent)]/20 bg-[var(--accent)]/10 px-2 py-1 text-xs text-[var(--accent)] hover:bg-[var(--accent)]/15">
         <Bot className="size-3.5" />
         AI
       </Badge>
     );
   }
   return (
-    <Badge className="gap-1 border-[var(--coral)]/20 bg-[var(--coral)]/10 px-2 py-1 text-xs text-[var(--coral)] hover:bg-[var(--coral)]/15">
+    <Badge className="gap-1 border-[var(--warning)]/20 bg-[var(--warning)]/10 px-2 py-1 text-xs text-[var(--warning)] hover:bg-[var(--warning)]/15">
       <PenLine className="size-3.5" />
       Manual
     </Badge>
@@ -255,7 +255,7 @@ function ChatThreadMeta({ thread }: { thread: ActivityChatThread }) {
       </Badge>
       {totalTokens > 0 && <span className="tabular-nums">{totalTokens.toLocaleString()} tokens</span>}
       {thread.subAgentCount ? (
-        <span className="tabular-nums text-[var(--teal)]">
+        <span className="tabular-nums text-[var(--accent)]">
           +{thread.subAgentCount} sub-agent{thread.subAgentCount === 1 ? "" : "s"}
         </span>
       ) : null}
@@ -275,10 +275,10 @@ function NotificationDetail({ detail }: { detail: ActivityDetail }) {
   return (
     <div className="flex flex-col gap-4 px-6 pt-4 pb-6">
       <div className="flex items-center gap-2">
-        <Bell className="size-4 text-[var(--coral)]" />
+        <Bell className="size-4 text-[var(--warning)]" />
         <span className="text-sm font-semibold">Notification sent by AI</span>
         {meta.pushToPhone && (
-          <Badge className="gap-1 border-[var(--coral)]/20 bg-[var(--coral)]/10 px-2 py-1 text-xs text-[var(--coral)]">
+          <Badge className="gap-1 border-[var(--warning)]/20 bg-[var(--warning)]/10 px-2 py-1 text-xs text-[var(--warning)]">
             <Smartphone className="size-3" />
             Pushed to phone
           </Badge>
@@ -289,7 +289,7 @@ function NotificationDetail({ detail }: { detail: ActivityDetail }) {
         {meta.title && <p className="text-sm font-semibold">{meta.title}</p>}
         {meta.body && <p className="mt-1 text-sm text-muted-foreground">{meta.body}</p>}
         {meta.link && (
-          <p className="mt-2 flex items-center gap-1 text-xs text-[var(--teal)]">
+          <p className="mt-2 flex items-center gap-1 text-xs text-[var(--accent)]">
             <ExternalLink className="size-3" />
             {meta.link}
           </p>

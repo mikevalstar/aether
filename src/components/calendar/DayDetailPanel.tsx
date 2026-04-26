@@ -26,7 +26,9 @@ export function DayDetailPanel({ date, events }: Props) {
         <h3 className="text-sm font-semibold">
           {format(date, "EEEE, MMM d")}
           {isToday(date) && (
-            <span className="ml-2 rounded-full bg-[var(--teal)] px-2 py-0.5 text-[10px] font-medium text-white">Today</span>
+            <span className="ml-2 rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-medium text-white">
+              Today
+            </span>
           )}
         </h3>
 
@@ -113,7 +115,7 @@ function EventCard({
             href={event.meetLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 rounded p-0.5 text-[var(--teal)] hover:bg-[var(--teal-subtle)] transition-colors"
+            className="shrink-0 rounded p-0.5 text-[var(--accent)] hover:bg-[var(--accent-subtle)] transition-colors"
             title="Join meeting"
             onClick={(e) => e.stopPropagation()}
           >

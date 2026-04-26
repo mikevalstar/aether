@@ -396,7 +396,7 @@ function getActionCopy(kind: MarkdownToolKind) {
       title: "Read markdown note",
       action: "View note",
       description: "Opened from the tool result",
-      tone: "border-[var(--teal)]/25 bg-[var(--teal-subtle)]/45 text-[var(--teal)]",
+      tone: "border-[var(--accent)]/25 bg-[var(--accent-subtle)]/45 text-[var(--accent)]",
       Icon: FileTextIcon,
     };
   }
@@ -406,7 +406,7 @@ function getActionCopy(kind: MarkdownToolKind) {
       title: "Wrote markdown note",
       action: "View written note",
       description: "Previewing the written content",
-      tone: "border-[var(--coral)]/25 bg-[var(--coral)]/10 text-[var(--coral)]",
+      tone: "border-[var(--destructive)]/25 bg-[var(--destructive)]/10 text-[var(--destructive)]",
       Icon: PencilLineIcon,
     };
   }
@@ -608,7 +608,7 @@ function MarkdownDocumentDialog({
     <DialogContent className="grid h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-none grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden p-0 sm:h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)] sm:max-w-none xl:h-[min(94vh,1080px)] xl:w-[min(98vw,1680px)]">
       <DialogHeader className="border-b border-[var(--line)] px-5 py-4 pr-12">
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[var(--teal)]/25 bg-[var(--teal-subtle)] text-[var(--teal)]">
+          <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[var(--accent)]/25 bg-[var(--accent-subtle)] text-[var(--accent)]">
             <FileTextIcon className="size-4" />
           </span>
           <div className="min-w-0">

@@ -9,11 +9,11 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-[var(--line)] [--alert-accent:var(--teal)]",
+        default: "border-[var(--line)] [--alert-accent:var(--accent)]",
         destructive: "border-destructive/40 [--alert-accent:var(--destructive)]",
         warning: "border-warning/40 [--alert-accent:var(--warning)]",
         success: "border-success/40 [--alert-accent:var(--success)]",
-        info: "border-[var(--teal)]/40 [--alert-accent:var(--teal)]",
+        info: "border-[var(--accent)]/40 [--alert-accent:var(--accent)]",
       },
     },
     defaultVariants: { variant: "default" },

@@ -153,7 +153,7 @@ function BoardColumnWidget({
               className="flex items-start gap-2 rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
             >
               <span
-                className={`mt-0.5 size-3.5 shrink-0 rounded border ${task.checked ? "border-[var(--teal)] bg-[var(--teal)] text-white" : "border-muted-foreground/30"} inline-flex items-center justify-center`}
+                className={`mt-0.5 size-3.5 shrink-0 rounded border ${task.checked ? "border-[var(--accent)] bg-[var(--accent)] text-white" : "border-muted-foreground/30"} inline-flex items-center justify-center`}
               >
                 {task.checked && (
                   <svg

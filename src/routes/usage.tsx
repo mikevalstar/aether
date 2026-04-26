@@ -206,7 +206,7 @@ function UsagePage() {
               title="Recent exchanges"
               subtitle="Latest tracked chat completions in this view."
               icon={MessageSquare}
-              accentColor="var(--coral)"
+              accentColor="var(--chart-2)"
             >
               <div className="grid gap-2">
                 {data.recentEvents.map((event) => (
@@ -244,7 +244,7 @@ function UsagePage() {
                           <Link
                             to="/chat/$threadId"
                             params={{ threadId: threadIdToSlug(event.threadId) }}
-                            className="hover:text-[var(--teal)] transition-colors"
+                            className="hover:text-[var(--accent)] transition-colors"
                           >
                             {event.threadTitle}
                           </Link>
@@ -277,7 +277,7 @@ function UsagePage() {
         </>
       ) : (
         <section className="surface-card flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--coral)]/10 text-[var(--coral)]">
+          <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--chart-2)]/10 text-[var(--chart-2)]">
             <ChartLine className="size-6" strokeWidth={1.5} />
           </div>
           <h2 className="text-lg font-semibold">No usage data yet</h2>
@@ -332,7 +332,7 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
           value={Math.round(t.totalTokens).toLocaleString()}
           detail={`${t.events.toLocaleString()} exchanges`}
           icon={Coins}
-          color="var(--teal)"
+          color="var(--accent)"
         />
         <StatCard
           label="Input tokens"
@@ -368,14 +368,14 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
           value={t.events.toLocaleString()}
           detail={`${t.activeDays.toLocaleString()} active days`}
           icon={Zap}
-          color="var(--coral)"
+          color="var(--chart-2)"
         />
         <StatCard
           label="Avg prompts per day"
           value={avgPerDay}
           detail="Across active days only"
           icon={TrendingUp}
-          color="var(--teal)"
+          color="var(--accent)"
         />
         <StatCard
           label="Total tokens used"
@@ -407,14 +407,14 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
         value={<Money usd={t.estimatedCostUsd} />}
         detail={`${t.events.toLocaleString()} tracked exchanges`}
         icon={CircleDollarSign}
-        color="var(--coral)"
+        color="var(--chart-2)"
       />
       <StatCard
         label="Total tokens"
         value={Math.round(t.totalTokens).toLocaleString()}
         detail={`${Math.round(t.averageTokensPerEvent).toLocaleString()} avg per exchange`}
         icon={Coins}
-        color="var(--teal)"
+        color="var(--accent)"
       />
       <StatCard
         label="Input vs output"
@@ -557,7 +557,7 @@ function getViewConfig(view: ViewMode) {
         chartTitle: "Tokens over time",
         chartSubtitle: "Daily token consumption within the selected range, stacked by model.",
         chartIcon: Coins,
-        chartAccent: "var(--teal)",
+        chartAccent: "var(--accent)",
         mixSubtitle: "Token share by model in the selected range.",
         axisFormatter: formatAxisTokens,
         tooltipFormatter: (v: number) => Math.round(v).toLocaleString(),
@@ -568,7 +568,7 @@ function getViewConfig(view: ViewMode) {
         chartTitle: "Prompts over time",
         chartSubtitle: "Daily prompt count within the selected range, stacked by model.",
         chartIcon: Zap,
-        chartAccent: "var(--coral)",
+        chartAccent: "var(--chart-2)",
         mixSubtitle: "Prompt share by model in the selected range.",
         axisFormatter: (v: number) => Math.round(v).toLocaleString(),
         tooltipFormatter: (v: number) => Math.round(v).toLocaleString(),
@@ -579,7 +579,7 @@ function getViewConfig(view: ViewMode) {
         chartTitle: "Estimated cost over time",
         chartSubtitle: "Daily spend within the selected range, stacked by model.",
         chartIcon: CircleDollarSign,
-        chartAccent: "var(--coral)",
+        chartAccent: "var(--chart-2)",
         mixSubtitle: "Cost share by model in the selected range.",
         axisFormatter: formatAxisCurrency,
         tooltipFormatter: (v: number) => formatUsageCurrency(v),
@@ -593,7 +593,7 @@ function getViewConfig(view: ViewMode) {
 function TrackedField(props: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-[var(--line)] px-3 py-2.5">
-      <p className="font-medium text-[var(--teal)]">{props.label}</p>
+      <p className="font-medium text-[var(--accent)]">{props.label}</p>
       <p className="mt-1">{props.value}</p>
     </div>
   );

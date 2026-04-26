@@ -92,7 +92,7 @@ function formToFields(form: FormState): Record<string, unknown> {
 
 function TabExplainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-4 rounded-md border border-[var(--line)] bg-[var(--teal-subtle)] px-3 py-2 text-xs text-[var(--ink-soft)]">
+    <div className="mb-4 rounded-md border border-[var(--line)] bg-[var(--accent-subtle)] px-3 py-2 text-xs text-[var(--ink-soft)]">
       {children}
     </div>
   );

@@ -85,7 +85,7 @@ Each phase ends with the app working in both modes. We don't merge "phase 1 done
 - Tailwind `@theme` `--color-teal*` / `--color-coral` aliases
 - The Manrope `@import` in `styles.css`
 
-Tracked under AETH-jygeoonx (Phase 4 cleanup) so the token sweep is the *last* thing to land — old code keeps compiling against `--teal` until call-sites are migrated.
+Tracked under AETH-jygeoonx (Phase 4 cleanup) so the token sweep is the *last* thing to land — old code keeps compiling against `--teal` until call-sites are migrated. **Resolved in AETH-jygeoonx (2026-04-26):** all `--teal*` call sites renamed to `--accent*`; `--coral*` call sites mapped to `--destructive` / `--warning` / `--chart-2` / `--accent` per usage semantics; legacy aliases removed from `styles.css`.
 
 ## Consequences
 

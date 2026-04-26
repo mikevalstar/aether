@@ -23,13 +23,6 @@ export interface EmptyStateProps {
 
 /**
  * Empty-state placeholder.
- *
- * Redesign notes:
- * - Line-art treatment: outlined accent-bordered square holds the icon —
- *   echoes the æ brand mark instead of a solid filled circle.
- * - "dashed" variant tightened (p-12 → p-8) and now uses corner ticks for a
- *   schematic / instrument-panel feel rather than a fully dashed border.
- * - Default `accentColor` switched from the dead `--coral` to `--accent`.
  */
 export function EmptyState({
   icon: Icon,

@@ -118,7 +118,7 @@ export function ChatThreadSearchInput({
   return (
     <div className="relative">
       {isSearching ? (
-        <Loader2Icon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 animate-spin text-[var(--teal)]" />
+        <Loader2Icon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 animate-spin text-[var(--accent)]" />
       ) : (
         <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[var(--ink-soft)]/50" />
       )}
@@ -128,7 +128,7 @@ export function ChatThreadSearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search threads..."
-        className="w-full rounded-md border border-[var(--line)] bg-transparent py-1.5 pr-7 pl-8 text-xs text-[var(--ink)] placeholder:text-[var(--ink-soft)]/40 focus:border-[var(--teal)] focus:outline-none"
+        className="w-full rounded-md border border-[var(--line)] bg-transparent py-1.5 pr-7 pl-8 text-xs text-[var(--ink)] placeholder:text-[var(--ink-soft)]/40 focus:border-[var(--accent)] focus:outline-none"
       />
       {value && (
         <button

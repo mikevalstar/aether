@@ -247,15 +247,12 @@ Sidebar tokens (`--sidebar*`) map the same way as today.
 
 ## 9. Removal list
 
-Tokens to delete from `styles.css` in Phase 1:
+Tokens deleted from `styles.css` (Phase 1 alias defs kept for the call-site sweep, removed in Phase 4 / AETH-jygeoonx):
 
-- `--teal`, `--teal-hover`, `--teal-subtle`
-- `--coral`, `--coral-hover`
-- Tailwind `@theme` `--color-teal*` and `--color-coral` aliases
-- Manrope `@import` (replaced with Inter)
-
-Tokens **renamed** (no value migration needed, just s/foo/bar/ in code):
-- `--teal` → `--accent` (call sites in components/JSX will need a sweep — tracked under AETH-nbeymhgr)
+- `--teal`, `--teal-hover`, `--teal-subtle` — call sites renamed to `--accent*`.
+- `--coral`, `--coral-hover` — call sites mapped per-context to `--destructive`, `--warning`, `--chart-2`, or `--accent`.
+- Tailwind `@theme` `--color-teal*` and `--color-coral` aliases.
+- Manrope `@import` (replaced with Inter).
 
 ---
 

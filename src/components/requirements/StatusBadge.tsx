@@ -8,8 +8,8 @@ const statusConfig: Record<string, { label: string; className: string; dot: stri
   },
   "in-progress": {
     label: "In Progress",
-    className: "border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)]",
-    dot: "bg-[var(--coral)]",
+    className: "border-[var(--warning)]/30 bg-[var(--warning)]/10 text-[var(--warning)]",
+    dot: "bg-[var(--warning)]",
   },
   todo: {
     label: "To Do",

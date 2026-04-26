@@ -34,14 +34,6 @@ const DEFAULT_GLOWS: GlowConfig[] = [{ color: "var(--accent)", size: "size-[420p
 /**
  * Page-level header used at the top of every authenticated route.
  *
- * Redesign notes:
- * - Default accent shifted from `--teal` → `--accent` (single-accent system).
- * - Density tightened: smaller display type and trimmer vertical padding so
- *   list / table content rises into view without scrolling.
- * - A 2px `--accent` rule sits to the left of the title block as the new
- *   "instrument" tic — echoes the focused-row bar in CommandPalette.
- * - A hairline `--line` divider sits beneath the header so the section
- *   label + title read as a tight chip rather than floating in space.
  */
 export function PageHeader({
   icon,

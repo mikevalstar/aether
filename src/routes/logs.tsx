@@ -154,7 +154,7 @@ function LogsPage() {
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-start gap-2 font-normal" disabled={!hasLogs}>
-                  <CalendarDays className="size-4 text-[var(--teal)]" />
+                  <CalendarDays className="size-4 text-[var(--accent)]" />
                   <span className="truncate">{hasLogs ? selectedDayLabel : "No log files"}</span>
                 </Button>
               </PopoverTrigger>
@@ -165,7 +165,7 @@ function LogsPage() {
                     <p>Highlighted days have logs</p>
                   </div>
                   <Badge variant="outline" className="gap-2 rounded-md px-2 py-1 font-normal">
-                    <span className="size-2 rounded-full bg-[var(--teal)]" />
+                    <span className="size-2 rounded-full bg-[var(--accent)]" />
                     {data.availableDays.length}
                   </Badge>
                 </div>
@@ -198,7 +198,7 @@ function LogsPage() {
                   }}
                   modifiersClassNames={{
                     hasLogs:
-                      "rounded-md bg-[var(--teal)]/12 text-[var(--teal)] ring-1 ring-[var(--teal)]/25 hover:bg-[var(--teal)]/18",
+                      "rounded-md bg-[var(--accent)]/12 text-[var(--accent)] ring-1 ring-[var(--accent)]/25 hover:bg-[var(--accent)]/18",
                   }}
                 />
               </PopoverContent>
@@ -473,7 +473,7 @@ function HourSparkline({
                 className="w-full rounded-sm transition-all duration-150 group-hover:brightness-110"
                 style={{
                   height: `${heightPct}%`,
-                  background: hasErrors ? "var(--destructive)" : "var(--teal)",
+                  background: hasErrors ? "var(--destructive)" : "var(--accent)",
                   opacity: bucket.total === 0 ? 0.18 : isDimmed ? 0.3 : isActive ? 1 : 0.75,
                   outline: isActive ? "1px solid var(--foreground)" : undefined,
                   outlineOffset: 1,
@@ -513,7 +513,7 @@ function JsonBlock({ json }: { json: string }) {
         title="Copy JSON"
         className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--line)] bg-[var(--surface)]/90 px-2 py-1 font-mono text-[11px] text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]"
       >
-        {copied ? <Check className="size-3 text-[var(--teal)]" /> : <Copy className="size-3" />}
+        {copied ? <Check className="size-3 text-[var(--accent)]" /> : <Copy className="size-3" />}
         {copied ? "Copied" : "Copy"}
       </button>
       <pre
@@ -545,7 +545,7 @@ function PollShrinkBar({ duration }: { duration: number }) {
       style={{
         position: "absolute",
         inset: 0,
-        background: "var(--teal)",
+        background: "var(--accent)",
         transformOrigin: "center",
       }}
     />
@@ -566,14 +566,14 @@ function levelBadgeClass(level: LogLevel) {
   }
 
   if (level === "warn") {
-    return "border-[var(--coral)]/30 bg-[var(--coral)]/10 text-[var(--coral)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
+    return "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
   }
 
   if (level === "debug" || level === "trace") {
     return "border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
   }
 
-  return "border-[var(--teal)]/30 bg-[var(--teal)]/10 text-[var(--teal)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
+  return "border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)] font-mono uppercase tracking-[0.08em] text-[10.5px]";
 }
 
 function levelDotClass(level: LogLevel) {
@@ -582,14 +582,14 @@ function levelDotClass(level: LogLevel) {
   }
 
   if (level === "warn") {
-    return "size-2 rounded-full bg-[var(--coral)]";
+    return "size-2 rounded-full bg-[var(--destructive)]";
   }
 
   if (level === "debug" || level === "trace") {
     return "size-2 rounded-full bg-[var(--ink-soft)]";
   }
 
-  return "size-2 rounded-full bg-[var(--teal)]";
+  return "size-2 rounded-full bg-[var(--accent)]";
 }
 
 function isSpecificLevelOption(option: (typeof LEVEL_OPTIONS)[number]): option is { value: LogLevel; label: string } {

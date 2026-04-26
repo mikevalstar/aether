@@ -63,8 +63,8 @@ export function ActivityTable({ items, onItemClick }: { items: ActivityListItem[
 }
 
 const TYPE_CONFIG: Record<string, { icon: typeof FileText; label: string; color: string }> = {
-  file_change: { icon: FileText, label: "File", color: "var(--teal)" },
-  cron_task: { icon: Timer, label: "Cron", color: "var(--coral)" },
+  file_change: { icon: FileText, label: "File", color: "var(--accent)" },
+  cron_task: { icon: Timer, label: "Cron", color: "var(--warning)" },
   workflow: { icon: Play, label: "Workflow", color: "oklch(0.65 0.15 270)" },
   system_task: { icon: Cog, label: "System", color: "oklch(0.60 0.12 140)" },
   ai_notification: { icon: Bell, label: "Notification", color: "oklch(0.65 0.14 25)" },
@@ -125,14 +125,14 @@ function TypeBadge({ type }: { type: string }) {
 function SourceBadge({ source }: { source: string }) {
   if (source === "ai") {
     return (
-      <Badge className="gap-1 border-[var(--teal)]/20 bg-[var(--teal)]/10 py-0 text-xs text-[var(--teal)] hover:bg-[var(--teal)]/15">
+      <Badge className="gap-1 border-[var(--accent)]/20 bg-[var(--accent)]/10 py-0 text-xs text-[var(--accent)] hover:bg-[var(--accent)]/15">
         <Bot className="size-3" />
         AI
       </Badge>
     );
   }
   return (
-    <Badge className="gap-1 border-[var(--coral)]/20 bg-[var(--coral)]/10 py-0 text-xs text-[var(--coral)] hover:bg-[var(--coral)]/15">
+    <Badge className="gap-1 border-[var(--warning)]/20 bg-[var(--warning)]/10 py-0 text-xs text-[var(--warning)] hover:bg-[var(--warning)]/15">
       <PenLine className="size-3" />
       Manual
     </Badge>
@@ -142,7 +142,7 @@ function SourceBadge({ source }: { source: string }) {
 function ActivityEmptyState() {
   return (
     <section className="surface-card flex flex-col items-center justify-center px-6 py-16 text-center">
-      <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--teal)]/10 text-[var(--teal)]">
+      <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-[var(--accent)]/10 text-[var(--accent)]">
         <History className="size-6" strokeWidth={1.5} />
       </div>
       <h2 className="text-lg font-semibold">No activity yet</h2>

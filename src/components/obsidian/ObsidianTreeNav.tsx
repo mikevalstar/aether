@@ -190,7 +190,7 @@ export function ObsidianTreeNav({ nodes, aiConfigPath, aiMemoryPath, currentRout
           <SpecialSection
             label="AI Config"
             icon={SparklesIcon}
-            color="var(--coral)"
+            color="var(--accent)"
             collapsed={!!sectionCollapsed.aiConfig}
             onToggle={() => toggleSection("aiConfig")}
           >

@@ -135,7 +135,7 @@ export function ObsidianEditor({ document, aiConfigPath, onCancel, onSaved }: Ob
               {document.title}
             </h2>
             {hasChanges && (
-              <span className="shrink-0 rounded-full bg-[var(--coral)]/15 px-2 py-0.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-[var(--coral)]">
+              <span className="shrink-0 rounded-full bg-[var(--warning)]/15 px-2 py-0.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-[var(--warning)]">
                 Unsaved
               </span>
             )}

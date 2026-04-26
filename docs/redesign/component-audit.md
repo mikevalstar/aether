@@ -65,13 +65,13 @@ Estimated reduction: ~400 LOC of repeated layout wrapper across ~12 routes. More
 
 ```tsx
 <main className="relative overflow-hidden">
-  <GlowBg color="var(--teal)" size="size-[500px]" position="-right-48 -top-48" />
+  <GlowBg color="var(--accent)" size="size-[500px]" position="-right-48 -top-48" />
   <div className="page-wrap relative px-4 pb-16 pt-10 sm:pt-12">
     <Link to="/{entity}" className="inline-flex items-center gap-1 ...">
       <ArrowLeft className="size-4" /> Back to {entity}
     </Link>
     <section className="mb-8">
-      <SectionLabel icon={Icon} color="text-[var(--teal)]">{label}</SectionLabel>
+      <SectionLabel icon={Icon} color="text-[var(--accent)]">{label}</SectionLabel>
       <h1 className="display-title ...">{data.title}</h1>
     </section>
     {/* domain-specific body — typically: metadata, then a *RunHistory wrapper */}
@@ -264,7 +264,7 @@ Keep per-domain wrappers (`TaskEmptyState`, etc.) because their semantic naming 
 
 These should be cleaned up alongside the Phase 1 token swap, not invented in Phase 2:
 
-- **Hard-coded `var(--teal)` references** in `GlowBg` color props on detail pages — will rename to `var(--accent)` after AETH-vzlzgjoc lands.
+- **Hard-coded `var(--teal)` references** in `GlowBg` color props on detail pages — renamed to `var(--accent)` in AETH-jygeoonx (Phase 4 cleanup).
 - **`surface-card` utility class** is used in settings forms but defined as a custom utility in `styles.css`. Stays valid; ensure it's covered by the new tokens (maps to `--surface` + `--line` + `--shadow-sm`).
 - **`display-title` utility** used on detail-page headings — confirm it points to `--font-display` after font swap (AETH-yqekrpfr).
 

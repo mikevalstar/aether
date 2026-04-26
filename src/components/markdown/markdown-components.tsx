@@ -68,12 +68,12 @@ const variantStyles = {
     h5: "mt-5 mb-2 text-sm font-semibold",
     h6: "mt-5 mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-soft)]",
     p: "my-4 text-[0.97rem] leading-7",
-    a: "font-medium text-[var(--teal)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
+    a: "font-medium text-[var(--accent)] underline decoration-[color:var(--line)] underline-offset-3 hover:text-[var(--ink)]",
     ul: "my-4 ml-5 list-disc space-y-2 marker:text-[var(--ink-soft)]",
     ol: "my-4 ml-5 list-decimal space-y-2 marker:text-[var(--ink-soft)]",
     li: "pl-1 leading-7 text-[0.97rem]",
     blockquote:
-      "my-6 rounded-r-lg border-l-3 border-[var(--teal)] bg-[var(--bg)] px-4 py-3 text-[0.97rem] leading-7 text-[var(--ink-soft)] italic",
+      "my-6 rounded-r-lg border-l-3 border-[var(--accent)] bg-[var(--bg)] px-4 py-3 text-[0.97rem] leading-7 text-[var(--ink-soft)] italic",
     hr: "my-8 border-0 border-t border-[var(--line)]",
     tableWrap: "my-6",
     table: "w-full min-w-[36rem] caption-bottom border-collapse text-sm",
@@ -204,7 +204,7 @@ export function createMarkdownComponents(
           <input
             type="checkbox"
             className={cn(
-              "mr-2 mt-0.5 size-4 shrink-0 rounded border-[var(--line)] accent-[var(--teal)] align-middle",
+              "mr-2 mt-0.5 size-4 shrink-0 rounded border-[var(--line)] accent-[var(--accent)] align-middle",
               className,
             )}
             {...props}

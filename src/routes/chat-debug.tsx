@@ -125,7 +125,7 @@ function ChatDebugPage() {
                     <span className="text-[var(--accent)]">${m.pricing.inputCostPerMillionTokensUsd}</span>
                   </TableCell>
                   <TableCell className="text-right font-mono text-sm tabular-nums">
-                    <span className="text-[var(--coral)]">${m.pricing.outputCostPerMillionTokensUsd}</span>
+                    <span className="text-[var(--destructive)]">${m.pricing.outputCostPerMillionTokensUsd}</span>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="font-mono text-xs">
@@ -183,7 +183,7 @@ function ChatDebugPage() {
                             {tool.isProviderTool && (
                               <Badge
                                 variant="outline"
-                                className="border-[var(--coral)]/30 bg-[var(--coral)]/10 font-normal text-[10px] text-[var(--coral)]"
+                                className="border-[var(--destructive)]/30 bg-[var(--destructive)]/10 font-normal text-[10px] text-[var(--destructive)]"
                               >
                                 provider-managed
                               </Badge>
@@ -202,7 +202,7 @@ function ChatDebugPage() {
                                 <div key={p.name} className="flex items-start gap-1.5 text-xs">
                                   <code className="shrink-0 font-mono font-medium text-foreground">
                                     {p.name}
-                                    {p.required && <span className="text-[var(--coral)]">*</span>}
+                                    {p.required && <span className="text-[var(--destructive)]">*</span>}
                                   </code>
                                   <span className="text-[var(--ink-faint)]">({p.type})</span>
                                   {p.description && <span className="text-[var(--ink-soft)]">{p.description}</span>}

@@ -15,7 +15,7 @@ export function RecentChats({ threads }: Props) {
         <Header />
         <Link
           to="/chat"
-          className="flex items-center gap-3 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground no-underline transition-colors hover:border-[var(--teal)]/40 hover:text-foreground"
+          className="flex items-center gap-3 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground no-underline transition-colors hover:border-[var(--accent)]/40 hover:text-foreground"
         >
           <Plus className="size-4" />
           Start your first conversation
@@ -34,7 +34,7 @@ export function RecentChats({ threads }: Props) {
           params={{ threadId: threadIdToSlug(thread.id) }}
           className="group flex items-start gap-3 rounded-lg border border-transparent px-3 py-2 no-underline transition-colors hover:border-border hover:bg-card"
         >
-          <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-[var(--teal)] opacity-60 group-hover:opacity-100" />
+          <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-[var(--accent)] opacity-60 group-hover:opacity-100" />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline justify-between gap-2">
               <p className="truncate text-sm font-medium text-foreground">{thread.title}</p>
@@ -48,7 +48,7 @@ export function RecentChats({ threads }: Props) {
       ))}
       <Link
         to="/chat"
-        className="mt-1 flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[var(--teal)] no-underline opacity-80 transition-opacity hover:opacity-100"
+        className="mt-1 flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[var(--accent)] no-underline opacity-80 transition-opacity hover:opacity-100"
       >
         <Plus className="size-3" />
         New chat
@@ -61,7 +61,7 @@ function Header() {
   return (
     <div className="flex items-center justify-between px-3">
       <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Recent Chats</h3>
-      <Link to="/chat" className="text-xs text-[var(--teal)] no-underline hover:underline">
+      <Link to="/chat" className="text-xs text-[var(--accent)] no-underline hover:underline">
         View all
       </Link>
     </div>

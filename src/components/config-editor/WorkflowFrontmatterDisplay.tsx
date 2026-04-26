@@ -198,7 +198,7 @@ export function WorkflowFrontmatterDisplay({ document, onRefresh, autoOpenModal 
                           <Badge variant="outline" className="text-[9px] px-1 py-0">
                             {FIELD_TYPE_LABELS[type] ?? type}
                           </Badge>
-                          {required && <span className="text-[9px] font-medium text-[var(--coral)]">*</span>}
+                          {required && <span className="text-[9px] font-medium text-[var(--destructive)]">*</span>}
                         </div>
                       );
                     })}
