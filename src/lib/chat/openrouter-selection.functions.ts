@@ -60,6 +60,7 @@ export const addOpenRouterModel = createServerFn({ method: "POST" })
         inputCostPerMillionTokensUsd: entry.inputCostPerMillionTokensUsd,
         outputCostPerMillionTokensUsd: entry.outputCostPerMillionTokensUsd,
         contextLength: entry.contextLength,
+        supportsEffort: entry.supportsEffort,
       },
       create: {
         userId: session.user.id,
@@ -70,7 +71,7 @@ export const addOpenRouterModel = createServerFn({ method: "POST" })
         inputCostPerMillionTokensUsd: entry.inputCostPerMillionTokensUsd,
         outputCostPerMillionTokensUsd: entry.outputCostPerMillionTokensUsd,
         contextLength: entry.contextLength,
-        supportsEffort: false,
+        supportsEffort: entry.supportsEffort,
       },
     });
     return { ok: true };
@@ -103,6 +104,7 @@ export const refreshOpenRouterPrices = createServerFn({ method: "POST" }).handle
         inputCostPerMillionTokensUsd: fresh.inputCostPerMillionTokensUsd,
         outputCostPerMillionTokensUsd: fresh.outputCostPerMillionTokensUsd,
         contextLength: fresh.contextLength,
+        supportsEffort: fresh.supportsEffort,
       },
     });
     updated += 1;

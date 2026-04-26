@@ -8,6 +8,13 @@ export type OpenRouterCatalogModel = {
   outputCostPerMillionTokensUsd: number | null;
   contextLength: number | null;
   supportsTools: boolean;
+  /**
+   * True when the model accepts the OpenRouter `reasoning` parameter — the
+   * `low | medium | high` effort levels are universal across any model that
+   * advertises this. (Some models also accept `minimal` / `xhigh` / `none`,
+   * but those aren't exposed in the catalog.)
+   */
+  supportsEffort: boolean;
 };
 
 type OpenRouterApiModel = {
@@ -46,6 +53,7 @@ function normalize(raw: OpenRouterApiModel): OpenRouterCatalogModel {
     outputCostPerMillionTokensUsd: parsePricePerToken(raw.pricing?.completion),
     contextLength: raw.context_length ?? null,
     supportsTools: raw.supported_parameters?.includes("tools") ?? false,
+    supportsEffort: raw.supported_parameters?.includes("reasoning") ?? false,
   };
 }
 

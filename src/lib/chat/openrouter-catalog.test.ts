@@ -9,7 +9,7 @@ const sampleResponse = {
       description: "Big llama",
       context_length: 128000,
       pricing: { prompt: "0.0000005", completion: "0.000002" },
-      supported_parameters: ["tools", "temperature"],
+      supported_parameters: ["tools", "temperature", "reasoning"],
     },
     {
       id: "openai/gpt-test",
@@ -50,8 +50,10 @@ describe("listOpenRouterCatalog", () => {
       inputCostPerMillionTokensUsd: 0.5,
       outputCostPerMillionTokensUsd: 2,
       supportsTools: true,
+      supportsEffort: true,
     });
     expect(list[1].supportsTools).toBe(false);
+    expect(list[1].supportsEffort).toBe(false);
   });
 
   it("returns the cache on subsequent calls within TTL", async () => {
