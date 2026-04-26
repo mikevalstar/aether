@@ -1,8 +1,8 @@
 ---
 title: OpenRouter Model Browser
-status: todo
+status: done
 owner: self
-last_updated: 2026-03-28
+last_updated: 2026-04-26
 canonical_file: docs/requirements/openrouter-models.md
 ---
 
@@ -24,24 +24,24 @@ canonical_file: docs/requirements/openrouter-models.md
 
 | Area | Status | Requirement |
 | --- | --- | --- |
-| Model catalog fetch | todo | The server fetches and caches the OpenRouter model list from `GET https://openrouter.ai/api/v1/models`. |
-| Model browser UI | todo | Users can search, filter, and browse available OpenRouter models on the `/settings/chat` page. |
-| Pricing display | todo | Each model in the browser shows input and output cost per million tokens. |
-| Enable/disable models | todo | Users can enable models from the catalog, making them available in chat model selectors, and disable previously enabled models. |
-| Enabled models in chat | todo | User-enabled OpenRouter models appear alongside built-in models in all model selection UIs (chat settings default, empty state, chat header). |
-| Persistence | todo | Enabled model selections and their metadata are persisted so they survive server restarts and page reloads. |
+| Model catalog fetch | done | The server fetches and caches the OpenRouter model list from `GET https://openrouter.ai/api/v1/models` (1h TTL, falls back to empty on error). |
+| Model browser UI | done | Users can search and browse OpenRouter models on the `/settings/chat` page (filtered to first 200 results to keep the list scannable). |
+| Pricing display | done | Each model in the browser shows input and output cost per million tokens. |
+| Enable/disable models | done | Users can add/remove models from the catalog. Add snapshots catalog metadata into `UserSelectedModel`. |
+| Enabled models in chat | done | User-selected OpenRouter models appear in `listChatModels()` and therefore in every chat model selector. |
+| Persistence | done | Selections live in the `UserSelectedModel` table; thread + usage rows snapshot `modelLabel` + `modelProvider` so removing a model never breaks historical chats. |
 
 ## Sub-features
 
 | Sub-feature | Status | Summary | Detail |
 | --- | --- | --- | --- |
-| OpenRouter API caching | todo | Fetch model list server-side with a time-based cache to avoid hitting the API on every page load. | [Detail](#openrouter-api-caching) |
-| Model browser section | todo | New section on `/settings/chat` below existing settings with search input and model list. | [Detail](#model-browser-section) |
-| Model card / row | todo | Each model displays name, provider org, context length, and per-million-token pricing (input + output). | [Detail](#model-card--row) |
-| Enable toggle | todo | Each browsable model has an enable/disable action that persists the selection. | [Detail](#enable-toggle) |
-| Enabled models list | todo | A separate section on `/settings/chat` showing currently enabled custom models with the ability to remove them. | [Detail](#enabled-models-list) |
-| Model resolution at runtime | todo | Chat API and model selectors merge built-in models with user-enabled models at runtime. | [Detail](#model-resolution-at-runtime) |
-| Pricing in model selector | todo | When selecting a model in the chat UI, show the per-million-token pricing alongside the model name. | [Detail](#pricing-in-model-selector) |
+| OpenRouter API caching | done | Fetch model list server-side with a time-based cache to avoid hitting the API on every page load. | [Detail](#openrouter-api-caching) |
+| Model browser section | done | New section on `/settings/chat` below existing settings with search input and model list. | [Detail](#model-browser-section) |
+| Model card / row | done | Each model displays name, provider org, context length, and per-million-token pricing (input + output). | [Detail](#model-card--row) |
+| Enable toggle | done | Each browsable model has an enable/disable action that persists the selection. | [Detail](#enable-toggle) |
+| Enabled models list | done | A separate section on `/settings/chat` showing currently enabled custom models with the ability to remove them. | [Detail](#enabled-models-list) |
+| Model resolution at runtime | done | Chat API and model selectors merge built-in models with user-enabled models at runtime. | [Detail](#model-resolution-at-runtime) |
+| Pricing in model selector | done | When selecting a model in the chat UI, show the per-million-token pricing alongside the model name. | [Detail](#pricing-in-model-selector) |
 
 ## Detail
 
@@ -91,21 +91,52 @@ canonical_file: docs/requirements/openrouter-models.md
 
 ## Persistence
 
-User-enabled models are stored in the `UserPreferences` JSON column as a new field:
+Picks live in a dedicated `UserSelectedModel` table (not the `UserPreferences`
+JSON column) so they can be queried directly and snapshot pricing per model:
 
-```typescript
-enabledOpenRouterModels?: Array<{
-  id: string           // e.g. "google/gemini-2.5-pro"
-  name: string         // e.g. "Google: Gemini 2.5 Pro"
-  contextLength: number
-  pricing: {
-    inputCostPerMillionTokensUsd: number
-    outputCostPerMillionTokensUsd: number
-  }
-}>
+```prisma
+model UserSelectedModel {
+  id                            String   @id @default(cuid())
+  userId                        String
+  provider                      String   // currently always "openrouter"
+  modelId                       String
+  label                         String   // snapshot of catalog name
+  description                   String?
+  inputCostPerMillionTokensUsd  Float?
+  outputCostPerMillionTokensUsd Float?
+  contextLength                 Int?
+  supportsEffort                Boolean  @default(false)
+  addedAt                       DateTime @default(now())
+
+  @@unique([userId, provider, modelId])
+}
 ```
 
-Storing metadata alongside the ID means the model is usable for display and cost estimation even without a fresh catalog fetch.
+In addition, every `ChatThread` and `ChatUsageEvent` carries `modelLabel` +
+`modelProvider` snapshot columns. They are written by `snapshotModelMeta()`
+at thread creation, model change, title generation, sub-agent spawn, and
+usage event recording. `getChatModelLabel(model, snapshotLabel?)` prefers
+the snapshot when present — this is what guarantees that a thread keeps
+rendering correctly after the user removes the model from their selection
+or OpenRouter retires it.
+
+## Implementation Notes
+
+- Catalog fetcher: `src/lib/chat/openrouter-catalog.ts` (server-side, 1h
+  in-memory cache, swallows errors → empty list)
+- Catalog server fn: `src/lib/chat/openrouter-catalog.functions.ts`
+  (`listOpenRouterModels`)
+- Selection server fns: `src/lib/chat/openrouter-selection.functions.ts`
+  (`listSelectedOpenRouterModels`, `addOpenRouterModel`, `removeOpenRouterModel`)
+- Picker UI: `src/components/chat/OpenRouterModelPicker.tsx`, mounted on
+  `src/routes/settings/chat.tsx`
+- Resolver / merge: `src/lib/chat/chat-models.functions.ts`
+  (`listChatModels` returns built-ins + user picks, with `userSelected: true`
+  on dynamic entries)
+- Snapshot helper: `src/lib/chat/model-snapshot.ts`
+- Disambiguation: `src/components/chat/ModelSelector.tsx` groups rows by
+  provider and inlines the provider tag when the visible set has duplicate
+  labels or ids (e.g. `MiniMax M2.7` via MiniMax direct vs OpenRouter)
 
 ## Open Questions
 
@@ -118,3 +149,8 @@ Storing metadata alongside the ID means the model is usable for display and cost
 ## Change Log
 
 - 2026-03-28: Created initial requirements for OpenRouter model browser feature.
+- 2026-04-26: Shipped. Picks live in a dedicated `UserSelectedModel` table
+  (not preferences JSON); thread/usage rows now snapshot `modelLabel` +
+  `modelProvider` so removing a model never breaks historical chats; `ChatModel`
+  type widened from a literal union to `string`; ModelSelector now groups by
+  provider with inline disambiguation when ids/labels collide.
