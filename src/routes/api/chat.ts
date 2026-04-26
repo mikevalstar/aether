@@ -33,7 +33,9 @@ import {
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
+import { getChatModelDef } from "#/lib/chat/chat-model-def.server";
 import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
+import { getDefaultMaxTokensForEffort } from "#/lib/chat/max-tokens";
 import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
 import { embedThread } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
@@ -196,7 +198,7 @@ export const Route = createFileRoute("/api/chat")({
 
         const model = body.model ?? DEFAULT_CHAT_MODEL;
         const effort = body.effort ?? DEFAULT_CHAT_EFFORT;
-        const modelDef = CHAT_MODELS.find((m) => m.id === model);
+        const modelDef = await getChatModelDef(model, session.user.id);
         const userPrefs = await getUserPreferences(session.user.id);
         const userTimezone = userPrefs.timezone;
         const tools = createAiTools(model, session.user.id, thread.id, userTimezone, userPrefs);
@@ -334,20 +336,26 @@ export const Route = createFileRoute("/api/chat")({
         const toolNames = Object.keys(tools);
 
         const isAnthropic = modelDef?.provider === "anthropic";
+        const isOpenRouter = modelDef?.provider === "openrouter";
+        const maxOutputTokens = modelDef?.supportsEffort ? getDefaultMaxTokensForEffort(effort) : undefined;
         const result = streamText({
           model: getModel(model),
           system: systemPrompt,
           messages: await convertToModelMessages(incomingMessages),
           tools,
           stopWhen: stepCountIs(20),
-          ...(isAnthropic && {
-            providerOptions: {
+          ...(maxOutputTokens && { maxOutputTokens }),
+          providerOptions: {
+            ...(isAnthropic && {
               anthropic: {
                 cacheControl: { type: "ephemeral" as const },
                 ...(modelDef?.supportsEffort && { effort }),
               },
-            },
-          }),
+            }),
+            ...(isOpenRouter && modelDef?.supportsEffort && {
+              openrouter: { reasoning: { effort } },
+            }),
+          },
         });
 
         return result.toUIMessageStreamResponse({

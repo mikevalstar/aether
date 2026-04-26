@@ -5,12 +5,14 @@ import { prisma } from "#/db";
 import { readSystemPrompt } from "#/lib/ai-config/ai-config";
 import { createAiTools, getModel } from "#/lib/ai-tools";
 import {
-  CHAT_MODELS,
   type ChatModel,
   estimateChatUsageCostUsd,
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
+import { getChatModelDef } from "#/lib/chat/chat-model-def.server";
+import { type ChatEffort, isChatEffort } from "#/lib/chat/chat-models";
+import { getDefaultMaxTokensForEffort } from "#/lib/chat/max-tokens";
 import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
 import { logger } from "#/lib/logger";
 import type { UserPreferences } from "#/lib/preferences";
@@ -93,7 +95,7 @@ async function runSubAgent(
   state: SpawnState,
   notify: () => void,
 ): Promise<void> {
-  const modelDef = CHAT_MODELS.find((m) => m.id === state.model);
+  const modelDef = await getChatModelDef(state.model, parent.userId);
 
   const threadId = `thread_${nanoid(10)}`;
   state.threadId = threadId;
@@ -135,20 +137,28 @@ async function runSubAgent(
   const startedAt = Date.now();
 
   try {
+    const isAnthropic = modelDef?.provider === "anthropic";
+    const isOpenRouter = modelDef?.provider === "openrouter";
+    const effort: ChatEffort = isChatEffort(parent.parentEffort) ? parent.parentEffort : "low";
+    const maxOutputTokens = modelDef?.supportsEffort ? getDefaultMaxTokensForEffort(effort) : undefined;
     const result = streamText({
       model: getModel(state.model),
       system: systemPrompt,
       prompt: userPrompt,
       tools,
       stopWhen: stepCountIs(20),
-      ...(modelDef?.provider === "anthropic" && {
-        providerOptions: {
+      ...(maxOutputTokens && { maxOutputTokens }),
+      providerOptions: {
+        ...(isAnthropic && {
           anthropic: {
             cacheControl: { type: "ephemeral" as const },
-            ...(modelDef?.supportsEffort && { effort: parent.parentEffort }),
+            ...(modelDef?.supportsEffort && { effort }),
           },
-        },
-      }),
+        }),
+        ...(isOpenRouter && modelDef?.supportsEffort && {
+          openrouter: { reasoning: { effort } },
+        }),
+      },
     });
 
     // Consume the UI-message stream so we get assembled UIMessages (the shape

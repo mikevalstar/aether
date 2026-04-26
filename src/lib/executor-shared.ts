@@ -12,7 +12,9 @@ import {
   serializeUsageHistory,
   usageTotalsFromLanguageModelUsage,
 } from "#/lib/chat/chat";
-import { CHAT_MODELS } from "#/lib/chat/chat-models";
+import { getChatModelDef } from "#/lib/chat/chat-model-def.server";
+import type { ChatEffort } from "#/lib/chat/chat-models";
+import { getDefaultMaxTokensForEffort } from "#/lib/chat/max-tokens";
 import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
 import { logger } from "#/lib/logger";
 import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
@@ -69,7 +71,7 @@ export type ExecutionContext = {
  */
 export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: string; success: boolean }> {
   const startTime = Date.now();
-  const modelDef = CHAT_MODELS.find((m) => m.id === ctx.model);
+  const modelDef = await getChatModelDef(ctx.model, ctx.userId);
 
   // Create ChatThread for this run
   const threadId = `thread_${nanoid(10)}`;
@@ -111,18 +113,27 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
   const toolNames = Object.keys(tools);
 
   try {
+    const isAnthropic = modelDef?.provider === "anthropic";
+    const isOpenRouter = modelDef?.provider === "openrouter";
+    const effort: ChatEffort = isChatEffort(ctx.effort) ? ctx.effort : "low";
+    const maxOutputTokens = ctx.maxTokens ?? (modelDef?.supportsEffort ? getDefaultMaxTokensForEffort(effort) : undefined);
     const result = await generateText({
       model: getModel(ctx.model),
       system: ctx.systemPrompt,
       prompt: ctx.userPrompt,
       tools,
       stopWhen: stepCountIs(20),
-      ...(ctx.maxTokens ? { maxTokens: ctx.maxTokens } : {}),
+      ...(maxOutputTokens && { maxOutputTokens }),
       providerOptions: {
-        anthropic: {
-          cacheControl: { type: "ephemeral" as const },
-          ...(modelDef?.supportsEffort && { effort: ctx.effort }),
-        },
+        ...(isAnthropic && {
+          anthropic: {
+            cacheControl: { type: "ephemeral" as const },
+            ...(modelDef?.supportsEffort && { effort }),
+          },
+        }),
+        ...(isOpenRouter && modelDef?.supportsEffort && {
+          openrouter: { reasoning: { effort } },
+        }),
       },
     });
 
