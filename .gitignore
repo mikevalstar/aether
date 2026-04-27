@@ -6,6 +6,7 @@ dist-ssr
 .env
 dev.db
 dev.db*
+dev.vec*
 .nitro
 .tanstack
 .wrangler

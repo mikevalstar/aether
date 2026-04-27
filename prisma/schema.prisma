@@ -42,6 +42,25 @@ model User {
   webhooks        Webhook[]
   notifications   Notification[]
   scheduledNotifications ScheduledNotification[]
+  selectedModels  UserSelectedModel[]
+}
+
+model UserSelectedModel {
+  id                            String   @id @default(cuid())
+  userId                        String
+  user                          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider                      String                          // e.g. "openrouter"
+  modelId                       String                          // provider-scoped id, e.g. "meta-llama/llama-4"
+  label                         String                          // snapshot of catalog name
+  description                   String?
+  inputCostPerMillionTokensUsd  Float?
+  outputCostPerMillionTokensUsd Float?
+  supportsEffort                Boolean  @default(false)
+  contextLength                 Int?
+  addedAt                       DateTime @default(now())
+
+  @@unique([userId, provider, modelId])
+  @@index([userId])
 }
 
 model Session {
@@ -88,6 +107,8 @@ model ChatThread {
   title          String   @default("New chat")
   type           String   @default("chat")
   model          String   @default("claude-haiku-4-5")
+  modelLabel     String?
+  modelProvider  String?
   effort         String   @default("low")
   messagesJson   String   @default("[]")
   usageHistoryJson String @default("[]")
@@ -114,6 +135,8 @@ model ChatThread {
 model ChatUsageEvent {
   id                String   @id
   model             String
+  modelLabel        String?
+  modelProvider     String?
   taskType          String   @default("chat")
   inputTokens       Int
   outputTokens      Int

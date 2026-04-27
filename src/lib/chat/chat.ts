@@ -112,8 +112,14 @@ export function usageTotalsFromLanguageModelUsage(usage: LanguageModelUsage | un
 export function estimateChatUsageCostUsd(
   model: ChatModel,
   usage: Pick<ChatUsageTotals, "inputTokens" | "outputTokens">,
+  /**
+   * Override pricing for non-built-in models (e.g. user-selected OpenRouter
+   * picks). Pass `modelDef.pricing` from `getChatModelDef()` at write sites
+   * so the persisted cost reflects the user's saved pricing snapshot.
+   */
+  pricingOverride?: { inputCostPerMillionTokensUsd: number; outputCostPerMillionTokensUsd: number },
 ): number {
-  const pricing = CHAT_MODELS.find((candidate) => candidate.id === model)?.pricing;
+  const pricing = pricingOverride ?? CHAT_MODELS.find((candidate) => candidate.id === model)?.pricing;
 
   if (!pricing) return 0;
 
