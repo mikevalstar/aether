@@ -31,9 +31,6 @@ export const Route = createFileRoute("/settings")({
 const navLinkClass =
   "group flex items-center gap-2 border-l-2 border-transparent px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--ink-dim)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--ink)] [&.active]:border-[var(--accent)] [&.active]:bg-[var(--surface)] [&.active]:text-[var(--ink)]";
 
-const mobileNavLinkClass =
-  "shrink-0 rounded-sm border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.14em] text-[var(--ink-dim)] transition-colors hover:text-[var(--ink)] [&.active]:border-[var(--accent)] [&.active]:text-[var(--accent)]";
-
 function SettingsLayout() {
   const data = Route.useLoaderData();
   const hasObsidian = data.obsidianFolders.length > 0;
@@ -54,31 +51,8 @@ function SettingsLayout() {
           </div>
         </section>
 
-        {/* Mobile nav — horizontal scrollable strip */}
-        <div className="mb-6 md:hidden">
-          <nav className="flex gap-1.5 overflow-x-auto scrollbar-none">
-            {NAV_ITEMS.map((item) => (
-              <Link key={item.to} to={item.to} className={mobileNavLinkClass} activeProps={{ className: "active" }}>
-                {item.label}
-              </Link>
-            ))}
-            {hasObsidian &&
-              OBSIDIAN_NAV_ITEMS.map((item) => (
-                <Link key={item.to} to={item.to} className={mobileNavLinkClass} activeProps={{ className: "active" }}>
-                  {item.label}
-                </Link>
-              ))}
-            {PLUGIN_NAV_ITEMS.map((item) => (
-              <Link key={item.to} to={item.to} className={mobileNavLinkClass} activeProps={{ className: "active" }}>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div className="flex gap-8">
-          {/* Desktop sidebar nav */}
-          <nav className="hidden w-52 shrink-0 md:block">
+        <div className="flex flex-col gap-8 md:flex-row">
+          <nav className="w-full shrink-0 md:w-52">
             <p className="mb-2 px-3 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--ink-faint)]">
               General
             </p>
