@@ -58,9 +58,7 @@ export function OpenRouterModelPicker() {
     return catalog
       .filter(
         (m) =>
-          m.id.toLowerCase().includes(q) ||
-          m.label.toLowerCase().includes(q) ||
-          m.description.toLowerCase().includes(q),
+          m.id.toLowerCase().includes(q) || m.label.toLowerCase().includes(q) || m.description.toLowerCase().includes(q),
       )
       .slice(0, 200);
   }, [catalog, query]);
@@ -116,8 +114,8 @@ export function OpenRouterModelPicker() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[11px] text-[var(--ink-faint)]">
-          Prices are snapshotted when added — historical chat costs do not change. Refresh to pull current OpenRouter
-          pricing for future runs.
+          Prices are snapshotted when added — historical chat costs do not change. Refresh to pull current OpenRouter pricing
+          for future runs.
         </p>
         <Button
           type="button"
@@ -167,9 +165,7 @@ export function OpenRouterModelPicker() {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--ink-faint)]">Catalog</div>
-          {catalog && (
-            <span className="font-mono text-[10px] text-[var(--ink-faint)]">{catalog.length} models</span>
-          )}
+          {catalog && <span className="font-mono text-[10px] text-[var(--ink-faint)]">{catalog.length} models</span>}
         </div>
         <input
           type="text"
@@ -187,9 +183,7 @@ export function OpenRouterModelPicker() {
           className="flex max-h-96 flex-col gap-1 overflow-y-auto rounded-md border border-[var(--line)] bg-[var(--surface)] p-2"
           style={{ scrollbarGutter: "stable" }}
         >
-          {!catalog && (
-            <div className="px-3 py-6 text-center text-sm text-[var(--ink-faint)]">Loading catalog…</div>
-          )}
+          {!catalog && <div className="px-3 py-6 text-center text-sm text-[var(--ink-faint)]">Loading catalog…</div>}
           {catalog && filtered.length === 0 && (
             <div className="px-3 py-6 text-center text-sm text-[var(--ink-faint)]">No models match.</div>
           )}

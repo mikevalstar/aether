@@ -367,9 +367,10 @@ export const Route = createFileRoute("/api/chat")({
                 ...(modelDef?.supportsEffort && { effort }),
               },
             }),
-            ...(isOpenRouter && modelDef?.supportsEffort && {
-              openrouter: { reasoning: { effort } },
-            }),
+            ...(isOpenRouter &&
+              modelDef?.supportsEffort && {
+                openrouter: { reasoning: { effort } },
+              }),
           },
           onError: ({ error }) => {
             logger.error(

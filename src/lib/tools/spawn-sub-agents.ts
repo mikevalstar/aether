@@ -155,9 +155,10 @@ async function runSubAgent(
             ...(modelDef?.supportsEffort && { effort }),
           },
         }),
-        ...(isOpenRouter && modelDef?.supportsEffort && {
-          openrouter: { reasoning: { effort } },
-        }),
+        ...(isOpenRouter &&
+          modelDef?.supportsEffort && {
+            openrouter: { reasoning: { effort } },
+          }),
       },
     });
 

@@ -131,9 +131,10 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
             ...(modelDef?.supportsEffort && { effort }),
           },
         }),
-        ...(isOpenRouter && modelDef?.supportsEffort && {
-          openrouter: { reasoning: { effort } },
-        }),
+        ...(isOpenRouter &&
+          modelDef?.supportsEffort && {
+            openrouter: { reasoning: { effort } },
+          }),
       },
     });
 

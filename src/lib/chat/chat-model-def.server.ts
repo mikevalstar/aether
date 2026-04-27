@@ -1,10 +1,5 @@
 import { prisma } from "#/db";
-import {
-  BUILTIN_CHAT_MODELS,
-  type ChatModelDef,
-  getModelProvider,
-  type ModelProvider,
-} from "#/lib/chat/chat-models";
+import { BUILTIN_CHAT_MODELS, type ChatModelDef, getModelProvider, type ModelProvider } from "#/lib/chat/chat-models";
 
 /**
  * Resolve a model id to its full definition, consulting both built-ins and

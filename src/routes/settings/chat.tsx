@@ -84,8 +84,8 @@ function ChatSection() {
         <header className="flex flex-col gap-1.5">
           <SectionLabel icon={Sparkles}>OpenRouter models</SectionLabel>
           <p className="text-sm text-muted-foreground">
-            Pick which OpenRouter models appear in the chat model selector. Removing a model later will not break
-            historical chats — they keep their original label and provider.
+            Pick which OpenRouter models appear in the chat model selector. Removing a model later will not break historical
+            chats — they keep their original label and provider.
           </p>
         </header>
         <OpenRouterModelPicker />

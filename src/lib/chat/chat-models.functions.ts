@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import { prisma } from "#/db";
 import { ensureSession } from "#/lib/auth.functions";
 import { BUILTIN_CHAT_MODELS, type ChatModelDef } from "#/lib/chat/chat-models";
-import { prisma } from "#/db";
 
 export type ChatModelOption = {
   id: string;
