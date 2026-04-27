@@ -9,7 +9,7 @@ export type ChatRunStats = {
   writes: number;
 };
 
-const WRITE_PATTERN = /\.(write|create|update|append|delete|move|rename|index)\b/i;
+const WRITE_PATTERN = /(^|[._-])(write|create|update|append|delete|move|rename|index|edit|send)\b/i;
 
 export function computeRunStats(messages: AppChatMessage[]): ChatRunStats {
   let toolCalls = 0;
@@ -17,11 +17,17 @@ export function computeRunStats(messages: AppChatMessage[]): ChatRunStats {
   for (const message of messages) {
     if (!message.parts) continue;
     for (const part of message.parts) {
-      if ((part as { type?: string }).type === "tool-call") {
-        toolCalls += 1;
-        const name = (part as { toolName?: string }).toolName ?? "";
-        if (WRITE_PATTERN.test(name)) writes += 1;
+      const type = (part as { type?: string }).type ?? "";
+      let toolName: string | undefined;
+      if (type === "dynamic-tool") {
+        toolName = (part as { toolName?: string }).toolName;
+      } else if (type.startsWith("tool-")) {
+        toolName = type.slice("tool-".length);
+      } else {
+        continue;
       }
+      toolCalls += 1;
+      if (toolName && WRITE_PATTERN.test(toolName)) writes += 1;
     }
   }
 
