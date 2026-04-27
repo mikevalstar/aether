@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "start": "vite build && vite preview",
+    "start": "vite build && dotenv -e .env -- node dist/server/server.js",
+    "serve": "dotenv -e .env -- node dist/server/server.js",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
