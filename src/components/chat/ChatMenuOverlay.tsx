@@ -63,7 +63,7 @@ export function ChatMenuOverlay({
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <div className="absolute inset-0 bg-[var(--ink)]/55 backdrop-blur-sm" onClick={onClose} aria-hidden />
       <div
-        className="absolute top-3 right-2 left-2 flex max-h-[92vh] flex-col overflow-hidden rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] shadow-2xl shadow-black/30 lg:-translate-x-1/2 lg:top-[10%] lg:right-auto lg:left-1/2 lg:max-h-[78vh] lg:w-[min(820px,92vw)]"
+        className="absolute top-[max(0.75rem,calc(env(safe-area-inset-top)+0.5rem))] right-2 left-2 flex max-h-[88vh] flex-col overflow-hidden rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] shadow-2xl shadow-black/30 lg:top-[10%] lg:right-auto lg:left-1/2 lg:max-h-[78vh] lg:w-[min(820px,92vw)] lg:-translate-x-1/2"
         role="dialog"
         aria-modal="true"
         aria-label="Chat menu"
