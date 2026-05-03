@@ -1,4 +1,5 @@
-import { ArrowLeftIcon, FileDownIcon, MenuIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeftIcon, FileDownIcon, MenuIcon, PencilIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ModelSelector } from "#/components/chat/ModelSelector";
 import { Button } from "#/components/ui/button";
@@ -252,7 +253,15 @@ export function ChatRunHeader(props: ChatRunHeaderProps) {
             )}
           </div>
 
-          {/* Mobile menu button — stays inline since action buttons are hidden on mobile */}
+          {/* Mobile menu buttons — stay inline since action buttons are hidden on mobile */}
+          <Link
+            to="/chat"
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[var(--line)] bg-[var(--bg)] text-[var(--ink-soft)] hover:border-[var(--accent)]/40 hover:text-[var(--accent)] lg:hidden"
+            title="New chat"
+            aria-label="New chat"
+          >
+            <SquarePenIcon className="size-4" />
+          </Link>
           {onMenuOpen && (
             <Button
               type="button"
@@ -278,23 +287,34 @@ export function ChatRunHeader(props: ChatRunHeaderProps) {
             costUsd={costUsd}
             costBreakdown={costBreakdown}
           />
-          {onMenuOpen && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="hidden h-7 shrink-0 items-center gap-2 border-[var(--line-strong)] bg-[var(--bg)] px-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--ink-soft)] hover:border-[var(--accent)]/50 hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)] lg:inline-flex"
-              onClick={onMenuOpen}
-              title="Open chat menu"
-              aria-label="Open chat menu"
+          <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
+            <Link
+              to="/chat"
+              className="inline-flex h-7 items-center gap-2 rounded-md border border-[var(--line-strong)] bg-[var(--bg)] px-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--ink-soft)] hover:border-[var(--accent)]/50 hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)]"
+              title="New chat"
+              aria-label="New chat"
             >
-              <MenuIcon className="size-3.5" />
-              <span>Threads</span>
-              <span className="rounded border border-[var(--line)] bg-[var(--surface)] px-1 py-px text-[9px] tracking-[0.1em] text-[var(--ink-faint)]">
-                ⌘J
-              </span>
-            </Button>
-          )}
+              <SquarePenIcon className="size-3.5" />
+              <span>New</span>
+            </Link>
+            {onMenuOpen && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 items-center gap-2 border-[var(--line-strong)] bg-[var(--bg)] px-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--ink-soft)] hover:border-[var(--accent)]/50 hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)]"
+                onClick={onMenuOpen}
+                title="Open chat menu"
+                aria-label="Open chat menu"
+              >
+                <MenuIcon className="size-3.5" />
+                <span>Threads</span>
+                <span className="rounded border border-[var(--line)] bg-[var(--surface)] px-1 py-px text-[9px] tracking-[0.1em] text-[var(--ink-faint)]">
+                  ⌘J
+                </span>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>

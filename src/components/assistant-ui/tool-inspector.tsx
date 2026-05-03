@@ -7,6 +7,7 @@ import {
 import {
   AlertCircleIcon,
   CheckIcon,
+  ChevronRightIcon,
   FileTextIcon,
   InfoIcon,
   LoaderIcon,
@@ -18,11 +19,9 @@ import { createContext, type FC, type ReactNode, useContext, useEffect, useMemo,
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SubAgentBlock } from "#/components/assistant-ui/sub-agent-block";
-import { ToolActivitySummary } from "#/components/assistant-ui/tool-activity-summary";
 import { CodeBlockPre, createMarkdownComponents } from "#/components/markdown/markdown-components";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "#/components/ui/collapsible";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "#/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "#/components/ui/drawer";
 import { getObsidianViewerData } from "#/lib/obsidian/obsidian.functions";
@@ -194,6 +193,73 @@ function truncate(value: string, maxLength: number) {
   return `${value.slice(0, maxLength - 1)}...`;
 }
 
+const PRIMARY_ARG_KEYS = [
+  "relativePath",
+  "path",
+  "filePath",
+  "file",
+  "url",
+  "href",
+  "query",
+  "q",
+  "search",
+  "term",
+  "name",
+  "title",
+  "id",
+  "key",
+  "prompt",
+  "message",
+  "content",
+];
+
+function formatArgValue(value: unknown): string | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return value.length === 0 ? "[]" : `[${value.length}]`;
+  if (typeof value === "object") return `{${Object.keys(value as object).length}}`;
+  return null;
+}
+
+function formatArgsForRow(argsText: string): string {
+  try {
+    const parsed = JSON.parse(argsText) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.length === 0 ? "—" : `[${parsed.length} items]`;
+    }
+    if (parsed && typeof parsed === "object") {
+      const record = parsed as Record<string, unknown>;
+      const keys = Object.keys(record);
+      if (keys.length === 0) return "—";
+
+      const primaryKey = PRIMARY_ARG_KEYS.find((key) => key in record);
+      if (primaryKey) {
+        const primary = formatArgValue(record[primaryKey]);
+        if (primary) {
+          const extras = keys.filter((key) => key !== primaryKey);
+          const suffix = extras.length > 0 ? ` +${extras.length}` : "";
+          return `${oneLine(primary)}${suffix}`;
+        }
+      }
+
+      const pairs = keys
+        .map((key) => {
+          const formatted = formatArgValue(record[key]);
+          return formatted ? `${key}: ${oneLine(formatted)}` : null;
+        })
+        .filter((entry): entry is string => entry !== null);
+
+      if (pairs.length === 0) return keys.join(", ");
+      return pairs.length <= 2 ? pairs.join(", ") : `${pairs.slice(0, 2).join(", ")} +${pairs.length - 2}`;
+    }
+  } catch {
+    // Fall through.
+  }
+
+  return oneLine(argsText) || "—";
+}
+
 function summarizeArgs(argsText: string) {
   try {
     const parsed = JSON.parse(argsText) as unknown;
@@ -242,12 +308,6 @@ function summarizeOutput(result: unknown, status?: ToolCallMessagePartStatus) {
   }
 
   return String(result);
-}
-
-function summarizeTool(tool: Pick<ToolCallMessagePartProps, "argsText" | "result" | "status">) {
-  const argsSummary = summarizeArgs(tool.argsText);
-  const outputSummary = summarizeOutput(tool.result, tool.status);
-  return `${argsSummary} • ${outputSummary}`;
 }
 
 function summarizeInspection(tool: ToolInspection) {
@@ -444,23 +504,53 @@ export const InspectorToolActivity: FC<{
   if (!isToolGroup) return <>{children}</>;
 
   const summary = summarizeToolGroup(parts);
+  const category = deriveGroupCategory(parts);
 
   return (
-    <Collapsible className="my-2">
-      <CollapsibleTrigger className="group/tool-activity-trigger w-full rounded-xl border border-border/60 bg-muted/20 px-3 data-[state=open]:bg-muted/35">
-        <ToolActivitySummary
-          total={summary.total}
-          runningCount={summary.runningCount}
-          errorCount={summary.errorCount}
-          status={summary.statusType}
-        />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="pl-3 pb-2">
-        <div className="mt-1 flex flex-col gap-1.5 border-l border-border/60 pl-3">{children}</div>
-      </CollapsibleContent>
-    </Collapsible>
+    <div className="my-2 overflow-hidden rounded-md border border-border/60 bg-muted/15">
+      <div className="flex items-center gap-2 px-2.5 py-1.5 text-[11px]">
+        <GroupStatusDot statusType={summary.statusType} />
+        <span className="font-medium tracking-[0.08em] text-muted-foreground uppercase">{category}</span>
+        <span className="ml-auto text-muted-foreground/80">
+          {summary.total} {summary.total === 1 ? "call" : "calls"}
+          {summary.runningCount > 0 && ` · ${summary.runningCount} running`}
+          {summary.errorCount > 0 && ` · ${summary.errorCount} error${summary.errorCount === 1 ? "" : "s"}`}
+        </span>
+      </div>
+      <div className="divide-y divide-border/40 border-t border-border/40">{children}</div>
+    </div>
   );
 };
+
+function deriveGroupCategory(parts: ToolCallMessagePartProps[]) {
+  const prefixes = new Set(parts.map((part) => part.toolName.split("_")[0] ?? part.toolName));
+  if (prefixes.size === 1) {
+    const [only] = Array.from(prefixes);
+    return (only ?? "tools").toUpperCase();
+  }
+  return "TOOLS";
+}
+
+function GroupStatusDot({ statusType }: { statusType: ToolStatusType }) {
+  if (statusType === "running") {
+    return (
+      <span aria-hidden className="relative inline-flex size-1.5 shrink-0 rounded-full bg-amber-500">
+        <span className="absolute inset-0 animate-ping rounded-full bg-amber-500/70" />
+      </span>
+    );
+  }
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "inline-flex size-1.5 shrink-0 rounded-full",
+        statusType === "complete" && "bg-muted-foreground/60",
+        statusType === "requires-action" && "bg-amber-500",
+        statusType === "incomplete" && "bg-destructive",
+      )}
+    />
+  );
+}
 
 export const InspectorToolRow: ToolCallMessagePartComponent = (tool) => {
   const inspector = useToolInspector();
@@ -482,29 +572,50 @@ export const InspectorToolRow: ToolCallMessagePartComponent = (tool) => {
     );
   }
 
+  const shortName = stripCommonPrefix(tool.toolName);
+  const argDetail = formatArgsForRow(tool.argsText);
+  const outputSummary = summarizeOutput(tool.result, tool.status);
+  const isRunning = statusMeta.type === "running";
+  const isError = statusMeta.type === "incomplete";
+
   return (
     <button
       type="button"
       onClick={() => inspector.setSelectedTool(isSelected ? null : toInspection(tool))}
       className={cn(
-        "flex w-full items-center gap-3 rounded-lg border px-2.5 py-2 text-left transition-colors",
-        isSelected ? "border-foreground/25 bg-accent/60" : "border-border/60 bg-background hover:bg-muted/40",
+        "group/tool-row flex w-full items-center gap-2.5 px-2.5 py-1 text-left text-[12px] transition-colors",
+        isSelected ? "bg-accent/60" : "hover:bg-muted/40",
       )}
     >
-      <ToolStatusGlyph status={statusMeta.type} />
-      <div className="min-w-0 flex-1">
-        <div className="truncate font-medium text-sm text-foreground">{tool.toolName}</div>
-        <div className="truncate text-xs text-muted-foreground">{summarizeTool(tool)}</div>
-      </div>
-      <div className="flex items-center gap-2">
-        <StatusBadge statusType={statusMeta.type} />
-        <span className="hidden text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase sm:inline">
-          {isSelected ? "Close" : "Inspect"}
-        </span>
-      </div>
+      <ChevronRightIcon
+        aria-hidden
+        className={cn(
+          "size-3 shrink-0 text-muted-foreground/50 transition-transform group-hover/tool-row:translate-x-0.5 group-hover/tool-row:text-muted-foreground",
+          isRunning && "animate-pulse",
+        )}
+      />
+      <span className={cn("shrink-0 font-mono text-foreground", isError && "text-destructive")}>{shortName}</span>
+      <span className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-muted-foreground/70" title={argDetail}>
+        {argDetail}
+      </span>
+      <span
+        className={cn(
+          "shrink-0 truncate text-right text-[11px] text-muted-foreground/60 tabular-nums",
+          isRunning && "text-amber-700/90 dark:text-amber-300/90",
+          isError && "text-destructive/80",
+        )}
+      >
+        {outputSummary}
+      </span>
     </button>
   );
 };
+
+function stripCommonPrefix(toolName: string) {
+  const idx = toolName.indexOf("_");
+  if (idx <= 0) return toolName;
+  return toolName.slice(idx + 1);
+}
 
 function MarkdownDocumentToolRow({
   action,
