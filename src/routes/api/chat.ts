@@ -426,47 +426,28 @@ export const Route = createFileRoute("/api/chat")({
           },
           onFinish: async ({ messages }) => {
             const finalMessages = messages as AppChatMessage[];
-            const totalUsage = await result.totalUsage;
-            const update = createUsageUpdate(totalUsage, finalMessages);
-            const timing = timer.finish(totalUsage);
-            logger.info(
-              {
-                threadId: thread.id,
-                model,
-                inputTokens: update.exchangeUsage.inputTokens,
-                outputTokens: update.exchangeUsage.outputTokens,
-                costUsd: update.exchangeUsage.estimatedCostUsd,
-              },
-              "Chat response completed",
-            );
 
-            const titleEventsWithMeta = await Promise.all(
-              titleUsageEvents.map(async (titleEvent) => ({
-                ...titleEvent,
-                meta: await snapshotModelMeta(titleEvent.model, session.user.id),
-              })),
-            );
+            // Persisting the assistant reply is the only critical step here. Usage
+            // events, title-usage bookkeeping, and embeddings are best-effort: a
+            // failure in any of them must never lose the user's message or escape
+            // as an unhandled rejection (which bypasses the logger entirely).
+            try {
+              const totalUsage = await result.totalUsage;
+              const update = createUsageUpdate(totalUsage, finalMessages);
+              const timing = timer.finish(totalUsage);
+              logger.info(
+                {
+                  threadId: thread.id,
+                  model,
+                  inputTokens: update.exchangeUsage.inputTokens,
+                  outputTokens: update.exchangeUsage.outputTokens,
+                  costUsd: update.exchangeUsage.estimatedCostUsd,
+                },
+                "Chat response completed",
+              );
 
-            await prisma.$transaction([
-              ...titleEventsWithMeta.map((titleEvent) =>
-                prisma.chatUsageEvent.create({
-                  data: {
-                    id: `usage_event_${nanoid(10)}`,
-                    userId: session.user.id,
-                    threadId: thread.id,
-                    model: titleEvent.model,
-                    modelLabel: titleEvent.meta.modelLabel,
-                    modelProvider: titleEvent.meta.modelProvider,
-                    taskType: titleEvent.taskType,
-                    inputTokens: titleEvent.exchangeUsage.inputTokens,
-                    outputTokens: titleEvent.exchangeUsage.outputTokens,
-                    totalTokens: titleEvent.exchangeUsage.totalTokens,
-                    estimatedCostUsd: titleEvent.exchangeUsage.estimatedCostUsd,
-                    createdAt: new Date(titleEvent.createdAt),
-                  },
-                }),
-              ),
-              prisma.chatThread.update({
+              // 1) Critical: save the messages + thread totals.
+              await prisma.chatThread.update({
                 where: { id: thread.id },
                 data: {
                   model,
@@ -480,30 +461,81 @@ export const Route = createFileRoute("/api/chat")({
                   systemPromptJson: JSON.stringify(systemPrompt),
                   availableToolsJson: JSON.stringify(toolNames),
                 },
-              }),
-              prisma.chatUsageEvent.create({
-                data: {
-                  id: `usage_event_${nanoid(10)}`,
-                  userId: session.user.id,
+              });
+
+              // 2) Best-effort: usage events (separate so a failure here cannot
+              //    roll back the saved message above).
+              try {
+                const titleEventsWithMeta = await Promise.all(
+                  titleUsageEvents.map(async (titleEvent) => ({
+                    ...titleEvent,
+                    meta: await snapshotModelMeta(titleEvent.model, session.user.id),
+                  })),
+                );
+
+                await prisma.$transaction([
+                  ...titleEventsWithMeta.map((titleEvent) =>
+                    prisma.chatUsageEvent.create({
+                      data: {
+                        id: `usage_event_${nanoid(10)}`,
+                        userId: session.user.id,
+                        threadId: thread.id,
+                        model: titleEvent.model,
+                        modelLabel: titleEvent.meta.modelLabel,
+                        modelProvider: titleEvent.meta.modelProvider,
+                        taskType: titleEvent.taskType,
+                        inputTokens: titleEvent.exchangeUsage.inputTokens,
+                        outputTokens: titleEvent.exchangeUsage.outputTokens,
+                        totalTokens: titleEvent.exchangeUsage.totalTokens,
+                        estimatedCostUsd: titleEvent.exchangeUsage.estimatedCostUsd,
+                        createdAt: new Date(titleEvent.createdAt),
+                      },
+                    }),
+                  ),
+                  prisma.chatUsageEvent.create({
+                    data: {
+                      id: `usage_event_${nanoid(10)}`,
+                      userId: session.user.id,
+                      threadId: thread.id,
+                      model,
+                      modelLabel: modelMeta.modelLabel,
+                      modelProvider: modelMeta.modelProvider,
+                      taskType: "chat",
+                      inputTokens: update.exchangeUsage.inputTokens,
+                      outputTokens: update.exchangeUsage.outputTokens,
+                      totalTokens: update.exchangeUsage.totalTokens,
+                      estimatedCostUsd: update.exchangeUsage.estimatedCostUsd,
+                      ...timingToEventFields(timing),
+                      createdAt: new Date(update.usageEntry.createdAt),
+                    },
+                  }),
+                ]);
+              } catch (err) {
+                logger.error(
+                  {
+                    threadId: thread.id,
+                    model,
+                    err: err instanceof Error ? { message: err.message, stack: err.stack } : err,
+                  },
+                  "Failed to record chat usage events (message was still saved)",
+                );
+              }
+
+              // 3) Best-effort: embedding for semantic search.
+              embedThread(thread.id).catch((err) => {
+                logger.error({ err, threadId: thread.id }, "Failed to update chat embedding");
+              });
+            } catch (err) {
+              logger.error(
+                {
                   threadId: thread.id,
                   model,
-                  modelLabel: modelMeta.modelLabel,
-                  modelProvider: modelMeta.modelProvider,
-                  taskType: "chat",
-                  inputTokens: update.exchangeUsage.inputTokens,
-                  outputTokens: update.exchangeUsage.outputTokens,
-                  totalTokens: update.exchangeUsage.totalTokens,
-                  estimatedCostUsd: update.exchangeUsage.estimatedCostUsd,
-                  ...timingToEventFields(timing),
-                  createdAt: new Date(update.usageEntry.createdAt),
+                  provider: modelDef?.provider,
+                  err: err instanceof Error ? { message: err.message, stack: err.stack } : err,
                 },
-              }),
-            ]);
-
-            // Fire-and-forget: update embedding for semantic search
-            embedThread(thread.id).catch((err) => {
-              logger.error({ err, threadId: thread.id }, "Failed to update chat embedding");
-            });
+                "Chat onFinish failed — assistant message may not have been saved",
+              );
+            }
           },
         });
       },
