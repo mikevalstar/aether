@@ -142,6 +142,16 @@ model ChatUsageEvent {
   outputTokens      Int
   totalTokens       Int
   estimatedCostUsd  Float
+  // Timing metrics (nullable — historical rows + non-streaming paths have no TTFT).
+  // genDurationMs is wall-clock spent generating, with tool-execution time subtracted.
+  // ttftMs is time-to-first-token (streaming paths only). toolDurationMs is the merged
+  // wall-clock spent inside tool calls. tokensPerSecond is the post-TTFT output rate.
+  // breakdownJson holds the per-step + per-tool detail (see RunTimingResult).
+  genDurationMs     Int?
+  ttftMs            Int?
+  toolDurationMs    Int?
+  tokensPerSecond   Float?
+  breakdownJson     String?
   createdAt         DateTime @default(now())
   threadId          String?
   userId            String

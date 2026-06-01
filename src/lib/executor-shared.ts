@@ -16,6 +16,7 @@ import { getChatModelDef } from "#/lib/chat/chat-model-def.server";
 import type { ChatEffort } from "#/lib/chat/chat-models";
 import { getDefaultMaxTokensForEffort } from "#/lib/chat/max-tokens";
 import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
+import { RunTimer, timingToEventFields, withToolTiming } from "#/lib/chat/run-timing";
 import { logger } from "#/lib/logger";
 import { type NotificationDelivery, type NotificationSeverity, notify, notifyUsers } from "#/lib/notify";
 import { getUserPreferences } from "#/lib/preferences.server";
@@ -111,18 +112,22 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
   }
 
   const toolNames = Object.keys(tools);
+  const timer = new RunTimer();
+  const timedTools = withToolTiming(tools, timer);
 
   try {
     const isAnthropic = modelDef?.provider === "anthropic";
     const isOpenRouter = modelDef?.provider === "openrouter";
     const effort: ChatEffort = isChatEffort(ctx.effort) ? ctx.effort : "low";
     const maxOutputTokens = ctx.maxTokens ?? (modelDef?.supportsEffort ? getDefaultMaxTokensForEffort(effort) : undefined);
+    timer.start();
     const result = await generateText({
       model: getModel(ctx.model),
       system: ctx.systemPrompt,
       prompt: ctx.userPrompt,
-      tools,
+      tools: timedTools,
       stopWhen: stepCountIs(20),
+      onStepFinish: (step) => timer.markStep(step.usage),
       ...(maxOutputTokens && { maxOutputTokens }),
       providerOptions: {
         ...(isAnthropic && {
@@ -141,6 +146,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     const messagesJson = JSON.stringify(result.response.messages);
     const usage = usageTotalsFromLanguageModelUsage(result.usage);
     const estimatedCost = estimateChatUsageCostUsd(ctx.model, usage, modelDef?.pricing);
+    const timing = timer.finish(result.usage);
 
     const usageEntry = {
       id: `usage_${nanoid(10)}`,
@@ -183,6 +189,7 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
           outputTokens: usage.outputTokens,
           totalTokens: usage.totalTokens,
           estimatedCostUsd: estimatedCost,
+          ...timingToEventFields(timing),
         },
       }),
       prisma.activityLog.create({

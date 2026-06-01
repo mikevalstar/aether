@@ -14,6 +14,7 @@ import { getChatModelDef } from "#/lib/chat/chat-model-def.server";
 import { type ChatEffort, isChatEffort } from "#/lib/chat/chat-models";
 import { getDefaultMaxTokensForEffort } from "#/lib/chat/max-tokens";
 import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
+import { RunTimer, timingToEventFields, withToolTiming } from "#/lib/chat/run-timing";
 import { logger } from "#/lib/logger";
 import type { UserPreferences } from "#/lib/preferences";
 import { findSubAgent, type SubAgentEntry } from "#/lib/sub-agents";
@@ -114,6 +115,8 @@ async function runSubAgent(
   // `createAiTools()`, so sub-agents naturally never see it — no recursion.
   const tools = createAiTools(state.model, parent.userId, threadId, parent.userTimezone, parent.userPrefs);
   const toolNames = Object.keys(tools);
+  const timer = new RunTimer();
+  const timedTools = withToolTiming(tools, timer);
 
   const modelMeta = await snapshotModelMeta(state.model, parent.userId);
   await prisma.chatThread.create({
@@ -141,12 +144,17 @@ async function runSubAgent(
     const isOpenRouter = modelDef?.provider === "openrouter";
     const effort: ChatEffort = isChatEffort(parent.parentEffort) ? parent.parentEffort : "low";
     const maxOutputTokens = modelDef?.supportsEffort ? getDefaultMaxTokensForEffort(effort) : undefined;
+    timer.start();
     const result = streamText({
       model: getModel(state.model),
       system: systemPrompt,
       prompt: userPrompt,
-      tools,
+      tools: timedTools,
       stopWhen: stepCountIs(20),
+      onChunk: ({ chunk }) => {
+        if (chunk.type === "text-delta" || chunk.type === "reasoning-delta") timer.markFirstChunk();
+      },
+      onStepFinish: (step) => timer.markStep(step.usage),
       ...(maxOutputTokens && { maxOutputTokens }),
       providerOptions: {
         ...(isAnthropic && {
@@ -191,6 +199,7 @@ async function runSubAgent(
     const totalUsage = await result.totalUsage;
     const usage = usageTotalsFromLanguageModelUsage(totalUsage);
     const estimatedCost = estimateChatUsageCostUsd(state.model, usage, modelDef?.pricing);
+    const timing = timer.finish(totalUsage);
     const finalText = await result.text;
 
     // Build the full conversation: a synthetic user message with the prompt,
@@ -248,6 +257,7 @@ async function runSubAgent(
           outputTokens: usage.outputTokens,
           totalTokens: usage.totalTokens,
           estimatedCostUsd: estimatedCost,
+          ...timingToEventFields(timing),
         },
       }),
     ]);

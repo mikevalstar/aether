@@ -37,6 +37,7 @@ import { getChatModelDef } from "#/lib/chat/chat-model-def.server";
 import { CHAT_MODELS, resolveModelId } from "#/lib/chat/chat-models";
 import { getDefaultMaxTokensForEffort } from "#/lib/chat/max-tokens";
 import { snapshotModelMeta } from "#/lib/chat/model-snapshot";
+import { RunTimer, timingToEventFields, withToolTiming } from "#/lib/chat/run-timing";
 import { embedThread } from "#/lib/embeddings";
 import { logger } from "#/lib/logger";
 import { getUserPreferences } from "#/lib/preferences.server";
@@ -353,12 +354,19 @@ export const Route = createFileRoute("/api/chat")({
           },
           "Chat streamText starting",
         );
+        const timer = new RunTimer();
+        const timedTools = withToolTiming(tools, timer);
+        timer.start();
         const result = streamText({
           model: getModel(model),
           system: systemPrompt,
           messages: await convertToModelMessages(incomingMessages),
-          tools,
+          tools: timedTools,
           stopWhen: stepCountIs(20),
+          onChunk: ({ chunk }) => {
+            if (chunk.type === "text-delta" || chunk.type === "reasoning-delta") timer.markFirstChunk();
+          },
+          onStepFinish: (step) => timer.markStep(step.usage),
           ...(maxOutputTokens && { maxOutputTokens }),
           providerOptions: {
             ...(isAnthropic && {
@@ -420,6 +428,7 @@ export const Route = createFileRoute("/api/chat")({
             const finalMessages = messages as AppChatMessage[];
             const totalUsage = await result.totalUsage;
             const update = createUsageUpdate(totalUsage, finalMessages);
+            const timing = timer.finish(totalUsage);
             logger.info(
               {
                 threadId: thread.id,
@@ -485,6 +494,7 @@ export const Route = createFileRoute("/api/chat")({
                   outputTokens: update.exchangeUsage.outputTokens,
                   totalTokens: update.exchangeUsage.totalTokens,
                   estimatedCostUsd: update.exchangeUsage.estimatedCostUsd,
+                  ...timingToEventFields(timing),
                   createdAt: new Date(update.usageEntry.createdAt),
                 },
               }),

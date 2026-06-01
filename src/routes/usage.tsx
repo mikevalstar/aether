@@ -1,11 +1,24 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
-import { ChartLine, CircleDollarSign, Coins, Hash, Layers, MessageSquare, TrendingUp, Zap } from "lucide-react";
+import {
+  ChartLine,
+  CircleDollarSign,
+  Coins,
+  Gauge,
+  Hash,
+  Layers,
+  MessageSquare,
+  Timer,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 import {
   Area,
   AreaChart,
   CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   Tooltip as RechartsTooltip,
@@ -29,7 +42,7 @@ import { type ChatUsageStatsResult, getChatUsageStats } from "#/lib/chat/chat-us
 import { formatDateTime } from "#/lib/date";
 import { Money } from "#/lib/format";
 
-const VIEW_MODES = ["cost", "tokens", "prompts"] as const;
+const VIEW_MODES = ["cost", "tokens", "prompts", "speed"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];
 
 const usageSearchSchema = z.object({
@@ -187,6 +200,7 @@ function UsagePage() {
         <ViewModeButton active={view === "cost"} onClick={() => setView("cost")} icon={CircleDollarSign} label="Cost" />
         <ViewModeButton active={view === "tokens"} onClick={() => setView("tokens")} icon={Coins} label="Tokens" />
         <ViewModeButton active={view === "prompts"} onClick={() => setView("prompts")} icon={Zap} label="Prompts" />
+        <ViewModeButton active={view === "speed"} onClick={() => setView("speed")} icon={Gauge} label="Speed" />
       </section>
 
       {/* Stat cards — adapt to view mode */}
@@ -225,6 +239,23 @@ function UsagePage() {
                         </Badge>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
+                        {event.tokensPerSecond != null && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="flex cursor-default items-center gap-1 text-[var(--ink-soft)]">
+                                <Gauge className="size-3.5" />
+                                {formatTps(event.tokensPerSecond)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                {formatTps(event.tokensPerSecond)} output
+                                {event.ttftMs != null && ` · ${formatTtft(event.ttftMs)} to first token`}
+                                {event.genDurationMs != null && ` · ${formatDuration(event.genDurationMs)} generating`}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="cursor-default">{event.totalTokens.toLocaleString()} tokens</span>
@@ -270,6 +301,7 @@ function UsagePage() {
                 <TrackedField label="Model" value="Claude model used for the exchange" />
                 <TrackedField label="Tokens" value="Input, output, and total token counts" />
                 <TrackedField label="Cost" value="Estimated USD based on model pricing" />
+                <TrackedField label="Speed" value="Output tokens/sec and time-to-first-token, with tool time excluded" />
                 <TrackedField label="Time" value="Timestamp recorded when the exchange finishes" />
               </div>
             </ChartCard>
@@ -323,6 +355,44 @@ function ViewModeButton(props: {
 
 function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewMode }) {
   const t = data.totals;
+
+  if (view === "speed") {
+    const fastest = data.modelBreakdown
+      .filter((m) => m.tokensPerSecond != null)
+      .sort((a, b) => (b.tokensPerSecond ?? 0) - (a.tokensPerSecond ?? 0))[0];
+    return (
+      <>
+        <StatCard
+          label="Avg generation speed"
+          value={t.tokensPerSecond != null ? formatTps(t.tokensPerSecond) : "—"}
+          detail="Output tokens/sec, tool time excluded"
+          icon={Gauge}
+          color="var(--accent)"
+        />
+        <StatCard
+          label="Avg time to first token"
+          value={t.avgTtftMs != null ? formatTtft(t.avgTtftMs) : "—"}
+          detail="Streaming exchanges only"
+          icon={Timer}
+          color="var(--chart-3)"
+        />
+        <StatCard
+          label="Fastest model"
+          value={fastest?.tokensPerSecond != null ? formatTps(fastest.tokensPerSecond) : "—"}
+          detail={fastest ? fastest.label : "No timed exchanges"}
+          icon={TrendingUp}
+          color="var(--chart-1)"
+        />
+        <StatCard
+          label="Timed exchanges"
+          value={t.timedEvents.toLocaleString()}
+          detail={`of ${t.events.toLocaleString()} total`}
+          icon={Hash}
+          color="var(--chart-4)"
+        />
+      </>
+    );
+  }
 
   if (view === "tokens") {
     return (
@@ -439,6 +509,56 @@ function ViewStatCards({ data, view }: { data: ChatUsageStatsResult; view: ViewM
 function ViewMainChart({ data, view }: { data: ChatUsageStatsResult; view: ViewMode }) {
   const viewConfig = getViewConfig(view);
 
+  if (view === "speed") {
+    // Only plot models that recorded timing; keep each model's color aligned with the other views.
+    const speedModels = data.modelBreakdown.filter((m) => m.tokensPerSecond != null).map((m) => m.label);
+    return (
+      <ChartCard
+        title={viewConfig.chartTitle}
+        subtitle={viewConfig.chartSubtitle}
+        icon={viewConfig.chartIcon}
+        accentColor={viewConfig.chartAccent}
+      >
+        <div className="h-80">
+          {speedModels.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-sm text-[var(--ink-soft)]">
+              No throughput data in this range yet.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.dailyUsage}>
+                <CartesianGrid stroke="var(--line)" vertical={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                <YAxis tickLine={false} axisLine={false} tickFormatter={(v: number) => `${Math.round(v)}`} />
+                <RechartsTooltip
+                  formatter={(value, name) => [formatTps(toChartNumber(value as number | string)), name]}
+                  labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
+                />
+                <Legend />
+                {speedModels.map((model) => {
+                  const colorIndex = data.dailyUsageModels.indexOf(model);
+                  const color = CHART_COLORS[(colorIndex < 0 ? 0 : colorIndex) % CHART_COLORS.length];
+                  return (
+                    <Line
+                      key={model}
+                      type="monotone"
+                      dataKey={`${model}__tps`}
+                      name={model}
+                      stroke={color}
+                      strokeWidth={2}
+                      dot={false}
+                      connectNulls
+                    />
+                  );
+                })}
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </ChartCard>
+    );
+  }
+
   const dataKeySuffix = view === "tokens" ? "__tokens" : view === "prompts" ? "__events" : "";
 
   return (
@@ -490,6 +610,8 @@ function ViewMainChart({ data, view }: { data: ChatUsageStatsResult; view: ViewM
 
 function ViewModelMix({ data, view }: { data: ChatUsageStatsResult; view: ViewMode }) {
   const viewConfig = getViewConfig(view);
+
+  if (view === "speed") return <ModelSpeedCard data={data} />;
 
   const pieDataKey = view === "tokens" ? "totalTokens" : view === "prompts" ? "events" : "estimatedCostUsd";
   const totalValue =
@@ -548,10 +670,83 @@ function ViewModelMix({ data, view }: { data: ChatUsageStatsResult; view: ViewMo
   );
 }
 
+/* ── Model speed bar list (Speed view side panel) ────────── */
+
+function ModelSpeedCard({ data }: { data: ChatUsageStatsResult }) {
+  // Color each model consistently with the time-series lines (index in the shared model list).
+  const colorByModel = new Map(
+    data.modelBreakdown.map((m) => {
+      const idx = data.dailyUsageModels.indexOf(m.label);
+      return [m.model, CHART_COLORS[(idx < 0 ? 0 : idx) % CHART_COLORS.length]] as const;
+    }),
+  );
+  const rows = data.modelBreakdown
+    .filter((m) => m.tokensPerSecond != null)
+    .sort((a, b) => (b.tokensPerSecond ?? 0) - (a.tokensPerSecond ?? 0));
+  const maxTps = rows.length ? Math.max(...rows.map((r) => r.tokensPerSecond ?? 0)) : 0;
+
+  return (
+    <ChartCard
+      title="Model speed"
+      subtitle="Average output tokens/sec by model in the selected range."
+      icon={Gauge}
+      accentColor="var(--chart-1)"
+    >
+      {rows.length === 0 ? (
+        <p className="text-sm text-[var(--ink-soft)]">No throughput data in this range yet.</p>
+      ) : (
+        <div className="grid gap-2">
+          {rows.map((item) => {
+            const color = colorByModel.get(item.model) ?? "var(--chart-1)";
+            const tps = item.tokensPerSecond ?? 0;
+            const pct = maxTps > 0 ? Math.round((tps / maxTps) * 100) : 0;
+            return (
+              <div
+                key={item.model}
+                className="rounded-md border px-3 py-2.5"
+                style={{ borderColor: `oklch(from ${color} l c h / 0.2)` }}
+              >
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="size-2.5 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="truncate">{item.label}</span>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {item.avgTtftMs != null && (
+                      <span className="text-xs text-[var(--ink-faint)]">{formatTtft(item.avgTtftMs)} TTFT</span>
+                    )}
+                    <span className="font-semibold" style={{ color }}>
+                      {formatTps(tps)}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[var(--line)]">
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </ChartCard>
+  );
+}
+
 /* ── View config helper ──────────────────────────────────── */
 
 function getViewConfig(view: ViewMode) {
   switch (view) {
+    case "speed":
+      return {
+        chartTitle: "Generation speed over time",
+        chartSubtitle: "Daily average output tokens/sec per model (tool time excluded).",
+        chartIcon: Gauge,
+        chartAccent: "var(--chart-1)",
+        mixSubtitle: "Average tokens/sec by model in the selected range.",
+        axisFormatter: (v: number) => `${Math.round(v)}`,
+        tooltipFormatter: (v: number) => formatTps(v),
+        legendFormatter: (v: number) => formatTps(v),
+      };
     case "tokens":
       return {
         chartTitle: "Tokens over time",
@@ -603,6 +798,18 @@ function formatAxisCurrency(value: number) {
   if (value >= 1) return `$${value.toFixed(0)}`;
   if (value >= 0.01) return `$${value.toFixed(2)}`;
   return `$${value.toFixed(4)}`;
+}
+
+function formatTps(value: number) {
+  return `${value >= 100 ? Math.round(value) : value.toFixed(1)} tok/s`;
+}
+
+function formatTtft(ms: number) {
+  return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
+}
+
+function formatDuration(ms: number) {
+  return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
 }
 
 function formatAxisTokens(value: number) {
