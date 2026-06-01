@@ -7,7 +7,7 @@ A self-hosted personal dashboard and AI agent platform, backed by your [Obsidian
 ## Features
 
 ### AI Chat
-Multi-turn conversations with Claude (Haiku 4.5, Sonnet 4.6, Opus 4.6), plus OpenRouter models (GLM-5, GLM-5.1, Kimi K2.5) and MiniMax M2.7. The AI has full tool access — it can search the web, read and write files in your Obsidian vault, manage your kanban board, query your calendar, and send you push notifications. Streaming responses, message editing, branch navigation, auto-generated thread titles, and sub-agents with streaming output and per-agent cost rollups.
+Multi-turn conversations with Claude (Haiku 4.5, Sonnet 4.6, Opus 4.6), plus OpenRouter models (GLM-5, GLM-5.1, Kimi K2.5) and MiniMax M2.7 / M3. The AI has full tool access — it can search the web, read and write files in your Obsidian vault, manage your kanban board, query your calendar, and send you push notifications. Streaming responses, message editing, branch navigation, auto-generated thread titles, and sub-agents with streaming output and per-agent cost rollups.
 
 <a href="docs/screenshots/full/chat.png"><img src="docs/screenshots/chat.png" alt="Chat" width="360" /></a>
 

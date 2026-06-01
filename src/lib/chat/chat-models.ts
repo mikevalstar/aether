@@ -82,6 +82,22 @@ export const BUILTIN_CHAT_MODELS: readonly ChatModelDef[] = [
     },
     pricing: { inputCostPerMillionTokensUsd: 0.3, outputCostPerMillionTokensUsd: 1.2 },
   },
+  {
+    id: "MiniMax-M3",
+    label: "MiniMax M3",
+    description: "Frontier coding, 1M context",
+    supportsWebTools: true,
+    supportsEffort: false,
+    supportsCodeExecution: false,
+    webToolVersion: "none",
+    provider: "minimax",
+    aliases: ["minimax/minimax-m3"],
+    providerIds: {
+      minimax: "MiniMax-M3",
+      openrouter: "minimax/minimax-m3",
+    },
+    pricing: { inputCostPerMillionTokensUsd: 0.6, outputCostPerMillionTokensUsd: 2.4 },
+  },
 ];
 
 /**
