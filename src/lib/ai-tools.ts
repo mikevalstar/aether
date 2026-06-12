@@ -134,7 +134,7 @@ export function getToolCategories(): Record<string, { category: string; conditio
     web_search: { category: "Web", conditional: "Anthropic models only" },
     web_fetch: { category: "Web", conditional: "Anthropic models only" },
     // Code
-    code_execution: { category: "Code", conditional: "Sonnet 4.6 and Opus 4.6 only" },
+    code_execution: { category: "Code", conditional: "Sonnet 4.6, Opus 4.8, and Fable 5 only" },
     // Utility
     fetch_url_markdown: { category: "Utility" },
     send_notification: { category: "Utility" },

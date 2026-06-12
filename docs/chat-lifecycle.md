@@ -199,7 +199,8 @@ The `onFinish` callback in the API endpoint persists everything in a single Pris
 |-------|----------------------|------------------------|
 | Claude Haiku 4.5 | $1 | $5 |
 | Claude Sonnet 4.6 | $3 | $15 |
-| Claude Opus 4.6 | $5 | $25 |
+| Claude Opus 4.8 | $5 | $25 |
+| Claude Fable 5 | $10 | $50 |
 | MiniMax M2.7 | $0.30 | $1.20 |
 | MiniMax M3 | $0.60 | $2.40 |
 | GLM-5 | $0.72 | $2.30 |
@@ -297,7 +298,7 @@ All three verify ownership (`userId` match), update the record, and the UI calls
 id                    String    — "thread_{uuid}"
 title                 String    — default "New chat", AI-generated on first message
 type                  String    — "chat" (also "task", "workflow" for other features)
-model                 String    — "claude-haiku-4-5" | "claude-sonnet-4-6" | "claude-opus-4-6"
+model                 String    — "claude-haiku-4-5" | "claude-sonnet-4-6" | "claude-opus-4-8" | "claude-fable-5"
 effort                String    — "low" | "medium" | "high"
 messagesJson          String    — JSON array of AppChatMessage
 usageHistoryJson      String    — JSON array of ChatUsageEntry

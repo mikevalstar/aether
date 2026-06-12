@@ -94,7 +94,7 @@ canonical_file: docs/requirements/chat.md
 ### Model selection and tool access
 
 - Requirement: Each thread must use one supported AI model with an optional effort level, and tool availability must depend on that model's provider and capabilities.
-- Notes: Supported models are Claude Haiku 4.5, Claude Sonnet 4.6, Claude Opus 4.6 (Anthropic), MiniMax M2.7, MiniMax M3, GLM-5, and Kimi K2.5 (OpenRouter). Anthropic models use native web tools (`web_search`, `web_fetch`) with version-specific APIs: Haiku uses legacy versions, Sonnet and Opus use latest versions. OpenRouter models use Exa-based web search and fetch tools instead. All models also get `fetch_url_markdown`. Sonnet and Opus support effort levels (low, medium, high) via Anthropic's provider options. Anthropic models use ephemeral cache control. The selected model and effort are persisted to the thread and sent with each request. Tool-use steps are capped at 10 per response (`stepCountIs(10)`).
+- Notes: Supported models are Claude Haiku 4.5, Claude Sonnet 4.6, Claude Opus 4.8, Claude Fable 5 (Anthropic), MiniMax M2.7, MiniMax M3, GLM-5, and Kimi K2.5 (OpenRouter). Anthropic models use native web tools (`web_search`, `web_fetch`) with version-specific APIs: Haiku uses legacy versions, Sonnet, Opus, and Fable use latest versions. OpenRouter models use Exa-based web search and fetch tools instead. All models also get `fetch_url_markdown`. Sonnet, Opus, and Fable support effort levels (low, medium, high) via Anthropic's provider options. Anthropic models use ephemeral cache control. The selected model and effort are persisted to the thread and sent with each request. Tool-use steps are capped at 10 per response (`stepCountIs(10)`).
 - Dependencies: `src/lib/chat-models.ts`, `src/lib/ai-tools.ts`, `src/routes/chat.tsx`, `src/routes/api/chat.ts`, `src/lib/tools/fetch-url-markdown.ts`, `src/lib/tools/exa-tools.ts`.
 - Follow-up: Decide whether model changes should affect only future turns, or whether the UI should show mixed-model history more explicitly.
 
@@ -165,7 +165,7 @@ canonical_file: docs/requirements/chat.md
 ### Effort level
 
 - Requirement: Users must be able to set an effort level (low, medium, high) per thread for models that support it.
-- Notes: Effort levels are defined in `src/lib/chat-models.ts`. Sonnet 4.6 and Opus 4.6 support effort; Haiku 4.5 and OpenRouter models do not. The effort selector only appears in the header and empty state when the current model supports it. Effort is persisted on the `ChatThread` model (default `"low"`) and sent as an Anthropic provider option. The `updateChatThreadEffort` server function handles persistence.
+- Notes: Effort levels are defined in `src/lib/chat-models.ts`. Sonnet 4.6, Opus 4.8, and Fable 5 support effort; Haiku 4.5 and OpenRouter models do not. The effort selector only appears in the header and empty state when the current model supports it. Effort is persisted on the `ChatThread` model (default `"low"`) and sent as an Anthropic provider option. The `updateChatThreadEffort` server function handles persistence.
 - Dependencies: `src/lib/chat-models.ts`, `src/components/chat/ChatHeader.tsx`, `src/components/chat/ChatEmptyState.tsx`, `src/lib/chat.functions.ts`, `src/routes/api/chat.ts`.
 - Follow-up: None identified.
 

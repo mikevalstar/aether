@@ -56,8 +56,8 @@ export const BUILTIN_CHAT_MODELS: readonly ChatModelDef[] = [
     pricing: { inputCostPerMillionTokensUsd: 3, outputCostPerMillionTokensUsd: 15 },
   },
   {
-    id: "claude-opus-4-6",
-    label: "Claude Opus 4.6",
+    id: "claude-opus-4-8",
+    label: "Claude Opus 4.8",
     description: "Strongest",
     supportsWebTools: true,
     supportsEffort: true,
@@ -65,6 +65,17 @@ export const BUILTIN_CHAT_MODELS: readonly ChatModelDef[] = [
     webToolVersion: "latest",
     provider: "anthropic",
     pricing: { inputCostPerMillionTokensUsd: 5, outputCostPerMillionTokensUsd: 25 },
+  },
+  {
+    id: "claude-fable-5",
+    label: "Claude Fable 5",
+    description: "Most capable",
+    supportsWebTools: true,
+    supportsEffort: true,
+    supportsCodeExecution: true,
+    webToolVersion: "latest",
+    provider: "anthropic",
+    pricing: { inputCostPerMillionTokensUsd: 10, outputCostPerMillionTokensUsd: 50 },
   },
   {
     id: "MiniMax-M2.7",
