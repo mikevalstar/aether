@@ -4,3 +4,10 @@ allowBuilds:
   esbuild: true
   lightningcss: true
   prisma: true
+
+overrides:
+  # @better-auth/kysely-adapter still imports DEFAULT_MIGRATION_TABLE /
+  # DEFAULT_MIGRATION_LOCK_TABLE from kysely's top-level export, which kysely 0.29
+  # removed. Pin to the last 0.28.x (within the adapter's supported range) until
+  # better-auth ships a 0.29-compatible adapter.
+  kysely: "0.28.17"
