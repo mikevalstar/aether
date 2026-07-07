@@ -357,7 +357,7 @@ function EndDatePicker({ value, onChange }: { value: string; onChange: (v: strin
               onChange(d ? d.toISOString().slice(0, 10) : "");
               setOpen(false);
             }}
-            initialFocus
+            autoFocus
           />
         </PopoverContent>
       </Popover>
