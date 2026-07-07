@@ -44,7 +44,7 @@ export type ScheduledNotificationListResult = {
 };
 
 export const getScheduledNotifications = createServerFn({ method: "GET" })
-  .inputValidator((data) => listInputSchema.parse(data ?? {}))
+  .validator((data) => listInputSchema.parse(data ?? {}))
   .handler(async ({ data }): Promise<ScheduledNotificationListResult> => {
     const session = await ensureSession();
     const status = data.status ?? "pending";
@@ -97,7 +97,7 @@ export const getScheduledNotifications = createServerFn({ method: "GET" })
   });
 
 export const cancelScheduledNotification = createServerFn({ method: "POST" })
-  .inputValidator((data) => cancelInputSchema.parse(data))
+  .validator((data) => cancelInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 

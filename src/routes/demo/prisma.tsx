@@ -20,7 +20,7 @@ const getTodos = createServerFn({
 const createTodo = createServerFn({
   method: "POST",
 })
-  .inputValidator((data) => createTodoInputSchema.parse(data))
+  .validator((data) => createTodoInputSchema.parse(data))
   .handler(async ({ data }) => {
     return await prisma.todo.create({
       data,

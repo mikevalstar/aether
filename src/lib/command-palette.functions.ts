@@ -29,7 +29,7 @@ export type CommandPaletteObsidianResult = {
 };
 
 export const searchCommandPaletteObsidian = createServerFn({ method: "GET" })
-  .inputValidator((data) => queryInputSchema.parse(data))
+  .validator((data) => queryInputSchema.parse(data))
   .handler(async ({ data }): Promise<CommandPaletteObsidianResult[]> => {
     await ensureSession();
 

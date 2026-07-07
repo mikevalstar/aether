@@ -42,7 +42,7 @@ export type NotificationListResult = {
 const PAGE_SIZE = 50;
 
 export const getNotificationList = createServerFn({ method: "GET" })
-  .inputValidator((data) => notificationListInputSchema.parse(data))
+  .validator((data) => notificationListInputSchema.parse(data))
   .handler(async ({ data }): Promise<NotificationListResult> => {
     const session = await ensureSession();
     const page = Math.max(1, data.page ?? 1);
@@ -101,7 +101,7 @@ export const getNotificationList = createServerFn({ method: "GET" })
   });
 
 export const markNotificationsRead = createServerFn({ method: "POST" })
-  .inputValidator((data) => notificationIdsSchema.parse(data))
+  .validator((data) => notificationIdsSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await prisma.notification.updateMany({
@@ -112,7 +112,7 @@ export const markNotificationsRead = createServerFn({ method: "POST" })
   });
 
 export const markNotificationsUnread = createServerFn({ method: "POST" })
-  .inputValidator((data) => notificationIdsSchema.parse(data))
+  .validator((data) => notificationIdsSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await prisma.notification.updateMany({
@@ -123,7 +123,7 @@ export const markNotificationsUnread = createServerFn({ method: "POST" })
   });
 
 export const archiveNotifications = createServerFn({ method: "POST" })
-  .inputValidator((data) => notificationIdsSchema.parse(data))
+  .validator((data) => notificationIdsSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await prisma.notification.updateMany({
@@ -134,7 +134,7 @@ export const archiveNotifications = createServerFn({ method: "POST" })
   });
 
 export const deleteNotifications = createServerFn({ method: "POST" })
-  .inputValidator((data) => notificationIdsSchema.parse(data))
+  .validator((data) => notificationIdsSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await prisma.notification.deleteMany({

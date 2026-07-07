@@ -96,7 +96,7 @@ export const getEnabledPluginIds = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const togglePlugin = createServerFn({ method: "POST" })
-  .inputValidator((data) => togglePluginInputSchema.parse(data))
+  .validator((data) => togglePluginInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await setUserPluginEnabled(session.user.id, data.pluginId, data.enabled);
@@ -105,7 +105,7 @@ export const togglePlugin = createServerFn({ method: "POST" })
   });
 
 export const savePluginOptions = createServerFn({ method: "POST" })
-  .inputValidator((data) => pluginOptionsInputSchema.parse(data))
+  .validator((data) => pluginOptionsInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await setUserPluginOptions(session.user.id, data.pluginId, data.options);
@@ -114,7 +114,7 @@ export const savePluginOptions = createServerFn({ method: "POST" })
   });
 
 export const getPluginOptions = createServerFn({ method: "GET" })
-  .inputValidator((data) => pluginIdInputSchema.parse(data))
+  .validator((data) => pluginIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const prefs = await getUserPreferences(session.user.id);
@@ -129,7 +129,7 @@ export const getPluginOptions = createServerFn({ method: "GET" })
   });
 
 export const checkPluginHealthFn = createServerFn({ method: "GET" })
-  .inputValidator((data) => pluginIdInputSchema.parse(data))
+  .validator((data) => pluginIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { checkPluginHealth } = await import("#/plugins/index.server");
@@ -137,7 +137,7 @@ export const checkPluginHealthFn = createServerFn({ method: "GET" })
   });
 
 export const testPluginConnection = createServerFn({ method: "POST" })
-  .inputValidator((data) => pluginOptionsInputSchema.parse(data))
+  .validator((data) => pluginOptionsInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
 

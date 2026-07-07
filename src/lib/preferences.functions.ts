@@ -43,7 +43,7 @@ export const getPreferencesPageData = createServerFn({
 });
 
 export const updateUserProfile = createServerFn({ method: "POST" })
-  .inputValidator((data) => updateProfileInputSchema.parse(data))
+  .validator((data) => updateProfileInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
 
@@ -56,7 +56,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
   });
 
 export const updateUserPreferences = createServerFn({ method: "POST" })
-  .inputValidator((data) => userPreferencesPatchSchema.parse(data))
+  .validator((data) => userPreferencesPatchSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await patchUserPreferences(session.user.id, data);
@@ -65,7 +65,7 @@ export const updateUserPreferences = createServerFn({ method: "POST" })
   });
 
 export const searchVaultFiles = createServerFn({ method: "GET" })
-  .inputValidator((data) => queryInputSchema.parse(data))
+  .validator((data) => queryInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
     const results = await searchVault(data.query, 20);

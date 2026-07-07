@@ -20,7 +20,7 @@ export type AiConfigValidationResponse = {
 };
 
 export const validateAiConfigContent = createServerFn({ method: "POST" })
-  .inputValidator((data) => validateAiConfigInputSchema.parse(data))
+  .validator((data) => validateAiConfigInputSchema.parse(data))
   .handler(async ({ data }): Promise<AiConfigValidationResponse> => {
     await ensureSession();
 
@@ -45,7 +45,7 @@ export const validateAiConfigContent = createServerFn({ method: "POST" })
   });
 
 export const getAiConfigValidatorInfo = createServerFn({ method: "GET" })
-  .inputValidator((data) => filenameInputSchema.parse(data))
+  .validator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }): Promise<{ description: string; label: string } | null> => {
     await ensureSession();
 

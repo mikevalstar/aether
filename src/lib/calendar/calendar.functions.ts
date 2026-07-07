@@ -21,14 +21,14 @@ const calendarMonthInputSchema = z
   .strict();
 
 export const getCalendarEvents = createServerFn({ method: "GET" })
-  .inputValidator((data) => calendarEventsInputSchema.parse(data))
+  .validator((data) => calendarEventsInputSchema.parse(data))
   .handler(async ({ data }): Promise<CalendarEvent[]> => {
     const session = await ensureSession();
     return queryEvents(session.user.id, data.startDate, data.endDate);
   });
 
 export const getCalendarEventsForMonth = createServerFn({ method: "GET" })
-  .inputValidator((data) => calendarMonthInputSchema.parse(data))
+  .validator((data) => calendarMonthInputSchema.parse(data))
   .handler(async ({ data }): Promise<CalendarEvent[]> => {
     const session = await ensureSession();
     const start = new Date(data.year, data.month, 1);

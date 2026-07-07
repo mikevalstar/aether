@@ -76,7 +76,7 @@ export const getTriggersPageData = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const getTriggerRunHistory = createServerFn({ method: "GET" })
-  .inputValidator((data) => filenameInputSchema.parse(data))
+  .validator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -138,7 +138,7 @@ export const getTriggerRunHistory = createServerFn({ method: "GET" })
   });
 
 export const deleteTriggerRun = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -157,7 +157,7 @@ export const deleteTriggerRun = createServerFn({ method: "POST" })
   });
 
 export const convertTriggerToChat = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -227,7 +227,7 @@ export const getWebhooksPageData = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const createWebhook = createServerFn({ method: "POST" })
-  .inputValidator((data) => createWebhookSchema.parse(data))
+  .validator((data) => createWebhookSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -251,7 +251,7 @@ export const createWebhook = createServerFn({ method: "POST" })
   });
 
 export const regenerateWebhookKey = createServerFn({ method: "POST" })
-  .inputValidator((data) => webhookIdSchema.parse(data))
+  .validator((data) => webhookIdSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -272,7 +272,7 @@ export const regenerateWebhookKey = createServerFn({ method: "POST" })
   });
 
 export const deleteWebhook = createServerFn({ method: "POST" })
-  .inputValidator((data) => webhookIdSchema.parse(data))
+  .validator((data) => webhookIdSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 

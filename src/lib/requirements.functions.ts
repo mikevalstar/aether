@@ -28,10 +28,10 @@ type RequirementFrontmatter = {
 
 type DiscoveredRequirementDocument = RequirementDocument;
 
-const REQUIREMENTS_ROOT = path.join(process.cwd(), "docs", "requirements");
+const getRequirementsRoot = () => path.join(process.cwd(), "docs", "requirements");
 
 export const getRequirementsViewerData = createServerFn({ method: "GET" })
-  .inputValidator((data) => requirementsViewerInputSchema.parse(data))
+  .validator((data) => requirementsViewerInputSchema.parse(data))
   .handler(async ({ data }): Promise<RequirementsViewerData> => {
     await ensureSession();
 
@@ -64,7 +64,7 @@ async function buildTree(
   relativeDirectory: string,
   documents: DiscoveredRequirementDocument[],
 ): Promise<RequirementTreeNode[]> {
-  const absoluteDirectory = path.join(REQUIREMENTS_ROOT, relativeDirectory);
+  const absoluteDirectory = path.join(getRequirementsRoot(), relativeDirectory);
   const entries = await fs.readdir(absoluteDirectory, { withFileTypes: true });
   const nodes: RequirementTreeNode[] = [];
 
@@ -111,7 +111,7 @@ async function buildTree(
 }
 
 async function readRequirementDocument(relativePath: string): Promise<DiscoveredRequirementDocument> {
-  const absolutePath = path.join(REQUIREMENTS_ROOT, relativePath);
+  const absolutePath = path.join(getRequirementsRoot(), relativePath);
   const rawDocument = await fs.readFile(absolutePath, "utf8");
   const parsed = matter(rawDocument);
   const data = parsed.data as RequirementFrontmatter;

@@ -87,7 +87,7 @@ export const getUsersPageData = createServerFn({ method: "GET" }).handler(async 
 });
 
 export const createManagedUser = createServerFn({ method: "POST" })
-  .inputValidator((data: CreateManagedUserInput) => {
+  .validator((data: CreateManagedUserInput) => {
     const name = data.name.trim();
     const email = data.email.trim().toLowerCase();
     const password = data.password.trim();
@@ -151,7 +151,7 @@ export const createManagedUser = createServerFn({ method: "POST" })
   });
 
 export const removeManagedUser = createServerFn({ method: "POST" })
-  .inputValidator((data: { userId: string }) => {
+  .validator((data: { userId: string }) => {
     const userId = data.userId?.trim();
     if (!userId) {
       throw new Error("User ID is required");
@@ -194,7 +194,7 @@ export const getPasswordSettingsData = createServerFn({
 });
 
 export const changeOwnPassword = createServerFn({ method: "POST" })
-  .inputValidator((data: ChangePasswordInput) => {
+  .validator((data: ChangePasswordInput) => {
     const currentPassword = data.currentPassword.trim();
     const newPassword = data.newPassword.trim();
     const revokeOtherSessions = data.revokeOtherSessions ?? true;

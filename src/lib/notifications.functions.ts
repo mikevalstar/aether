@@ -62,7 +62,7 @@ export const getRecentNotifications = createServerFn({ method: "GET" }).handler(
 });
 
 export const markNotificationRead = createServerFn({ method: "POST" })
-  .inputValidator((data) => markNotificationReadInputSchema.parse(data))
+  .validator((data) => markNotificationReadInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -86,7 +86,7 @@ export const markAllNotificationsRead = createServerFn({ method: "POST" }).handl
 });
 
 export const testPushoverNotification = createServerFn({ method: "POST" })
-  .inputValidator((data) => testPushoverInputSchema.parse(data))
+  .validator((data) => testPushoverInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureSession();
 

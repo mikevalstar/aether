@@ -102,7 +102,7 @@ function mapThreadSummary(thread: {
 }
 
 export const getChatPageData = createServerFn({ method: "GET" })
-  .inputValidator((data) => chatThreadInputSchema.parse(data))
+  .validator((data) => chatThreadInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -169,7 +169,7 @@ export const getChatPageData = createServerFn({ method: "GET" })
   });
 
 export const createChatThread = createServerFn({ method: "POST" })
-  .inputValidator((data) => createChatThreadInputSchema.parse(data))
+  .validator((data) => createChatThreadInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const model = (data.model && resolveModelId(data.model)) ?? DEFAULT_CHAT_MODEL;
@@ -191,7 +191,7 @@ export const createChatThread = createServerFn({ method: "POST" })
   });
 
 export const updateChatThreadModel = createServerFn({ method: "POST" })
-  .inputValidator((data) => updateChatThreadModelInputSchema.parse(data))
+  .validator((data) => updateChatThreadModelInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -213,7 +213,7 @@ export const updateChatThreadModel = createServerFn({ method: "POST" })
   });
 
 export const updateChatThreadEffort = createServerFn({ method: "POST" })
-  .inputValidator((data) => updateChatThreadEffortInputSchema.parse(data))
+  .validator((data) => updateChatThreadEffortInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -234,7 +234,7 @@ export const updateChatThreadEffort = createServerFn({ method: "POST" })
   });
 
 export const updateChatThreadTitle = createServerFn({ method: "POST" })
-  .inputValidator((data) => updateChatThreadTitleInputSchema.parse(data))
+  .validator((data) => updateChatThreadTitleInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -255,7 +255,7 @@ export const updateChatThreadTitle = createServerFn({ method: "POST" })
   });
 
 export const deleteChatThread = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -334,7 +334,7 @@ function formatChatAsMarkdown(
 }
 
 export const exportChatThreadToObsidian = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -401,7 +401,7 @@ const searchChatThreadsInputSchema = z
   .strict();
 
 export const searchChatThreads = createServerFn({ method: "GET" })
-  .inputValidator((data) => searchChatThreadsInputSchema.parse(data))
+  .validator((data) => searchChatThreadsInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     try {

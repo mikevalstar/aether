@@ -149,7 +149,7 @@ function speedAvgTtftMs(acc: SpeedAccumulator): number | null {
 }
 
 export const getChatUsageStats = createServerFn({ method: "GET" })
-  .inputValidator((data) => usageSearchInputSchema.parse(data))
+  .validator((data) => usageSearchInputSchema.parse(data))
   .handler(async ({ data }): Promise<ChatUsageStatsResult> => {
     const session = await ensureSession();
     const search = normalizeUsageSearch(data);

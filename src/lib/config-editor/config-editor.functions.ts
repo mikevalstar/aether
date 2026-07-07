@@ -133,7 +133,7 @@ const configEditorInputSchema = z
   .strict();
 
 export const getConfigEditorData = createServerFn({ method: "GET" })
-  .inputValidator((data) => configEditorInputSchema.parse(data))
+  .validator((data) => configEditorInputSchema.parse(data))
   .handler(async ({ data }): Promise<ConfigEditorData> => {
     const session = await ensureSession();
 
@@ -176,7 +176,7 @@ const toggleFrontmatterFieldSchema = z
   .strict();
 
 export const toggleFrontmatterField = createServerFn({ method: "POST" })
-  .inputValidator((data) => toggleFrontmatterFieldSchema.parse(data))
+  .validator((data) => toggleFrontmatterFieldSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -228,7 +228,7 @@ const updateFrontmatterSchema = z
   .strict();
 
 export const updateFrontmatterFields = createServerFn({ method: "POST" })
-  .inputValidator((data) => updateFrontmatterSchema.parse(data))
+  .validator((data) => updateFrontmatterSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -290,7 +290,7 @@ const createConfigFileSchema = z
   .strict();
 
 export const createConfigFile = createServerFn({ method: "POST" })
-  .inputValidator((data) => createConfigFileSchema.parse(data))
+  .validator((data) => createConfigFileSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 

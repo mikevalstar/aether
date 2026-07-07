@@ -38,7 +38,7 @@ export const listSelectedOpenRouterModels = createServerFn({ method: "GET" }).ha
 const modelIdInput = z.object({ modelId: z.string().trim().min(1) }).strict();
 
 export const addOpenRouterModel = createServerFn({ method: "POST" })
-  .inputValidator((data) => modelIdInput.parse(data))
+  .validator((data) => modelIdInput.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const catalog = await listOpenRouterCatalog();
@@ -113,7 +113,7 @@ export const refreshOpenRouterPrices = createServerFn({ method: "POST" }).handle
 });
 
 export const removeOpenRouterModel = createServerFn({ method: "POST" })
-  .inputValidator((data) => modelIdInput.parse(data))
+  .validator((data) => modelIdInput.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await prisma.userSelectedModel.deleteMany({

@@ -49,7 +49,7 @@ export type LogViewerResult = {
   hourlyBuckets: HourBucket[];
 };
 
-const LOG_ROOT = path.resolve(process.cwd(), process.env.LOG_DIR ?? "./logs");
+const getLogRoot = () => path.resolve(process.cwd(), process.env.LOG_DIR ?? "./logs");
 const PAGE_SIZE = 100;
 const LOG_FILE_PATTERN = /^aether\.(\d{4}-\d{2}-\d{2})\.(\d+)\.log$/;
 const PINO_LEVELS: Record<number, LogLevel> = {
@@ -62,7 +62,7 @@ const PINO_LEVELS: Record<number, LogLevel> = {
 };
 
 export const getLogViewerData = createServerFn({ method: "GET" })
-  .inputValidator((data) => logViewerInputSchema.parse(data))
+  .validator((data) => logViewerInputSchema.parse(data))
   .handler(async ({ data }): Promise<LogViewerResult> => {
     await ensureSession();
 
@@ -118,7 +118,7 @@ async function getDayFiles() {
   let entries: Dirent<string>[];
 
   try {
-    entries = await fs.readdir(LOG_ROOT, { encoding: "utf8", withFileTypes: true });
+    entries = await fs.readdir(getLogRoot(), { encoding: "utf8", withFileTypes: true });
   } catch (error) {
     if (isMissingDirectoryError(error)) {
       return new Map<string, string[]>();
@@ -142,7 +142,7 @@ async function getDayFiles() {
     const [, day, sequence] = match;
     const dayFiles = filesByDay.get(day) ?? [];
     dayFiles.push({
-      absolutePath: path.join(LOG_ROOT, entry.name),
+      absolutePath: path.join(getLogRoot(), entry.name),
       sequence: Number(sequence),
     });
     filesByDay.set(day, dayFiles);

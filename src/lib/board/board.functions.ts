@@ -31,7 +31,7 @@ const moveBoardTaskInputSchema = z
 // --- Server functions (safe to import from route/client code) ---
 
 export const getBoardData = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => z.object({ filePath: z.string().optional() }).optional().parse(data) ?? {})
+  .validator((data: unknown) => z.object({ filePath: z.string().optional() }).optional().parse(data) ?? {})
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const relativePath = data?.filePath || (await resolveKanbanPath(session.user.id));
@@ -53,7 +53,7 @@ export const getBoardData = createServerFn({ method: "GET" })
   });
 
 export const addBoardTask = createServerFn({ method: "POST" })
-  .inputValidator((data) => addBoardTaskInputSchema.parse(data))
+  .validator((data) => addBoardTaskInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { board, absolutePath, relativePath, rawContent } = await readKanbanBoard(session.user.id);
@@ -68,7 +68,7 @@ export const addBoardTask = createServerFn({ method: "POST" })
   });
 
 export const removeBoardTask = createServerFn({ method: "POST" })
-  .inputValidator((data) => removeBoardTaskInputSchema.parse(data))
+  .validator((data) => removeBoardTaskInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { board, absolutePath, relativePath, rawContent } = await readKanbanBoard(session.user.id);
@@ -91,7 +91,7 @@ export const removeBoardTask = createServerFn({ method: "POST" })
   });
 
 export const moveBoardTask = createServerFn({ method: "POST" })
-  .inputValidator((data) => moveBoardTaskInputSchema.parse(data))
+  .validator((data) => moveBoardTaskInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     const { board, absolutePath, relativePath, rawContent } = await readKanbanBoard(session.user.id);

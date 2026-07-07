@@ -96,7 +96,7 @@ export const getWorkflowsPageData = createServerFn({ method: "GET" }).handler(as
 });
 
 export const getWorkflowDetail = createServerFn({ method: "GET" })
-  .inputValidator((data) => filenameInputSchema.parse(data))
+  .validator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -173,7 +173,7 @@ export const getWorkflowDetail = createServerFn({ method: "GET" })
   });
 
 export const runWorkflow = createServerFn({ method: "POST" })
-  .inputValidator((data) => workflowRunInputSchema.parse(data))
+  .validator((data) => workflowRunInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureAppRuntimeStarted();
     const session = await ensureSession();
@@ -195,7 +195,7 @@ export const runWorkflow = createServerFn({ method: "POST" })
   });
 
 export const deleteWorkflowRun = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -214,7 +214,7 @@ export const deleteWorkflowRun = createServerFn({ method: "POST" })
   });
 
 export const convertWorkflowToChat = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 

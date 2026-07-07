@@ -49,7 +49,7 @@ const searchObsidianMentionsInputSchema = z
   .strict();
 
 export const getObsidianViewerData = createServerFn({ method: "GET" })
-  .inputValidator((data) => obsidianViewerInputSchema.parse(data))
+  .validator((data) => obsidianViewerInputSchema.parse(data))
   .handler(async ({ data }): Promise<ObsidianViewerData> => {
     await ensureSession();
 
@@ -231,7 +231,7 @@ function humanizeFileName(relativePath: string) {
 }
 
 export const saveObsidianDocument = createServerFn({ method: "POST" })
-  .inputValidator((data) => saveObsidianDocumentInputSchema.parse(data))
+  .validator((data) => saveObsidianDocumentInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -284,7 +284,7 @@ export type ObsidianTemplate = {
   filename: string;
 };
 
-const TEMPLATES_DIR = path.join(import.meta.dirname, "templates");
+const getTemplatesDir = () => path.join(import.meta.dirname, "templates");
 
 async function readTemplatesFromDir(dir: string): Promise<ObsidianTemplate[]> {
   let entries: import("node:fs").Dirent[];
@@ -317,11 +317,11 @@ export const listObsidianTemplates = createServerFn({ method: "GET" }).handler(a
     }
   }
 
-  return readTemplatesFromDir(TEMPLATES_DIR);
+  return readTemplatesFromDir(getTemplatesDir());
 });
 
 export const createObsidianFile = createServerFn({ method: "POST" })
-  .inputValidator((data) => createObsidianFileInputSchema.parse(data))
+  .validator((data) => createObsidianFileInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -384,12 +384,14 @@ export const createObsidianFile = createServerFn({ method: "POST" })
           templatePath = candidatePath;
           templateBaseDir = vaultTemplatesDir;
         } else {
-          templatePath = path.join(TEMPLATES_DIR, data.templateFilename);
-          templateBaseDir = TEMPLATES_DIR;
+          const templatesDir = getTemplatesDir();
+          templatePath = path.join(templatesDir, data.templateFilename);
+          templateBaseDir = templatesDir;
         }
       } else {
-        templatePath = path.join(TEMPLATES_DIR, data.templateFilename);
-        templateBaseDir = TEMPLATES_DIR;
+        const templatesDir = getTemplatesDir();
+        templatePath = path.join(templatesDir, data.templateFilename);
+        templateBaseDir = templatesDir;
       }
 
       const resolvedTemplate = path.resolve(templatePath);
@@ -461,7 +463,7 @@ export type ObsidianMentionResult = {
 };
 
 export const searchObsidianMentions = createServerFn({ method: "GET" })
-  .inputValidator((data) => searchObsidianMentionsInputSchema.parse(data))
+  .validator((data) => searchObsidianMentionsInputSchema.parse(data))
   .handler(async ({ data }): Promise<ObsidianMentionResult[]> => {
     await ensureSession();
 

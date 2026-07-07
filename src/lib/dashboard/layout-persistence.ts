@@ -20,7 +20,7 @@ const saveDashboardLayoutInputSchema = z
   .strict();
 
 export const saveDashboardLayout = createServerFn({ method: "POST" })
-  .inputValidator((data) => saveDashboardLayoutInputSchema.parse(data))
+  .validator((data) => saveDashboardLayoutInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
     await setUserPreference(session.user.id, "dashboardLayouts", data.layouts);

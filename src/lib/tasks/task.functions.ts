@@ -97,7 +97,7 @@ export const getTasksPageData = createServerFn({ method: "GET" }).handler(async 
 });
 
 export const getTaskRunHistory = createServerFn({ method: "GET" })
-  .inputValidator((data) => filenameInputSchema.parse(data))
+  .validator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -162,7 +162,7 @@ export const getTaskRunHistory = createServerFn({ method: "GET" })
   });
 
 export const triggerTaskRun = createServerFn({ method: "POST" })
-  .inputValidator((data) => filenameInputSchema.parse(data))
+  .validator((data) => filenameInputSchema.parse(data))
   .handler(async ({ data }) => {
     await ensureAppRuntimeStarted();
     await ensureSession();
@@ -171,7 +171,7 @@ export const triggerTaskRun = createServerFn({ method: "POST" })
   });
 
 export const deleteTaskRun = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
@@ -190,7 +190,7 @@ export const deleteTaskRun = createServerFn({ method: "POST" })
   });
 
 export const convertTaskToChat = createServerFn({ method: "POST" })
-  .inputValidator((data) => threadIdInputSchema.parse(data))
+  .validator((data) => threadIdInputSchema.parse(data))
   .handler(async ({ data }) => {
     const session = await ensureSession();
 
