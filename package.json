@@ -63,7 +63,7 @@
     "@tanstack/router-plugin": "^1.168.18",
     "@types/jmespath": "^0.15.2",
     "@uiw/react-md-editor": "^4.1.1",
-    "ai": "^6.0.197",
+    "ai": "^7.0.30",
     "better-auth": "^1.6.21",
     "better-sqlite3": "^12.11.1",
     "chokidar": "^5.0.0",
