@@ -7,7 +7,7 @@ A self-hosted personal dashboard and AI agent platform, backed by your [Obsidian
 ## Features
 
 ### AI Chat
-Multi-turn conversations with Claude (Haiku 4.5, Sonnet 4.6, Opus 4.6), plus OpenRouter models (GLM-5, GLM-5.1, Kimi K2.5) and MiniMax M2.7 / M3. The AI has full tool access — it can search the web, read and write files in your Obsidian vault, manage your kanban board, query your calendar, and send you push notifications. Streaming responses, message editing, branch navigation, auto-generated thread titles, and sub-agents with streaming output and per-agent cost rollups.
+Multi-turn conversations with Claude (Haiku 4.5, Sonnet 4.6, Opus 4.6), plus OpenRouter models (GLM-5, GLM-5.1, Kimi K2.5, MiniMax M2.7, MiniMax M3). The AI has full tool access — it can search the web, read and write files in your Obsidian vault, manage your kanban board, query your calendar, and send you push notifications. Streaming responses, message editing, branch navigation, auto-generated thread titles, and sub-agents with streaming output and per-agent cost rollups.
 
 <a href="docs/screenshots/full/chat.png"><img src="docs/screenshots/chat.png" alt="Chat" width="360" /></a>
 
@@ -78,7 +78,7 @@ During chat, workflows, periodic tasks, and triggers, the AI has access to:
 
 - **Framework**: [TanStack Start](https://tanstack.com/start) (SSR/streaming on Vite 8, React 19)
 - **Database**: SQLite via [Prisma 7](https://www.prisma.io/) with the better-sqlite3 adapter (zero external dependencies); optional `sqlite-vec` sidecar for embeddings
-- **AI**: [Vercel AI SDK](https://sdk.vercel.ai/) + [Anthropic Claude](https://www.anthropic.com/), [OpenRouter](https://openrouter.ai/), and MiniMax providers
+- **AI**: [Vercel AI SDK](https://sdk.vercel.ai/) + [Anthropic Claude](https://www.anthropic.com/) and [OpenRouter](https://openrouter.ai/) providers
 - **UI**: [Shadcn](https://ui.shadcn.com/) + [Tailwind CSS v4](https://tailwindcss.com/) + [Assistant UI](https://www.assistant-ui.com/)
 - **Auth**: [Better Auth](https://www.better-auth.com/) (invite-only, email/password)
 - **State**: Jotai + Zustand

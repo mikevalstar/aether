@@ -31,7 +31,7 @@ Single command that checks:
 | Dev server          | TCP listener on `:3000` (warn if down — not fatal)                  |
 | Database            | Prisma can `SELECT count()` from User (critical)                    |
 | `ANTHROPIC_API_KEY` | Required for chat (critical)                                        |
-| Optional API keys   | `OPENROUTER_API_KEY`, `MINIMAX_API_KEY`, `EXA_API_KEY` (warn only)  |
+| Optional API keys   | `OPENROUTER_API_KEY`, `EXA_API_KEY` (warn only)                    |
 | Obsidian vault      | `OBSIDIAN_DIR` is set and the directory is readable                 |
 | Log directory       | `logs/` exists and contains today's `aether.YYYY-MM-DD.N.log`       |
 | Last activity       | Most recent `ActivityLog` row exists (warn if older than 7 days)    |

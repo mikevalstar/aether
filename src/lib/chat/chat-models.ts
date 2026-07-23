@@ -12,7 +12,7 @@ export function isChatEffort(value: string): value is ChatEffort {
   return CHAT_EFFORT_LEVELS.includes(value as ChatEffort);
 }
 
-export type ModelProvider = "anthropic" | "openrouter" | "minimax";
+export type ModelProvider = "anthropic" | "openrouter";
 export type WebToolVersion = "legacy" | "latest" | "none";
 
 export type ChatModelDef = {
@@ -85,10 +85,9 @@ export const BUILTIN_CHAT_MODELS: readonly ChatModelDef[] = [
     supportsEffort: false,
     supportsCodeExecution: false,
     webToolVersion: "none",
-    provider: "minimax",
+    provider: "openrouter",
     aliases: ["minimax/minimax-m2.7"],
     providerIds: {
-      minimax: "MiniMax-M2.7",
       openrouter: "minimax/minimax-m2.7",
     },
     pricing: { inputCostPerMillionTokensUsd: 0.3, outputCostPerMillionTokensUsd: 1.2 },
@@ -101,13 +100,12 @@ export const BUILTIN_CHAT_MODELS: readonly ChatModelDef[] = [
     supportsEffort: false,
     supportsCodeExecution: false,
     webToolVersion: "none",
-    provider: "minimax",
+    provider: "openrouter",
     aliases: ["minimax/minimax-m3"],
     providerIds: {
-      minimax: "MiniMax-M3",
       openrouter: "minimax/minimax-m3",
     },
-    pricing: { inputCostPerMillionTokensUsd: 0.6, outputCostPerMillionTokensUsd: 2.4 },
+    pricing: { inputCostPerMillionTokensUsd: 0.3, outputCostPerMillionTokensUsd: 1.2 },
   },
 ];
 

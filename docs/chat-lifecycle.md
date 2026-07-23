@@ -202,7 +202,7 @@ The `onFinish` callback in the API endpoint persists everything in a single Pris
 | Claude Opus 4.8 | $5 | $25 |
 | Claude Fable 5 | $10 | $50 |
 | MiniMax M2.7 | $0.30 | $1.20 |
-| MiniMax M3 | $0.60 | $2.40 |
+| MiniMax M3 | $0.30 | $1.20 |
 | GLM-5 | $0.72 | $2.30 |
 | Kimi K2.5 | $0.42 | $2.20 |
 

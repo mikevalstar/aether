@@ -187,12 +187,12 @@ Prisma client is a singleton in `src/db.ts` using the `PrismaBetterSqlite3` adap
 **Models:** User, Session, Account, Verification (Better Auth); ChatThread (messages & usage as JSON), ChatUsageEvent; ActivityLog, FileChangeDetail; Task, Workflow, Trigger, Webhook; Notification, ScheduledNotification; Todo (demo).
 
 ### AI Chat
-- **Models**: Defined in `src/lib/chat/chat-models.ts`. Anthropic: Claude Haiku 4.5 (default), Sonnet 4.6, Opus 4.8, Fable 5. OpenRouter: GLM-5, GLM-5.1, Kimi K2.5. MiniMax: M2.7, M3 (direct or via OpenRouter). Each model carries `supportsWebTools`, `supportsEffort`, `supportsCodeExecution`, `webToolVersion`, and USD pricing for cost tracking.
-- **Streaming**: `/api/chat` streams responses via `@ai-sdk/anthropic`, `@openrouter/ai-sdk-provider`, or `vercel-minimax-ai-provider` based on provider.
+- **Models**: Defined in `src/lib/chat/chat-models.ts`. Anthropic: Claude Haiku 4.5 (default), Sonnet 4.6, Opus 4.8, Fable 5. OpenRouter: GLM-5, GLM-5.1, Kimi K2.5, MiniMax M2.7, MiniMax M3. Each model carries `supportsWebTools`, `supportsEffort`, `supportsCodeExecution`, `webToolVersion`, and USD pricing for cost tracking.
+- **Streaming**: `/api/chat` streams responses via `@ai-sdk/anthropic` or `@openrouter/ai-sdk-provider` based on provider.
 - **UI**: `src/components/chat/ChatWorkspace.tsx` manages state via `useChat()`; custom Assistant UI components in `src/components/assistant-ui/`.
 - **Shared agent loop**: Chat, workflows, periodic tasks, and triggers all go through the same executor (`src/lib/executor-shared.ts`) so tool access and pricing logic stay consistent.
 - **Features**: Multi-turn conversations, token usage & cost tracking, message editing, branch navigation, auto-generated thread titles, markdown + GFM rendering, sub-agents with streaming UI and cost rollups.
-- **Env**: Requires `ANTHROPIC_API_KEY`; optionally `OPENROUTER_API_KEY`, `MINIMAX_API_KEY`.
+- **Env**: Requires `ANTHROPIC_API_KEY`; optionally `OPENROUTER_API_KEY`.
 
 ### Authentication
 - Server-side config: `src/lib/auth.ts` (Better Auth with TanStack Start cookies plugin)

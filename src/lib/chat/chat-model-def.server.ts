@@ -38,5 +38,5 @@ export async function getChatModelDef(modelId: string, userId: string): Promise<
 }
 
 function isModelProvider(value: string): value is ModelProvider {
-  return value === "anthropic" || value === "openrouter" || value === "minimax";
+  return value === "anthropic" || value === "openrouter";
 }

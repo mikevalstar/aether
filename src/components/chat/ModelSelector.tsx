@@ -9,7 +9,6 @@ import { useStarredModels } from "#/lib/chat/model-stars";
 const PROVIDER_LABEL: Record<string, string> = {
   anthropic: "Anthropic",
   openrouter: "OpenRouter",
-  minimax: "MiniMax",
 };
 
 function formatPricing(opt: ChatModelOption): string | null {
@@ -97,8 +96,8 @@ export function ModelSelector({
     starred.sort(byLabel);
 
     // Group the non-starred remainder by provider so duplicate model
-    // labels/ids across providers (e.g. minimax/minimax-m2.7 via MiniMax direct
-    // vs OpenRouter) appear under explicit headers.
+    // labels/ids across providers (e.g. a built-in and a user-selected row for
+    // the same underlying model) appear under explicit headers.
     const groups = new Map<string, ChatModelOption[]>();
     for (const m of rest) {
       const list = groups.get(m.provider) ?? [];
@@ -106,7 +105,7 @@ export function ModelSelector({
       groups.set(m.provider, list);
     }
     const orderedProviders = Array.from(groups.keys()).sort((a, b) => {
-      const order = ["anthropic", "openrouter", "minimax"];
+      const order = ["anthropic", "openrouter"];
       const ai = order.indexOf(a);
       const bi = order.indexOf(b);
       if (ai === -1 && bi === -1) return a.localeCompare(b);

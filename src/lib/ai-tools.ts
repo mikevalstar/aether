@@ -1,7 +1,6 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { ToolSet } from "ai";
-import { minimax as createMinimax } from "vercel-minimax-ai-provider";
 import type { ChatModel } from "#/lib/chat/chat-models";
 import { getModelProvider, getProviderModelId, getWebToolVersion, supportsCodeExecution } from "#/lib/chat/chat-models";
 import { createSearchChatHistory } from "#/lib/embeddings";
@@ -37,12 +36,6 @@ const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
 export function getModel(modelId: ChatModel) {
   const provider = getModelProvider(modelId);
-  if (provider === "minimax") {
-    if (process.env.MINIMAX_API_KEY) {
-      return createMinimax(getProviderModelId(modelId, "minimax"));
-    }
-    return openrouter.chat(getProviderModelId(modelId, "openrouter"));
-  }
   if (provider === "openrouter") {
     return openrouter.chat(getProviderModelId(modelId, "openrouter"));
   }

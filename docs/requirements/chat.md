@@ -216,6 +216,7 @@ canonical_file: docs/requirements/chat.md
 
 ## Change Log
 
+- 2026-07-23: Removed MiniMax as a direct provider. MiniMax M2.7 and M3 keep their ids but now route exclusively through OpenRouter; the `MINIMAX_API_KEY` env var and the `vercel-minimax-ai-provider` dependency are gone. Corrected MiniMax M3 pricing to $0.30/$1.20 per million tokens to match OpenRouter's billed rate (was $0.60/$2.40 for the MiniMax-direct endpoint).
 - 2026-04-25: Added compact tiled document cards for Obsidian markdown tool calls, with large modal note previews for read, write, and edit actions.
 - 2026-03-14: Created the initial chat requirements doc from the current implementation and added it to the requirements index.
 - 2026-03-14: Added AI-generated titles and editable titles sub-features.

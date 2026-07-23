@@ -136,7 +136,8 @@ or OpenRouter retires it.
 - Snapshot helper: `src/lib/chat/model-snapshot.ts`
 - Disambiguation: `src/components/chat/ModelSelector.tsx` groups rows by
   provider and inlines the provider tag when the visible set has duplicate
-  labels or ids (e.g. `MiniMax M2.7` via MiniMax direct vs OpenRouter)
+  labels or ids (e.g. built-in `MiniMax M2.7` vs a user-selected row for the
+  same underlying OpenRouter model)
 
 ## Open Questions
 

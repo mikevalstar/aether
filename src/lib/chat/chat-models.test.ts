@@ -34,13 +34,17 @@ describe("provider helpers", () => {
     expect(getModelProvider("claude-sonnet-4-6")).toBe("anthropic");
   });
 
+  it("routes the MiniMax built-ins through OpenRouter", () => {
+    expect(getModelProvider("MiniMax-M2.7")).toBe("openrouter");
+    expect(getModelProvider("MiniMax-M3")).toBe("openrouter");
+  });
+
   it("falls back to openrouter for unknown provider/model ids", () => {
     expect(getModelProvider("anthropic-clone/some-model")).toBe("openrouter");
   });
 
   it("uses the providerIds map when present", () => {
     expect(getProviderModelId("MiniMax-M2.7", "openrouter")).toBe("minimax/minimax-m2.7");
-    expect(getProviderModelId("MiniMax-M2.7", "minimax")).toBe("MiniMax-M2.7");
   });
 
   it("returns the bare id when no providerIds entry exists", () => {

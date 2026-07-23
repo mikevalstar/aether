@@ -26,7 +26,6 @@ export async function runDoctorChecks(): Promise<CheckResult[]> {
   results.push(await checkDatabase());
   results.push(checkEnv("ANTHROPIC_API_KEY", true));
   results.push(checkEnv("OPENROUTER_API_KEY", false));
-  results.push(checkEnv("MINIMAX_API_KEY", false));
   results.push(checkEnv("EXA_API_KEY", false));
   results.push(await checkObsidianVault());
   results.push(await checkLogDir());

@@ -37,7 +37,7 @@ const SAMPLE_MODELS: ChatModelOption[] = [
     label: "MiniMax M2.7",
     description: "Agentic, autonomous",
     supportsEffort: false,
-    provider: "minimax",
+    provider: "openrouter",
     inputCostPerMillionTokensUsd: 0.3,
     outputCostPerMillionTokensUsd: 1.2,
   },
@@ -178,7 +178,8 @@ export const ManyModels: Story = {
 
 const DUPLICATE_ID_MODELS: ChatModelOption[] = [
   ...SAMPLE_MODELS,
-  // Same id as the built-in MiniMax-M2.7 alias, but routed via OpenRouter.
+  // Same model as the built-in MiniMax-M2.7 entry, but added by the user as
+  // their own OpenRouter selection under the raw OpenRouter id.
   {
     id: "minimax/minimax-m2.7",
     label: "MiniMax M2.7",
@@ -202,7 +203,7 @@ export const DuplicateIdsAcrossProviders: Story = {
     docs: {
       description: {
         story:
-          "Two `MiniMax M2.7` rows — one routed through MiniMax direct, the other through the user's OpenRouter selection. Both show a provider tag inline so they are visually distinguishable.",
+          "Two `MiniMax M2.7` rows — one built-in, the other added by the user as their own OpenRouter selection. Both show a provider tag inline so they are visually distinguishable.",
       },
     },
   },
