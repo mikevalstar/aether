@@ -9,106 +9,61 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UsersRouteImport } from './routes/users'
-import { Route as UsageRouteImport } from './routes/usage'
-import { Route as ScheduledNotificationsRouteImport } from './routes/scheduled-notifications'
-import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as LogsRouteImport } from './routes/logs'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as ChatDebugRouteImport } from './routes/chat-debug'
-import { Route as ChatRouteImport } from './routes/chat'
-import { Route as ActivityRouteImport } from './routes/activity'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
-import { Route as TriggersIndexRouteImport } from './routes/triggers/index'
-import { Route as TasksIndexRouteImport } from './routes/tasks/index'
-import { Route as SettingsIndexRouteImport } from './routes/settings/index'
-import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
-import { Route as OIndexRouteImport } from './routes/o/index'
-import { Route as ChatIndexRouteImport } from './routes/chat/index'
-import { Route as WorkflowsSplatRouteImport } from './routes/workflows/$'
-import { Route as TriggersWebhooksRouteImport } from './routes/triggers/webhooks'
-import { Route as TriggersSplatRouteImport } from './routes/triggers/$'
-import { Route as TasksSplatRouteImport } from './routes/tasks/$'
-import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
-import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
-import { Route as SettingsObsidianRouteImport } from './routes/settings/obsidian'
-import { Route as SettingsNotificationsRouteImport } from './routes/settings/notifications'
-import { Route as SettingsChatRouteImport } from './routes/settings/chat'
-import { Route as SettingsCalendarRouteImport } from './routes/settings/calendar'
-import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
-import { Route as PPluginIdRouteImport } from './routes/p/$pluginId'
-import { Route as OSplatRouteImport } from './routes/o/$'
-import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
-import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
-import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
-import { Route as ChatThreadIdRouteImport } from './routes/chat/$threadId'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as ActivityRouteImport } from './routes/activity'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ChatDebugRouteImport } from './routes/chat-debug'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as LogsRouteImport } from './routes/logs'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as ScheduledNotificationsRouteImport } from './routes/scheduled-notifications'
+import { Route as SettingsRouteRouteImport } from './routes/settings/route'
+import { Route as UsageRouteImport } from './routes/usage'
+import { Route as UsersRouteImport } from './routes/users'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as WorkflowsEditorIndexRouteImport } from './routes/workflows/editor/index'
-import { Route as TriggersEditorIndexRouteImport } from './routes/triggers/editor/index'
-import { Route as TasksEditorIndexRouteImport } from './routes/tasks/editor/index'
-import { Route as SettingsPluginsIndexRouteImport } from './routes/settings/plugins/index'
-import { Route as WorkflowsEditorSplatRouteImport } from './routes/workflows/editor/$'
-import { Route as TriggersEditorSplatRouteImport } from './routes/triggers/editor/$'
-import { Route as TasksEditorSplatRouteImport } from './routes/tasks/editor/$'
-import { Route as SettingsPluginsPluginIdRouteImport } from './routes/settings/plugins/$pluginId'
-import { Route as PPluginIdPageIdRouteImport } from './routes/p/$pluginId/$pageId'
-import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
-import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as ChatThreadIdRouteImport } from './routes/chat/$threadId'
+import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
+import { Route as DemoErrorDisplayRouteImport } from './routes/demo/error-display'
+import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
+import { Route as OIndexRouteImport } from './routes/o/index'
+import { Route as OSplatRouteImport } from './routes/o/$'
+import { Route as PPluginIdRouteImport } from './routes/p/$pluginId'
+import { Route as RequirementsIndexRouteImport } from './routes/requirements/index'
+import { Route as RequirementsSplatRouteImport } from './routes/requirements/$'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as SettingsCalendarRouteImport } from './routes/settings/calendar'
+import { Route as SettingsChatRouteImport } from './routes/settings/chat'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings/notifications'
+import { Route as SettingsObsidianRouteImport } from './routes/settings/obsidian'
+import { Route as SettingsPasswordRouteImport } from './routes/settings/password'
+import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
+import { Route as TasksIndexRouteImport } from './routes/tasks/index'
+import { Route as TasksSplatRouteImport } from './routes/tasks/$'
+import { Route as TriggersIndexRouteImport } from './routes/triggers/index'
+import { Route as TriggersSplatRouteImport } from './routes/triggers/$'
+import { Route as TriggersWebhooksRouteImport } from './routes/triggers/webhooks'
+import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
+import { Route as WorkflowsSplatRouteImport } from './routes/workflows/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
+import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
+import { Route as PPluginIdPageIdRouteImport } from './routes/p/$pluginId/$pageId'
+import { Route as SettingsPluginsIndexRouteImport } from './routes/settings/plugins/index'
+import { Route as SettingsPluginsPluginIdRouteImport } from './routes/settings/plugins/$pluginId'
+import { Route as TasksEditorIndexRouteImport } from './routes/tasks/editor/index'
+import { Route as TasksEditorSplatRouteImport } from './routes/tasks/editor/$'
+import { Route as TriggersEditorIndexRouteImport } from './routes/triggers/editor/index'
+import { Route as TriggersEditorSplatRouteImport } from './routes/triggers/editor/$'
+import { Route as WorkflowsEditorIndexRouteImport } from './routes/workflows/editor/index'
+import { Route as WorkflowsEditorSplatRouteImport } from './routes/workflows/editor/$'
 import { Route as ApiTriggersWebhookApiKeyRouteImport } from './routes/api/triggers/webhook/$apiKey'
 
-const UsersRoute = UsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsageRoute = UsageRouteImport.update({
-  id: '/usage',
-  path: '/usage',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScheduledNotificationsRoute = ScheduledNotificationsRouteImport.update({
-  id: '/scheduled-notifications',
-  path: '/scheduled-notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogsRoute = LogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatDebugRoute = ChatDebugRouteImport.update({
-  id: '/chat-debug',
-  path: '/chat-debug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ActivityRoute = ActivityRouteImport.update({
-  id: '/activity',
-  path: '/activity',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -116,44 +71,64 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ActivityRoute = ActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatDebugRoute = ChatDebugRouteImport.update({
+  id: '/chat-debug',
+  path: '/chat-debug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogsRoute = LogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScheduledNotificationsRoute = ScheduledNotificationsRouteImport.update({
+  id: '/scheduled-notifications',
+  path: '/scheduled-notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRouteRoute = SettingsRouteRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const UsageRoute = UsageRouteImport.update({
+  id: '/usage',
+  path: '/usage',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkflowsIndexRoute = WorkflowsIndexRouteImport.update({
-  id: '/workflows/',
-  path: '/workflows/',
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TriggersIndexRoute = TriggersIndexRouteImport.update({
-  id: '/triggers/',
-  path: '/triggers/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TasksIndexRoute = TasksIndexRouteImport.update({
-  id: '/tasks/',
-  path: '/tasks/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsIndexRoute = SettingsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
-const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
-  id: '/requirements/',
-  path: '/requirements/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OIndexRoute = OIndexRouteImport.update({
-  id: '/o/',
-  path: '/o/',
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
@@ -161,74 +136,14 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ChatRoute,
 } as any)
-const WorkflowsSplatRoute = WorkflowsSplatRouteImport.update({
-  id: '/workflows/$',
-  path: '/workflows/$',
-  getParentRoute: () => rootRouteImport,
+const ChatThreadIdRoute = ChatThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => ChatRoute,
 } as any)
-const TriggersWebhooksRoute = TriggersWebhooksRouteImport.update({
-  id: '/triggers/webhooks',
-  path: '/triggers/webhooks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TriggersSplatRoute = TriggersSplatRouteImport.update({
-  id: '/triggers/$',
-  path: '/triggers/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TasksSplatRoute = TasksSplatRouteImport.update({
-  id: '/tasks/$',
-  path: '/tasks/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsProfileRoute = SettingsProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
-const SettingsPasswordRoute = SettingsPasswordRouteImport.update({
-  id: '/password',
-  path: '/password',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
-const SettingsObsidianRoute = SettingsObsidianRouteImport.update({
-  id: '/obsidian',
-  path: '/obsidian',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
-const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
-const SettingsChatRoute = SettingsChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
-const SettingsCalendarRoute = SettingsCalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
-const RequirementsSplatRoute = RequirementsSplatRouteImport.update({
-  id: '/requirements/$',
-  path: '/requirements/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PPluginIdRoute = PPluginIdRouteImport.update({
-  id: '/p/$pluginId',
-  path: '/p/$pluginId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OSplatRoute = OSplatRouteImport.update({
-  id: '/o/$',
-  path: '/o/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoPrismaRoute = DemoPrismaRouteImport.update({
-  id: '/demo/prisma',
-  path: '/demo/prisma',
+const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
+  id: '/demo/better-auth',
+  path: '/demo/better-auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoErrorDisplayRoute = DemoErrorDisplayRouteImport.update({
@@ -236,69 +151,109 @@ const DemoErrorDisplayRoute = DemoErrorDisplayRouteImport.update({
   path: '/demo/error-display',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
-  id: '/demo/better-auth',
-  path: '/demo/better-auth',
+const DemoPrismaRoute = DemoPrismaRouteImport.update({
+  id: '/demo/prisma',
+  path: '/demo/prisma',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChatThreadIdRoute = ChatThreadIdRouteImport.update({
-  id: '/$threadId',
-  path: '/$threadId',
-  getParentRoute: () => ChatRoute,
-} as any)
-const ApiChatRoute = ApiChatRouteImport.update({
-  id: '/api/chat',
-  path: '/api/chat',
+const OIndexRoute = OIndexRouteImport.update({
+  id: '/o/',
+  path: '/o/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkflowsEditorIndexRoute = WorkflowsEditorIndexRouteImport.update({
-  id: '/workflows/editor/',
-  path: '/workflows/editor/',
+const OSplatRoute = OSplatRouteImport.update({
+  id: '/o/$',
+  path: '/o/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TriggersEditorIndexRoute = TriggersEditorIndexRouteImport.update({
-  id: '/triggers/editor/',
-  path: '/triggers/editor/',
+const PPluginIdRoute = PPluginIdRouteImport.update({
+  id: '/p/$pluginId',
+  path: '/p/$pluginId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TasksEditorIndexRoute = TasksEditorIndexRouteImport.update({
-  id: '/tasks/editor/',
-  path: '/tasks/editor/',
+const RequirementsIndexRoute = RequirementsIndexRouteImport.update({
+  id: '/requirements/',
+  path: '/requirements/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsPluginsIndexRoute = SettingsPluginsIndexRouteImport.update({
-  id: '/plugins/',
-  path: '/plugins/',
+const RequirementsSplatRoute = RequirementsSplatRouteImport.update({
+  id: '/requirements/$',
+  path: '/requirements/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
-const WorkflowsEditorSplatRoute = WorkflowsEditorSplatRouteImport.update({
-  id: '/workflows/editor/$',
-  path: '/workflows/editor/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TriggersEditorSplatRoute = TriggersEditorSplatRouteImport.update({
-  id: '/triggers/editor/$',
-  path: '/triggers/editor/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TasksEditorSplatRoute = TasksEditorSplatRouteImport.update({
-  id: '/tasks/editor/$',
-  path: '/tasks/editor/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsPluginsPluginIdRoute = SettingsPluginsPluginIdRouteImport.update({
-  id: '/plugins/$pluginId',
-  path: '/plugins/$pluginId',
+const SettingsCalendarRoute = SettingsCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
-const PPluginIdPageIdRoute = PPluginIdPageIdRouteImport.update({
-  id: '/$pageId',
-  path: '/$pageId',
-  getParentRoute: () => PPluginIdRoute,
+const SettingsChatRoute = SettingsChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => SettingsRouteRoute,
 } as any)
-const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsObsidianRoute = SettingsObsidianRouteImport.update({
+  id: '/obsidian',
+  path: '/obsidian',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsPasswordRoute = SettingsPasswordRouteImport.update({
+  id: '/password',
+  path: '/password',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsProfileRoute = SettingsProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const TasksIndexRoute = TasksIndexRouteImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksSplatRoute = TasksSplatRouteImport.update({
+  id: '/tasks/$',
+  path: '/tasks/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersIndexRoute = TriggersIndexRouteImport.update({
+  id: '/triggers/',
+  path: '/triggers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersSplatRoute = TriggersSplatRouteImport.update({
+  id: '/triggers/$',
+  path: '/triggers/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersWebhooksRoute = TriggersWebhooksRouteImport.update({
+  id: '/triggers/webhooks',
+  path: '/triggers/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsIndexRoute = WorkflowsIndexRouteImport.update({
+  id: '/workflows/',
+  path: '/workflows/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsSplatRoute = WorkflowsSplatRouteImport.update({
+  id: '/workflows/$',
+  path: '/workflows/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
@@ -306,9 +261,54 @@ const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
   path: '/demo/form/address',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
+const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
+  id: '/demo/form/simple',
+  path: '/demo/form/simple',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PPluginIdPageIdRoute = PPluginIdPageIdRouteImport.update({
+  id: '/$pageId',
+  path: '/$pageId',
+  getParentRoute: () => PPluginIdRoute,
+} as any)
+const SettingsPluginsIndexRoute = SettingsPluginsIndexRouteImport.update({
+  id: '/plugins/',
+  path: '/plugins/',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsPluginsPluginIdRoute = SettingsPluginsPluginIdRouteImport.update({
+  id: '/plugins/$pluginId',
+  path: '/plugins/$pluginId',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const TasksEditorIndexRoute = TasksEditorIndexRouteImport.update({
+  id: '/tasks/editor/',
+  path: '/tasks/editor/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksEditorSplatRoute = TasksEditorSplatRouteImport.update({
+  id: '/tasks/editor/$',
+  path: '/tasks/editor/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersEditorIndexRoute = TriggersEditorIndexRouteImport.update({
+  id: '/triggers/editor/',
+  path: '/triggers/editor/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TriggersEditorSplatRoute = TriggersEditorSplatRouteImport.update({
+  id: '/triggers/editor/$',
+  path: '/triggers/editor/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsEditorIndexRoute = WorkflowsEditorIndexRouteImport.update({
+  id: '/workflows/editor/',
+  path: '/workflows/editor/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsEditorSplatRoute = WorkflowsEditorSplatRouteImport.update({
+  id: '/workflows/editor/$',
+  path: '/workflows/editor/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTriggersWebhookApiKeyRoute =
@@ -680,74 +680,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/usage': {
-      id: '/usage'
-      path: '/usage'
-      fullPath: '/usage'
-      preLoaderRoute: typeof UsageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scheduled-notifications': {
-      id: '/scheduled-notifications'
-      path: '/scheduled-notifications'
-      fullPath: '/scheduled-notifications'
-      preLoaderRoute: typeof ScheduledNotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logs': {
-      id: '/logs'
-      path: '/logs'
-      fullPath: '/logs'
-      preLoaderRoute: typeof LogsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat-debug': {
-      id: '/chat-debug'
-      path: '/chat-debug'
-      fullPath: '/chat-debug'
-      preLoaderRoute: typeof ChatDebugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/activity': {
-      id: '/activity'
-      path: '/activity'
-      fullPath: '/activity'
-      preLoaderRoute: typeof ActivityRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -757,6 +694,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/activity': {
+      id: '/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof ActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat-debug': {
+      id: '/chat-debug'
+      path: '/chat-debug'
+      fullPath: '/chat-debug'
+      preLoaderRoute: typeof ChatDebugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logs': {
+      id: '/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scheduled-notifications': {
+      id: '/scheduled-notifications'
+      path: '/scheduled-notifications'
+      fullPath: '/scheduled-notifications'
+      preLoaderRoute: typeof ScheduledNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -764,53 +757,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/usage': {
+      id: '/usage'
+      path: '/usage'
+      fullPath: '/usage'
+      preLoaderRoute: typeof UsageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workflows/': {
-      id: '/workflows/'
-      path: '/workflows'
-      fullPath: '/workflows/'
-      preLoaderRoute: typeof WorkflowsIndexRouteImport
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/triggers/': {
-      id: '/triggers/'
-      path: '/triggers'
-      fullPath: '/triggers/'
-      preLoaderRoute: typeof TriggersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tasks/': {
-      id: '/tasks/'
-      path: '/tasks'
-      fullPath: '/tasks/'
-      preLoaderRoute: typeof TasksIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/': {
-      id: '/settings/'
-      path: '/'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/requirements/': {
-      id: '/requirements/'
-      path: '/requirements'
-      fullPath: '/requirements/'
-      preLoaderRoute: typeof RequirementsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/o/': {
-      id: '/o/'
-      path: '/o'
-      fullPath: '/o/'
-      preLoaderRoute: typeof OIndexRouteImport
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
@@ -820,102 +785,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof ChatRoute
     }
-    '/workflows/$': {
-      id: '/workflows/$'
-      path: '/workflows/$'
-      fullPath: '/workflows/$'
-      preLoaderRoute: typeof WorkflowsSplatRouteImport
-      parentRoute: typeof rootRouteImport
+    '/chat/$threadId': {
+      id: '/chat/$threadId'
+      path: '/$threadId'
+      fullPath: '/chat/$threadId'
+      preLoaderRoute: typeof ChatThreadIdRouteImport
+      parentRoute: typeof ChatRoute
     }
-    '/triggers/webhooks': {
-      id: '/triggers/webhooks'
-      path: '/triggers/webhooks'
-      fullPath: '/triggers/webhooks'
-      preLoaderRoute: typeof TriggersWebhooksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/triggers/$': {
-      id: '/triggers/$'
-      path: '/triggers/$'
-      fullPath: '/triggers/$'
-      preLoaderRoute: typeof TriggersSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tasks/$': {
-      id: '/tasks/$'
-      path: '/tasks/$'
-      fullPath: '/tasks/$'
-      preLoaderRoute: typeof TasksSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/profile': {
-      id: '/settings/profile'
-      path: '/profile'
-      fullPath: '/settings/profile'
-      preLoaderRoute: typeof SettingsProfileRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/settings/password': {
-      id: '/settings/password'
-      path: '/password'
-      fullPath: '/settings/password'
-      preLoaderRoute: typeof SettingsPasswordRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/settings/obsidian': {
-      id: '/settings/obsidian'
-      path: '/obsidian'
-      fullPath: '/settings/obsidian'
-      preLoaderRoute: typeof SettingsObsidianRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/settings/notifications': {
-      id: '/settings/notifications'
-      path: '/notifications'
-      fullPath: '/settings/notifications'
-      preLoaderRoute: typeof SettingsNotificationsRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/settings/chat': {
-      id: '/settings/chat'
-      path: '/chat'
-      fullPath: '/settings/chat'
-      preLoaderRoute: typeof SettingsChatRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/settings/calendar': {
-      id: '/settings/calendar'
-      path: '/calendar'
-      fullPath: '/settings/calendar'
-      preLoaderRoute: typeof SettingsCalendarRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/requirements/$': {
-      id: '/requirements/$'
-      path: '/requirements/$'
-      fullPath: '/requirements/$'
-      preLoaderRoute: typeof RequirementsSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/p/$pluginId': {
-      id: '/p/$pluginId'
-      path: '/p/$pluginId'
-      fullPath: '/p/$pluginId'
-      preLoaderRoute: typeof PPluginIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/o/$': {
-      id: '/o/$'
-      path: '/o/$'
-      fullPath: '/o/$'
-      preLoaderRoute: typeof OSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/prisma': {
-      id: '/demo/prisma'
-      path: '/demo/prisma'
-      fullPath: '/demo/prisma'
-      preLoaderRoute: typeof DemoPrismaRouteImport
+    '/demo/better-auth': {
+      id: '/demo/better-auth'
+      path: '/demo/better-auth'
+      fullPath: '/demo/better-auth'
+      preLoaderRoute: typeof DemoBetterAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/error-display': {
@@ -925,95 +806,151 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoErrorDisplayRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/better-auth': {
-      id: '/demo/better-auth'
-      path: '/demo/better-auth'
-      fullPath: '/demo/better-auth'
-      preLoaderRoute: typeof DemoBetterAuthRouteImport
+    '/demo/prisma': {
+      id: '/demo/prisma'
+      path: '/demo/prisma'
+      fullPath: '/demo/prisma'
+      preLoaderRoute: typeof DemoPrismaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat/$threadId': {
-      id: '/chat/$threadId'
-      path: '/$threadId'
-      fullPath: '/chat/$threadId'
-      preLoaderRoute: typeof ChatThreadIdRouteImport
-      parentRoute: typeof ChatRoute
-    }
-    '/api/chat': {
-      id: '/api/chat'
-      path: '/api/chat'
-      fullPath: '/api/chat'
-      preLoaderRoute: typeof ApiChatRouteImport
+    '/o/': {
+      id: '/o/'
+      path: '/o'
+      fullPath: '/o/'
+      preLoaderRoute: typeof OIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workflows/editor/': {
-      id: '/workflows/editor/'
-      path: '/workflows/editor'
-      fullPath: '/workflows/editor/'
-      preLoaderRoute: typeof WorkflowsEditorIndexRouteImport
+    '/o/$': {
+      id: '/o/$'
+      path: '/o/$'
+      fullPath: '/o/$'
+      preLoaderRoute: typeof OSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/triggers/editor/': {
-      id: '/triggers/editor/'
-      path: '/triggers/editor'
-      fullPath: '/triggers/editor/'
-      preLoaderRoute: typeof TriggersEditorIndexRouteImport
+    '/p/$pluginId': {
+      id: '/p/$pluginId'
+      path: '/p/$pluginId'
+      fullPath: '/p/$pluginId'
+      preLoaderRoute: typeof PPluginIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tasks/editor/': {
-      id: '/tasks/editor/'
-      path: '/tasks/editor'
-      fullPath: '/tasks/editor/'
-      preLoaderRoute: typeof TasksEditorIndexRouteImport
+    '/requirements/': {
+      id: '/requirements/'
+      path: '/requirements'
+      fullPath: '/requirements/'
+      preLoaderRoute: typeof RequirementsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/plugins/': {
-      id: '/settings/plugins/'
-      path: '/plugins'
-      fullPath: '/settings/plugins/'
-      preLoaderRoute: typeof SettingsPluginsIndexRouteImport
+    '/requirements/$': {
+      id: '/requirements/$'
+      path: '/requirements/$'
+      fullPath: '/requirements/$'
+      preLoaderRoute: typeof RequirementsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
-    '/workflows/editor/$': {
-      id: '/workflows/editor/$'
-      path: '/workflows/editor/$'
-      fullPath: '/workflows/editor/$'
-      preLoaderRoute: typeof WorkflowsEditorSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/triggers/editor/$': {
-      id: '/triggers/editor/$'
-      path: '/triggers/editor/$'
-      fullPath: '/triggers/editor/$'
-      preLoaderRoute: typeof TriggersEditorSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tasks/editor/$': {
-      id: '/tasks/editor/$'
-      path: '/tasks/editor/$'
-      fullPath: '/tasks/editor/$'
-      preLoaderRoute: typeof TasksEditorSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/plugins/$pluginId': {
-      id: '/settings/plugins/$pluginId'
-      path: '/plugins/$pluginId'
-      fullPath: '/settings/plugins/$pluginId'
-      preLoaderRoute: typeof SettingsPluginsPluginIdRouteImport
+    '/settings/calendar': {
+      id: '/settings/calendar'
+      path: '/calendar'
+      fullPath: '/settings/calendar'
+      preLoaderRoute: typeof SettingsCalendarRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
-    '/p/$pluginId/$pageId': {
-      id: '/p/$pluginId/$pageId'
-      path: '/$pageId'
-      fullPath: '/p/$pluginId/$pageId'
-      preLoaderRoute: typeof PPluginIdPageIdRouteImport
-      parentRoute: typeof PPluginIdRoute
+    '/settings/chat': {
+      id: '/settings/chat'
+      path: '/chat'
+      fullPath: '/settings/chat'
+      preLoaderRoute: typeof SettingsChatRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleRouteImport
+    '/settings/notifications': {
+      id: '/settings/notifications'
+      path: '/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/obsidian': {
+      id: '/settings/obsidian'
+      path: '/obsidian'
+      fullPath: '/settings/obsidian'
+      preLoaderRoute: typeof SettingsObsidianRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/password': {
+      id: '/settings/password'
+      path: '/password'
+      fullPath: '/settings/password'
+      preLoaderRoute: typeof SettingsPasswordRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/profile': {
+      id: '/settings/profile'
+      path: '/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof SettingsProfileRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/tasks/': {
+      id: '/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks/'
+      preLoaderRoute: typeof TasksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks/$': {
+      id: '/tasks/$'
+      path: '/tasks/$'
+      fullPath: '/tasks/$'
+      preLoaderRoute: typeof TasksSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/': {
+      id: '/triggers/'
+      path: '/triggers'
+      fullPath: '/triggers/'
+      preLoaderRoute: typeof TriggersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/$': {
+      id: '/triggers/$'
+      path: '/triggers/$'
+      fullPath: '/triggers/$'
+      preLoaderRoute: typeof TriggersSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/webhooks': {
+      id: '/triggers/webhooks'
+      path: '/triggers/webhooks'
+      fullPath: '/triggers/webhooks'
+      preLoaderRoute: typeof TriggersWebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/': {
+      id: '/workflows/'
+      path: '/workflows'
+      fullPath: '/workflows/'
+      preLoaderRoute: typeof WorkflowsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/$': {
+      id: '/workflows/$'
+      path: '/workflows/$'
+      fullPath: '/workflows/$'
+      preLoaderRoute: typeof WorkflowsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/form/address': {
@@ -1023,11 +960,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoFormAddressRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
+    '/demo/form/simple': {
+      id: '/demo/form/simple'
+      path: '/demo/form/simple'
+      fullPath: '/demo/form/simple'
+      preLoaderRoute: typeof DemoFormSimpleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$pluginId/$pageId': {
+      id: '/p/$pluginId/$pageId'
+      path: '/$pageId'
+      fullPath: '/p/$pluginId/$pageId'
+      preLoaderRoute: typeof PPluginIdPageIdRouteImport
+      parentRoute: typeof PPluginIdRoute
+    }
+    '/settings/plugins/': {
+      id: '/settings/plugins/'
+      path: '/plugins'
+      fullPath: '/settings/plugins/'
+      preLoaderRoute: typeof SettingsPluginsIndexRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/plugins/$pluginId': {
+      id: '/settings/plugins/$pluginId'
+      path: '/plugins/$pluginId'
+      fullPath: '/settings/plugins/$pluginId'
+      preLoaderRoute: typeof SettingsPluginsPluginIdRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/tasks/editor/': {
+      id: '/tasks/editor/'
+      path: '/tasks/editor'
+      fullPath: '/tasks/editor/'
+      preLoaderRoute: typeof TasksEditorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks/editor/$': {
+      id: '/tasks/editor/$'
+      path: '/tasks/editor/$'
+      fullPath: '/tasks/editor/$'
+      preLoaderRoute: typeof TasksEditorSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/editor/': {
+      id: '/triggers/editor/'
+      path: '/triggers/editor'
+      fullPath: '/triggers/editor/'
+      preLoaderRoute: typeof TriggersEditorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/triggers/editor/$': {
+      id: '/triggers/editor/$'
+      path: '/triggers/editor/$'
+      fullPath: '/triggers/editor/$'
+      preLoaderRoute: typeof TriggersEditorSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/editor/': {
+      id: '/workflows/editor/'
+      path: '/workflows/editor'
+      fullPath: '/workflows/editor/'
+      preLoaderRoute: typeof WorkflowsEditorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/editor/$': {
+      id: '/workflows/editor/$'
+      path: '/workflows/editor/$'
+      fullPath: '/workflows/editor/$'
+      preLoaderRoute: typeof WorkflowsEditorSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/triggers/webhook/$apiKey': {
