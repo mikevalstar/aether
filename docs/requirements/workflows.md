@@ -155,7 +155,7 @@ Additional instructions from the user:
 2. Substitute `{{fieldName}}` placeholders in the prompt body with form values. Empty optional fields are replaced with `"not entered"`.
 3. Create a new `ChatThread` with `type: "workflow"`, `sourceWorkflowFile: filename`, title from workflow config
 4. Load workflow system prompt from `workflow-prompt.md`, substitute standard placeholders
-5. Enter agent loop via shared harness (`generateText()` with `stopWhen: stepCountIs(10)`, full tool access)
+5. Enter agent loop via shared harness (`generateText()` with `stopWhen: isStepCount(20)`, full tool access)
 6. On completion: serialize messages into `messagesJson`, update usage fields
 7. Create `ChatUsageEvent` with `taskType: "workflow"`
 8. Create `ActivityLog` entry with `type: "workflow"` and metadata `{ workflowFile, chatThreadId, model, inputTokens, outputTokens, estimatedCostUsd, durationMs, success, formValues }`

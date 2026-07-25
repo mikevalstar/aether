@@ -168,10 +168,11 @@ This ensures the thread has the user's message even if streaming fails.
 - **System prompt**: the configured prompt
 - **Messages**: converted via `convertToModelMessages()`
 - **Tools**: full tool set
-- **`stopWhen: stepCountIs(10)`** — limits agentic tool-use loops to 10 steps
+- **`stopWhen: isStepCount(20)`** — limits agentic tool-use loops to 20 steps
 - **Provider options**: ephemeral cache control, effort level (if supported by model)
 
-The response is converted to a UI message stream via `toUIMessageStreamResponse()` with:
+The response is converted to a UI message stream via the standalone `toUIMessageStream()` helper
+(over `result.stream`), wrapped in `createUIMessageStreamResponse()`, with:
 
 **`messageMetadata` callback:**
 - On `start`: sets `createdAt` timestamp and `model` on the assistant message metadata

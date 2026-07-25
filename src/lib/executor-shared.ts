@@ -1,4 +1,4 @@
-import { generateText, stepCountIs } from "ai";
+import { generateText, isStepCount } from "ai";
 import { nanoid } from "nanoid";
 import { prisma } from "#/db";
 import { createAiTools, getModel } from "#/lib/ai-tools";
@@ -123,11 +123,11 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     timer.start();
     const result = await generateText({
       model: getModel(ctx.model),
-      system: ctx.systemPrompt,
+      instructions: ctx.systemPrompt,
       prompt: ctx.userPrompt,
       tools: timedTools,
-      stopWhen: stepCountIs(20),
-      onStepFinish: (step) => timer.markStep(step.usage),
+      stopWhen: isStepCount(20),
+      onStepEnd: (step) => timer.markStep(step.usage),
       ...(maxOutputTokens && { maxOutputTokens }),
       providerOptions: {
         ...(isAnthropic && {
@@ -144,11 +144,12 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     });
 
     const messagesJson = JSON.stringify(result.response.messages);
-    // `result.usage` covers only the final step; this is a `stopWhen: stepCountIs(20)`
-    // agent loop, so cost and tokens/sec must come from the all-step total.
-    const usage = usageTotalsFromLanguageModelUsage(result.totalUsage);
+    // This is a `stopWhen: isStepCount(20)` agent loop, so cost and tokens/sec must
+    // cover every step. As of AI SDK v7 `result.usage` is the all-step sum (in v6 it
+    // was final-step-only, which undercounted; `totalUsage` is now deprecated).
+    const usage = usageTotalsFromLanguageModelUsage(result.usage);
     const estimatedCost = estimateChatUsageCostUsd(ctx.model, usage, modelDef?.pricing);
-    const timing = timer.finish(result.totalUsage);
+    const timing = timer.finish(result.usage);
 
     const usageEntry = {
       id: `usage_${nanoid(10)}`,

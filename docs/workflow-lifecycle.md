@@ -170,7 +170,7 @@ This is handled by `resolveModel()` and `resolveEffort()` helper functions.
 5. Load the shared system prompt via `readWorkflowPromptConfig()`
 6. Create AI tools via `createAiTools()` (full tool access — file reading, web search, etc.)
 7. Call the Anthropic API via `generateText()` with:
-   - `stopWhen: stepCountIs(10)` — maximum 10 agentic tool-use steps
+   - `stopWhen: isStepCount(20)` — maximum 20 agentic tool-use steps
    - Ephemeral cache control headers
    - `effort` parameter if the model supports it
 

@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   convertToModelMessages,
   createIdGenerator,
+  createUIMessageStreamResponse,
   generateText,
+  isStepCount,
   type LanguageModelUsage,
-  stepCountIs,
   streamText,
+  toUIMessageStream,
 } from "ai";
 import { nanoid } from "nanoid";
 import { z } from "zod";
@@ -63,7 +65,7 @@ async function generateChatTitle(userMessage: string): Promise<TitleGenerationRe
 
     const { text, usage } = await generateText({
       model: getModel(titleModel),
-      system: titleSystemPrompt,
+      instructions: titleSystemPrompt,
       prompt: userMessage,
     });
 
@@ -359,14 +361,14 @@ export const Route = createFileRoute("/api/chat")({
         timer.start();
         const result = streamText({
           model: getModel(model),
-          system: systemPrompt,
+          instructions: systemPrompt,
           messages: await convertToModelMessages(incomingMessages),
           tools: timedTools,
-          stopWhen: stepCountIs(20),
+          stopWhen: isStepCount(20),
           onChunk: ({ chunk }) => {
             if (chunk.type === "text-delta" || chunk.type === "reasoning-delta") timer.markFirstChunk();
           },
-          onStepFinish: (step) => timer.markStep(step.usage),
+          onStepEnd: (step) => timer.markStep(step.usage),
           ...(maxOutputTokens && { maxOutputTokens }),
           providerOptions: {
             ...(isAnthropic && {
@@ -393,150 +395,153 @@ export const Route = createFileRoute("/api/chat")({
           },
         });
 
-        return result.toUIMessageStreamResponse({
-          originalMessages: incomingMessages,
-          sendReasoning: true,
-          onError: (error) => {
-            const message = error instanceof Error ? error.message : String(error);
-            logger.error({ threadId: thread.id, model, err: message }, "Chat UI stream error");
-            return message;
-          },
-          generateMessageId: createIdGenerator({
-            prefix: "msg",
-            size: 16,
-          }),
-          messageMetadata: ({ part }) => {
-            if (part.type === "start") {
-              return {
-                createdAt: Date.now(),
-                model,
-              };
-            }
-
-            if (part.type === "finish") {
-              const update = createUsageUpdate(part.totalUsage, incomingMessages);
-
-              return {
-                model,
-                usage: update.exchangeUsage,
-                totals: update.nextTotals,
-                usageEntry: update.usageEntry,
-              };
-            }
-          },
-          onFinish: async ({ messages }) => {
-            const finalMessages = messages as AppChatMessage[];
-
-            // Persisting the assistant reply is the only critical step here. Usage
-            // events, title-usage bookkeeping, and embeddings are best-effort: a
-            // failure in any of them must never lose the user's message or escape
-            // as an unhandled rejection (which bypasses the logger entirely).
-            try {
-              const totalUsage = await result.totalUsage;
-              const update = createUsageUpdate(totalUsage, finalMessages);
-              const timing = timer.finish(totalUsage);
-              logger.info(
-                {
-                  threadId: thread.id,
+        return createUIMessageStreamResponse({
+          stream: toUIMessageStream({
+            stream: result.stream,
+            originalMessages: incomingMessages,
+            sendReasoning: true,
+            onError: (error) => {
+              const message = error instanceof Error ? error.message : String(error);
+              logger.error({ threadId: thread.id, model, err: message }, "Chat UI stream error");
+              return message;
+            },
+            generateMessageId: createIdGenerator({
+              prefix: "msg",
+              size: 16,
+            }),
+            messageMetadata: ({ part }) => {
+              if (part.type === "start") {
+                return {
+                  createdAt: Date.now(),
                   model,
-                  inputTokens: update.exchangeUsage.inputTokens,
-                  outputTokens: update.exchangeUsage.outputTokens,
-                  costUsd: update.exchangeUsage.estimatedCostUsd,
-                },
-                "Chat response completed",
-              );
+                };
+              }
 
-              // 1) Critical: save the messages + thread totals.
-              await prisma.chatThread.update({
-                where: { id: thread.id },
-                data: {
+              if (part.type === "finish") {
+                const update = createUsageUpdate(part.totalUsage, incomingMessages);
+
+                return {
                   model,
-                  modelLabel: modelMeta.modelLabel,
-                  modelProvider: modelMeta.modelProvider,
-                  messagesJson: serializeMessages(finalMessages),
-                  usageHistoryJson: serializeUsageHistory(update.nextUsageHistory),
-                  totalInputTokens: update.nextTotals.inputTokens,
-                  totalOutputTokens: update.nextTotals.outputTokens,
-                  totalEstimatedCostUsd: update.nextTotals.estimatedCostUsd,
-                  systemPromptJson: JSON.stringify(systemPrompt),
-                  availableToolsJson: JSON.stringify(toolNames),
-                },
-              });
+                  usage: update.exchangeUsage,
+                  totals: update.nextTotals,
+                  usageEntry: update.usageEntry,
+                };
+              }
+            },
+            onEnd: async ({ messages }) => {
+              const finalMessages = messages as AppChatMessage[];
 
-              // 2) Best-effort: usage events (separate so a failure here cannot
-              //    roll back the saved message above).
+              // Persisting the assistant reply is the only critical step here. Usage
+              // events, title-usage bookkeeping, and embeddings are best-effort: a
+              // failure in any of them must never lose the user's message or escape
+              // as an unhandled rejection (which bypasses the logger entirely).
               try {
-                const titleEventsWithMeta = await Promise.all(
-                  titleUsageEvents.map(async (titleEvent) => ({
-                    ...titleEvent,
-                    meta: await snapshotModelMeta(titleEvent.model, session.user.id),
-                  })),
+                const totalUsage = await result.usage;
+                const update = createUsageUpdate(totalUsage, finalMessages);
+                const timing = timer.finish(totalUsage);
+                logger.info(
+                  {
+                    threadId: thread.id,
+                    model,
+                    inputTokens: update.exchangeUsage.inputTokens,
+                    outputTokens: update.exchangeUsage.outputTokens,
+                    costUsd: update.exchangeUsage.estimatedCostUsd,
+                  },
+                  "Chat response completed",
                 );
 
-                await prisma.$transaction([
-                  ...titleEventsWithMeta.map((titleEvent) =>
+                // 1) Critical: save the messages + thread totals.
+                await prisma.chatThread.update({
+                  where: { id: thread.id },
+                  data: {
+                    model,
+                    modelLabel: modelMeta.modelLabel,
+                    modelProvider: modelMeta.modelProvider,
+                    messagesJson: serializeMessages(finalMessages),
+                    usageHistoryJson: serializeUsageHistory(update.nextUsageHistory),
+                    totalInputTokens: update.nextTotals.inputTokens,
+                    totalOutputTokens: update.nextTotals.outputTokens,
+                    totalEstimatedCostUsd: update.nextTotals.estimatedCostUsd,
+                    systemPromptJson: JSON.stringify(systemPrompt),
+                    availableToolsJson: JSON.stringify(toolNames),
+                  },
+                });
+
+                // 2) Best-effort: usage events (separate so a failure here cannot
+                //    roll back the saved message above).
+                try {
+                  const titleEventsWithMeta = await Promise.all(
+                    titleUsageEvents.map(async (titleEvent) => ({
+                      ...titleEvent,
+                      meta: await snapshotModelMeta(titleEvent.model, session.user.id),
+                    })),
+                  );
+
+                  await prisma.$transaction([
+                    ...titleEventsWithMeta.map((titleEvent) =>
+                      prisma.chatUsageEvent.create({
+                        data: {
+                          id: `usage_event_${nanoid(10)}`,
+                          userId: session.user.id,
+                          threadId: thread.id,
+                          model: titleEvent.model,
+                          modelLabel: titleEvent.meta.modelLabel,
+                          modelProvider: titleEvent.meta.modelProvider,
+                          taskType: titleEvent.taskType,
+                          inputTokens: titleEvent.exchangeUsage.inputTokens,
+                          outputTokens: titleEvent.exchangeUsage.outputTokens,
+                          totalTokens: titleEvent.exchangeUsage.totalTokens,
+                          estimatedCostUsd: titleEvent.exchangeUsage.estimatedCostUsd,
+                          createdAt: new Date(titleEvent.createdAt),
+                        },
+                      }),
+                    ),
                     prisma.chatUsageEvent.create({
                       data: {
                         id: `usage_event_${nanoid(10)}`,
                         userId: session.user.id,
                         threadId: thread.id,
-                        model: titleEvent.model,
-                        modelLabel: titleEvent.meta.modelLabel,
-                        modelProvider: titleEvent.meta.modelProvider,
-                        taskType: titleEvent.taskType,
-                        inputTokens: titleEvent.exchangeUsage.inputTokens,
-                        outputTokens: titleEvent.exchangeUsage.outputTokens,
-                        totalTokens: titleEvent.exchangeUsage.totalTokens,
-                        estimatedCostUsd: titleEvent.exchangeUsage.estimatedCostUsd,
-                        createdAt: new Date(titleEvent.createdAt),
+                        model,
+                        modelLabel: modelMeta.modelLabel,
+                        modelProvider: modelMeta.modelProvider,
+                        taskType: "chat",
+                        inputTokens: update.exchangeUsage.inputTokens,
+                        outputTokens: update.exchangeUsage.outputTokens,
+                        totalTokens: update.exchangeUsage.totalTokens,
+                        estimatedCostUsd: update.exchangeUsage.estimatedCostUsd,
+                        ...timingToEventFields(timing),
+                        createdAt: new Date(update.usageEntry.createdAt),
                       },
                     }),
-                  ),
-                  prisma.chatUsageEvent.create({
-                    data: {
-                      id: `usage_event_${nanoid(10)}`,
-                      userId: session.user.id,
+                  ]);
+                } catch (err) {
+                  logger.error(
+                    {
                       threadId: thread.id,
                       model,
-                      modelLabel: modelMeta.modelLabel,
-                      modelProvider: modelMeta.modelProvider,
-                      taskType: "chat",
-                      inputTokens: update.exchangeUsage.inputTokens,
-                      outputTokens: update.exchangeUsage.outputTokens,
-                      totalTokens: update.exchangeUsage.totalTokens,
-                      estimatedCostUsd: update.exchangeUsage.estimatedCostUsd,
-                      ...timingToEventFields(timing),
-                      createdAt: new Date(update.usageEntry.createdAt),
+                      err: err instanceof Error ? { message: err.message, stack: err.stack } : err,
                     },
-                  }),
-                ]);
+                    "Failed to record chat usage events (message was still saved)",
+                  );
+                }
+
+                // 3) Best-effort: embedding for semantic search.
+                embedThread(thread.id).catch((err) => {
+                  logger.error({ err, threadId: thread.id }, "Failed to update chat embedding");
+                });
               } catch (err) {
                 logger.error(
                   {
                     threadId: thread.id,
                     model,
+                    provider: modelDef?.provider,
                     err: err instanceof Error ? { message: err.message, stack: err.stack } : err,
                   },
-                  "Failed to record chat usage events (message was still saved)",
+                  "Chat onEnd failed — assistant message may not have been saved",
                 );
               }
-
-              // 3) Best-effort: embedding for semantic search.
-              embedThread(thread.id).catch((err) => {
-                logger.error({ err, threadId: thread.id }, "Failed to update chat embedding");
-              });
-            } catch (err) {
-              logger.error(
-                {
-                  threadId: thread.id,
-                  model,
-                  provider: modelDef?.provider,
-                  err: err instanceof Error ? { message: err.message, stack: err.stack } : err,
-                },
-                "Chat onFinish failed — assistant message may not have been saved",
-              );
-            }
-          },
+            },
+          }),
         });
       },
     },

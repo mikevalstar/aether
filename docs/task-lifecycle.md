@@ -113,12 +113,15 @@ Creates a cron job with:
 6. **Call Anthropic API** — `generateText()` from Vercel AI SDK with:
    - System prompt from `task-prompt.md` (read via `readTaskPromptConfig()`)
    - Task body as the user prompt
-   - `stopWhen: stepCountIs(10)` — max 10 tool-use steps
+   - `stopWhen: isStepCount(20)` — max 20 tool-use steps
    - `maxTokens` override if set in frontmatter
    - `effort` applied via `providerOptions.anthropic` if the model supports it
    - Ephemeral cache control enabled
 
 ### On success
+
+Token counts and cost come from `result.usage`, which as of AI SDK v7 is the sum across every
+step of the agent loop (not just the final step), so multi-step runs are billed in full.
 
 A single `prisma.$transaction` writes:
 - **ChatThread update** — stores `messagesJson`, `usageHistoryJson`, token counts, cost, system prompt, tool names
