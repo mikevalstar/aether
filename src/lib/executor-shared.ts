@@ -144,9 +144,11 @@ export async function executePrompt(ctx: ExecutionContext): Promise<{ threadId: 
     });
 
     const messagesJson = JSON.stringify(result.response.messages);
-    const usage = usageTotalsFromLanguageModelUsage(result.usage);
+    // `result.usage` covers only the final step; this is a `stopWhen: stepCountIs(20)`
+    // agent loop, so cost and tokens/sec must come from the all-step total.
+    const usage = usageTotalsFromLanguageModelUsage(result.totalUsage);
     const estimatedCost = estimateChatUsageCostUsd(ctx.model, usage, modelDef?.pricing);
-    const timing = timer.finish(result.usage);
+    const timing = timer.finish(result.totalUsage);
 
     const usageEntry = {
       id: `usage_${nanoid(10)}`,
