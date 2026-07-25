@@ -1,4 +1,4 @@
-import { readUIMessageStream, stepCountIs, streamText, tool, type UIMessage } from "ai";
+import { isStepCount, readUIMessageStream, streamText, tool, toUIMessageStream, type UIMessage } from "ai";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { prisma } from "#/db";
@@ -147,14 +147,14 @@ async function runSubAgent(
     timer.start();
     const result = streamText({
       model: getModel(state.model),
-      system: systemPrompt,
+      instructions: systemPrompt,
       prompt: userPrompt,
       tools: timedTools,
-      stopWhen: stepCountIs(20),
+      stopWhen: isStepCount(20),
       onChunk: ({ chunk }) => {
         if (chunk.type === "text-delta" || chunk.type === "reasoning-delta") timer.markFirstChunk();
       },
-      onStepFinish: (step) => timer.markStep(step.usage),
+      onStepEnd: (step) => timer.markStep(step.usage),
       ...(maxOutputTokens && { maxOutputTokens }),
       providerOptions: {
         ...(isAnthropic && {
@@ -175,7 +175,7 @@ async function runSubAgent(
     const assistantMessages: UIMessage[] = [];
     const assistantById = new Map<string, UIMessage>();
 
-    for await (const message of readUIMessageStream({ stream: result.toUIMessageStream() })) {
+    for await (const message of readUIMessageStream({ stream: toUIMessageStream({ stream: result.stream }) })) {
       if (!assistantById.has(message.id)) {
         assistantById.set(message.id, message);
         assistantMessages.push(message);
@@ -196,7 +196,7 @@ async function runSubAgent(
       notify();
     }
 
-    const totalUsage = await result.totalUsage;
+    const totalUsage = await result.usage;
     const usage = usageTotalsFromLanguageModelUsage(totalUsage);
     const estimatedCost = estimateChatUsageCostUsd(state.model, usage, modelDef?.pricing);
     const timing = timer.finish(totalUsage);

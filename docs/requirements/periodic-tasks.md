@@ -28,7 +28,7 @@ canonical_file: docs/requirements/periodic-tasks.md
 | Task system prompt | done | Configurable AI config file (`task-prompt.md`) similar to `system-prompt.md` and `title-prompt.md`, used as the system prompt for all task executions |
 | Zod validator | done | Validators for task files and task-prompt following existing `ai-config-validators` pattern with real-time editor feedback |
 | Scheduler runtime | done | In-process singleton scheduler (same pattern as `vault-index.ts`) with chokidar file watching on `tasks/` for dynamic add/remove/update |
-| Task execution | done | Execute task prompt via `generateText` with full tool access and multi-turn agent loop (via `stepCountIs(10)`) |
+| Task execution | done | Execute task prompt via `generateText` with full tool access and multi-turn agent loop (via `isStepCount(20)`) |
 | Database — Task table | done | `Task` table tracking each task file's metadata, last run time, last status — persists across restarts and file deletions |
 | Database — ChatThread type | done | Store task runs in `ChatThread` table with a `type` discriminator column (`chat` vs `task`) |
 | Usage tracking | done | Track token usage per task run via `ChatUsageEvent` with `taskType: "task"` |
@@ -47,7 +47,7 @@ canonical_file: docs/requirements/periodic-tasks.md
 | Task file format & validation | done | Frontmatter schema + zod validator for `tasks/*.md` | Inline |
 | Task system prompt config | done | `task-prompt.md` AI config file for task system prompt | Inline |
 | Scheduler engine | done | Singleton with chokidar watcher, cron scheduling, eager init on import | Inline |
-| Task execution pipeline | done | Prompt → `generateText` with `stepCountIs(10)` → store result | Inline |
+| Task execution pipeline | done | Prompt → `generateText` with `isStepCount(20)` → store result | Inline |
 | Schema migration | done | New `Task` table + `type` column on `ChatThread`, filter existing queries | Inline |
 | Task management UI | done | List view + run history viewer at `/tasks` | Inline |
 | CLI tooling | done | Seed examples, pull config | Inline |
@@ -113,7 +113,7 @@ canonical_file: docs/requirements/periodic-tasks.md
 
 ### Task execution
 
-The task executor (`src/lib/task-executor.ts`) uses Vercel AI SDK's `generateText` directly with full tool access and multi-turn capabilities via `stopWhen: stepCountIs(10)`. This is separate from the chat API route which uses `streamText` for SSE streaming. No shared "chat harness" module was extracted — the two paths remain independent.
+The task executor (`src/lib/task-executor.ts`) uses Vercel AI SDK's `generateText` directly with full tool access and multi-turn capabilities via `stopWhen: isStepCount(20)`. This is separate from the chat API route which uses `streamText` for SSE streaming. No shared "chat harness" module was extracted — the two paths remain independent.
 
 **Key differences between chat and task execution:**
 
@@ -124,7 +124,7 @@ The task executor (`src/lib/task-executor.ts`) uses Vercel AI SDK's `generateTex
 | Conversation history | Multi-turn with prior messages | Single user message (the task prompt) |
 | Token limit | None (user-controlled) | Optional `maxTokens` from config |
 | Thread type | `type: "chat"` | `type: "task"` |
-| Agent loop | `stepCountIs(10)` via `streamText` | `stepCountIs(10)` via `generateText` |
+| Agent loop | `isStepCount(20)` via `streamText` | `isStepCount(20)` via `generateText` |
 
 ### Scheduler engine
 
@@ -243,7 +243,7 @@ System tasks use the same croner options (`protect`, `catch`, `unref`, timezone)
 6. Create a new `ChatThread` record with `type: "task"`, `sourceTaskFile: filename`, title from config, model and effort
 7. Substitute placeholders in task body (`{{date}}`, `{{userName}}`, `{{aiMemoryPath}}`)
 8. Create AI tools via `createAiTools()` with admin user context
-9. Call `generateText` with the task prompt, system prompt, tools, and `stopWhen: stepCountIs(10)` for multi-turn agent loop
+9. Call `generateText` with the task prompt, system prompt, tools, and `stopWhen: isStepCount(20)` for multi-turn agent loop
 10. On completion: serialize all response messages into `messagesJson`, calculate usage and cost, update thread, create `ChatUsageEvent` with `taskType: "task"`, create `ActivityLog` entry with type `cron_task`, update `Task` row with `lastRunAt`, `lastRunStatus: "success"`, `lastThreadId` — all in a single transaction
 11. Send notification based on `notification` level (skip if `silent`, push to phone if `push`)
 12. On error: store error message in the thread, log activity with `success: false`, update `Task` row with `lastRunStatus: "error"`, send failure notification (always pushes to phone on error unless `silent`)
@@ -341,7 +341,7 @@ Suggested build order:
 2. **Task file format + validator** — Zod schema, validator registration, example files in `examples/ai-config/tasks/`
 3. **Task system prompt** — `task-prompt.md` config file, validator, example, config reader with fallback
 4. **Scheduler engine** — Install cron library, build singleton scheduler with chokidar watcher (mirror `vault-index.ts` pattern), `DISABLE_CRON` env check
-5. **Execution pipeline** — Wire scheduler triggers to `generateText` with `stepCountIs(10)`, store results, track usage, log activity
+5. **Execution pipeline** — Wire scheduler triggers to `generateText` with `isStepCount(20)`, store results, track usage, log activity
 6. **UI — Task list** — Route, server functions, list component with cron display, status, and `DISABLE_CRON` banner
 7. **UI — Run history** — Run detail view with rendered markdown responses via shared `RunMessages` component
 8. **CLI updates** — Seed/pull scripts already handle tasks via recursive directory copy
