@@ -1,5 +1,5 @@
 import { addMonths, subMonths } from "date-fns";
-import ical, { type ParameterValue } from "node-ical";
+import ical, { type ParameterValue, type VEvent } from "node-ical";
 import { logger } from "#/lib/logger";
 import type { CalendarAttendee, CalendarEvent, CalendarFeed, CalendarOrganizer } from "./types";
 
@@ -14,7 +14,7 @@ function isValidDate(date: unknown): date is Date {
   return date instanceof Date && !Number.isNaN(date.getTime());
 }
 
-function normalizeEvent(vevent: ical.VEvent, feed: CalendarFeed, start: Date, end: Date): CalendarEvent | null {
+function normalizeEvent(vevent: VEvent, feed: CalendarFeed, start: Date, end: Date): CalendarEvent | null {
   if (!isValidDate(start) || !isValidDate(end)) {
     console.warn(`[ical-parser] Skipping event with invalid date: ${vevent.uid}`, {
       start: String(start),
@@ -140,7 +140,7 @@ export async function fetchAndParseIcal(feed: CalendarFeed): Promise<CalendarEve
     for (const component of Object.values(parsed)) {
       if (!component || component.type !== "VEVENT") continue;
 
-      const vevent = component as ical.VEvent;
+      const vevent = component as VEvent;
 
       if (vevent.rrule) {
         const instances = ical.expandRecurringEvent(vevent, {
